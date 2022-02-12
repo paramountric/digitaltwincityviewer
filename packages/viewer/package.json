@@ -1,5 +1,5 @@
 {
-  "name": "@dtcc/viewport",
+  "name": "@dtcc/viewer",
   "version": "1.0.0",
   "description": "A viewport container component for layers and panels",
   "main": "index.js",
