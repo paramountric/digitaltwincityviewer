@@ -1,7 +1,7 @@
-import { Viewer } from "./Viewer";
+import { Viewer } from './Viewer';
 
 function bootstrap() {
-  const viewer = new Viewer;
+  new Viewer();
 }
 
 export default bootstrap;

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "webpack serve --config webpack.dev.config.js",
+    "tsc": "tsc",
     "lint": "eslint --ext .ts,.js src",
     "format": "prettier --ignore-path .eslintignore --write \"src/**/*.+(js|ts|json)\"",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -26,6 +27,7 @@
   },
   "dependencies": {
     "@luma.gl/engine": "^8.5.10",
+    "@luma.gl/gltools": "^8.5.10",
     "@luma.gl/webgl": "^8.5.10",
     "mjolnir.js": "^2.7.0-alpha.1"
   }
