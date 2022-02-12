@@ -3,8 +3,9 @@ import { AnimationLoopProps } from '@luma.gl/engine/src/lib/animation-loop';
 import { createGLContext, resizeGLContext } from '@luma.gl/gltools';
 import { EventManager } from 'mjolnir.js';
 import { MjolnirEvent } from 'mjolnir.js/dist/es5/types';
+import { Transform } from './Transform';
 
-type ViewerProps = {
+export type ViewerProps = {
   parent?: HTMLCanvasElement; // prepare for headless
   width?: number;
   height?: number;
@@ -14,6 +15,7 @@ export class Viewer {
   props: ViewerProps;
   animationLoop: AnimationLoop;
   eventManager: EventManager;
+  transform: Transform;
   constructor(viewerProps: ViewerProps = {}) {
     this.props = viewerProps;
     // create and append canvas
@@ -31,10 +33,10 @@ export class Viewer {
       onInitialize: this.init.bind(this),
       onRender: this.renderLayers.bind(this),
     };
-    (this.animationLoop = new AnimationLoop(
+    this.animationLoop = new AnimationLoop(
       Object.assign(defaultAnimationLoopProps)
-    )),
-      this.update(viewerProps);
+    );
+    this.update(viewerProps);
     this.animationLoop.start({
       width: viewerProps.width,
       height: viewerProps.height,
@@ -42,7 +44,9 @@ export class Viewer {
   }
   public update(viewerProps: ViewerProps): void {
     Object.assign(this.props, viewerProps);
-    console.log();
+    if (this.transform) {
+      this.transform.update(this.props);
+    }
   }
   private init(animationLoopProps: AnimationLoopProps) {
     this.eventManager = new EventManager(animationLoopProps.gl.canvas, {
@@ -54,6 +58,7 @@ export class Viewer {
         click: this.onClick,
       },
     });
+    this.transform = new Transform(this.props);
     resizeGLContext(animationLoopProps.gl, {
       useDevicePixels: true,
       width: this.props.width || window.innerWidth,
