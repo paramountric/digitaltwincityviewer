@@ -1,4 +1,5 @@
 import { AnimationLoop } from '@luma.gl/engine';
+import { AnimationLoopProps } from '@luma.gl/engine/src/lib/animation-loop';
 import { createGLContext, resizeGLContext } from '@luma.gl/gltools';
 import { EventManager } from 'mjolnir.js';
 
@@ -11,23 +12,24 @@ type ViewerProps = {
 };
 
 export class Viewer {
+  props: ViewerProps;
   animationLoop: AnimationLoop;
   eventManager: EventManager;
   constructor(props: ViewerProps = {}) {
+    this.props = props;
+    // create and append canvas
     const canvas: HTMLCanvasElement = document.createElement('canvas');
     canvas.id = 'dtcv-canvas';
     const parent = props.parent || document.body;
     parent.appendChild(canvas);
-
+    // create animation loop and start
     this.animationLoop = new AnimationLoop({
-      onCreateContext: opts => {
-        const ctx = createGLContext({
+      onCreateContext: opts =>
+        createGLContext({
           ...opts,
           canvas,
-        });
-        this.init(ctx, props);
-        return ctx;
-      },
+        }),
+      onInitialize: this.init.bind(this),
       onRender: this.renderLayers.bind(this),
     });
     this.animationLoop.start({
@@ -35,11 +37,11 @@ export class Viewer {
       height: props.height,
     });
   }
-  init(ctx: WebGLRenderingContext, props: ViewerProps) {
-    resizeGLContext(ctx, {
+  init(ctx: AnimationLoopProps) {
+    resizeGLContext(ctx.gl, {
       useDevicePixels: true,
-      width: props.width || window.innerWidth,
-      height: props.height || window.innerHeight,
+      width: this.props.width || window.innerWidth,
+      height: this.props.height || window.innerHeight,
     });
   }
   renderLayers() {
