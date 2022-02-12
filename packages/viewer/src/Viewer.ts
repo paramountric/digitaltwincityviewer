@@ -2,8 +2,7 @@ import { AnimationLoop } from '@luma.gl/engine';
 import { AnimationLoopProps } from '@luma.gl/engine/src/lib/animation-loop';
 import { createGLContext, resizeGLContext } from '@luma.gl/gltools';
 import { EventManager } from 'mjolnir.js';
-
-// todo: transformations, eventmanager
+import { MjolnirEvent } from 'mjolnir.js/dist/es5/types';
 
 type ViewerProps = {
   parent?: HTMLCanvasElement; // prepare for headless
@@ -46,6 +45,15 @@ export class Viewer {
     console.log();
   }
   private init(animationLoopProps: AnimationLoopProps) {
+    this.eventManager = new EventManager(animationLoopProps.gl.canvas, {
+      events: {
+        panstart: this.onDragStart,
+        panmove: this.onDrag,
+        panend: this.onDragEnd,
+        pointermove: this.onMouseMove,
+        click: this.onClick,
+      },
+    });
     resizeGLContext(animationLoopProps.gl, {
       useDevicePixels: true,
       width: this.props.width || window.innerWidth,
@@ -54,5 +62,20 @@ export class Viewer {
   }
   private renderLayers() {
     console.log('render layers');
+  }
+  private onDragStart(evt: MjolnirEvent) {
+    console.log(evt);
+  }
+  private onDrag(evt: MjolnirEvent) {
+    console.log(evt);
+  }
+  private onDragEnd(evt: MjolnirEvent) {
+    console.log(evt);
+  }
+  private onMouseMove(evt: MjolnirEvent) {
+    console.log(evt);
+  }
+  private onClick(evt: MjolnirEvent) {
+    console.log(evt);
   }
 }
