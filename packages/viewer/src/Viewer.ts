@@ -23,7 +23,7 @@ export class Viewer {
     const parent = viewerProps.parent || document.body;
     parent.appendChild(canvas);
     // create animation loop and start
-    this.animationLoop = new AnimationLoop({
+    const defaultAnimationLoopProps: AnimationLoopProps = {
       onCreateContext: ctxOptions =>
         createGLContext({
           ...ctxOptions,
@@ -31,20 +31,28 @@ export class Viewer {
         }),
       onInitialize: this.init.bind(this),
       onRender: this.renderLayers.bind(this),
-    });
+    };
+    (this.animationLoop = new AnimationLoop(
+      Object.assign(defaultAnimationLoopProps)
+    )),
+      this.update(viewerProps);
     this.animationLoop.start({
       width: viewerProps.width,
       height: viewerProps.height,
     });
   }
-  init(animationLoopProps: AnimationLoopProps) {
+  public update(viewerProps: ViewerProps): void {
+    Object.assign(this.props, viewerProps);
+    console.log();
+  }
+  private init(animationLoopProps: AnimationLoopProps) {
     resizeGLContext(animationLoopProps.gl, {
       useDevicePixels: true,
       width: this.props.width || window.innerWidth,
       height: this.props.height || window.innerHeight,
     });
   }
-  renderLayers() {
+  private renderLayers() {
     console.log('render layers');
   }
 }
