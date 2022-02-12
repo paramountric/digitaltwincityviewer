@@ -1,4 +1,4 @@
-import {EventManager} from 'mjolnir.js';
+import { EventManager } from 'mjolnir.js';
 
 // todo: transformations, eventmanager
 
