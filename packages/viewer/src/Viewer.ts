@@ -15,30 +15,30 @@ export class Viewer {
   props: ViewerProps;
   animationLoop: AnimationLoop;
   eventManager: EventManager;
-  constructor(props: ViewerProps = {}) {
-    this.props = props;
+  constructor(viewerProps: ViewerProps = {}) {
+    this.props = viewerProps;
     // create and append canvas
     const canvas: HTMLCanvasElement = document.createElement('canvas');
     canvas.id = 'dtcv-canvas';
-    const parent = props.parent || document.body;
+    const parent = viewerProps.parent || document.body;
     parent.appendChild(canvas);
     // create animation loop and start
     this.animationLoop = new AnimationLoop({
-      onCreateContext: opts =>
+      onCreateContext: ctxOptions =>
         createGLContext({
-          ...opts,
+          ...ctxOptions,
           canvas,
         }),
       onInitialize: this.init.bind(this),
       onRender: this.renderLayers.bind(this),
     });
     this.animationLoop.start({
-      width: props.width,
-      height: props.height,
+      width: viewerProps.width,
+      height: viewerProps.height,
     });
   }
-  init(ctx: AnimationLoopProps) {
-    resizeGLContext(ctx.gl, {
+  init(animationLoopProps: AnimationLoopProps) {
+    resizeGLContext(animationLoopProps.gl, {
       useDevicePixels: true,
       width: this.props.width || window.innerWidth,
       height: this.props.height || window.innerHeight,
