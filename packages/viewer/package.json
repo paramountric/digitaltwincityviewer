@@ -10,7 +10,10 @@
   "author": "andreas@paramountric.com",
   "license": "MIT",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.11.0",
+    "@typescript-eslint/parser": "^5.11.0",
     "clean-webpack-plugin": "^4.0.0",
+    "eslint": "^8.9.0",
     "html-webpack-plugin": "^5.5.0",
     "ts-loader": "^9.2.6",
     "typescript": "^4.5.5",
