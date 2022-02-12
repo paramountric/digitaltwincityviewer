@@ -1,1 +1,3 @@
-console.log('init');
+import bootstrap from "./bootstrap";
+
+bootstrap();

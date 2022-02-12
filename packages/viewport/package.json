@@ -17,5 +17,10 @@
     "webpack": "^5.68.0",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.7.4"
+  },
+  "dependencies": {
+    "@luma.gl/engine": "^8.5.10",
+    "@luma.gl/webgl": "^8.5.10",
+    "mjolnir.js": "^2.7.0-alpha.1"
   }
 }
