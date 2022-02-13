@@ -16,8 +16,8 @@ export class Transform {
     this.update(viewerProps);
   }
   public update(viewerProps: ViewerProps) {
-    const { xMin, yMin, xMax, yMax } = viewerProps;
-    if (!xMin || !yMin || !xMax || yMax) {
+    const { xOffset, yOffset } = viewerProps;
+    if (!xOffset || !yOffset) {
       return;
     }
     // todo: check what has updated and set this.needsUpdate flag

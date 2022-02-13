@@ -12,10 +12,10 @@ export type ViewerProps = {
   parent?: HTMLCanvasElement; // prepare for headless
   width?: number;
   height?: number;
-  xMin?: number;
-  yMin?: number;
-  xMax?: number;
-  yMax?: number;
+  longitude: number;
+  latitude: number;
+  xOffset?: number;
+  yOffset?: number;
   zoom?: number;
 };
 
@@ -24,7 +24,7 @@ export class Viewer {
   animationLoop: AnimationLoop;
   eventManager: EventManager;
   transform: Transform;
-  constructor(viewerProps: ViewerProps = {}) {
+  constructor(viewerProps: ViewerProps = { longitude: 0, latitude: 0 }) {
     this.props = viewerProps;
     // create and append canvas
     const canvas: HTMLCanvasElement = document.createElement('canvas');
