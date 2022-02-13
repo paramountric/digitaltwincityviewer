@@ -12,19 +12,46 @@ export type ViewerProps = {
   parent?: HTMLCanvasElement; // prepare for headless
   width?: number;
   height?: number;
-  longitude: number;
-  latitude: number;
+  longitude?: number;
+  latitude?: number;
+  xCenter?: number;
+  yCenter?: number;
   xOffset?: number;
   yOffset?: number;
   zoom?: number;
+  pitch?: number;
+  bearing?: number;
 };
+
+const PI = Math.PI;
+const PI_4 = PI / 4;
+// https://github.com/uber-web/math.gl/blob/master/modules/web-mercator/src/web-mercator-utils.ts
+const HALF_EARTH_CIRC = 20015000;
+
+function getMetersX(longitude: number): number {
+  return longitude * (HALF_EARTH_CIRC / 180);
+}
+
+// https://gist.github.com/springmeyer/871897
+// https://en.wikipedia.org/wiki/Web_Mercator_projection
+function getMetersY(latitude: number): number {
+  const y = Math.log(Math.tan(latitude * (PI / 360) + PI_4)) / PI;
+  return y * HALF_EARTH_CIRC;
+}
 
 export class Viewer {
   props: ViewerProps;
   animationLoop: AnimationLoop;
   eventManager: EventManager;
   transform: Transform;
-  constructor(viewerProps: ViewerProps = { longitude: 0, latitude: 0 }) {
+  constructor(viewerProps: ViewerProps = {}) {
+    const { longitude, latitude } = viewerProps;
+    if (longitude && latitude) {
+      const overrideX = getMetersX(longitude);
+      const overrideY = getMetersY(latitude);
+      viewerProps.xCenter = overrideX;
+      viewerProps.yCenter = overrideY;
+    }
     this.props = viewerProps;
     // create and append canvas
     const canvas: HTMLCanvasElement = document.createElement('canvas');
@@ -51,6 +78,17 @@ export class Viewer {
     });
   }
   public update(viewerProps: ViewerProps): void {
+    const { xCenter, yCenter, longitude, latitude } = viewerProps;
+    if (
+      (xCenter && xCenter !== this.props.xCenter) ||
+      (yCenter && yCenter !== this.props.yCenter) ||
+      (longitude && longitude !== this.props.longitude) ||
+      (latitude && latitude !== this.props.latitude)
+    ) {
+      return console.warn(
+        'Fixme: viewer location is changed, the viewer needs to be reset'
+      );
+    }
     Object.assign(this.props, viewerProps);
     if (this.transform) {
       this.transform.update(this.props);
