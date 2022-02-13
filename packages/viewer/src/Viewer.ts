@@ -12,6 +12,11 @@ export type ViewerProps = {
   parent?: HTMLCanvasElement; // prepare for headless
   width?: number;
   height?: number;
+  xMin?: number;
+  yMin?: number;
+  xMax?: number;
+  yMax?: number;
+  zoom?: number;
 };
 
 export class Viewer {
