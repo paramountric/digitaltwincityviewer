@@ -1,3 +1,6 @@
+// Copyright (C) 2022 Andreas Rudenå
+// Licensed under the MIT License
+
 import { AnimationLoop } from '@luma.gl/engine';
 import { AnimationLoopProps } from '@luma.gl/engine/src/lib/animation-loop';
 import { createGLContext, resizeGLContext } from '@luma.gl/gltools';
