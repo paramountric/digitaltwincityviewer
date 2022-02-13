@@ -1,13 +1,14 @@
 // Copyright (C) 2022 Andreas Rudenå
 // Licensed under the MIT License
 
-import { AnimationLoop } from '@luma.gl/engine';
+import { AnimationLoop, ProgramManager } from '@luma.gl/engine';
 import { AnimationLoopProps } from '@luma.gl/engine/src/lib/animation-loop';
 import { createGLContext, resizeGLContext } from '@luma.gl/gltools';
 import { EventManager } from 'mjolnir.js';
 import { MjolnirEvent } from 'mjolnir.js/dist/es5/types';
 import { Transform } from './Transform';
 import { DataSourceProps } from './DataSource';
+import { Layer } from './Layer';
 
 export type ViewerProps = {
   parent?: HTMLCanvasElement; // prepare for headless
@@ -17,12 +18,14 @@ export type ViewerProps = {
   latitude?: number;
   xCenter?: number;
   yCenter?: number;
+  // todo: change offset to extent
   xOffset?: number;
   yOffset?: number;
   zoom?: number;
   pitch?: number;
   bearing?: number;
   sources?: DataSourceProps[];
+  layers?: Layer[];
 };
 
 const PI = Math.PI;
@@ -46,6 +49,7 @@ export class Viewer {
   animationLoop: AnimationLoop;
   eventManager: EventManager;
   transform: Transform;
+  programManager: ProgramManager;
   constructor(viewerProps: ViewerProps = {}) {
     const { longitude, latitude } = viewerProps;
     if (longitude && latitude) {
@@ -70,9 +74,7 @@ export class Viewer {
       onInitialize: this.init.bind(this),
       onRender: this.renderLayers.bind(this),
     };
-    this.animationLoop = new AnimationLoop(
-      Object.assign(defaultAnimationLoopProps)
-    );
+    this.animationLoop = new AnimationLoop(defaultAnimationLoopProps);
     this.update(viewerProps);
     this.animationLoop.start({
       width: viewerProps.width,
@@ -108,6 +110,8 @@ export class Viewer {
       },
     });
     this.transform = new Transform(this.props);
+    // Note: there is a deprecation warning on Program in Luma v8. Look continuously into the v9 progress (Feb 2022 it's still in review).
+    this.programManager = new ProgramManager(animationLoopProps.gl);
     resizeGLContext(animationLoopProps.gl, {
       useDevicePixels: true,
       width: this.props.width || window.innerWidth,
