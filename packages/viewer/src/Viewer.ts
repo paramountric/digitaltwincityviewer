@@ -7,6 +7,7 @@ import { createGLContext, resizeGLContext } from '@luma.gl/gltools';
 import { EventManager } from 'mjolnir.js';
 import { MjolnirEvent } from 'mjolnir.js/dist/es5/types';
 import { Transform } from './Transform';
+import { DataSourceProps } from './DataSource';
 
 export type ViewerProps = {
   parent?: HTMLCanvasElement; // prepare for headless
@@ -21,6 +22,7 @@ export type ViewerProps = {
   zoom?: number;
   pitch?: number;
   bearing?: number;
+  sources?: DataSourceProps[];
 };
 
 const PI = Math.PI;
@@ -92,6 +94,7 @@ export class Viewer {
     Object.assign(this.props, viewerProps);
     if (this.transform) {
       this.transform.update(this.props);
+      this.updateLayers(this.props);
     }
   }
   private init(animationLoopProps: AnimationLoopProps) {
@@ -110,6 +113,11 @@ export class Viewer {
       width: this.props.width || window.innerWidth,
       height: this.props.height || window.innerHeight,
     });
+  }
+  private updateLayers(viewerProps: ViewerProps) {
+    // todo: create sources from source props, start load data, preprocess data, cache data
+    // todo: create layers
+    console.log('update layers');
   }
   private renderLayers() {
     console.log('render layers');
