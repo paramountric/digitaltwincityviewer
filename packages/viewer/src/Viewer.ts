@@ -3,11 +3,16 @@
 
 import { AnimationLoop, ProgramManager } from '@luma.gl/engine';
 import { AnimationLoopProps } from '@luma.gl/engine/src/lib/animation-loop';
-import { createGLContext, resizeGLContext } from '@luma.gl/gltools';
+import {
+  createGLContext,
+  resizeGLContext,
+  setParameters,
+} from '@luma.gl/gltools';
+import { clear } from '@luma.gl/webgl';
 import { EventManager } from 'mjolnir.js';
 import { MjolnirEvent } from 'mjolnir.js/dist/es5/types';
 import { Transform } from './Transform';
-import { DataSourceProps } from './DataSource';
+import { DataSource, DataSourceProps } from './DataSource';
 import { Layer } from './Layer';
 
 export type ViewerProps = {
@@ -25,7 +30,7 @@ export type ViewerProps = {
   pitch?: number;
   bearing?: number;
   sources?: DataSourceProps[];
-  layers?: Layer[];
+  onInit?: () => void;
 };
 
 const PI = Math.PI;
@@ -50,6 +55,11 @@ export class Viewer {
   eventManager: EventManager;
   transform: Transform;
   programManager: ProgramManager;
+  sources: { [id: string]: DataSource };
+  layers: { [id: string]: Layer };
+  context: {
+    gl: WebGLRenderingContext;
+  };
   constructor(viewerProps: ViewerProps = {}) {
     const { longitude, latitude } = viewerProps;
     if (longitude && latitude) {
@@ -59,6 +69,8 @@ export class Viewer {
       viewerProps.yCenter = overrideY;
     }
     this.props = viewerProps;
+    this.sources = {};
+    this.layers = {};
     // create and append canvas
     const canvas: HTMLCanvasElement = document.createElement('canvas');
     canvas.id = 'dtcv-canvas';
@@ -96,10 +108,15 @@ export class Viewer {
     Object.assign(this.props, viewerProps);
     if (this.transform) {
       this.transform.update(this.props);
-      this.updateLayers(this.props);
+      this.updateSources(this.props);
     }
   }
   private init(animationLoopProps: AnimationLoopProps) {
+    setParameters(animationLoopProps.gl, {
+      blend: true,
+      polygonOffsetFill: true,
+      depthTest: true,
+    });
     this.eventManager = new EventManager(animationLoopProps.gl.canvas, {
       events: {
         panstart: this.onDragStart,
@@ -117,14 +134,38 @@ export class Viewer {
       width: this.props.width || window.innerWidth,
       height: this.props.height || window.innerHeight,
     });
+    this.context = {
+      gl: animationLoopProps.gl,
+    };
+    if (this.props.onInit) {
+      this.props.onInit();
+    }
   }
-  private updateLayers(viewerProps: ViewerProps) {
-    // todo: create sources from source props, start load data, preprocess data, cache data
-    // todo: create layers
-    console.log('update layers');
+  private updateSources(viewerProps: ViewerProps) {
+    // ? sourceManager maybe
+    const { sources = [] } = viewerProps;
+    for (const sourceProps of sources) {
+      // todo: initialize source class here, start load data, preprocess data, cache data, etc
+      this.sources[sourceProps.id] = new DataSource(sourceProps);
+      const { layers = [] } = sourceProps;
+      // todo: the source should build the data for the layers async and call update when resolved
+      if (this.context?.gl) {
+        for (const layerProps of layers) {
+          // todo: need to check layers state here, update or add layer only if needed
+          this.layers[layerProps.id] = new Layer(this.context.gl, layerProps);
+        }
+      }
+    }
   }
   private renderLayers() {
-    console.log('render layers');
+    if (this.context?.gl) {
+      const { gl } = this.context;
+      clear(gl, { color: [1, 1, 1, 1] });
+      gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+      for (const layer of Object.values(this.layers)) {
+        layer.render();
+      }
+    }
   }
   private onDragStart(evt: MjolnirEvent) {
     console.log(evt);

@@ -1,27 +1,23 @@
 // Copyright (C) 2022 Andreas Rudenå
 // Licensed under the MIT License
 
-// A test box
-type Box = {
-  x: number;
-  y: number;
-  z: number;
-  w: number;
-  h: number;
-};
+import { LayerProps } from './Layer';
 
 // provide an API to the viewer with the DataSource
-// examples: geojson, cityjson, citymodel -> the data will need to be converted into layers (use the type to determint the layers to create)
+// examples: geojson, cityjson, citymodel -> the data will need to be converted into layers (use the type to determine the layers to create)
 // sources/layers in UI menu
-// note: it should be possible to feed layers directly, maybe source could optionally contain layer specs?
 export type DataSourceProps = {
   id: string;
-  type: 'box'; // create enum
-  data: Box[];
-  dataUrl: string;
+  type: string; // create enum
+  data?: 'sourceData'; // create different data types that match to the type enum specified
+  dataUrl?: string;
+  layers?: LayerProps[];
 };
 
 export class DataSource {
+  constructor(sourceProps: DataSourceProps) {
+    console.log('init source and start processing / loading');
+  }
   // loaders?
   // caching?
 }
