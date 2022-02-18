@@ -41,7 +41,8 @@ export class Transform {
   private createMatrices(viewerProps: ViewerProps) {
     if (this.needsUpdate) {
       const { fovy, aspect, near, far } = this;
-      const { width, height, zoom, pitch, bearing } = viewerProps;
+      const { width, height, xCenter, yCenter, zoom, pitch, bearing } =
+        viewerProps;
       if (!width || !height || !zoom) {
         return;
       }
@@ -56,6 +57,7 @@ export class Transform {
       vm.translate([0, 0, -this.altitude]);
       vm.rotateX(-pitch * DEGREES_TO_RADIANS);
       vm.rotateZ(bearing * DEGREES_TO_RADIANS);
+      vm.translate([-xCenter, -yCenter, 0]);
       vm.scale([scale, scale, scale]);
       this.viewMatrix = vm;
       this.needsUpdate = false;
