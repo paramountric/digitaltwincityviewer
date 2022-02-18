@@ -10,7 +10,6 @@ import {
 } from '@luma.gl/gltools';
 import { clear } from '@luma.gl/webgl';
 import { EventManager } from 'mjolnir.js';
-import { MjolnirEvent } from 'mjolnir.js/dist/es5/types';
 import { Transform } from './Transform';
 import { DataSource, DataSourceProps } from './DataSource';
 import { Layer } from './Layer';
@@ -101,12 +100,12 @@ export class Viewer {
       (longitude && longitude !== this.props.longitude) ||
       (latitude && latitude !== this.props.latitude)
     ) {
-      return console.warn(
-        'Fixme: viewer location is changed, the viewer needs to be reset'
-      );
+      // todo: need to figure out how to check if viewerProps has changed
+      // for now it will always recalculate transform below (if it's initialized)
     }
     Object.assign(this.props, viewerProps);
     if (this.transform) {
+      console.log(this.props);
       this.transform.update(this.props);
       this.updateSources(this.props);
     }
@@ -119,11 +118,11 @@ export class Viewer {
     });
     this.eventManager = new EventManager(animationLoopProps.gl.canvas, {
       events: {
-        panstart: this.onDragStart,
-        panmove: this.onDrag,
-        panend: this.onDragEnd,
-        pointermove: this.onMouseMove,
-        click: this.onClick,
+        panstart: this.onDragStart.bind(this),
+        panmove: this.onDrag.bind(this),
+        panend: this.onDragEnd.bind(this),
+        pointermove: this.onMouseMove.bind(this),
+        click: this.onClick.bind(this),
       },
     });
     this.transform = new Transform(this.props);
@@ -167,19 +166,25 @@ export class Viewer {
       }
     }
   }
-  private onDragStart(evt: MjolnirEvent) {
-    console.log(evt);
+  private onDragStart(evt: HammerInput) {
+    //console.log(evt);
   }
-  private onDrag(evt: MjolnirEvent) {
-    console.log(evt);
+  private onDrag(evt: HammerInput) {
+    if (this.transform) {
+      const newProps = Object.assign({}, this.props, {
+        xCenter: this.props.xCenter + evt.deltaX,
+        yCenter: this.props.yCenter + evt.deltaY,
+      });
+      this.update(newProps);
+    }
   }
-  private onDragEnd(evt: MjolnirEvent) {
-    console.log(evt);
+  private onDragEnd(evt: HammerInput) {
+    //console.log(evt);
   }
-  private onMouseMove(evt: MjolnirEvent) {
-    console.log(evt);
+  private onMouseMove(evt: HammerInput) {
+    //console.log(evt);
   }
-  private onClick(evt: MjolnirEvent) {
+  private onClick(evt: HammerInput) {
     console.log(evt);
   }
 }
