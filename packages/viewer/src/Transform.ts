@@ -25,7 +25,6 @@ function getMetersY(latitude: number): number {
 }
 
 export class Transform {
-  private needsUpdate = true;
   public projectionMatrix = Matrix4.IDENTITY;
   public viewMatrix = Matrix4.IDENTITY;
   private fovy = FOV_RADIANS;
@@ -84,6 +83,5 @@ export class Transform {
     vm.scale([scale, scale, scale]);
     vm.translate([...cameraOffset, 0]);
     this.viewMatrix = vm;
-    this.needsUpdate = false;
   }
 }
