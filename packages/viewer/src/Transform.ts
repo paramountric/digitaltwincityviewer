@@ -50,7 +50,6 @@ export class Transform {
     if (!cityExtentRadius) {
       return;
     }
-    // todo: check what has updated and set this.needsUpdate flag
     this.createMatrices(viewerProps);
   }
   public getUniforms() {
@@ -59,34 +58,32 @@ export class Transform {
     };
   }
   private createMatrices(viewerProps: ViewerProps) {
-    if (this.needsUpdate) {
-      const { fovy, aspect, near, far } = this;
-      const {
-        canvasWidth,
-        canvasHeight,
-        cameraOffset,
-        cameraZoom,
-        cameraPitch,
-        cameraBearing,
-      } = viewerProps;
-      if (!canvasWidth || !canvasHeight || !cameraZoom) {
-        return;
-      }
-      const scale = 2 ** cameraZoom;
-      this.projectionMatrix = new Matrix4().perspective({
-        fovy,
-        aspect,
-        near, // todo: find a way to calculate this from extent
-        far, // todo: find a way to calculate this from extent
-      });
-      const vm = new Matrix4();
-      vm.translate([0, 0, -this.altitude]);
-      vm.rotateX(-cameraPitch * DEGREES_TO_RADIANS);
-      vm.rotateZ(cameraBearing * DEGREES_TO_RADIANS);
-      vm.scale([scale, scale, scale]);
-      vm.translate([...cameraOffset, 0]);
-      this.viewMatrix = vm;
-      this.needsUpdate = false;
+    const { fovy, aspect, near, far } = this;
+    const {
+      canvasWidth,
+      canvasHeight,
+      cameraOffset,
+      cameraZoom,
+      cameraPitch,
+      cameraBearing,
+    } = viewerProps;
+    if (!canvasWidth || !canvasHeight || !cameraZoom) {
+      return;
     }
+    const scale = 2 ** cameraZoom;
+    this.projectionMatrix = new Matrix4().perspective({
+      fovy,
+      aspect,
+      near, // todo: find a way to calculate this from extent
+      far, // todo: find a way to calculate this from extent
+    });
+    const vm = new Matrix4();
+    vm.translate([0, 0, -this.altitude]);
+    vm.rotateX(-cameraPitch * DEGREES_TO_RADIANS);
+    vm.rotateZ(cameraBearing * DEGREES_TO_RADIANS);
+    vm.scale([scale, scale, scale]);
+    vm.translate([...cameraOffset, 0]);
+    this.viewMatrix = vm;
+    this.needsUpdate = false;
   }
 }
