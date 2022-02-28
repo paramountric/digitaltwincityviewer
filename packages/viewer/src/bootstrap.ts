@@ -1,15 +1,28 @@
 import { Viewer } from './Viewer';
 
+// todo: make proper city entities (multi-language support, ids, metadata, stat props)
+const cities = [
+  {
+    lon: 12.6945,
+    lat: 56.0465,
+    radius: 5000, // in meters, to determine extent
+    name: 'Helsingborg',
+  },
+  {
+    lon: 11.9746,
+    lat: 57.7089,
+    radius: 9000, // in meters, to determine extent
+    name: 'Göteborg',
+  },
+];
+
 function bootstrap() {
   const onInit = () => {
     viewer.update({});
   };
   const viewer = new Viewer({
     onInit,
-    longitude: 11.9746,
-    latitude: 57.7089,
-    xOffset: 2 ** 16,
-    yOffset: 2 ** 16,
+    ...cities[0],
     sources: [
       {
         id: 'test-box-source',
