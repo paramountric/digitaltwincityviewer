@@ -8,6 +8,7 @@ import {
   resizeGLContext,
   setParameters,
 } from '@luma.gl/gltools';
+import { project } from '@luma.gl/shadertools';
 import { clear } from '@luma.gl/webgl';
 import { EventManager } from 'mjolnir.js';
 import { Transform } from './Transform';
@@ -29,6 +30,10 @@ export type ViewerProps = {
   onInit?: () => void;
 };
 
+const defaultViewerProps: ViewerProps = {
+  cameraOffset: [0, 0],
+};
+
 export class Viewer {
   props: ViewerProps;
   animationLoop: AnimationLoop;
@@ -46,7 +51,7 @@ export class Viewer {
     //   const overrideX = getMetersX(cityLon);
     //   const overrideY = getMetersY(cityLat);
     // }
-    this.props = viewerProps;
+    this.props = defaultViewerProps;
     this.sources = {};
     this.layers = {};
     // create and append canvas
@@ -107,6 +112,7 @@ export class Viewer {
     this.transform = new Transform(this.props);
     // Note: there is a deprecation warning on Program in Luma v8. Look continuously into the v9 progress (Feb 2022 it's still in review).
     this.programManager = new ProgramManager(animationLoopProps.gl);
+    this.programManager.addDefaultModule(project);
     resizeGLContext(animationLoopProps.gl, {
       useDevicePixels: true,
       width: this.props.canvasWidth || window.innerWidth,
@@ -130,7 +136,7 @@ export class Viewer {
       if (this.context?.gl) {
         for (const layerProps of layers) {
           // todo: need to check layers state here, update or add layer only if needed
-          this.layers[layerProps.id] = new Layer(this.context.gl, layerProps);
+          this.layers[layerProps.id] = new Layer(this, layerProps);
         }
       }
     }

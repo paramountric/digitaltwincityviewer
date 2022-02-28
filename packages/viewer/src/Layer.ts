@@ -3,6 +3,8 @@
 
 import { Model, CubeGeometry } from '@luma.gl/engine';
 import { Buffer } from '@luma.gl/webgl';
+import { Transform } from './Transform';
+import { Viewer } from './Viewer';
 
 // A test box
 type Box = {
@@ -41,10 +43,13 @@ void main() {
 
 export class Layer {
   gl: WebGLRenderingContext;
+  transform: Transform;
   props: LayerProps;
   model: Model;
-  constructor(gl: WebGLRenderingContext, layerProps: LayerProps) {
-    this.gl = gl;
+  // todo: consider if sending in viewer instance in layer is good. Either the Layer class needs the Viewer instance, or the context parameters needed can be sent separately (Layer might need more things from Viewer later)
+  constructor(viewer: Viewer, layerProps: LayerProps) {
+    this.gl = viewer.context.gl;
+    this.transform = viewer.transform;
     this.props = layerProps;
     this.update();
   }
@@ -95,7 +100,7 @@ export class Layer {
 
   render() {
     if (this.model) {
-      this.model.draw();
+      this.model.setUniforms(this.transform.getUniforms()).draw();
     }
   }
 }

@@ -54,7 +54,9 @@ export class Transform {
     this.createMatrices(viewerProps);
   }
   public getUniforms() {
-    return {};
+    return {
+      viewMatrix: this.viewMatrix,
+    };
   }
   private createMatrices(viewerProps: ViewerProps) {
     if (this.needsUpdate) {
@@ -62,6 +64,7 @@ export class Transform {
       const {
         canvasWidth,
         canvasHeight,
+        cameraOffset,
         cameraZoom,
         cameraPitch,
         cameraBearing,
@@ -81,6 +84,7 @@ export class Transform {
       vm.rotateX(-cameraPitch * DEGREES_TO_RADIANS);
       vm.rotateZ(cameraBearing * DEGREES_TO_RADIANS);
       vm.scale([scale, scale, scale]);
+      vm.translate([...cameraOffset, 0]);
       this.viewMatrix = vm;
       this.needsUpdate = false;
     }
