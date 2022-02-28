@@ -5,9 +5,24 @@ import { Matrix4 } from '@math.gl/core';
 import { ViewerProps } from './Viewer';
 
 const PI = Math.PI;
+const PI_4 = PI / 4;
 const DEGREES_TO_RADIANS = PI / 180;
 const FOV = 75;
 const FOV_RADIANS = FOV * DEGREES_TO_RADIANS;
+
+// https://github.com/uber-web/math.gl/blob/master/modules/web-mercator/src/web-mercator-utils.ts
+const HALF_EARTH_CIRC = 20015000;
+
+function getMetersX(longitude: number): number {
+  return longitude * (HALF_EARTH_CIRC / 180);
+}
+
+// https://gist.github.com/springmeyer/871897
+// https://en.wikipedia.org/wiki/Web_Mercator_projection
+function getMetersY(latitude: number): number {
+  const y = Math.log(Math.tan(latitude * (PI / 360) + PI_4)) / PI;
+  return y * HALF_EARTH_CIRC;
+}
 
 export class Transform {
   private needsUpdate = true;
@@ -23,30 +38,38 @@ export class Transform {
   private xMax: number;
   private yMax: number;
   constructor(viewerProps: ViewerProps) {
-    const { xOffset, yOffset } = viewerProps;
-    this.xMin = -xOffset;
-    this.yMin = -yOffset;
-    this.xMax = xOffset;
-    this.yMax = yOffset;
+    const { cityExtentRadius } = viewerProps;
+    this.xMin = -cityExtentRadius;
+    this.yMin = -cityExtentRadius;
+    this.xMax = cityExtentRadius;
+    this.yMax = cityExtentRadius;
     this.update(viewerProps);
   }
   public update(viewerProps: ViewerProps) {
-    const { xOffset, yOffset } = viewerProps;
-    if (!xOffset || !yOffset) {
+    const { cityExtentRadius } = viewerProps;
+    if (!cityExtentRadius) {
       return;
     }
     // todo: check what has updated and set this.needsUpdate flag
     this.createMatrices(viewerProps);
   }
+  public getUniforms() {
+    return {};
+  }
   private createMatrices(viewerProps: ViewerProps) {
     if (this.needsUpdate) {
       const { fovy, aspect, near, far } = this;
-      const { width, height, xCenter, yCenter, zoom, pitch, bearing } =
-        viewerProps;
-      if (!width || !height || !zoom) {
+      const {
+        canvasWidth,
+        canvasHeight,
+        cameraZoom,
+        cameraPitch,
+        cameraBearing,
+      } = viewerProps;
+      if (!canvasWidth || !canvasHeight || !cameraZoom) {
         return;
       }
-      const scale = 2 ** zoom;
+      const scale = 2 ** cameraZoom;
       this.projectionMatrix = new Matrix4().perspective({
         fovy,
         aspect,
@@ -55,9 +78,8 @@ export class Transform {
       });
       const vm = new Matrix4();
       vm.translate([0, 0, -this.altitude]);
-      vm.rotateX(-pitch * DEGREES_TO_RADIANS);
-      vm.rotateZ(bearing * DEGREES_TO_RADIANS);
-      vm.translate([-xCenter, -yCenter, 0]);
+      vm.rotateX(-cameraPitch * DEGREES_TO_RADIANS);
+      vm.rotateZ(cameraBearing * DEGREES_TO_RADIANS);
       vm.scale([scale, scale, scale]);
       this.viewMatrix = vm;
       this.needsUpdate = false;
