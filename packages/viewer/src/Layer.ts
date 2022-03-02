@@ -3,6 +3,7 @@
 
 import { Model, CubeGeometry } from '@luma.gl/engine';
 import { Buffer } from '@luma.gl/webgl';
+import { Matrix4 } from '@math.gl/core';
 import { Transform } from './Transform';
 import { Viewer } from './Viewer';
 
@@ -26,10 +27,18 @@ attribute vec2 positions;
 attribute vec3 instanceColors;
 attribute vec2 instancePositions;
 
+uniform mat4 modelMatrix;
+uniform mat4 viewProjectionMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
+uniform vec4 projectionOffset;
+
 varying vec3 vColor;
 
 void main() {
-  gl_Position = vec4(positions + instancePositions, 0.0, 1.0);
+  vec4 pos = vec4(positions + instancePositions, 0.0, 1.0);
+  //gl_Position = project_to_clipspace(pos) * modelMatrix;
+  gl_Position = viewProjectionMatrix * modelMatrix * pos;// + projectionOffset;
   vColor = instanceColors;
 }
 `;
@@ -61,10 +70,7 @@ export class Layer {
   createModel() {
     const gl = this.gl;
 
-    const positionBuffer = new Buffer(
-      gl,
-      new Float32Array([-0.5, -0.5, 0.5, -0.5, 0.0, 0.5])
-    );
+    const positionBuffer = new Buffer(gl, new Float32Array([0, 0, 1, 1, 2, 2]));
 
     const colorBuffer = new Buffer(
       gl,
@@ -100,7 +106,15 @@ export class Layer {
 
   render() {
     if (this.model) {
-      this.model.setUniforms(this.transform.getUniforms()).draw();
+      const modelMatrix = new Matrix4();
+      //modelMatrix.rotateZ(Math.random());
+      modelMatrix.scale(1);
+      this.model
+        .setUniforms(this.transform.getUniforms())
+        .setUniforms({
+          modelMatrix,
+        })
+        .draw();
     }
   }
 }
