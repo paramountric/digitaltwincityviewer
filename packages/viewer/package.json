@@ -31,6 +31,7 @@
     "@luma.gl/shadertools": "^8.5.10",
     "@luma.gl/webgl": "^8.5.10",
     "@math.gl/core": "^3.5.7",
+    "@math.gl/web-mercator": "^3.5.7",
     "mjolnir.js": "^2.7.0-alpha.1"
   }
 }
