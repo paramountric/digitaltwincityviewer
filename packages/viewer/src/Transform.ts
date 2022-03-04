@@ -6,7 +6,7 @@ import { mat4, vec4, vec2 } from 'gl-matrix';
 import { Point } from './Point';
 import { ViewerProps } from './Viewer';
 
-const disableCameraRotation = true;
+const disableCameraRotation = false;
 
 type Bounds = {
   nw: Point;
@@ -142,20 +142,21 @@ export class Transform {
     this.update();
   }
 
-  onDragStart(e) {
+  onMouseDown(e) {
     const { center, rightButton, leftButton } = e;
     const { x, y } = center;
     this.mouseDown = [x, y];
     this.dragState = rightButton ? 'ROTATE' : leftButton ? 'PAN' : 'NONE';
   }
 
-  onDragEnd(e) {
+  onMouseUp(e) {
     const { x, y } = e.center;
     this.mouseUp = [x, y];
     this.dragState = 'NONE';
   }
 
   onMouseMove(e) {
+    e.preventDefault();
     const { x, y } = e.center;
     const thisPoint = [x, y] as [number, number];
     const lastPoint = this.mouseLast || this.mouseDown;
@@ -171,6 +172,10 @@ export class Transform {
       default:
     }
     this.mouseLast = [x, y];
+  }
+
+  onContextMenu(e) {
+    e.preventDefault();
   }
 
   onMouseWheel(e) {
