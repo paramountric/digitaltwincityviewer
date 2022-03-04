@@ -38,8 +38,6 @@ const defaultViewerProps: ViewerProps = {
   cameraPitch: 0,
   cameraBearing: 0,
   zoom: 0,
-  // width: window.innerWidth,
-  // height: window.innerHeight,
 };
 
 export class Viewer {
@@ -67,6 +65,14 @@ export class Viewer {
     // create and append canvas
     const canvas: HTMLCanvasElement = document.createElement('canvas');
     canvas.id = 'dtcv-canvas';
+    this.props.width = this.props.width || window.innerWidth;
+    this.props.height = this.props.height || window.innerHeight;
+    canvas.style.width = Number.isFinite(this.props.width)
+      ? `${this.props.width}px`
+      : '100%';
+    canvas.style.height = Number.isFinite(this.props.height)
+      ? `${this.props.height}px`
+      : '100%';
     const parent = viewerProps.canvasParent || document.body;
     parent.appendChild(canvas);
     // create animation loop and start
@@ -104,7 +110,6 @@ export class Viewer {
     }
   }
   private init(animationLoopProps: AnimationLoopProps) {
-    console.log('init');
     setParameters(animationLoopProps.gl, {
       blend: true,
       polygonOffsetFill: true,
@@ -127,8 +132,7 @@ export class Viewer {
     //   animationLoopProps.gl
     // );
     // programManager.addDefaultModule(project);
-    this.props.width = this.props.width || window.innerWidth;
-    this.props.height = this.props.height || window.innerHeight;
+
     resizeGLContext(animationLoopProps.gl, {
       useDevicePixels: true,
       width: this.props.width,
