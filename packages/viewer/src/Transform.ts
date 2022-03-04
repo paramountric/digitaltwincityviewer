@@ -207,8 +207,7 @@ export class Transform {
     this.setCenter(new Point(newX, newY));
   }
 
-  pixelPointToPoint(pixelPoint: [number, number], zoom?) {
-    const worldSize = zoom || zoom === 0 ? 2 ** zoom : 2 ** this.zoom;
+  pixelPointToPoint(pixelPoint: [number, number]) {
     const targetZ = 0;
     const coord0 = [...pixelPoint, 0, 1] as vec4;
     const coord1 = [...pixelPoint, 1, 1] as vec4;
@@ -222,8 +221,8 @@ export class Transform {
     const z0 = coord0[2] / coord0[3];
     const z1 = coord1[2] / coord1[3];
     const t = z0 === z1 ? 0 : (targetZ - z0) / (z1 - z0);
-    const x = (x0 * (1 - t) + x1 * t) / worldSize;
-    const y = (y0 * (1 - t) + y1 * t) / worldSize;
+    const x = (x0 * (1 - t) + x1 * t) / this.worldSize;
+    const y = (y0 * (1 - t) + y1 * t) / this.worldSize;
     return new Point(x, y);
   }
 
@@ -301,12 +300,12 @@ export class Transform {
     mat4.translate(m, m, [0, 0, -dist]);
     mat4.rotateX(m, m, this.phi);
     mat4.rotateZ(m, m, -this.theta);
+    mat4.translate(m, m, [-x, -y, 0]);
 
     this.projMatrix = m;
     this.invProjMatrix = mat4.invert(mat4.create(), this.projMatrix);
 
     m = mat4.create();
-    mat4.translate(m, m, [-x, -y, 0]);
     mat4.scale(m, m, [this.scale, this.scale, this.scale]);
     this.viewMatrix = m;
     this.invViewMatrix = mat4.invert(mat4.create(), this.viewMatrix);
