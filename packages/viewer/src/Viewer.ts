@@ -118,12 +118,12 @@ export class Viewer {
     this.handleEvent = this.handleEvent.bind(this);
     this.eventManager = new EventManager(animationLoopProps.gl.canvas, {
       events: {
-        panstart: this.handleEvent,
-        panmove: this.handleEvent,
-        panend: this.handleEvent,
-        pointermove: this.handleEvent,
+        mouseup: this.handleEvent,
+        mousemove: this.handleEvent,
+        mousedown: this.handleEvent,
         click: this.handleEvent,
         wheel: this.handleEvent,
+        contextmenu: this.handleEvent,
       },
     });
     this.transform = new Transform(this.props);
@@ -176,99 +176,22 @@ export class Viewer {
     this.needsRender = false;
   }
   private handleEvent(event) {
+    event.preventDefault();
     const eventType = event.type;
     switch (eventType) {
       case 'wheel':
         this.transform.onMouseWheel(event);
         break;
-      case 'pointermove':
+      case 'mousemove':
         this.transform.onMouseMove(event);
         break;
-      case 'panend':
-        this.transform.onDragEnd(event);
+      case 'mousedown':
+        this.transform.onMouseDown(event);
         break;
-      case 'panstart':
-        this.transform.onDragStart(event);
+      case 'mouseup':
+        this.transform.onMouseUp(event);
         break;
-      // case 'panmove':
-      //   this.onDrag(event);
-      //   break;
-      // case 'panend':
-      //   this.onDragEnd(event);
-      //   break;
     }
     this.needsRender = true;
   }
-  // private onDragStart(evt) {
-  //   const { center, rightButton, leftButton } = evt;
-  //   const { x, y } = center;
-  //   this.dragMode = rightButton ? 2 : leftButton ? 1 : 0;
-  //   this.dragStart = [x, y];
-  // }
-  // private onDragEnd(evt: HammerInput) {
-  //   this.dragMode = 0;
-  // }
-  // private onDrag(evt) {
-  //   const { width, height } = this.props;
-  //   const [x, y] = this.mouse;
-  //   const [lastX, lastY] = this.dragStart;
-  //   const [dx, dy] = [x - lastX, y - lastY];
-  //   const [diffX, diffY] = this.transform.pixelPointToPoint([
-  //     dx * 2 + width * 0.5,
-  //     dy * 2 + height * 0.5,
-  //   ]);
-  //   const [xOffset, yOffset] = this.props.cameraOffset;
-  //   this.props.cameraOffset = [xOffset + diffX, yOffset + diffY];
-  //   this.transform.setProps(this.props);
-  //   this.needsRender = true;
-  //   this.dragStart = [x, y];
-  // }
-  // private onMouseDown(evt) {
-  //   const { x, y } = evt.center;
-  //   this.mouseDown = [x, y];
-  // }
-  // private onMouseUp(evt) {
-  //   this.mouseDown = null;
-  // }
-  // private onMouseMove(evt: HammerInput) {
-  //   if (this.transform) {
-  //     const { x, y } = evt.center;
-  //     this.mouse = [x, y];
-  //     //console.log(this.transform.pixelPointToPoint(this.mouse));
-  //   }
-  // }
-  // private onMouseWheel(evt) {
-  //   evt.preventDefault();
-  //   console.log(evt);
-  //   if (this.transform) {
-  //     const delta = evt.delta;
-  //     const [x, y] = this.mouse || [0, 0];
-  //     // note: the transform is used in between targetPoint and diff
-  //     const targetPointA = this.transform.pixelPointToPoint([x, y]);
-  //     this.props.zoom = this.transform.getZoom(-delta);
-  //     const [offsetX, offsetY] = this.props.cameraOffset; //this.transform.pixelPointToPoint(this.pixelCenter);
-
-  //     // do the transform update
-  //     this.transform.setProps(this.props);
-
-  //     const targetPointB = this.transform.pixelPointToPoint([x, y]);
-
-  //     const xDiff = targetPointB[0] - offsetX;
-  //     const yDiff = targetPointB[1] - offsetY;
-  //     const newX = targetPointA[0] - xDiff;
-  //     const newY = targetPointA[1] - yDiff;
-
-  //     console.log('target a', targetPointA);
-  //     console.log('target b', targetPointB);
-  //     console.log('xdiff', xDiff);
-  //     console.log('ydiff', yDiff);
-
-  //     this.props.cameraOffset = [newX, newY];
-  //     this.transform.setProps(this.props);
-  //     this.needsRender = true;
-  //   }
-  // }
-  // private onClick(evt: HammerInput) {
-  //   console.log(evt);
-  // }
 }
