@@ -11,7 +11,7 @@ export type DataSourceProps = {
   type: string; // create enum
   data?: 'sourceData'; // create different data types that match to the type enum specified
   dataUrl?: string;
-  layers?: LayerProps[];
+  layers?: any;
 };
 
 export class DataSource {

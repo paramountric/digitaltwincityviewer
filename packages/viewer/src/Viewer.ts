@@ -15,6 +15,7 @@ import { EventManager } from 'mjolnir.js';
 import { Transform } from './Transform';
 import { DataSource, DataSourceProps } from './DataSource';
 import { Layer } from './Layer';
+import { GeoJsonLayer } from './GeoJsonLayer';
 import { HammerInput } from 'mjolnir.js/dist/es5/types';
 
 export type ViewerProps = {
@@ -33,6 +34,11 @@ export type ViewerProps = {
   onInit?: () => void;
 };
 
+const layerTypes = {
+  box: Layer, // todo: generalize this to base class
+  geojson: GeoJsonLayer,
+};
+
 const defaultViewerProps: ViewerProps = {
   cameraOffset: [0, 0],
   cameraPitch: 0,
@@ -47,7 +53,7 @@ export class Viewer {
   transform: Transform;
   programManager: ProgramManager;
   sources: { [id: string]: DataSource };
-  layers: { [id: string]: Layer };
+  layers: { [id: string]: Layer | GeoJsonLayer }; // todo: use a generic solution for layer types
   context: {
     gl: WebGLRenderingContext;
   };
@@ -155,8 +161,15 @@ export class Viewer {
       // todo: the source should build the data for the layers async and call update when resolved
       if (this.context?.gl) {
         for (const layerProps of layers) {
+          if (!layerTypes[layerProps.type]) {
+            console.warn(
+              `Layer type of type: ${layerProps.type} is not implemented`
+            );
+            continue;
+          }
           // todo: need to check layers state here, update or add layer only if needed
-          this.layers[layerProps.id] = new Layer(this, layerProps);
+          const LayerType = layerTypes[layerProps.type];
+          this.layers[layerProps.id] = new LayerType(this, layerProps);
         }
       }
     }

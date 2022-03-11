@@ -18,7 +18,7 @@ type Box = {
 
 export type LayerProps = {
   id: string;
-  type: string;
+  type: 'box'; // todo: box is just a test type for now, if useful -> create a "box layer"
   data: Box[]; // many different types should be supported, match this with type
 };
 
