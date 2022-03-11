@@ -33,6 +33,7 @@
     "@math.gl/core": "^3.5.7",
     "@math.gl/web-mercator": "^3.5.7",
     "@types/geojson": "^7946.0.8",
+    "earcut": "^2.2.3",
     "mjolnir.js": "^2.7.0-alpha.1"
   }
 }
