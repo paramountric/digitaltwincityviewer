@@ -68,4 +68,10 @@ export class Point {
     this.z /= p.z || 1;
     return this;
   }
+
+  static fromLngLat = function (lng: number, lat: number): Point {
+    const point = new Point();
+    point.lngLat = { lng, lat };
+    return point;
+  };
 }
