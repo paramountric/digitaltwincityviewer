@@ -16,6 +16,7 @@ import { Transform } from './Transform';
 import { DataSource, DataSourceProps } from './DataSource';
 import { Layer } from './Layer';
 import { GeoJsonLayer } from './GeoJsonLayer';
+import { GeoJsonBuildingLayer } from './GeoJsonBuildingLayer';
 import { HammerInput } from 'mjolnir.js/dist/es5/types';
 
 export type ViewerProps = {
@@ -36,6 +37,7 @@ export type ViewerProps = {
 const layerTypes = {
   box: Layer, // todo: generalize this to base class
   geojson: GeoJsonLayer,
+  'geojson-building': GeoJsonBuildingLayer,
 };
 
 const defaultViewerProps: ViewerProps = {

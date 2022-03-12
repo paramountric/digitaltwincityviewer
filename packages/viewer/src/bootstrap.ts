@@ -29,10 +29,10 @@ function bootstrap() {
   const viewer = new Viewer({
     onInit,
     center: [0, 0],
-    zoom: 4,
+    zoom: 7,
     cameraPitch: 0,
     cameraBearing: 0,
-    ...cities[0],
+    ...cities[2],
     sources: [
       {
         id: 'test-box-source',
@@ -57,10 +57,16 @@ function bootstrap() {
           //   data: geojsonCountries,
           //   showLines: true,
           // },
+          // {
+          //   id: 'geojson-layer',
+          //   type: 'geojson',
+          //   data: geojsonTestData,
+          //   showLines: true,
+          // },
           {
-            id: 'geojson-layer',
-            type: 'geojson',
-            data: geojsonTestData,
+            id: 'geojson-building-layer',
+            type: 'geojson-building',
+            data: geojsonTestData.features.filter(f => f.properties.building),
             showLines: true,
           },
         ],
