@@ -23,8 +23,7 @@ export type ViewerProps = {
   canvasParent?: HTMLCanvasElement; // prepare for headless
   width?: number;
   height?: number;
-  cityLon?: number;
-  cityLat?: number;
+  cityLngLat?: [number, number];
   cityExtentRadius?: number;
   cameraOffset?: [x: number, y: number];
   zoom?: number;
@@ -99,13 +98,6 @@ export class Viewer {
     });
   }
   public update(viewerProps: ViewerProps): void {
-    const { cityLon, cityLat } = viewerProps;
-    if (
-      (cityLon && cityLon !== this.props.cityLon) ||
-      (cityLat && cityLat !== this.props.cityLat)
-    ) {
-      // todo: this means loading a different city
-    }
     Object.assign(this.props, viewerProps);
     this.updateTransform();
   }
