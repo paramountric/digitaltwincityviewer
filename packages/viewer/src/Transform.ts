@@ -1,8 +1,10 @@
 // Copyright (C) 2022 Andreas Rudenå
 // Licensed under the MIT License
 // Heavily inspired by https://github.com/maplibre/maplibre-gl-js/blob/main/src/geo/transform.ts (Copyright (c) 2020, Mapbox under a BSD-3-Clause license)
+// todo: note that @math.gl/web-mercator seem to use more or less the same as above, but as utils
 
 import { mat4, vec4, vec2 } from 'gl-matrix';
+import { pixelsToWorld, getMeterZoom } from '@math.gl/web-mercator';
 import { Point } from './Point';
 import { ViewerProps } from './Viewer';
 
@@ -37,6 +39,7 @@ export class Transform {
   theta: number;
   degreesPerPixelPitch = -0.5;
   degreesPerPixelBearing = 0.2;
+  cityLngLat: [number, number];
   center: Point;
   pixelCenter: [number, number];
   needsUpdate: boolean;
@@ -47,7 +50,15 @@ export class Transform {
   }
 
   public setProps(props: ViewerProps) {
-    const { center, width, height, zoom, cameraPitch, cameraBearing } = props;
+    const {
+      center,
+      width,
+      height,
+      zoom,
+      cameraPitch,
+      cameraBearing,
+      cityLngLat,
+    } = props;
     this.width = width;
     this.height = height;
     this.zoom = zoom || 0;
@@ -55,15 +66,22 @@ export class Transform {
     this.theta = cameraBearing || 0; // azimuthal angle
     this.degreesPerPixelPitch = -0.5;
     this.degreesPerPixelBearing = 0.2;
+    this.cityLngLat = cityLngLat;
     this.setCenter(center || new Point(0, 0));
+    console.log(
+      getMeterZoom({
+        latitude: center[1],
+      })
+    );
   }
 
+  // todo: @math.gl/web-mercator scaleToZoom, zoomToScale
   get scale() {
     return 2 ** this.zoom;
   }
 
   get worldSize() {
-    return this.scale;
+    return this.scale * 512;
   }
 
   setZoom(zoom) {
@@ -116,6 +134,14 @@ export class Transform {
     this.width = w;
     this.height = h;
     this.update();
+  }
+
+  getMouse() {
+    return pixelsToWorld(
+      this.mousePosition,
+      this.invPixelMatrix as number[],
+      0
+    );
   }
 
   pan(thisPoint: [number, number], lastPoint: [number, number]) {
@@ -212,6 +238,7 @@ export class Transform {
     this.setCenter(new Point(newX, newY));
   }
 
+  // todo: use pixelsToWorld, it's basically the same
   pixelPointToPoint(pixelPoint: [number, number]) {
     const targetZ = 0;
     const coord0 = [...pixelPoint, 0, 1] as vec4;
@@ -231,6 +258,7 @@ export class Transform {
     return new Point(x, y);
   }
 
+  // todo: @math.gl/web-mercator worldToPixels
   pointToPixelPoint(point: Point): [number, number] {
     const p = [
       point.x * this.worldSize,
