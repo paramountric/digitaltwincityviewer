@@ -65,6 +65,7 @@ export class Viewer {
   mouseLast: [number, number] = [0, 0];
   zoomStart: [number, number] = [0, 0];
   needsRender = true;
+  picking: [number, number] | null;
   constructor(viewerProps: ViewerProps = {}) {
     this.props = defaultViewerProps;
     this.sources = {};
@@ -176,6 +177,7 @@ export class Viewer {
       const { gl } = this.context;
       clear(gl, { color: [1, 1, 1, 1] });
       gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+      this.pick();
       for (const layer of Object.values(this.layers)) {
         layer.render();
       }
@@ -191,6 +193,7 @@ export class Viewer {
         break;
       case 'mousemove':
         this.transform.onMouseMove(event);
+        this.onMouseMove(event);
         break;
       case 'mousedown':
         this.transform.onMouseDown(event);
@@ -200,5 +203,26 @@ export class Viewer {
         break;
     }
     this.needsRender = true;
+  }
+  private onMouseMove(event) {
+    if (event.leftButton || event.rightButton) {
+      return;
+    }
+    if (event.type === 'pointerleave') {
+      this.picking = null;
+      return;
+    }
+    if (!event.offsetCenter) {
+      return;
+    }
+    const { x, y } = event.offsetCenter;
+    this.picking = [x, y];
+  }
+  private pick() {
+    if (this.picking) {
+      // todo: call all layers with picking x, y
+      // console.log(this.picking);
+      this.picking = null;
+    }
   }
 }
