@@ -8,16 +8,20 @@ import {
   resizeGLContext,
   setParameters,
 } from '@luma.gl/gltools';
-import { vec2 } from 'gl-matrix';
-import { project } from '@luma.gl/shadertools';
-import { clear } from '@luma.gl/webgl';
+import { cssToDevicePixels, isWebGL2, withParameters } from '@luma.gl/gltools';
+import {
+  clear,
+  Framebuffer,
+  Texture2D,
+  readPixelsToArray,
+} from '@luma.gl/webgl';
 import { EventManager } from 'mjolnir.js';
 import { Transform } from './Transform';
 import { DataSource, DataSourceProps } from './DataSource';
 import { Layer } from './Layer';
 import { GeoJsonLayer } from './GeoJsonLayer';
 import { GeoJsonBuildingLayer } from './GeoJsonBuildingLayer';
-import { HammerInput } from 'mjolnir.js/dist/es5/types';
+import GL from '@luma.gl/constants';
 
 export type ViewerProps = {
   center?: [number, number];
@@ -66,6 +70,8 @@ export class Viewer {
   zoomStart: [number, number] = [0, 0];
   needsRender = true;
   picking: [number, number] | null;
+  pickingFramebuffer: Framebuffer;
+  depthFramebuffer: Framebuffer;
   constructor(viewerProps: ViewerProps = {}) {
     this.props = defaultViewerProps;
     this.sources = {};
@@ -75,12 +81,6 @@ export class Viewer {
     canvas.id = 'dtcv-canvas';
     this.props.width = this.props.width || window.innerWidth;
     this.props.height = this.props.height || window.innerHeight;
-    canvas.style.width = Number.isFinite(this.props.width)
-      ? `${this.props.width}px`
-      : '100%';
-    canvas.style.height = Number.isFinite(this.props.height)
-      ? `${this.props.height}px`
-      : '100%';
     const parent = viewerProps.canvasParent || document.body;
     parent.appendChild(canvas);
     // create animation loop and start
@@ -90,6 +90,7 @@ export class Viewer {
       onCreateContext: ctxOptions =>
         createGLContext({
           ...ctxOptions,
+          webgl1: false, // webgl2 is required
           canvas,
         }),
       onInitialize: this.init.bind(this),
@@ -220,9 +221,49 @@ export class Viewer {
     this.picking = [x, y];
   }
   private pick() {
-    if (this.picking) {
-      // todo: call all layers with picking x, y
-      // console.log(this.picking);
+    if (this.context?.gl && this.picking) {
+      const { gl } = this.context;
+      this.pickingFramebuffer = new Framebuffer(gl);
+      this.pickingFramebuffer.resize({
+        width: gl.canvas.width,
+        height: gl.canvas.height,
+      });
+
+      this.depthFramebuffer = new Framebuffer(gl);
+      this.depthFramebuffer.attach({
+        [GL.COLOR_ATTACHMENT0]: new Texture2D(gl, {
+          format: GL.RGBA32F,
+          type: GL.FLOAT,
+        }),
+      });
+      this.depthFramebuffer.resize({
+        width: gl.canvas.width,
+        height: gl.canvas.height,
+      });
+      // this function restores the parameters after callback
+      withParameters(
+        gl,
+        {
+          target: this.pickingFramebuffer,
+          sissorTest: true,
+          scissor: [0, 0, 1, 1], // provide correct, from transform mouse state
+          clearColor: [0, 0, 0, 0],
+          depthMask: true,
+          depthTest: true,
+          depthRange: [0, 1],
+          colorMask: [true, true, true, true],
+          blend: false,
+          blendFunc: [GL.ONE, GL.ZERO, GL.CONSTANT_ALPHA, GL.ZERO],
+          blendEquation: GL.FUNC_ADD,
+        },
+        () => {
+          // call layer.render()
+        }
+      );
+      const pickedColors = new Uint8Array(
+        this.props.width * this.props.height * 4
+      );
+      readPixelsToArray(this.pickingFramebuffer, { target: pickedColors });
       this.picking = null;
     }
   }
