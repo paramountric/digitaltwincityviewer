@@ -85,6 +85,8 @@ export class Viewer {
     parent.appendChild(canvas);
     // create animation loop and start
     const defaultAnimationLoopProps: AnimationLoopProps = {
+      autoResizeViewport: true,
+      autoResizeDrawingBuffer: true,
       onCreateContext: ctxOptions =>
         createGLContext({
           ...ctxOptions,
@@ -176,7 +178,6 @@ export class Viewer {
     if (this.context?.gl) {
       const { gl } = this.context;
       clear(gl, { color: [1, 1, 1, 1] });
-      gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
       this.pick();
       for (const layer of Object.values(this.layers)) {
         layer.render();
