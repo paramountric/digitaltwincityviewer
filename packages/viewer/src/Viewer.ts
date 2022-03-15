@@ -5,6 +5,7 @@ import { AnimationLoop, ProgramManager } from '@luma.gl/engine';
 import { AnimationLoopProps } from '@luma.gl/engine/src/lib/animation-loop';
 import {
   createGLContext,
+  cssToDeviceRatio,
   resizeGLContext,
   setParameters,
 } from '@luma.gl/gltools';
@@ -223,10 +224,16 @@ export class Viewer {
   private pick() {
     if (this.context?.gl && this.picking) {
       const { gl } = this.context;
+      const { width, height } = gl.canvas;
+      const devicePixelRange = cssToDevicePixels(gl, this.picking, true);
+      const devicePixel = [
+        devicePixelRange.x + Math.floor(devicePixelRange.width / 2),
+        devicePixelRange.y + Math.floor(devicePixelRange.height / 2),
+      ];
       this.pickingFramebuffer = new Framebuffer(gl);
       this.pickingFramebuffer.resize({
-        width: gl.canvas.width,
-        height: gl.canvas.height,
+        width,
+        height,
       });
 
       this.depthFramebuffer = new Framebuffer(gl);
@@ -237,33 +244,40 @@ export class Viewer {
         }),
       });
       this.depthFramebuffer.resize({
-        width: gl.canvas.width,
-        height: gl.canvas.height,
+        width,
+        height,
       });
-      // this function restores the parameters after callback
+
       withParameters(
         gl,
         {
-          target: this.pickingFramebuffer,
+          framebuffer: this.pickingFramebuffer,
           sissorTest: true,
-          scissor: [0, 0, 1, 1], // provide correct, from transform mouse state
+          scissor: [...devicePixel, 1, 1],
           clearColor: [0, 0, 0, 0],
           depthMask: true,
           depthTest: true,
           depthRange: [0, 1],
           colorMask: [true, true, true, true],
-          blend: false,
+          blend: true,
           blendFunc: [GL.ONE, GL.ZERO, GL.CONSTANT_ALPHA, GL.ZERO],
           blendEquation: GL.FUNC_ADD,
+          blendColor: [0, 0, 0, 0.5],
         },
         () => {
-          // call layer.render()
+          for (const layer of Object.values(this.layers)) {
+            layer.render();
+          }
         }
       );
-      const pickedColors = new Uint8Array(
-        this.props.width * this.props.height * 4
-      );
-      readPixelsToArray(this.pickingFramebuffer, { target: pickedColors });
+      const pickedColors = new Uint8Array(4);
+      readPixelsToArray(this.pickingFramebuffer, {
+        sourceX: devicePixel[0],
+        sourceY: devicePixel[1],
+        sourceWidth: 1,
+        sourceHeight: 1,
+        target: pickedColors,
+      });
       this.picking = null;
     }
   }
