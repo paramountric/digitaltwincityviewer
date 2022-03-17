@@ -3,8 +3,9 @@
 
 import { Model } from '@luma.gl/engine';
 import { Buffer } from '@luma.gl/webgl';
-import { Matrix4 } from '@math.gl/core';
 import GL from '@luma.gl/constants';
+import { project, picking } from '@luma.gl/shadertools';
+import { Matrix4 } from '@math.gl/core';
 import { Feature, Position } from 'geojson';
 import { Transform } from './Transform';
 import { Point } from './Point';
@@ -30,23 +31,22 @@ attribute vec2 positions;
 attribute vec3 nextPositions;
 attribute vec2 vertexPositions;
 attribute float vertexValid;
+attribute vec3 pickingColor;
 
-uniform mat4 modelMatrix;
-uniform mat4 viewProjectionMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
 uniform vec4 projectionOffset;
 
 void main() {
   vec4 pos = vec4(positions, 0., 1.0);
   //vec3 pos = project_to_clipspace(pos) * modelMatrix;
   gl_Position = viewProjectionMatrix * modelMatrix * pos;// + projectionOffset;
+  picking_setPickingColor(pickingColor);
 }
 `;
 
 const fs = `
 void main() {
   gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0);
+  gl_FragColor = picking_filterPickingColor(gl_FragColor);
 }
 `;
 
@@ -119,6 +119,7 @@ export class GeoJsonBuildingLayer {
       indices: [],
       indexCount: 0,
       starts: [],
+      pickingColors: [],
     };
     for (const feature of data) {
       if (feature.geometry.type === 'Polygon') {
@@ -146,6 +147,7 @@ export class GeoJsonBuildingLayer {
       id: 'geojson',
       vs,
       fs,
+      modules: [project, picking],
       attributes: {
         positions: [new Buffer(gl, new Float32Array(vertices)), { size: 2 }],
         indices: [
