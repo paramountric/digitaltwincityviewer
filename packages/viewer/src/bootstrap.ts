@@ -39,19 +39,6 @@ function bootstrap() {
         type: 'custom',
         layers: [
           // {
-          //   id: 'box-layer',
-          //   type: 'box',
-          //   data: [
-          //     {
-          //       x: 0,
-          //       y: 0,
-          //       z: 0,
-          //       w: 100,
-          //       h: 100,
-          //     },
-          //   ],
-          // },
-          // {
           //   id: 'geojson-layer-countries',
           //   type: 'geojson',
           //   data: geojsonCountries,
@@ -63,6 +50,15 @@ function bootstrap() {
           //   data: geojsonTestData,
           //   showLines: true,
           // },
+          {
+            id: 'poi',
+            type: 'point-of-interest',
+            data: [
+              { x: -1, y: 0, z: 0 },
+              { x: 4, y: 0, z: 0 },
+              { x: 10, y: 0, z: 0 },
+            ],
+          },
           {
             id: 'geojson-building-layer',
             type: 'geojson-building',

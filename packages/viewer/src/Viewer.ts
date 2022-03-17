@@ -1,11 +1,10 @@
 // Copyright (C) 2022 Andreas Rudenå
 // Licensed under the MIT License
 
-import { AnimationLoop, ProgramManager } from '@luma.gl/engine';
+import { AnimationLoop, ProgramManager, Timeline } from '@luma.gl/engine';
 import { AnimationLoopProps } from '@luma.gl/engine/src/lib/animation-loop';
 import {
   createGLContext,
-  cssToDeviceRatio,
   resizeGLContext,
   setParameters,
 } from '@luma.gl/gltools';
@@ -19,10 +18,9 @@ import {
 import { EventManager } from 'mjolnir.js';
 import { Transform } from './Transform';
 import { DataSource, DataSourceProps } from './DataSource';
-import { Layer } from './Layer';
-import { GeoJsonLayer } from './GeoJsonLayer';
 import { GeoJsonBuildingLayer } from './GeoJsonBuildingLayer';
 import GL from '@luma.gl/constants';
+import { PointOfInterestLayer } from './PointOfInterestLayer';
 
 export type ViewerProps = {
   center?: [number, number];
@@ -40,9 +38,8 @@ export type ViewerProps = {
 };
 
 const layerTypes = {
-  box: Layer, // todo: generalize this to base class
-  geojson: GeoJsonLayer,
   'geojson-building': GeoJsonBuildingLayer,
+  'point-of-interest': PointOfInterestLayer,
 };
 
 const defaultViewerProps: ViewerProps = {
@@ -59,9 +56,10 @@ export class Viewer {
   transform: Transform;
   programManager: ProgramManager;
   sources: { [id: string]: DataSource };
-  layers: { [id: string]: Layer | GeoJsonLayer }; // todo: use a generic solution for layer types
+  layers: { [id: string]: GeoJsonBuildingLayer }; // todo: use a generic solution for layer types
   context: {
     gl: WebGLRenderingContext;
+    timeline: Timeline;
   };
   dragMode: number; // 0 = nodrag, 1 = pan, 2 = rotate
   dragStart: [number, number];
@@ -73,6 +71,7 @@ export class Viewer {
   picking: [number, number] | null;
   pickingFramebuffer: Framebuffer;
   depthFramebuffer: Framebuffer;
+  pickedColor: Uint8Array;
   constructor(viewerProps: ViewerProps = {}) {
     this.props = defaultViewerProps;
     this.sources = {};
@@ -120,6 +119,9 @@ export class Viewer {
       polygonOffsetFill: true,
       depthTest: true,
     });
+    const timeline = new Timeline();
+    timeline.play();
+    this.animationLoop.attachTimeline(timeline);
     this.handleEvent = this.handleEvent.bind(this);
     this.eventManager = new EventManager(animationLoopProps.gl.canvas, {
       events: {
@@ -145,6 +147,7 @@ export class Viewer {
     });
     this.context = {
       gl: animationLoopProps.gl,
+      timeline,
     };
     if (this.props.onInit) {
       this.props.onInit();
@@ -182,7 +185,14 @@ export class Viewer {
       clear(gl, { color: [1, 1, 1, 1] });
       this.pick();
       for (const layer of Object.values(this.layers)) {
-        layer.render();
+        layer.render({
+          moduleSettings: {
+            pickingSelectedColorValid: true,
+            pickingActive: false,
+            pickingHighlightColor: [0, 255, 0, 0.5],
+            pickingSelectedColor: this.pickedColor,
+          },
+        });
       }
     }
     this.needsRender = false;
@@ -262,22 +272,28 @@ export class Viewer {
           blend: true,
           blendFunc: [GL.ONE, GL.ZERO, GL.CONSTANT_ALPHA, GL.ZERO],
           blendEquation: GL.FUNC_ADD,
-          blendColor: [0, 0, 0, 0.5],
+          blendColor: [0, 0, 0, 0],
         },
         () => {
           for (const layer of Object.values(this.layers)) {
-            layer.render();
+            layer.render({
+              moduleSettings: {
+                pickingSelectedColorValid: false,
+                pickingActive: true,
+              },
+            });
           }
         }
       );
-      const pickedColors = new Uint8Array(4);
+      const pickedColor = new Uint8Array(4);
       readPixelsToArray(this.pickingFramebuffer, {
         sourceX: devicePixel[0],
         sourceY: devicePixel[1],
         sourceWidth: 1,
         sourceHeight: 1,
-        target: pickedColors,
+        target: pickedColor,
       });
+      this.pickedColor = pickedColor;
       this.picking = null;
     }
   }
