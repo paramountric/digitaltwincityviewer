@@ -7,7 +7,7 @@ import GL from '@luma.gl/constants';
 import { project, picking } from '@luma.gl/shadertools';
 import { Matrix4 } from '@math.gl/core';
 import { Feature, Position } from 'geojson';
-import { Transform } from './Transform';
+import { Layer } from './Layer';
 import { Point } from './Point';
 import { Viewer } from './Viewer';
 import { triangulate, Polygon, MultiPolygon } from './utils/polygon';
@@ -57,17 +57,15 @@ void main() {
 // - Different data types such as point cloud, shape files, 3D-models, etc
 // - Different disciplines such as energy model, structural model, etc
 // One approach to solve this could be using 3D Tiles or similar concept (so a tree/graph of layers?)
-export class GeoJsonBuildingLayer {
+export class GeoJsonBuildingLayer extends Layer {
   id: string;
   gl: WebGLRenderingContext;
-  transform: Transform;
   props: GeoJsonBuildingLayerProps;
   models: Model[];
   model: Model;
   constructor(viewer: Viewer, layerProps: GeoJsonBuildingLayerProps) {
+    super(viewer, { id: layerProps.id });
     this.id = layerProps.id;
-    this.gl = viewer.context.gl;
-    this.transform = viewer.transform;
     this.update(layerProps);
   }
 
@@ -167,7 +165,7 @@ export class GeoJsonBuildingLayer {
     return model;
   }
 
-  render() {
+  render({ moduleSettings = {} }) {
     if (this.model) {
       const modelMatrix = new Matrix4();
       //modelMatrix.rotateZ(Math.random());
@@ -177,7 +175,9 @@ export class GeoJsonBuildingLayer {
         .setUniforms({
           modelMatrix,
         })
-        .draw();
+        .draw({
+          moduleSettings,
+        });
     }
   }
 }
