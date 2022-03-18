@@ -41,5 +41,6 @@ export function triangulate(mp: MultiPolygon) {
   return {
     vertices,
     indices,
+    holes,
   };
 }
