@@ -19,7 +19,7 @@ export abstract class Layer {
     this.transform = viewer.transform;
   }
 
-  getPickingColors(numInstances) {
+  getInstancePickingColors(numInstances) {
     let instancePickingColors = [];
     for (let i = 0; i < numInstances; i++) {
       instancePickingColors = instancePickingColors.concat(

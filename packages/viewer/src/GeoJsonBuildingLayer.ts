@@ -24,6 +24,9 @@ export type GeoJsonBuildingLayerProps = {
 type LayerAttributeData = {
   vertices: number[];
   indices: number[];
+  numInstances: number;
+  polygonStarts: number[];
+  pickingColors: number[];
 };
 
 const vs = `
@@ -31,7 +34,7 @@ attribute vec2 positions;
 attribute vec3 nextPositions;
 attribute vec2 vertexPositions;
 attribute float vertexValid;
-attribute vec3 pickingColor;
+attribute vec3 pickingColors;
 
 uniform vec4 projectionOffset;
 
@@ -39,14 +42,14 @@ void main() {
   vec4 pos = vec4(positions, 0., 1.0);
   //vec3 pos = project_to_clipspace(pos) * modelMatrix;
   gl_Position = viewProjectionMatrix * modelMatrix * pos;// + projectionOffset;
-  picking_setPickingColor(pickingColor);
+  picking_setPickingColor(pickingColors);
 }
 `;
 
 const fs = `
 void main() {
   gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0);
-  gl_FragColor = picking_filterPickingColor(gl_FragColor);
+  gl_FragColor = picking_filterColor(gl_FragColor);
 }
 `;
 
@@ -95,13 +98,33 @@ export class GeoJsonBuildingLayer extends Layer {
       }
       triangulateInput.push(points);
     }
-    const { vertices, indices } = triangulate(triangulateInput as MultiPolygon);
+    const { vertices, indices, holes } = triangulate(
+      triangulateInput as MultiPolygon
+    );
     for (let i = 0; i < indices.length; i++) {
       indices[i] = indices[i] + data.indexCount;
     }
-    data.indexCount += vertices.length / 2;
+    // todo: figure out dimensions 2 or 3
+    const dimensions = 2;
+    const numVertices = vertices.length / dimensions;
+    const vertexStart = data.vertices.length / dimensions;
+    data.indexCount += numVertices;
     data.indices = data.indices.concat(indices);
     data.vertices = data.vertices.concat(vertices);
+    const polygonStarts = [...Array(numVertices - 1).fill(1), 0];
+    if (holes) {
+      for (const holeIndex of holes) {
+        const holeEnd = vertexStart + holeIndex / dimensions - 1;
+        polygonStarts[holeEnd] = 0;
+      }
+    }
+    data.polygonStarts = data.polygonStarts.concat(polygonStarts);
+    // numInstances will increment in main loop for each feature
+    const instanceColor = this.indexToColor(data.numInstances);
+    const pickingColors = Array(numVertices)
+      .fill(null)
+      .reduce(d => [...d, ...instanceColor], []);
+    data.pickingColors = data.pickingColors.concat(pickingColors);
   }
 
   generateAttributeData(
@@ -116,17 +139,19 @@ export class GeoJsonBuildingLayer extends Layer {
       vertices: [],
       indices: [],
       indexCount: 0,
-      starts: [],
+      numInstances: 0,
+      polygonStarts: [],
       pickingColors: [],
     };
     for (const feature of data) {
       if (feature.geometry.type === 'Polygon') {
         this.getPolygonData(feature.geometry.coordinates, attributeData);
+        attributeData.numInstances++;
       } else if (feature.geometry.type === 'MultiPolygon') {
         this.getMultiPolygonData(feature.geometry.coordinates, attributeData);
+        attributeData.numInstances++;
       }
     }
-    console.log(attributeData);
 
     return attributeData;
   }
@@ -138,8 +163,17 @@ export class GeoJsonBuildingLayer extends Layer {
     }
   }
 
-  createModel({ vertices, indices }) {
+  createModel({
+    vertices,
+    indices,
+    numInstances,
+    polygonStarts,
+    pickingColors,
+  }) {
     const gl = this.gl;
+
+    const positionsBuffer = new Buffer(gl, new Float32Array(vertices));
+    const pickingColorBuffer = new Buffer(gl, new Float32Array(pickingColors));
 
     const model = new Model(gl, {
       id: 'geojson',
@@ -147,7 +181,17 @@ export class GeoJsonBuildingLayer extends Layer {
       fs,
       modules: [project, picking],
       attributes: {
-        positions: [new Buffer(gl, new Float32Array(vertices)), { size: 2 }],
+        vertexPositions: new Float32Array([0, 1]),
+        positions: [positionsBuffer, { size: 2 }],
+        instancePositions: [positionsBuffer, { size: 2, divisor: 1 }],
+        nextPositions: [
+          positionsBuffer,
+          { size: 2, divisor: 1, vertexOffset: 1 },
+        ],
+        polygonStarts: [
+          new Buffer(gl, new Uint8Array(polygonStarts)),
+          { divisor: 1, size: 1 },
+        ],
         indices: [
           new Buffer(gl, {
             data: new Uint32Array(indices),
@@ -158,10 +202,12 @@ export class GeoJsonBuildingLayer extends Layer {
             isIndexed: true,
           },
         ],
+        pickingColors: [pickingColorBuffer, { divisor: 0, size: 3 }],
+        instancePickingColors: [pickingColorBuffer, { divisor: 1 }],
       },
       vertexCount: indices.length,
+      instanceCount: numInstances,
     });
-    console.log(model);
     return model;
   }
 
