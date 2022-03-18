@@ -71,7 +71,7 @@ export class Viewer {
   picking: [number, number] | null;
   pickingFramebuffer: Framebuffer;
   depthFramebuffer: Framebuffer;
-  pickedColor: Uint8Array;
+  pickedColor: number[];
   constructor(viewerProps: ViewerProps = {}) {
     this.props = defaultViewerProps;
     this.sources = {};
@@ -189,7 +189,7 @@ export class Viewer {
           moduleSettings: {
             pickingSelectedColorValid: true,
             pickingActive: false,
-            pickingHighlightColor: [0, 255, 0, 0.5],
+            pickingHighlightColor: [1, 0, 0],
             pickingSelectedColor: this.pickedColor,
           },
         });
@@ -293,7 +293,7 @@ export class Viewer {
         sourceHeight: 1,
         target: pickedColor,
       });
-      this.pickedColor = pickedColor;
+      this.pickedColor = Array.from(pickedColor);
       this.picking = null;
     }
   }
