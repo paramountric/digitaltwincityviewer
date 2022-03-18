@@ -134,12 +134,6 @@ export class Viewer {
       },
     });
     this.transform = new Transform(this.props);
-    // Note: there is a deprecation warning on Program in Luma v8. Look continuously into the v9 progress (Feb 2022 it's still in review).
-    // const programManager = ProgramManager.getDefaultProgramManager(
-    //   animationLoopProps.gl
-    // );
-    // programManager.addDefaultModule(project);
-
     resizeGLContext(animationLoopProps.gl, {
       useDevicePixels: true,
       width: this.props.width,
@@ -185,12 +179,14 @@ export class Viewer {
       clear(gl, { color: [1, 1, 1, 1] });
       this.pick();
       for (const layer of Object.values(this.layers)) {
+        const pickingLayer = this.pickedColor ? this.pickedColor[3] : 0;
         layer.render({
           moduleSettings: {
-            pickingSelectedColorValid: true,
-            pickingActive: false,
-            pickingHighlightColor: [1, 0, 0],
-            pickingSelectedColor: this.pickedColor,
+            pickingActive: false, // will render picking color
+            pickingAttribute: false, // use this together with picking_setPickingAttribute() to pick f
+            pickingHighlightColor: [0, 0, 255, 255],
+            pickingSelectedColor:
+              layer.index === pickingLayer ? this.pickedColor : null,
           },
         });
       }
@@ -277,6 +273,9 @@ export class Viewer {
         () => {
           for (const layer of Object.values(this.layers)) {
             layer.render({
+              parameters: {
+                blendColor: [0, 0, 0, layer.index / 255],
+              },
               moduleSettings: {
                 pickingSelectedColorValid: false,
                 pickingActive: true,

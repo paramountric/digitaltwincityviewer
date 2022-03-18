@@ -103,7 +103,7 @@ export class PointOfInterestLayer extends Layer {
     });
   }
 
-  render({ moduleSettings = {} }) {
+  render({ moduleSettings = {}, parameters = {} }) {
     if (this.model) {
       const modelMatrix = new Matrix4();
       //modelMatrix.rotateZ(Math.random());
@@ -115,6 +115,7 @@ export class PointOfInterestLayer extends Layer {
         })
         .draw({
           moduleSettings,
+          parameters,
         });
     }
   }

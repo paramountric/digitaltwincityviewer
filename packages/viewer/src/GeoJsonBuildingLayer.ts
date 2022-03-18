@@ -211,7 +211,7 @@ export class GeoJsonBuildingLayer extends Layer {
     return model;
   }
 
-  render({ moduleSettings = {} }) {
+  render({ moduleSettings = {}, parameters = {} }) {
     if (this.model) {
       const modelMatrix = new Matrix4();
       //modelMatrix.rotateZ(Math.random());
@@ -223,6 +223,7 @@ export class GeoJsonBuildingLayer extends Layer {
         })
         .draw({
           moduleSettings,
+          parameters,
         });
     }
   }
