@@ -91,7 +91,10 @@ export class PointOfInterestLayer extends Layer {
           { divisor: 1 },
         ],
         instancePickingColors: [
-          new Buffer(gl, new Float32Array(this.getPickingColors(numInstances))),
+          new Buffer(
+            gl,
+            new Float32Array(this.getInstancePickingColors(numInstances))
+          ),
           { divisor: 1 },
         ],
       },
