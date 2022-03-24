@@ -3,11 +3,15 @@
 
 import {
   Deck,
-  Layer as DeckLayer,
   LayerProps,
   MapViewState,
+  COORDINATE_SYSTEM,
 } from '@deck.gl/core';
+import { SurfaceMeshLayer } from './SurfaceMeshLayer';
+import { SimpleMeshLayer } from '@deck.gl/mesh-layers';
+import { ScatterplotLayer } from '@deck.gl/layers';
 import '@luma.gl/debug';
+import { reaction, makeObservable, observable } from 'mobx';
 class UiStore {
   viewStore: ViewStore;
   constructor(store) {
@@ -15,18 +19,62 @@ class UiStore {
   }
 }
 
-const layerGroupCatalog = [];
+const fileName = 'Helsingborg2021.json';
 
-class LayerGroup {
+const layerGroupCatalog: LayerGroupState[] = [
+  {
+    title: 'Ground',
+    description: 'Ground layer',
+    layers: [
+      {
+        type: SimpleMeshLayer,
+        props: {
+          id: 'ground-mesh-layer',
+          data: `https://dtcc-js-assets.s3.eu-north-1.amazonaws.com/${fileName}`,
+          wireframe: false,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          parameters: {
+            depthTest: true,
+          },
+        },
+      },
+      {
+        type: ScatterplotLayer,
+        props: {
+          id: 'test-layer',
+          data: [
+            {
+              coordinates: [0, 0],
+            },
+          ],
+          pickable: true,
+          opacity: 0.8,
+          stroked: true,
+          filled: true,
+          radiusScale: 6,
+          radiusMinPixels: 1,
+          radiusMaxPixels: 100,
+          lineWidthMinPixels: 1,
+          getPosition: d => d.coordinates,
+          getRadius: d => 10,
+          getFillColor: d => [255, 140, 0],
+          getLineColor: d => [0, 0, 0],
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+        },
+      },
+    ],
+  },
+];
+
+type LayerGroupState = {
   title: string;
   description: string;
   layers: Layer[];
-}
+};
 
 class Layer {
-  type: string;
+  type: any;
   props: LayerProps;
-  instance: DeckLayer;
 }
 
 class ViewStore {
@@ -37,14 +85,51 @@ class ViewStore {
 }
 
 class LayerStore {
-  layerGroups: LayerGroup[];
-  constructor() {
+  layerGroups: LayerGroupState[];
+  rootStore: RootStore;
+  constructor(rootStore) {
+    this.rootStore = rootStore;
     this.layerGroups = layerGroupCatalog;
+    this.updateLayers();
+    //this.loadLayers();
+    // reaction(
+    //   () => this.layerGroups,
+    //   newGroups => {
+    //     console.log(newGroups);
+    //   }
+    // );
+  }
+  // loadLayers() {
+  //   const layers = this.getLayers();
+  //   console.log(layers);
+  //   for (const layer of layers) {
+  //     if (!layer.isLoaded) {
+  //       layer.instance = new layer.type(layer.props);
+  //       console.log(layer.instance);
+  //       layer.instance.props.fetch(
+  //         `https://dtcc-js-assets.s3.eu-north-1.amazonaws.com/${fileName}`
+  //       );
+  //     }
+  //   }
+  // }
+  onDataLoad(value, context) {
+    console.log(value, context, this);
+    return {};
   }
   getLayers() {
     return this.layerGroups.reduce((acc, group) => {
-      return [...acc, ...group.layers.map(layer => layer.instance)];
+      return [...acc, ...group.layers];
     }, []);
+  }
+  getLayersInstances() {
+    const layers = this.getLayers();
+    return layers.map(layer => {
+      layer.props.onDataLoad = this.onDataLoad.bind(this);
+      return new layer.type(layer.props);
+    });
+  }
+  updateLayers() {
+    this.rootStore.updateLayers(this.getLayersInstances());
   }
 }
 
@@ -62,10 +147,16 @@ const defaultProps = {
     longitude: 0,
     latitude: 0,
     zoom: 0,
+    // longitude: 12.769772664016791,
+    // latitude: 56.05114507504894,
+    // target: [0, 0, 0],
+    // zoom: 14,
+    // pitch: 60,
+    // bearing: 0,
   },
 };
 
-export class Store {
+export class RootStore {
   deck: Deck;
   authStore: AuthStore;
   uiStore: UiStore;
@@ -85,15 +176,10 @@ export class Store {
     this.authStore = new AuthStore();
     this.uiStore = new UiStore(this);
     this.viewStore = new ViewStore();
-    this.layerStore = new LayerStore();
+    this.layerStore = new LayerStore(this);
   }
 
-  update() {
-    const viewState = this.viewStore.getViewState();
-    const layers = this.layerStore.getLayers();
-    this.deck.setProps({
-      viewState,
-      layers,
-    });
+  updateLayers(layers) {
+    this.deck.setProps({ layers });
   }
 }
