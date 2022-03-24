@@ -27,6 +27,8 @@
   },
   "dependencies": {
     "@deck.gl/core": "^8.7.2",
+    "@deck.gl/layers": "^8.7.2",
+    "@deck.gl/mesh-layers": "^8.7.2",
     "@luma.gl/core": "^8.5.10",
     "@luma.gl/debug": "^8.5.10",
     "@luma.gl/engine": "^8.5.10",
@@ -36,8 +38,11 @@
     "@math.gl/core": "^3.5.7",
     "@math.gl/web-mercator": "^3.5.7",
     "@types/geojson": "^7946.0.8",
+    "assert": "^2.0.0",
     "earcut": "^2.2.3",
     "mjolnir.js": "^2.7.0-alpha.1",
-    "mobx": "^6.5.0"
+    "mobx": "^6.5.0",
+    "stream": "0.0.2",
+    "threads": "^1.7.0"
   }
 }
