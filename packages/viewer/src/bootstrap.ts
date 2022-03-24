@@ -1,4 +1,5 @@
 import { Viewer } from './Viewer';
+import { RootStore } from './Store';
 import geojsonTestData from '../example-data/OSM-malmo/osm-malmo';
 import geojsonCountries from '../example-data/Countries/countries';
 
@@ -23,52 +24,7 @@ const cities = [
 ];
 
 function bootstrap() {
-  const onInit = () => {
-    viewer.update({});
-  };
-  const viewer = new Viewer({
-    onInit,
-    center: [0, 0],
-    zoom: 7,
-    cameraPitch: 0,
-    cameraBearing: 0,
-    ...cities[2],
-    sources: [
-      {
-        id: 'test-box-source',
-        type: 'custom',
-        layers: [
-          // {
-          //   id: 'geojson-layer-countries',
-          //   type: 'geojson',
-          //   data: geojsonCountries,
-          //   showLines: true,
-          // },
-          // {
-          //   id: 'geojson-layer',
-          //   type: 'geojson',
-          //   data: geojsonTestData,
-          //   showLines: true,
-          // },
-          {
-            id: 'poi',
-            type: 'point-of-interest',
-            data: [
-              { x: -1, y: 0, z: 0 },
-              { x: 4, y: 0, z: 0 },
-              { x: 10, y: 0, z: 0 },
-            ],
-          },
-          {
-            id: 'geojson-building-layer',
-            type: 'geojson-building',
-            data: geojsonTestData.features.filter(f => f.properties.building),
-            showLines: true,
-          },
-        ],
-      },
-    ],
-  });
+  const store = new RootStore();
 }
 
 export default bootstrap;
