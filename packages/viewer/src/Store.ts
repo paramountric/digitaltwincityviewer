@@ -1,7 +1,12 @@
 // Copyright (C) 2022 Andreas Rudenå
 // Licensed under the MIT License
 
-import { Deck, LayerProps, MapViewState } from '@deck.gl/core';
+import {
+  Deck,
+  Layer as DeckLayer,
+  LayerProps,
+  MapViewState,
+} from '@deck.gl/core';
 import '@luma.gl/debug';
 class UiStore {
   viewStore: ViewStore;
@@ -10,13 +15,18 @@ class UiStore {
   }
 }
 
-const layerCatalog = [];
+const layerGroupCatalog = [];
 
-class Layer {
+class LayerGroup {
   title: string;
   description: string;
+  layers: Layer[];
+}
+
+class Layer {
   type: string;
   props: LayerProps;
+  instance: DeckLayer;
 }
 
 class ViewStore {
@@ -27,12 +37,14 @@ class ViewStore {
 }
 
 class LayerStore {
-  layers: Layer[];
+  layerGroups: LayerGroup[];
   constructor() {
-    this.layers = layerCatalog;
+    this.layerGroups = layerGroupCatalog;
   }
   getLayers() {
-    return this.layers;
+    return this.layerGroups.reduce((acc, group) => {
+      return [...acc, ...group.layers.map(layer => layer.instance)];
+    }, []);
   }
 }
 
