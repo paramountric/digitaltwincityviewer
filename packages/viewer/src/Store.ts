@@ -12,8 +12,7 @@ import { SurfaceMeshLayer } from './SurfaceMeshLayer';
 import { SimpleMeshLayer } from '@deck.gl/mesh-layers';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import '@luma.gl/debug';
-import { Tile3DLayer } from '@deck.gl/geo-layers';
-import { Tiles3DLoader } from '@loaders.gl/3d-tiles';
+import Tile3DLayer from './Tile3DLayer'; //@deck.gl/geo-layers';
 import { reaction, makeObservable, observable } from 'mobx';
 class UiStore {
   viewStore: ViewStore;
@@ -29,28 +28,29 @@ const layerGroupCatalog: LayerGroupState[] = [
     title: 'Ground',
     description: 'Ground layer',
     layers: [
-      {
-        type: SimpleMeshLayer,
-        props: {
-          id: 'ground-mesh-layer',
-          data: `https://dtcc-js-assets.s3.eu-north-1.amazonaws.com/${fileName}`,
-          wireframe: false,
-          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-          parameters: {
-            depthTest: true,
-          },
-        },
-      },
+      // {
+      //   type: SimpleMeshLayer,
+      //   props: {
+      //     id: 'ground-mesh-layer',
+      //     data: `https://dtcc-js-assets.s3.eu-north-1.amazonaws.com/${fileName}`,
+      //     wireframe: false,
+      //     coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+      //     parameters: {
+      //       depthTest: true,
+      //     },
+      //   },
+      // },
       {
         type: Tile3DLayer,
         props: {
           id: 'tile-3d-layer',
-          data: 'http://localhost:60844/TilesetWithTreeBillboards/tileset.json',
-          loader: Tiles3DLoader,
+          //data: 'http://localhost:60844/TilesetWithTreeBillboards/tileset.json',
+          data: 'http://localhost:60844/TilesetWithDiscreteLOD/tileset.json',
+          //getPosition: [0, 0, 0],
           // override scenegraph subLayer prop
-          _subLayerProps: {
-            scenegraph: { _lighting: 'flat' },
-          },
+          // _subLayerProps: {
+          //   scenegraph: { _lighting: 'flat' },
+          // },
         },
       },
       {
@@ -163,6 +163,10 @@ class LayerStore {
           latitude: cartographicCenter[1],
           zoom,
         });
+        this.rootStore.deck.redraw(true);
+      };
+      layer.props.onTileLoad = tile => {
+        console.log(tile);
       };
       return new layer.type(layer.props);
     });
@@ -181,6 +185,7 @@ type StoreProps = {
 };
 
 const defaultProps = {
+  debug: true,
   controller: true,
   viewState: {
     longitude: 0,
