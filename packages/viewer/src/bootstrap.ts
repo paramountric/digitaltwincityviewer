@@ -22,7 +22,12 @@ const cities = [
 ];
 
 function bootstrap() {
-  const store = new RootStore();
+  const store = new RootStore({
+    // longitude: 11.9,
+    // latitude: 57.7,
+    longitude: 12.965601,
+    latitude: 55.591741,
+  });
 }
 
 export default bootstrap;
