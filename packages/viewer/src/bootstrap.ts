@@ -1,7 +1,5 @@
 import { Viewer } from './Viewer';
 import { RootStore } from './Store';
-import geojsonTestData from '../example-data/OSM-malmo/osm-malmo';
-import geojsonCountries from '../example-data/Countries/countries';
 
 // todo: make proper city entities (multi-language support, ids, metadata, stat props)
 const cities = [
