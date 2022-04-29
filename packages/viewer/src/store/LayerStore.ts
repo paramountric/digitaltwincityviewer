@@ -19,22 +19,17 @@ const layerGroupCatalog: LayerGroupState[] = [
     layers: [
       {
         type: SolidPolygonLayer,
-        data: [],
+        //url: 'http://localhost:9000/files/citymodel/CityModelWithBSMResults.json',
         url: 'http://localhost:9000/files/citymodel/Helsingborg2021.json',
         isLoaded: false,
         isLoading: false,
+        isClickable: true,
         props: {
-          id: 'city-model',
+          id: 'buildings-layer-polygons-lod-1',
           opacity: 0.7,
           autoHighlight: true,
-          // onClick: d => {
-          //   //this.setSelectedObject(d.object);
-          // },
-          // onHover: (info) => {
-          //   console.log(info);
-          // },
           highlightColor: [100, 150, 250, 128],
-          extruded: false,
+          extruded: true,
           wireframe: true,
           pickable: true,
           coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
@@ -76,7 +71,7 @@ class Layer {
   url?: string;
   isLoaded: boolean;
   isLoading: boolean;
-  data: any; // data will be loaded separtely and used as props.data in LayerProps when loaded (the built in layer loader was disabled due to some tricky need for customization)
+  isClickable: boolean;
   props: LayerProps;
 }
 
@@ -98,9 +93,13 @@ export class LayerStore {
       if (layer.isLoading) {
         return acc;
       } else if (!layer.isLoaded) {
-        console.log('load: ', layer.url);
         this.loadLayer(layer);
         return acc;
+      }
+      if (layer.isClickable) {
+        layer.props.onClick = d => {
+          this.rootStore.setSelectedObject(d.object);
+        };
       }
       return [...acc, new layer.type(layer.props)];
     }, []);
@@ -113,7 +112,6 @@ export class LayerStore {
     const layer = layerGroup.layers.find(layer => layer.props.id === layerId);
     Object.assign(layer, layerSettings);
     layer.props = Object.assign(layer.props, props);
-    console.log('update layerProps', layer);
   }
   renderLayers() {
     this.rootStore.render();
@@ -127,11 +125,11 @@ export class LayerStore {
     this.setLayerProps(layer.props.id, null, { isLoading: true });
     const cityModel = await fetch(layer.url);
     const json = await cityModel.json();
-    const converted = cityModelToGeoJson(json);
+    const { buildings, modelMatrix } = cityModelToGeoJson(json);
 
     this.setLayerProps(
       layer.props.id,
-      { data: converted.buildings },
+      { data: buildings, modelMatrix },
       { isLoaded: true, isLoading: false }
     );
     this.renderLayers();
