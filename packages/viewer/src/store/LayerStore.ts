@@ -7,7 +7,7 @@ import GL from '@luma.gl/constants';
 import { Geometry } from '@luma.gl/engine';
 import { RootStore } from '../RootStore';
 import GroundSurfaceLayer from '../layers/ground-surface-layer/GroundSurfaceLayer';
-import { parseCityModel } from '../utils/converter';
+import { parseCityModel } from '../utils/parser';
 
 const layerGroupCatalog: LayerGroupState[] = [
   {
