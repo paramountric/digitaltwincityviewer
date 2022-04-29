@@ -37,9 +37,13 @@ class ViewStore {
   getViewState() {
     return this.viewState;
   }
-  setViewState(viewState) {
+  setViewState({ longitude, latitude, zoom }: RootStoreProps) {
     const existingViewState = this.getViewState();
-    const newViewState = Object.assign({}, existingViewState, viewState);
+    const newViewState = Object.assign({}, existingViewState, {
+      longitude: longitude || defaultViewStateProps.longitude,
+      latitude: latitude || defaultViewStateProps.latitude,
+      zoom: zoom || defaultViewStateProps.zoom,
+    });
     this.viewState = newViewState;
   }
 }
@@ -52,9 +56,6 @@ type RootStoreProps = {
 
 const defaultProps = {
   debug: false,
-  controller: true,
-  views: null,
-  viewState: defaultViewStateProps,
   glOptions: {
     antialias: true,
     depth: false,
@@ -78,18 +79,8 @@ export class RootStore {
     const resolvedProps = Object.assign({}, defaultProps, props);
     resolvedProps.onWebGLInitialized = this.onWebGLInitialized.bind(this);
     resolvedProps.onViewStateChange = this.onViewStateChange.bind(this);
-    //resolvedProps.views = this.viewStore.getView();
     this.deck = new Deck(resolvedProps);
-
-    const { longitude, latitude, zoom } = props;
-    if (longitude && latitude) {
-      resolvedProps.viewState.longitude = longitude;
-      resolvedProps.viewState.latitude = latitude;
-    }
-    if (zoom) {
-      resolvedProps.viewState.zoom = zoom;
-    }
-    //this.viewStore.setViewState(resolvedProps.viewState);
+    this.viewStore.setViewState(props);
   }
 
   onWebGLInitialized(gl) {
@@ -104,9 +95,7 @@ export class RootStore {
 
   getProps() {
     return {
-      //onViewStateChange: this.onViewStateChange.bind(this),
       layers: this.layerStore.getLayersInstances(),
-      //viewsState: this.viewStore.getViewState(),
       views: this.viewStore.getView(),
     };
   }
