@@ -5,7 +5,7 @@ import { LayerProps, COORDINATE_SYSTEM } from '@deck.gl/core';
 import { SolidPolygonLayer } from '@deck.gl/layers';
 import GL from '@luma.gl/constants';
 import { Geometry } from '@luma.gl/engine';
-import { RootStore } from '../RootStore';
+import { RootStore } from './RootStore';
 import GroundSurfaceLayer from '../layers/ground-surface-layer/GroundSurfaceLayer';
 import { parseCityModel } from '../utils/parser';
 

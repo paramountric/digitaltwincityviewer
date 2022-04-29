@@ -4,8 +4,8 @@
 import { Deck, MapViewState, MapView } from '@deck.gl/core';
 import { LayerSpecification, Map, MapOptions } from 'maplibre-gl';
 import { reaction, makeObservable, observable } from 'mobx';
-import { LayerStore } from './store/LayerStore';
-import MaplibreWrapper from './MaplibreWrapper';
+import { LayerStore } from './LayerStore';
+import MaplibreWrapper from '../utils/MaplibreWrapper';
 class UiStore {
   viewStore: ViewStore;
   constructor(store) {

@@ -8,9 +8,9 @@ import { project, picking } from '@luma.gl/shadertools';
 import { Matrix4 } from '@math.gl/core';
 import { Feature, Position } from 'geojson';
 import { Layer } from './Layer';
-import { Point } from './Point';
-import { Viewer } from './Viewer';
-import { triangulate, Polygon, MultiPolygon } from './utils/polygon';
+import { Point } from '../lib/Point';
+import { Viewer } from '../lib/Viewer';
+import { triangulate, Polygon, MultiPolygon } from '../utils/polygon';
 
 export type GeoJsonBuildingLayerProps = {
   id: string;

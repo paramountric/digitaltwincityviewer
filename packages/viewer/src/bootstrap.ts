@@ -1,4 +1,4 @@
-import { RootStore } from './RootStore';
+import { RootStore } from './store/RootStore';
 
 // These are some settings used for dev, will be removed when it's figured out how to boot viewers from city presets
 // todo: make proper city entities (multi-language support, ids, metadata, stat props)

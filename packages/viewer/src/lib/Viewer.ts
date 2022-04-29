@@ -18,9 +18,9 @@ import {
 import { EventManager } from 'mjolnir.js';
 import { Transform } from './Transform';
 import { DataSource, DataSourceProps } from './DataSource';
-import { GeoJsonBuildingLayer } from './GeoJsonBuildingLayer';
+import { GeoJsonBuildingLayer } from '../layers/GeoJsonBuildingLayer';
 import GL from '@luma.gl/constants';
-import { PointOfInterestLayer } from './PointOfInterestLayer';
+import { PointOfInterestLayer } from '../layers/PointOfInterestLayer';
 
 export type ViewerProps = {
   center?: [number, number];

@@ -7,7 +7,7 @@ import { Buffer } from '@luma.gl/webgl';
 import { project, picking } from '@luma.gl/shadertools';
 import { Matrix4 } from '@math.gl/core';
 import { Layer } from './Layer';
-import { Viewer } from './Viewer';
+import { Viewer } from '../lib/Viewer';
 
 type PointOfInterest = {
   x: number;
