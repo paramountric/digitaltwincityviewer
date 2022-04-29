@@ -18,6 +18,7 @@ import {
 import Tile3DLayer from './Tile3DLayer/Tile3DLayer'; //@deck.gl/geo-layers';
 import { reaction, makeObservable, observable } from 'mobx';
 import TileLayer from './TileLayer';
+import { cityModelToGeoJson } from './utils/converter';
 class UiStore {
   viewStore: ViewStore;
   constructor(store) {
@@ -46,6 +47,33 @@ const layerGroupCatalog: LayerGroupState[] = [
       //     },
       //   },
       // },
+      {
+        type: SolidPolygonLayer,
+        props: {
+          id: 'city-model',
+          // opacity: 0.7,
+          // autoHighlight: true,
+          // material: 'material',
+          data: 'http://localhost:9000/files/citymodel/Helsingborg2021.json',
+          onClick: d => {
+            //this.setSelectedObject(d.object);
+          },
+          // onHover: (info) => {
+          //   console.log(info);
+          // },
+          highlightColor: [100, 150, 250, 128],
+          extruded: true,
+          wireframe: true,
+          pickable: true,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getPolygon: d => d.geometry.coordinates,
+          getFillColor: [200, 200, 220, 200],
+          getLineColor: [100, 100, 100],
+          getElevation: d => {
+            return d.properties.height;
+          },
+        },
+      },
       // {
       //   type: GeoJsonLayer,
       //   props: {
@@ -74,34 +102,34 @@ const layerGroupCatalog: LayerGroupState[] = [
       //     },
       //   },
       // },
-      {
-        type: SolidPolygonLayer,
-        props: {
-          id: 'city-model',
-          data: 'http://localhost:9000/files/geojson/osm-malmo.json',
-          opacity: 0.7,
-          autoHighlight: true,
-          material: 'material',
-          onClick: d => {
-            //this.setSelectedObject(d.object);
-          },
-          // onHover: (info) => {
-          //   console.log(info);
-          // },
-          highlightColor: [100, 150, 250, 128],
-          extruded: true,
-          wireframe: true,
-          filled: true,
-          pickable: true,
-          //coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-          getPolygon: d => d.geometry.coordinates,
-          getFillColor: [200, 200, 220, 200],
-          getLineColor: [100, 100, 100],
-          getElevation: d => {
-            return d.properties.height || 10;
-          },
-        },
-      },
+      // {
+      //   type: SolidPolygonLayer,
+      //   props: {
+      //     id: 'city-model',
+      //     data: 'http://localhost:9000/files/geojson/osm-malmo.json',
+      //     opacity: 0.7,
+      //     autoHighlight: true,
+      //     material: 'material',
+      //     onClick: d => {
+      //       //this.setSelectedObject(d.object);
+      //     },
+      //     // onHover: (info) => {
+      //     //   console.log(info);
+      //     // },
+      //     highlightColor: [100, 150, 250, 128],
+      //     extruded: true,
+      //     wireframe: true,
+      //     filled: true,
+      //     pickable: true,
+      //     //coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+      //     getPolygon: d => d.geometry.coordinates,
+      //     getFillColor: [200, 200, 220, 200],
+      //     getLineColor: [100, 100, 100],
+      //     getElevation: d => {
+      //       return d.properties.height || 10;
+      //     },
+      //   },
+      // },
       // {
       //   type: TileLayer,
       //   props: {
@@ -176,10 +204,11 @@ class ViewStore {
   setViewState(viewState) {
     const existingViewState = this.getViewState();
     this.rootStore.updateProps({
-      views: new MapView({
-        controller: true,
-        viewState: Object.assign({}, existingViewState, viewState),
-      }),
+      viewState: Object.assign({}, existingViewState, viewState),
+      // views: new MapView({
+      //   controller: true,
+      //   viewState: Object.assign({}, existingViewState, viewState),
+      // }),
     });
   }
 }
@@ -212,10 +241,15 @@ class LayerStore {
   //     }
   //   }
   // }
-  onDataLoad(value, context) {
+  async onDataLoad(value, context) {
     console.log(value, context, this);
+    const converted = cityModelToGeoJson(value);
     const layerProps = this.layerGroups[0]?.layers[0]?.props;
-    layerProps.data = value.features.filter(f => f.geometry.type === 'Polygon');
+    console.log(converted);
+    // layerProps.data = converted.buildings.filter(
+    //   f => f.geometry.type === 'Polygon' && f.properties.building
+    // );
+    layerProps.data = converted.buildings;
     this.updateLayers();
     return {};
   }
@@ -247,6 +281,7 @@ class LayerStore {
     });
   }
   updateLayers() {
+    console.log('update layers');
     this.rootStore.updateProps({ layers: this.getLayersInstances() });
   }
 }
@@ -267,12 +302,28 @@ const defaultProps = {
     latitude: 0,
     // longitude: -75.61209429047926,
     // latitude: 40.04253061601606,
-    zoom: 15,
+    zoom: 14,
     // longitude: 12.769772664016791,
     // latitude: 56.05114507504894,
     target: [0, 0, 0],
-    pitch: 0,
+    pitch: 60,
     bearing: 0,
+  },
+  // viewState: {
+  //   longitude: 12.769772664016791,
+  //   latitude: 56.05114507504894,
+  //   target: [0, 0, 0],
+  //   zoom: 14,
+  //   pitch: 60,
+  //   bearing: 0,
+  // },
+  // glOptions: {
+  //   antialias: true,
+  //   depth: false,
+  // },
+  layers: [],
+  onWebGLInitialized: (props: any) => {
+    return null;
   },
   onViewStateChange: ({ viewState }) => viewState,
 };
@@ -284,28 +335,98 @@ export class RootStore {
   viewStore: ViewStore;
   layerStore: LayerStore;
   constructor(props: StoreProps = {}) {
+    this.viewStore = new ViewStore(this);
+
     const resolvedProps = Object.assign({}, defaultProps, props);
     resolvedProps.onViewStateChange = ({ viewState }) => {
-      console.log('viewstate change');
       this.viewStore.setViewState(viewState);
     };
+    resolvedProps.onWebGLInitialized = this.onWebGLInitialized.bind(this);
 
     this.deck = new Deck(resolvedProps);
 
-    this.authStore = new AuthStore();
-    this.uiStore = new UiStore(this);
-    this.viewStore = new ViewStore(this);
-    this.layerStore = new LayerStore(this);
+    // this.authStore = new AuthStore();
+    // this.uiStore = new UiStore(this);
+    // this.layerStore = new LayerStore(this);
 
-    const { longitude, latitude, zoom } = props;
-    if (longitude && latitude) {
-      resolvedProps.viewState.longitude = longitude;
-      resolvedProps.viewState.latitude = latitude;
-    }
-    if (zoom) {
-      resolvedProps.viewState.zoom = zoom;
-    }
-    this.viewStore.setViewState(resolvedProps.viewState);
+    // const { longitude, latitude, zoom } = props;
+    // if (longitude && latitude) {
+    //   resolvedProps.viewState.longitude = longitude;
+    //   resolvedProps.viewState.latitude = latitude;
+    // }
+    // if (zoom) {
+    //   resolvedProps.viewState.zoom = zoom;
+    // }
+    // this.viewStore.setViewState(resolvedProps.viewState);
+  }
+
+  onWebGLInitialized(gl) {
+    this.testLayer(gl);
+  }
+
+  async testLayer(gl) {
+    const cityModel = await fetch(
+      'http://localhost:9000/files/citymodel/Helsingborg2021.json'
+    );
+    const json = await cityModel.json();
+    const converted = cityModelToGeoJson(json);
+
+    this.updateProps({
+      layers: [
+        new SolidPolygonLayer({
+          id: 'city-model',
+          opacity: 0.7,
+          autoHighlight: true,
+          //material: 'material',
+          data: converted.buildings, //.slice(0, 1000),
+          onClick: d => {
+            //this.setSelectedObject(d.object);
+          },
+          // onDataLoad: (value, context) => {
+          //   console.log(value, context, this);
+          //   const converted = cityModelToGeoJson(value);
+          //   context.layer.data = converted.buildings;
+          //   return converted.buildings;
+          //   // const layerProps = this.layerGroups[0]?.layers[0]?.props;
+          //   // console.log(converted);
+          //   // // layerProps.data = converted.buildings.filter(
+          //   // //   f => f.geometry.type === 'Polygon' && f.properties.building
+          //   // // );
+          //   // layerProps.data = converted.buildings;
+          //   // this.updateLayers();
+          //   // return {};
+          // },
+          // onHover: (info) => {
+          //   console.log(info);
+          // },
+          highlightColor: [100, 150, 250, 128],
+          extruded: false,
+          wireframe: true,
+          pickable: false,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getPolygon: d => d.geometry.coordinates,
+          getFillColor: [200, 200, 220, 200],
+          getLineColor: [100, 100, 100],
+          getElevation: d => {
+            return d.properties.height;
+          },
+          parameters: {
+            depthMask: true,
+            depthTest: true,
+            blend: true,
+            blendFunc: [
+              gl.SRC_ALPHA,
+              gl.ONE_MINUS_SRC_ALPHA,
+              gl.ONE,
+              gl.ONE_MINUS_SRC_ALPHA,
+            ],
+            polygonOffsetFill: true,
+            depthFunc: gl.LEQUAL,
+            blendEquation: gl.FUNC_ADD,
+          },
+        }),
+      ],
+    });
   }
 
   updateProps(props) {
