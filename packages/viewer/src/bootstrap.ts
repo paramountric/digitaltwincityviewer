@@ -1,37 +1,27 @@
-//import { Viewer } from './Viewer';
-import { RootStore } from './Store';
-//import { Store } from './with-mapbox';
+import { RootStore } from './RootStore';
 
+// These are some settings used for dev, will be removed when it's figured out how to boot viewers from city presets
 // todo: make proper city entities (multi-language support, ids, metadata, stat props)
 const cities = [
   {
-    cityLngLat: [12.6945, 56.0465] as [number, number],
-    cityExtentRadius: 5000, // in meters, to determine extent
+    longitude: 12.6945,
+    latitude: 56.0465,
     name: 'Helsingborg',
   },
   {
-    cityLngLat: [11.9746, 57.7089] as [number, number],
-    cityExtentRadius: 10000, // in meters, to determine extent
+    longitude: 11.9746,
+    latitude: 57.7089,
     name: 'Göteborg',
   },
   {
-    //cityLngLat: [13.0038, 55.605] as [number, number],
-    cityLngLat: [12.965601, 55.591741] as [number, number],
-    cityExtentRadius: 5000,
+    longitude: 12.9656,
+    latitude: 55.591741,
     name: 'Malmö',
   },
 ];
 
 function bootstrap() {
-  // const store = new RootStore({
-  //   // longitude: 11.9,
-  //   // latitude: 57.7,
-  //   // longitude: 12.965601,
-  //   // latitude: 55.591741,
-  //   longitude: 0,
-  //   latitude: 0,
-  // });
-  const store = new RootStore();
+  new RootStore();
 }
 
 export default bootstrap;
