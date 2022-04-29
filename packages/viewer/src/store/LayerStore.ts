@@ -4,14 +4,39 @@
 import { LayerProps, COORDINATE_SYSTEM } from '@deck.gl/core';
 import { SolidPolygonLayer } from '@deck.gl/layers';
 import GL from '@luma.gl/constants';
+import { Geometry } from '@luma.gl/engine';
 import { RootStore } from '../RootStore';
-import { cityModelToGeoJson } from '../utils/converter';
+import GroundSurfaceLayer from '../layers/ground-surface-layer/GroundSurfaceLayer';
+import { parseCityModel } from '../utils/converter';
 
 const layerGroupCatalog: LayerGroupState[] = [
   {
     title: 'Ground',
     description: 'Ground layer',
-    layers: [],
+    layers: [
+      {
+        type: GroundSurfaceLayer,
+        url: 'http://localhost:9000/files/citymodel/Helsingborg2021.json',
+        isLoaded: false,
+        isLoading: false,
+        isClickable: false,
+        props: {
+          id: 'ground-layer-surface-mesh',
+          data: [1],
+          _instanced: false,
+          wireframe: false,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getPosition: d => [0, 0, 0],
+          parameters: {
+            depthTest: true,
+          },
+          getColor: d => {
+            return [235, 235, 255];
+          },
+          waterLevel: 0,
+        },
+      },
+    ],
   },
   {
     title: 'Buildings',
@@ -19,7 +44,6 @@ const layerGroupCatalog: LayerGroupState[] = [
     layers: [
       {
         type: SolidPolygonLayer,
-        //url: 'http://localhost:9000/files/citymodel/CityModelWithBSMResults.json',
         url: 'http://localhost:9000/files/citymodel/Helsingborg2021.json',
         isLoaded: false,
         isLoading: false,
@@ -117,21 +141,42 @@ export class LayerStore {
     this.rootStore.render();
   }
 
+  // ! this part is still unclear - the layers should be able to load separately and from different urls
+  // ! but here layers have the same data source (city model), so it's loading and parses once for each layer, obviously very bad
+  // ! consider having a url hierarchy
   async loadLayer(layer: Layer) {
     if (!layer.url) {
       console.warn('No data url has been given for this layer');
       return;
     }
     this.setLayerProps(layer.props.id, null, { isLoading: true });
-    const cityModel = await fetch(layer.url);
-    const json = await cityModel.json();
-    const { buildings, modelMatrix } = cityModelToGeoJson(json);
+    const response = await fetch(layer.url);
+    const json = await response.json();
+    if (layer.props.id === 'buildings-layer-polygons-lod-1') {
+      const { buildings, modelMatrix } = parseCityModel(json);
 
-    this.setLayerProps(
-      layer.props.id,
-      { data: buildings, modelMatrix },
-      { isLoaded: true, isLoading: false }
-    );
+      this.setLayerProps(
+        layer.props.id,
+        { data: buildings, modelMatrix },
+        { isLoaded: true, isLoading: false }
+      );
+    } else if (layer.props.id === 'ground-layer-surface-mesh') {
+      const { ground, modelMatrix } = parseCityModel(json);
+      console.log(ground, modelMatrix);
+      const groundProps = {
+        mesh: new Geometry({
+          attributes: {
+            positions: new Float32Array(ground.vertices),
+          },
+          indices: { size: 1, value: new Uint32Array(ground.indices) },
+        }),
+        modelMatrix,
+      };
+      this.setLayerProps(layer.props.id, groundProps, {
+        isLoaded: true,
+        isLoading: false,
+      });
+    }
     this.renderLayers();
   }
 }

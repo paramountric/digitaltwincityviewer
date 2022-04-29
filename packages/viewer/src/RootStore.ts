@@ -23,10 +23,7 @@ const defaultViewStateProps = {
 };
 
 const maplibreStyle = {
-  id: 'dtcc',
-  name: 'DTCC',
-  glyphs:
-    'https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=get_your_own_OpIi9ZULNHzrESv6T2vL',
+  id: 'digitaltwincityviewer',
   layers: [
     {
       id: 'background',
@@ -34,10 +31,8 @@ const maplibreStyle = {
       paint: {
         'background-color': 'rgba(255, 255, 255, 1)',
       },
-      layout: { visibility: 'visible' },
     },
   ],
-  sprite: 'https://api.maptiler.com/maps/streets/sprite',
   sources: {},
   version: 8,
 };
@@ -90,7 +85,7 @@ type RootStoreProps = {
 };
 
 const defaultProps = {
-  debug: false,
+  debug: true,
   viewState: null,
   glOptions: {
     antialias: true,
@@ -188,13 +183,6 @@ export class RootStore {
         }) as LayerSpecification
       );
 
-      // this.maplibreMap.addLayer(
-      //   new MaplibreWrapper({
-      //     id: 'ground',
-      //     deck: this.deck,
-      //   }) as LayerSpecification
-      // );
-
       this.maplibreMap.on('move', () => {
         const { lng, lat } = this.maplibreMap.getCenter();
         this.deck.setProps({
@@ -206,7 +194,7 @@ export class RootStore {
             pitch: this.maplibreMap.getPitch(),
           },
         });
-        // Prevent deck from redrawing - repaint is driven by mapbox's render loop
+        // Prevent deck from redrawing - repaint is driven by maplibre's render loop
         this.deck.needsRedraw({ clearRedrawFlags: true });
       });
 
