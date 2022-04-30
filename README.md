@@ -18,7 +18,7 @@ planning, design, exploration, experimentation and optimization of cities.
 
 ## Getting started
 
-The Digital Twin City Viewer is expected to be released in the end of 2022. The documentation will be developed during this year as more and more features will be released in alpha.
+The Digital Twin City Viewer is expected to be released in a first stable version in the end of 2022. The documentation will be developed until then as more and more features will be released in alpha.
 
 ## License
 
