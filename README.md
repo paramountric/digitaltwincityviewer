@@ -29,17 +29,17 @@ These instructions will download and install the development environment and lau
 
 To download the software, clone the repository by the following command:
 
-    git clone https://gitlab.com/dtcc3d/js.git
+    git clone https://github.com/paramountric/digitaltwincityviewer.git
 
 Alternatively, you may want to use the SSH protocol:
 
-    git clone git@gitlab.com:dtcc3d/js.git
+    git clone git@github.com:paramountric/digitaltwincityviewer.git
 
-This will create a directory named `js` containing the full source code.
+This will create a directory named `digitaltwincityviewer` containing the full source code.
 
 ### Install the development environment
 
-In the `js` folder run:
+In the `digitaltwincityviewer` folder run:
 
     npm install
 
@@ -49,15 +49,15 @@ Then run:
 
     lerna bootstrap --hoist
 
-This will run `npm install` in all configured subfolders and also generate symbolic links from within the node_modules folders where the local package.json in the subfolders have dependencies specified. _Note that it's possible and likely that dependencies using the `@dtcc` namespace in the local package.json files are not published on NPM._
+This will run `npm install` in all configured subfolders and also generate symbolic links from within the node*modules folders where the local package.json in the subfolders have dependencies specified. \_Note that it's possible and likely that dependencies using the `@dtcc` namespace in the local package.json files are not published on NPM.*
 
 Lerna will also "hoist" the dependencies so that common dependencies between projects and packages will only be installed at the root level.
 
 ### Run a project in development mode
 
-From the `js` root folder, browse to the project you want to run, in this case `babylon-cityjson-viewer`:
+From the `digitaltwincityviewer` root folder, browse to the project you want to run, in this case `citymodel-file-explorer`:
 
-    cd projects/babylon-cityjson-viewer
+    cd projects/citymodel-file-explorer
 
 Run the application, usually with:
 
