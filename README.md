@@ -1,4 +1,5 @@
-![dtcv-flash-img](https://user-images.githubusercontent.com/3265950/166105126-c1e2e7f8-d336-46fe-98ec-70ed60788c75.png)
+
+![dtcv-flash-img](https://user-images.githubusercontent.com/3265950/166108531-b2e2bd4b-afe2-422f-a0ae-b14fb2492605.png)
 
 # Digital Twin City Viewer
 
