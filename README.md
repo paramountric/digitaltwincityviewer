@@ -128,5 +128,5 @@ each source file.
 
 ## Acknowledgments
 
-This work is part of the Digital Twin Cities Centre supported by
-Sweden’s Innovation Agency Vinnova under Grant No. 2019-421 00041.
+This work has been created as part the Digital Twin Cities Centre (DTCC) hosted by Chalmers University of Technology and with funding from
+Sweden’s Innovation Agency Vinnova.
