@@ -1,5 +1,5 @@
 {
-  "name": "@dtcc/viewer",
+  "name": "@dtcv/viewer",
   "version": "1.0.0",
   "description": "A viewport component for layered geometry",
   "main": "index.js",
