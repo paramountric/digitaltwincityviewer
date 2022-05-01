@@ -1,6 +1,3 @@
-# folder for example data
-example-data
-
 # compiled output
 dist
 node_modules
