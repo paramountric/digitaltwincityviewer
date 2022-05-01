@@ -1,3 +1,6 @@
+// Copyright (C) 2022 Andreas Rudenå
+// Licensed under the MIT License
+
 const MAX_LAT = 85.051129;
 
 export class Point {
