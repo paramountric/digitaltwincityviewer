@@ -1,5 +1,1 @@
-import bootstrap from './bootstrap';
-
-window.addEventListener('load', event => {
-  bootstrap();
-});
+export { Viewer } from './Viewer';
