@@ -126,7 +126,7 @@ license](https://opensource.org/licenses/MIT).
 Copyright is held by the individual authors as listed at the top of
 each source file.
 
-## Acknowledgments
+## Acknowledgements
 
 This work has been created as part the Digital Twin Cities Centre (DTCC) hosted by Chalmers University of Technology and with funding from
 Sweden’s Innovation Agency Vinnova.
