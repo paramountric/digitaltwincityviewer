@@ -6,9 +6,9 @@ import { Buffer } from '@luma.gl/webgl';
 import { Matrix4 } from '@math.gl/core';
 import GL from '@luma.gl/constants';
 import { FeatureCollection, Position } from 'geojson';
-import { Transform } from '../lib/Transform';
+import { Transform } from '../luma/Transform';
 import { Point } from '../lib/Point';
-import { Viewer } from '../lib/Viewer';
+import { Viewer } from '../luma/Viewer';
 import { triangulate, Polygon, MultiPolygon } from '../utils/polygon';
 
 export type GeoJsonLayerProps = {

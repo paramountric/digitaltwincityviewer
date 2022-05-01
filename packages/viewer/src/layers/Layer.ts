@@ -1,8 +1,8 @@
 // Copyright (C) 2022 Andreas Rudenå
 // Licensed under the MIT License
 
-import { Transform } from '../lib/Transform';
-import { Viewer } from '../lib/Viewer';
+import { Transform } from '../luma/Transform';
+import { Viewer } from '../luma/Viewer';
 
 type LayerProps = {
   id: string;

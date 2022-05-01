@@ -9,7 +9,7 @@ import { Matrix4 } from '@math.gl/core';
 import { Feature, Position } from 'geojson';
 import { Layer } from './Layer';
 import { Point } from '../lib/Point';
-import { Viewer } from '../lib/Viewer';
+import { Viewer } from '../luma/Viewer';
 import { triangulate, Polygon, MultiPolygon } from '../utils/polygon';
 
 export type GeoJsonBuildingLayerProps = {

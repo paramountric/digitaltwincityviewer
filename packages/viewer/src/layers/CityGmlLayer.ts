@@ -8,7 +8,7 @@ import { project, picking } from '@luma.gl/shadertools';
 import { Matrix4 } from '@math.gl/core';
 import { Layer } from './Layer';
 import { Point } from '../lib/Point';
-import { Viewer } from '../lib/Viewer';
+import { Viewer } from '../luma/Viewer';
 import { triangulate, Polygon, MultiPolygon } from '../utils/polygon';
 
 // todo: import the types from schema (WIP)

@@ -5,7 +5,7 @@
 
 import { mat4, vec4, vec2 } from 'gl-matrix';
 import { pixelsToWorld, getMeterZoom } from '@math.gl/web-mercator';
-import { Point } from './Point';
+import { Point } from '../lib/Point';
 import { ViewerProps } from './Viewer';
 
 const disableCameraRotation = false;
