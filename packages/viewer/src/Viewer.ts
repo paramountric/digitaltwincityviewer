@@ -1,4 +1,11 @@
 import { RootStore } from './store/RootStore';
+
+type ViewerProps = {
+  longitude?: number;
+  latitude?: number;
+  zoom?: number;
+  container?: HTMLElement | string;
+};
 class Viewer {
   store: RootStore;
   constructor(props) {
@@ -6,4 +13,4 @@ class Viewer {
   }
 }
 
-export { Viewer };
+export { Viewer, ViewerProps };
