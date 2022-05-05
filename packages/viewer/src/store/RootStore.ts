@@ -3,8 +3,10 @@
 
 import { Deck, MapViewState, MapView } from '@deck.gl/core';
 import { LayerSpecification, Map, MapOptions } from 'maplibre-gl';
-import { reaction, makeObservable, observable } from 'mobx';
+import { makeObservable, observable, action } from 'mobx';
+import { ViewerProps } from '../Viewer';
 import { LayerStore } from './LayerStore';
+import { ViewStore } from './ViewStore';
 import MaplibreWrapper from '../utils/MaplibreWrapper';
 class UiStore {
   viewStore: ViewStore;
@@ -12,15 +14,6 @@ class UiStore {
     this.viewStore = store.viewStore;
   }
 }
-
-const defaultViewStateProps = {
-  longitude: 0,
-  latitude: 0,
-  zoom: 14,
-  target: [0, 0, 0],
-  pitch: 60,
-  bearing: 0,
-};
 
 const maplibreStyle = {
   id: 'digitaltwincityviewer',
@@ -50,43 +43,11 @@ const maplibreOptions = {
   attributionControl: false,
 } as MapOptions;
 
-class ViewStore {
-  viewState: MapViewState;
-  rootStore: RootStore;
-  constructor(rootStore) {
-    this.rootStore = rootStore;
-    this.viewState = defaultViewStateProps;
-  }
-  getView() {
-    return new MapView({
-      id: 'main-view',
-      controller: true,
-      viewState: this.getViewState(),
-    });
-  }
-  getViewState() {
-    return this.viewState;
-  }
-  setViewState({ longitude, latitude, zoom }: RootStoreProps) {
-    const existingViewState = this.getViewState();
-    const newViewState = Object.assign({}, existingViewState, {
-      longitude: longitude || defaultViewStateProps.longitude,
-      latitude: latitude || defaultViewStateProps.latitude,
-      zoom: zoom || defaultViewStateProps.zoom,
-    });
-    this.viewState = newViewState;
-  }
-}
-
-type RootStoreProps = {
-  longitude?: number;
-  latitude?: number;
-  zoom?: number;
-};
-
-const defaultProps = {
-  debug: true,
+// internalProps = not to be set from parent component
+const internalProps = {
+  debug: false,
   viewState: null,
+  container: null,
   glOptions: {
     antialias: true,
     depth: false,
@@ -96,6 +57,8 @@ const defaultProps = {
   onViewStateChange: ({ viewState }) => viewState,
 };
 
+// There is a performance problem for extruded polygons that does not appear in the maplibre rendering settings
+// While figuring this out, maplibre is used to control the gl context and interaction
 const useMaplibre = true;
 
 export class RootStore {
@@ -105,12 +68,12 @@ export class RootStore {
   viewStore: ViewStore;
   layerStore: LayerStore;
   maplibreMap?: Map;
-  constructor(props: RootStoreProps = {}) {
+  constructor(props: ViewerProps = {}) {
     this.viewStore = new ViewStore(this);
     this.uiStore = new UiStore(this);
     this.layerStore = new LayerStore(this);
 
-    const resolvedProps = Object.assign({}, defaultProps, props);
+    const resolvedProps = Object.assign({}, internalProps, props);
 
     if (useMaplibre) {
       this.maplibre(resolvedProps);
@@ -123,12 +86,22 @@ export class RootStore {
     this.viewStore.setViewState(props);
   }
 
+  get zoom() {
+    return this.viewStore.zoom;
+  }
+
+  set zoom(zoom) {
+    this.viewStore.setViewState({ zoom });
+    this.render();
+  }
+
   onWebGLInitialized(gl) {
     this.gl = gl;
     this.layerStore.renderLayers();
   }
 
   onViewStateChange({ viewState }) {
+    console.log(viewState);
     this.viewStore.setViewState(viewState);
     this.render();
   }
@@ -155,16 +128,20 @@ export class RootStore {
   }
 
   maplibre(props) {
-    const container = document.createElement('div');
-    container.setAttribute('id', 'canvas');
-    container.style.width = '100%'; //window.innerWidth;
-    container.style.height = '100%'; //window.innerHeight;
-    container.style.position = 'absolute';
-    container.style.top = '0px';
-    container.style.left = '0px';
-    container.style.background = '#100';
-    document.body.appendChild(container);
-    props.container = container;
+    if (props.container) {
+      maplibreOptions.container = props.container;
+    } else {
+      const container = document.createElement('div');
+      container.setAttribute('id', 'canvas');
+      container.style.width = '100%'; //window.innerWidth;
+      container.style.height = '100%'; //window.innerHeight;
+      container.style.position = 'absolute';
+      container.style.top = '0px';
+      container.style.left = '0px';
+      container.style.background = '#100';
+      document.body.appendChild(container);
+      props.container = container;
+    }
 
     this.maplibreMap = new Map(maplibreOptions);
 
@@ -185,14 +162,21 @@ export class RootStore {
 
       this.maplibreMap.on('move', () => {
         const { lng, lat } = this.maplibreMap.getCenter();
-        this.deck.setProps({
-          viewState: {
-            longitude: lng,
-            latitude: lat,
-            zoom: this.maplibreMap.getZoom(),
-            bearing: this.maplibreMap.getBearing(),
-            pitch: this.maplibreMap.getPitch(),
-          },
+        // this.deck.setProps({
+        //   viewState: {
+        //     longitude: lng,
+        //     latitude: lat,
+        //     zoom: this.maplibreMap.getZoom(),
+        //     bearing: this.maplibreMap.getBearing(),
+        //     pitch: this.maplibreMap.getPitch(),
+        //   },
+        // });
+        this.viewStore.setViewState({
+          longitude: lng,
+          latitude: lat,
+          zoom: this.maplibreMap.getZoom(),
+          // bearing: this.maplibreMap.getBearing(),
+          // pitch: this.maplibreMap.getPitch(),
         });
         // Prevent deck from redrawing - repaint is driven by maplibre's render loop
         this.deck.needsRedraw({ clearRedrawFlags: true });
