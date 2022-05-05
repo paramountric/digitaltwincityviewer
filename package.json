@@ -1,6 +1,12 @@
 {
   "name": "root",
   "private": true,
+  "scripts": {
+    "lerna": "lerna",
+    "bootstrap": "lerna bootstrap",
+    "tsc": "lerna run tsc --stream",
+    "watch": "lerna run watch --stream"
+  },
   "devDependencies": {
     "lerna": "^4.0.0"
   }
