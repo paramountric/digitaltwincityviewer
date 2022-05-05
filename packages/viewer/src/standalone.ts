@@ -19,5 +19,6 @@ const cities = [
 ];
 
 window.addEventListener('load', () => {
+  console.log('start in standalone mode (dev)');
   new Viewer({});
 });
