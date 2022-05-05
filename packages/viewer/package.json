@@ -1,14 +1,15 @@
 {
   "name": "@dtcv/viewer",
   "version": "1.0.0",
-  "description": "A viewport component for layered geometry",
-  "main": "index.js",
+  "description": "A viewport component for distributed layered geometry",
+  "main": "./dist/index.js",
+  "types": "./dist/types.d.ts",
   "scripts": {
     "dev": "webpack serve --config webpack.dev.config.js",
     "tsc": "tsc",
+    "watch": "tsc --watch",
     "lint": "eslint --ext .ts,.js src",
-    "format": "prettier --ignore-path .eslintignore --write \"src/**/*.+(js|ts|json)\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "format": "prettier --ignore-path .eslintignore --write \"src/**/*.+(js|ts|json)\""
   },
   "author": "andreas@paramountric.com",
   "license": "MIT",
