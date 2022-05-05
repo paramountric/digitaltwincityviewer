@@ -16,7 +16,7 @@ const layerGroupCatalog: LayerGroupState[] = [
     layers: [
       {
         type: GroundSurfaceLayer,
-        url: 'http://localhost:9000/files/citymodel/Helsingborg2021.json',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/Helsingborg2021.json',
         isLoaded: false,
         isLoading: false,
         isClickable: false,
@@ -44,7 +44,7 @@ const layerGroupCatalog: LayerGroupState[] = [
     layers: [
       {
         type: SolidPolygonLayer,
-        url: 'http://localhost:9000/files/citymodel/Helsingborg2021.json',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/Helsingborg2021.json',
         isLoaded: false,
         isLoading: false,
         isClickable: true,
@@ -162,7 +162,6 @@ export class LayerStore {
       );
     } else if (layer.props.id === 'ground-layer-surface-mesh') {
       const { ground, modelMatrix } = parseCityModel(json);
-      console.log(ground, modelMatrix);
       const groundProps = {
         mesh: new Geometry({
           attributes: {
