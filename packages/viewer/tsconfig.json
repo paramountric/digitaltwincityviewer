@@ -1,15 +1,19 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
+    "rootDir": "src",
+    "outDir": "dist",
     "skipLibCheck": true,
     "sourceMap": true,
     "noImplicitAny": false,
     "module": "es6",
     "target": "es6",
-    "allowJs": false,
+    "allowJs": true,
     "moduleResolution": "node",
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "declaration": true,
+    "declarationMap": true,
+    "experimentalDecorators": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules"]
+  "include": ["src/", "src/layers/ground-sur"],
+  "exclude": ["dist", "node_modules"]
 }
