@@ -5,9 +5,10 @@ import { LayerProps, COORDINATE_SYSTEM } from '@deck.gl/core';
 import { SolidPolygonLayer } from '@deck.gl/layers';
 import GL from '@luma.gl/constants';
 import { Geometry } from '@luma.gl/engine';
-import { RootStore } from './RootStore';
+import { Viewer } from '../Viewer';
 import GroundSurfaceLayer from '../layers/ground-surface-layer/GroundSurfaceLayer';
 import { parseCityModel } from '../utils/parser';
+import { mat4 } from 'gl-matrix';
 
 const layerGroupCatalog: LayerGroupState[] = [
   {
@@ -99,10 +100,20 @@ class Layer {
 
 export class LayerStore {
   layerGroups: LayerGroupState[];
-  rootStore: RootStore;
-  constructor(rootStore) {
-    this.rootStore = rootStore;
+  viewer: Viewer;
+  constructor(viewer) {
+    this.viewer = viewer;
     this.layerGroups = layerGroupCatalog;
+  }
+  getLayerById(layerId: string) {
+    for (const layerGroup of this.layerGroups) {
+      for (const layer of layerGroup.layers) {
+        if (layer.props.id === layerId) {
+          return layer;
+        }
+      }
+    }
+    return null;
   }
   getLayers() {
     return this.layerGroups.reduce((acc, group) => {
@@ -120,7 +131,7 @@ export class LayerStore {
       }
       if (layer.isClickable) {
         layer.props.onClick = d => {
-          this.rootStore.setSelectedObject(d.object);
+          this.viewer.setSelectedObject(d.object);
         };
       }
       return [...acc, new layer.type(layer.props)];
@@ -128,20 +139,20 @@ export class LayerStore {
   }
   setLayerProps(layerId, props = {}, layerSettings = {}) {
     // todo: look into immutability
-    const layerGroup = this.layerGroups.find(layerGroup =>
-      layerGroup.layers.find(layer => layer.props.id === layerId)
-    );
-    const layer = layerGroup.layers.find(layer => layer.props.id === layerId);
+    const layer = this.getLayerById(layerId);
+    if (!layer) {
+      console.warn('layer was not found with the id: ', layerId);
+      return;
+    }
     Object.assign(layer, layerSettings);
     layer.props = Object.assign(layer.props, props);
   }
   renderLayers() {
-    this.rootStore.render();
+    this.viewer.render();
   }
 
-  // ! this part is still unclear - the layers should be able to load separately and from different urls
-  // ! but here layers have the same data source (city model), so it's loading and parses once for each layer, obviously very bad
-  // ! consider having a url hierarchy
+  // The layers should only be loaded here if they already are in a prepared format and can be loaded straight into the viewer
+  // for any other fileformat, the calling application must first load the file and run it through some of the preprocessors/parsers in packages
   async loadLayer(layer: Layer) {
     if (!layer.url) {
       console.warn('No data url has been given for this layer');
@@ -150,30 +161,13 @@ export class LayerStore {
     this.setLayerProps(layer.props.id, null, { isLoading: true });
     const response = await fetch(layer.url);
     const json = await response.json();
-    if (layer.props.id === 'buildings-layer-polygons-lod-1') {
-      const { buildings, modelMatrix } = parseCityModel(json);
-
-      this.setLayerProps(
-        layer.props.id,
-        { data: buildings, modelMatrix },
-        { isLoaded: true, isLoading: false }
-      );
-    } else if (layer.props.id === 'ground-layer-surface-mesh') {
-      const { ground, modelMatrix } = parseCityModel(json);
-      const groundProps = {
-        mesh: new Geometry({
-          attributes: {
-            positions: new Float32Array(ground.vertices),
-          },
-          indices: { size: 1, value: new Uint32Array(ground.indices) },
-        }),
-        modelMatrix,
-      };
-      this.setLayerProps(layer.props.id, groundProps, {
-        isLoaded: true,
-        isLoading: false,
-      });
-    }
+    const { data, modelMatrix = mat4.create() } = json;
+    // todo: validation needed, and a specification for exactly how this JSON must look
+    this.setLayerProps(
+      layer.props.id,
+      { data, modelMatrix },
+      { isLoaded: true, isLoading: false }
+    );
     this.renderLayers();
   }
 }
