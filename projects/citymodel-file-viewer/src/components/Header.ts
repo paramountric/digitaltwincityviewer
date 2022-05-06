@@ -26,10 +26,8 @@ class CmfvHeader extends MobxLitElement {
   @property()
   isUpdated: boolean;
 
-  public store: Store;
-
   @property({ type: Object })
-  public viewer: Viewer;
+  public store: Store;
 
   render(): TemplateResult {
     return html`<sp-top-nav>
@@ -38,10 +36,6 @@ class CmfvHeader extends MobxLitElement {
         ><cmfv-file-loader .store=${this.store}></cmfv-file-loader
       ></sp-top-nav-item>
     </sp-top-nav>`;
-  }
-
-  click() {
-    this.store.increment();
   }
 }
 
