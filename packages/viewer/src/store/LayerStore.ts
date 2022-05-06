@@ -7,7 +7,6 @@ import GL from '@luma.gl/constants';
 import { Geometry } from '@luma.gl/engine';
 import { Viewer } from '../Viewer';
 import GroundSurfaceLayer from '../layers/ground-surface-layer/GroundSurfaceLayer';
-import { parseCityModel } from '../utils/parser';
 import { mat4 } from 'gl-matrix';
 
 const layerGroupCatalog: LayerGroupState[] = [
@@ -17,7 +16,7 @@ const layerGroupCatalog: LayerGroupState[] = [
     layers: [
       {
         type: GroundSurfaceLayer,
-        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/Helsingborg2021.json',
+        url: null,
         isLoaded: false,
         isLoading: false,
         isClickable: false,
@@ -43,7 +42,7 @@ const layerGroupCatalog: LayerGroupState[] = [
     layers: [
       {
         type: SolidPolygonLayer,
-        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/Helsingborg2021.json',
+        url: null,
         isLoaded: false,
         isLoading: false,
         isClickable: true,
@@ -128,6 +127,8 @@ export class LayerStore {
       } else if (!layer.isLoaded) {
         this.loadLayer(layer);
         return acc;
+      } else if (!layer.props.data?.length) {
+        return acc;
       }
       if (layer.isClickable) {
         layer.props.onClick = d => {
@@ -149,6 +150,9 @@ export class LayerStore {
   }
   renderLayers() {
     this.viewer.render();
+  }
+  setLayerData(layerId, data) {
+    this.setLayerProps(layerId, { data });
   }
 
   // The layers should only be loaded here if they already are in a prepared format and can be loaded straight into the viewer
