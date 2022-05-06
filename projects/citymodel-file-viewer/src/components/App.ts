@@ -3,8 +3,11 @@ import { css, html } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { Viewer, ViewerProps } from '@dtcv/viewer';
 import { Store } from '../store/Store';
-import '@spectrum-web-components/styles/all-medium-darkest.css';
+import '@spectrum-web-components/theme/theme-lightest.js';
+import '@spectrum-web-components/theme/scale-medium.js';
+import '@spectrum-web-components/theme/sp-theme.js';
 import './Header';
+import './LeftMenu';
 
 @customElement('cmfv-app')
 class App extends MobxLitElement {
@@ -34,11 +37,14 @@ class App extends MobxLitElement {
   }
 
   render() {
-    return html`<cmfv-header
+    return html`<sp-theme theme="classic" color="lightest" scale="medium"
+      ><cmfv-header .store=${this.store} .viewer=${this.viewer}></cmfv-header>
+      <cmfv-left-menu
         .store=${this.store}
         .viewer=${this.viewer}
-      ></cmfv-header>
-      <div id="viewport"></div>`;
+      ></cmfv-left-menu>
+      <div id="viewport"></div
+    ></sp-theme>`;
   }
 
   private incrementCount() {
