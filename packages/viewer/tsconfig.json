@@ -14,6 +14,6 @@
     "declarationMap": true,
     "experimentalDecorators": true
   },
-  "include": ["src/", "src/layers/ground-sur"],
+  "include": ["src/"],
   "exclude": ["dist", "node_modules"]
 }
