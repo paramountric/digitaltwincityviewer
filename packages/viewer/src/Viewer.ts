@@ -2,6 +2,7 @@
 // Licensed under the MIT License
 
 import { Deck, MapViewState, MapView } from '@deck.gl/core';
+import { Feature } from 'geojson';
 import { LayerSpecification, Map, MapOptions } from 'maplibre-gl';
 import { makeObservable, observable, action } from 'mobx';
 import { LayerStore } from './store/LayerStore';
@@ -66,6 +67,7 @@ class Viewer {
   viewStore: ViewStore;
   layerStore: LayerStore;
   maplibreMap?: Map;
+  selectedObject: Feature | null;
   constructor(props: ViewerProps) {
     this.viewStore = new ViewStore(this);
     this.layerStore = new LayerStore(this);
@@ -81,6 +83,13 @@ class Viewer {
       this.deck = new Deck(resolvedProps);
     }
     this.viewStore.setViewState(props);
+
+    this.setSelectedObject(null);
+
+    makeObservable(this, {
+      selectedObject: observable,
+      setSelectedObject: action,
+    });
   }
 
   get zoom() {
@@ -116,7 +125,11 @@ class Viewer {
   }
 
   setSelectedObject(object) {
-    console.log(object);
+    this.selectedObject = object;
+  }
+
+  setLayerProps(layerId: string, props, settings) {
+    this.layerStore.setLayerProps(layerId, props, settings);
   }
 
   render() {
@@ -124,7 +137,7 @@ class Viewer {
     this.deck.setProps(props);
   }
 
-  maplibre(props) {
+  private maplibre(props) {
     if (props.container) {
       maplibreOptions.container = props.container;
     } else {
