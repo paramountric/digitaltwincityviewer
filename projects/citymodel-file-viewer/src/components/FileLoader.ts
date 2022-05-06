@@ -8,6 +8,7 @@ import '@spectrum-web-components/top-nav/sp-top-nav-item.js';
 import '@spectrum-web-components/overlay/overlay-trigger.js';
 import '@spectrum-web-components/dialog/sp-dialog-wrapper.js';
 import '@spectrum-web-components/button/sp-button.js';
+import '@spectrum-web-components/progress-circle/sp-progress-circle.js';
 import { Store } from '../store/Store';
 
 @customElement('cmfv-file-loader')
@@ -20,19 +21,23 @@ class CmfvFileLoader extends MobxLitElement {
   @property({ type: Object })
   public viewer: Viewer;
 
+  private dialogWrapper: HTMLElement;
+
   open() {
-    const dialogWrapper = this.renderRoot.querySelector('sp-dialog-wrapper');
-    function handleEvent({ type }) {
-      console.log(type);
-      dialogWrapper.open = false;
-      dialogWrapper.removeEventListener('cancel', handleEvent);
-    }
-    dialogWrapper.addEventListener('cancel', handleEvent);
+    this.dialogWrapper = this.renderRoot.querySelector('sp-dialog-wrapper');
+    this.dialogWrapper.addEventListener('cancel', this.close.bind(this));
   }
 
-  loadExampleFile(e: Event) {
+  close() {
+    this.dialogWrapper.removeAttribute('open');
+    delete this.dialogWrapper;
+  }
+
+  async loadExampleFile(e: Event) {
     const fileIndex = (e.target as Element).getAttribute('key');
-    this.store.loadExampleFile(Number(fileIndex));
+    await this.store.loadExampleFile(Number(fileIndex));
+    const dialogWrapper = this.renderRoot.querySelector('sp-dialog-wrapper');
+    this.close();
   }
 
   loadFile(e: Event) {
@@ -51,19 +56,13 @@ class CmfvFileLoader extends MobxLitElement {
         >
       </div>`;
     });
-    return html`<overlay-trigger type="modal" placement="none">
-      <sp-dialog-wrapper
-        underlay
-        slot="click-content"
-        headline="Load file"
-        mode="fullscreen"
-        cancel-label="Cancel"
-        style="position: relative"
-      >
-        <div
-          style="margin:0;left:50%;position:absolute;top:50%;transform:top(-50%) left(-50%)"
-        >
-          <label for="file-input">
+    const dialogContent = this.store.isLoading
+      ? html`<sp-progress-circle
+          label="A large representation of an unclear amount of work"
+          indeterminate
+          size="l"
+        ></sp-progress-circle>`
+      : html`<label for="file-input">
             <div>
               <sp-button size="l" quiet variant="secondary"
                 >Select file</sp-button
@@ -78,21 +77,26 @@ class CmfvFileLoader extends MobxLitElement {
           />
 
           <div style="margin-top:50px">or select example:</div>
-          <div>${fileLinks}</div>
+          <div>${fileLinks}</div>`;
+    return html`<overlay-trigger type="modal" placement="none">
+      <sp-dialog-wrapper
+        underlay
+        slot="click-content"
+        headline="Load file"
+        mode="fullscreen"
+        cancel-label="Cancel"
+        style="position: relative"
+      >
+        <div
+          style="margin:0;left:50%;position:absolute;top:50%;transform:top(-50%) left(-50%)"
+        >
+          ${dialogContent}
         </div>
       </sp-dialog-wrapper>
-      <sp-top-nav-item
-        slot="trigger"
-        variant="primary"
-        onclick="this.getRootNode().host.open()"
-      >
+      <sp-top-nav-item slot="trigger" variant="primary" @click="${this.open}">
         Load file
       </sp-top-nav-item>
     </overlay-trigger>`;
-  }
-
-  click() {
-    this.store.increment();
   }
 }
 

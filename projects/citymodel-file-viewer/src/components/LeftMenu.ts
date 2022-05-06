@@ -19,20 +19,12 @@ class CmfvLeftMenu extends MobxLitElement {
       width: 200px;
     }
   `;
-  @property()
-  isUpdated: boolean;
-
-  public store: Store;
 
   @property({ type: Object })
-  public viewer: Viewer;
+  public store: Store;
 
   render(): TemplateResult {
     return html`<div>Sidebar</div>`;
-  }
-
-  click() {
-    this.store.increment();
   }
 }
 

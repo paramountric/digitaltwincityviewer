@@ -8,47 +8,48 @@ import '@spectrum-web-components/theme/scale-medium.js';
 import '@spectrum-web-components/theme/sp-theme.js';
 import './Header';
 import './LeftMenu';
+import './RightMenu';
 
 @customElement('cmfv-app')
 class App extends MobxLitElement {
-  store = new Store();
   @state()
-  viewer: Viewer;
-  @state()
-  isUpdated = false;
+  store: Store;
 
   @query('#viewport')
   _viewport;
 
   constructor() {
     super();
-    this.store = new Store();
   }
 
   firstUpdated(): void {
-    if (!this.viewer) {
+    if (!this.store) {
       this._viewport.style.height = '100%';
       this._viewport.style.width = '100%';
       this._viewport.style.position = 'absolute';
-      this.viewer = new Viewer({
+      const viewer = new Viewer({
         container: this._viewport,
       });
+      this.store = new Store(viewer);
     }
   }
 
   render() {
-    return html`<sp-theme theme="classic" color="lightest" scale="medium"
-      ><cmfv-header .store=${this.store} .viewer=${this.viewer}></cmfv-header>
-      <cmfv-left-menu
-        .store=${this.store}
-        .viewer=${this.viewer}
-      ></cmfv-left-menu>
-      <div id="viewport"></div
-    ></sp-theme>`;
-  }
+    const header = this.store
+      ? html`<cmfv-header .store=${this.store}></cmfv-header>`
+      : html`<div></div>`;
+    const leftMenu = this.store?.showLeftMenu
+      ? html`<cmfv-left-menu .store=${this.store}></cmfv-left-menu>`
+      : '';
+    const rightMenu = this.store?.viewer?.selectedObject
+      ? html`<cmfv-right-menu .store=${this.store}></cmfv-right-menu>`
+      : null;
 
-  private incrementCount() {
-    this.viewer.store.zoom = this.viewer.store.zoom + 1;
+    return html` <sp-theme theme="classic" color="lightest" scale="medium">
+      ${header} ${leftMenu}
+      <div id="viewport"></div>
+      ${rightMenu}
+    </sp-theme>`;
   }
 }
 
