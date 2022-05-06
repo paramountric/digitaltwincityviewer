@@ -30,9 +30,7 @@ const layerGroupCatalog: LayerGroupState[] = [
           parameters: {
             depthTest: true,
           },
-          getColor: d => {
-            return [235, 235, 255];
-          },
+          getColor: d => [235, 235, 255],
           waterLevel: 0,
         },
       },
