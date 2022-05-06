@@ -122,6 +122,7 @@ export class LayerStore {
   getLayersInstances() {
     const layers = this.getLayers();
     return layers.reduce((acc, layer) => {
+      console.log(layer);
       if (layer.isLoading) {
         return acc;
       } else if (!layer.isLoaded) {
@@ -130,6 +131,7 @@ export class LayerStore {
       } else if (!layer.props.data?.length) {
         return acc;
       }
+      // not happy with re-assigning the event callback every time..
       if (layer.isClickable) {
         layer.props.onClick = d => {
           this.viewer.setSelectedObject(d.object);
@@ -138,12 +140,26 @@ export class LayerStore {
       return [...acc, new layer.type(layer.props)];
     }, []);
   }
-  setLayerProps(layerId, props = {}, layerSettings = {}) {
+  setLayerProps(layerId, props = {} as LayerProps, layerSettings = {}) {
     // todo: look into immutability
     const layer = this.getLayerById(layerId);
     if (!layer) {
       console.warn('layer was not found with the id: ', layerId);
       return;
+    }
+    // in a few places we have the problem that props needs functions and instances
+    if (
+      layerId === 'ground-layer-surface-mesh' &&
+      props.data &&
+      !layer.isLoaded
+    ) {
+      props.mesh = new Geometry({
+        attributes: {
+          positions: new Float32Array(props.data.vertices),
+        },
+        indices: { size: 1, value: new Uint32Array(props.data.indices) },
+      });
+      props.data = [1];
     }
     Object.assign(layer, layerSettings);
     layer.props = Object.assign(layer.props, props);
