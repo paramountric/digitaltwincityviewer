@@ -1,6 +1,7 @@
 import { makeObservable, observable, action } from 'mobx';
 import { Viewer, ViewerProps } from '@dtcv/viewer';
 import { parseCityModel } from '@dtcv/citymodel';
+import { parseCityGml } from '@dtcv/citygml';
 
 // just testing app state here temporarily with a simple counter
 export class Store {
@@ -20,6 +21,24 @@ export class Store {
       text: 'Helsingborg',
     },
   ];
+
+  public async loadCityGmlExample(url: string) {
+    const response = await fetch(url);
+    parseCityGml(await response.text(), cityGmlResult => {
+      console.log(cityGmlResult);
+      const { data, modelMatrix } = cityGmlResult;
+
+      this.viewer.setLayerProps('buildings-layer-surfaces-lod-3', {
+        data,
+        modelMatrix,
+      });
+      this.viewer.setLayerState('buildings-layer-surfaces-lod-3', {
+        url,
+        isLoaded: true,
+      });
+      this.viewer.render();
+    });
+  }
 
   public async loadExampleFile(fileIndex: number) {
     await this.loadFile(this.exampleFiles[fileIndex].url);
