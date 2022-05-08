@@ -1,0 +1,38 @@
+{
+  "name": "@dtcv/citygml",
+  "version": "1.0.0",
+  "description": "Functionality for (mostly parsing) CityGML",
+  "keywords": [
+    "CityGML",
+    "Digital",
+    "Twin",
+    "City",
+    "Viewer"
+  ],
+  "author": "andreasrudena <andreas@rudena.se>",
+  "homepage": "http://digitaltwincityviewer.com",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paramountric/digitaltwincityviewer.git"
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "watch": "tsc --watch",
+    "lint": "eslint --ext .ts,.js src",
+    "format": "prettier --ignore-path .eslintignore --write \"src/**/*.+(js|ts|json)\""
+  },
+  "bugs": {
+    "url": "https://github.com/paramountric/digitaltwincityviewer/issues"
+  },
+  "dependencies": {
+    "earcut": "^2.2.3",
+    "gl-matrix": "^3.4.3",
+    "json-schema-to-typescript": "^10.1.5",
+    "saxes": "^6.0.0"
+  }
+}
