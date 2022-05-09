@@ -31,6 +31,9 @@ class App extends MobxLitElement {
         container: this._viewport,
       });
       this.store = new Store(viewer);
+      this.store.loadCityGmlExample(
+        'http://localhost:9000/files/citygml/3CIM/testdata_3CIM_ver1_malmo_20220205_XSD.gml'
+      );
     }
   }
 
