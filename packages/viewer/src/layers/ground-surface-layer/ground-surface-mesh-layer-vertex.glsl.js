@@ -56,12 +56,8 @@ void main(void) {
 
   vTexCoord = texCoords;
   cameraPosition = project_uCameraPosition;
-  if (positions.z < waterLevel) {
-    vColor = vec4(0.2, 0.3, 1., 0.7);
-  } else {
-    //vColor = vec4(0.2, 1., 0.2, 1.);
-    vColor = vec4(colors * instanceColors.rgb, instanceColors.a);
-  }
+  
+  vColor = vec4(colors * instanceColors.rgb, instanceColors.a);
 
   vec3 pos = (instanceModelMatrix * positions) * sizeScale + instanceTranslation;
 
