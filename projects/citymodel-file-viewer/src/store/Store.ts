@@ -34,30 +34,26 @@ export class Store {
     const response = await fetch(url);
     // ! what about non-json based files? Should check the file ending
     const json = await response.json();
+    // todo: some more sophisticated way of updating found layer data, instead of hardcoding the layer ids
+    // (maybe send the result from parser directly to viewer as a default abstracted option, and let the viewer figure out how to map to layers)
     if (json.Buildings) {
       const { buildings, ground, modelMatrix } = parseCityModel(json);
-      this.viewer.setLayerProps(
-        'buildings-layer-polygons-lod-1',
-        {
-          data: buildings,
-          modelMatrix,
-        },
-        {
-          url,
-          isLoaded: true,
-        }
-      );
-      this.viewer.setLayerProps(
-        'ground-layer-surface-mesh',
-        {
-          data: ground,
-          modelMatrix,
-        },
-        {
-          url,
-          isLoaded: true,
-        }
-      );
+      this.viewer.setLayerProps('buildings-layer-polygons-lod-1', {
+        data: buildings,
+        modelMatrix,
+      });
+      this.viewer.setLayerState('buildings-layer-polygons-lod-1', {
+        url,
+        isLoaded: true,
+      });
+      this.viewer.setLayerProps('ground-layer-surface-mesh', {
+        data: ground,
+        modelMatrix,
+      });
+      this.viewer.setLayerState('ground-layer-surface-mesh', {
+        url,
+        isLoaded: true,
+      });
     }
     this.setIsLoading(false);
     this.viewer.render();
