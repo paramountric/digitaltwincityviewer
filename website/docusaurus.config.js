@@ -8,7 +8,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
   title: 'Digital Twin City Viewer',
   tagline:
-    'An open source toolkit for collaborative city data online - at the right time',
+    'An open source toolkit for collaborative right-time city data online',
   url: 'https://digitaltwincityviewer.com',
   baseUrl: '/',
   onBrokenLinks: 'throw',
@@ -27,15 +27,24 @@ const config = {
           editUrl:
             'https://github.com/paramountric/digitaltwincityviewer/tree/main/website/docs/',
         },
-        blog: {
-          showReadingTime: true,
-          editUrl:
-            'https://github.com/paramountric/digitaltwincityviewer/tree/main/website/blog/',
-        },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
       }),
+    ],
+  ],
+
+  plugins: [
+    [
+      'docusaurus-plugin-includes',
+      {
+        sharedFolders: [
+          {
+            source: '../packages/viewer',
+            target: './docs/viewer',
+          },
+        ],
+      },
     ],
   ],
 
@@ -55,7 +64,6 @@ const config = {
             position: 'left',
             label: 'Docs',
           },
-          { to: '/blog', label: 'Blog', position: 'left' },
           {
             href: 'https://github.com/paramountric/digitaltwincityviewer',
             label: 'GitHub',
@@ -93,19 +101,6 @@ const config = {
               {
                 label: 'Paramountric',
                 href: 'https://paramountric.com',
-              },
-            ],
-          },
-          {
-            title: 'More',
-            items: [
-              {
-                label: 'News',
-                to: '/blog',
-              },
-              {
-                label: 'GitHub',
-                href: 'https://github.com/paramountric/digitaltwincityviewer',
               },
             ],
           },
