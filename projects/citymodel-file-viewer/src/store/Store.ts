@@ -14,26 +14,21 @@ export class Store {
       isLoading: observable,
     });
   }
-  public exampleFiles = [
-    {
-      url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/Helsingborg2021.json',
-      text: 'Helsingborg',
-    },
-  ];
-
-  public async loadExampleFile(fileIndex: number) {
-    await this.loadFile(this.exampleFiles[fileIndex].url);
-  }
 
   public setIsLoading(isLoading: boolean) {
     this.isLoading = isLoading;
   }
 
-  async loadFile(url: string) {
-    this.setIsLoading(true);
-    const response = await fetch(url);
-    // ! what about non-json based files? Should check the file ending
-    const json = await response.json();
+  public reset() {
+    this.viewer.setSelectedObject(null);
+    this.viewer.unload();
+  }
+
+  public render() {
+    this.viewer.render();
+  }
+
+  addFileData(json: any, url: string) {
     // todo: some more sophisticated way of updating found layer data, instead of hardcoding the layer ids
     // (maybe send the result from parser directly to viewer as a default abstracted option, and let the viewer figure out how to map to layers)
     if (json.Buildings) {
@@ -55,7 +50,5 @@ export class Store {
         isLoaded: true,
       });
     }
-    this.setIsLoading(false);
-    this.viewer.render();
   }
 }

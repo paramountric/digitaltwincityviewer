@@ -11,15 +11,22 @@ import '@spectrum-web-components/button/sp-button.js';
 import '@spectrum-web-components/progress-circle/sp-progress-circle.js';
 import { Store } from '../store/Store';
 
+interface HTMLInputEvent extends Event {
+  target: HTMLInputElement & EventTarget;
+}
+
 @customElement('cmfv-file-loader')
 class CmfvFileLoader extends MobxLitElement {
   static styles = css``;
+  private exampleFiles = [
+    {
+      url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/Helsingborg2021.json',
+      text: 'Helsingborg',
+    },
+  ];
 
   @property({ type: Object })
   public store: Store;
-
-  @property({ type: Object })
-  public viewer: Viewer;
 
   private dialogWrapper: HTMLElement;
 
@@ -29,23 +36,48 @@ class CmfvFileLoader extends MobxLitElement {
   }
 
   close() {
-    this.dialogWrapper.removeAttribute('open');
-    delete this.dialogWrapper;
+    if (this.dialogWrapper) {
+      this.dialogWrapper.removeAttribute('open');
+      delete this.dialogWrapper;
+    }
   }
 
   async loadExampleFile(e: Event) {
     const fileIndex = (e.target as Element).getAttribute('key');
-    await this.store.loadExampleFile(Number(fileIndex));
-    const dialogWrapper = this.renderRoot.querySelector('sp-dialog-wrapper');
+    const { url } = this.exampleFiles[fileIndex];
+    this.store.reset();
+    this.store.setIsLoading(true);
+    const response = await fetch(url);
+    // ! what about non-json based files? Should check the file ending
+    const json = await response.json();
+    this.store.addFileData(json, url);
+    this.store.setIsLoading(false);
+    this.store.render();
     this.close();
   }
 
-  loadFile(e: Event) {
-    console.log(e);
+  loadFile(e?: HTMLInputEvent) {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const json = JSON.parse(reader.result as string);
+      this.store.addFileData(json, file.name);
+    };
+    reader.onloadstart = p => {
+      this.store.reset();
+      this.store.setIsLoading(true);
+    };
+    reader.onloadend = p => {
+      this.store.setIsLoading(false);
+      this.store.setIsLoading(false);
+      this.store.render();
+      this.close();
+    };
+    reader.readAsText(file);
   }
 
   render(): TemplateResult {
-    const fileLinks = this.store.exampleFiles.map((file, i) => {
+    const fileLinks = this.exampleFiles.map((file, i) => {
       return html`<div>
         <sp-button
           key=${i}
