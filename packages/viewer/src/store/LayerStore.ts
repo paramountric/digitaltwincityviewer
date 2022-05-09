@@ -32,7 +32,7 @@ const layerGroupCatalog: LayerGroupState[] = [
           parameters: {
             depthTest: true,
           },
-          getColor: d => [235, 235, 255],
+          getColor: d => [200, 200, 200],
           waterLevel: 0,
         },
       },
@@ -51,7 +51,7 @@ const layerGroupCatalog: LayerGroupState[] = [
         isMeshLayer: false,
         props: {
           id: 'buildings-layer-polygons-lod-1',
-          opacity: 0.7,
+          opacity: 1,
           autoHighlight: true,
           highlightColor: [100, 150, 250, 128],
           extruded: true,
@@ -59,7 +59,7 @@ const layerGroupCatalog: LayerGroupState[] = [
           pickable: true,
           coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
           getPolygon: d => d.geometry.coordinates,
-          getFillColor: [200, 200, 220, 200],
+          getFillColor: [255, 255, 255, 255],
           getLineColor: [100, 100, 100],
           getElevation: d => {
             return d.properties.height;
@@ -108,11 +108,11 @@ const layerGroupCatalog: LayerGroupState[] = [
 type LayerState = {
   isLoaded?: boolean;
   isLoading?: boolean;
+  url?: string;
 };
 
 type LayerSetting = LayerState & {
   type: GroundSurfaceLayer | SolidPolygonLayer | SimpleMeshLayer;
-  url: string | null;
   isClickable: boolean;
   isMeshLayer: boolean;
   props: LayerProps;
@@ -199,7 +199,6 @@ export class LayerStore {
   setLayerData(layerId, data) {
     this.setLayerProps(layerId, { data });
   }
-
   // The layers should only be loaded here if they already are in a prepared format and can be loaded straight into the viewer
   // for any other fileformat, the calling application must first load the file and run it through some of the preprocessors/parsers in packages
   async loadLayer(layer: LayerSetting) {
@@ -213,7 +212,20 @@ export class LayerStore {
     const { data, modelMatrix = mat4.create() } = json;
     // todo: validation needed, and a specification for exactly how this JSON must look
     this.setLayerProps(layer.props.id, { data, modelMatrix });
-    this.setLayerState(layer.props.id, { isLoading: false });
+    this.setLayerState(layer.props.id, { isLoading: false, url: layer.url });
     this.renderLayers();
+  }
+  unload() {
+    const layers = this.getLayers();
+    for (const layer of layers) {
+      this.setLayerProps(layer.props.id, {
+        data: null,
+      });
+      this.setLayerState(layer.props.id, {
+        isLoaded: false,
+        url: null,
+      });
+    }
+    this.viewer.render();
   }
 }

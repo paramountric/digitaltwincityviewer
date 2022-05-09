@@ -136,6 +136,10 @@ class Viewer {
     this.layerStore.setLayerState(layerId, state);
   }
 
+  unload() {
+    this.layerStore.unload();
+  }
+
   render() {
     const props = this.getProps();
     this.deck.setProps(props);
