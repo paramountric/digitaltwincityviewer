@@ -3,6 +3,7 @@
 
 import { LayerProps, COORDINATE_SYSTEM } from '@deck.gl/core';
 import { SolidPolygonLayer } from '@deck.gl/layers';
+import { SimpleMeshLayer } from '@deck.gl/mesh-layers';
 import GL from '@luma.gl/constants';
 import { Geometry } from '@luma.gl/engine';
 import { Viewer } from '../Viewer';
@@ -20,6 +21,7 @@ const layerGroupCatalog: LayerGroupState[] = [
         isLoaded: false,
         isLoading: false,
         isClickable: false,
+        isMeshLayer: true,
         props: {
           id: 'ground-layer-surface-mesh',
           data: [1],
@@ -46,6 +48,7 @@ const layerGroupCatalog: LayerGroupState[] = [
         isLoaded: false,
         isLoading: false,
         isClickable: true,
+        isMeshLayer: false,
         props: {
           id: 'buildings-layer-polygons-lod-1',
           opacity: 0.7,
@@ -78,24 +81,48 @@ const layerGroupCatalog: LayerGroupState[] = [
           },
         },
       },
+      {
+        type: SimpleMeshLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: true,
+        isMeshLayer: true,
+        props: {
+          id: 'buildings-layer-surfaces-lod-3',
+          data: [1],
+          _instanced: false,
+          wireframe: false,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getPosition: d => [0, 0, 0],
+          parameters: {
+            depthTest: true,
+          },
+          getColor: d => [235, 235, 255],
+        },
+      },
     ],
   },
 ];
 
+type LayerState = {
+  isLoaded?: boolean;
+  isLoading?: boolean;
+};
+
+type LayerSetting = LayerState & {
+  type: GroundSurfaceLayer | SolidPolygonLayer | SimpleMeshLayer;
+  url: string | null;
+  isClickable: boolean;
+  isMeshLayer: boolean;
+  props: LayerProps;
+};
+
 type LayerGroupState = {
   title: string;
   description: string;
-  layers: Layer[];
+  layers: LayerSetting[];
 };
-
-class Layer {
-  type: any;
-  url?: string;
-  isLoaded: boolean;
-  isLoading: boolean;
-  isClickable: boolean;
-  props: LayerProps;
-}
 
 export class LayerStore {
   layerGroups: LayerGroupState[];
@@ -122,7 +149,6 @@ export class LayerStore {
   getLayersInstances() {
     const layers = this.getLayers();
     return layers.reduce((acc, layer) => {
-      console.log(layer);
       if (layer.isLoading) {
         return acc;
       } else if (!layer.isLoaded) {
@@ -140,7 +166,15 @@ export class LayerStore {
       return [...acc, new layer.type(layer.props)];
     }, []);
   }
-  setLayerProps(layerId, props = {} as LayerProps, layerSettings = {}) {
+  setLayerState(layerId, layerState: LayerState) {
+    const layer = this.getLayerById(layerId);
+    if (!layer) {
+      console.warn('layer was not found with the id: ', layerId);
+      return;
+    }
+    Object.assign(layer, layerState);
+  }
+  setLayerProps(layerId, props: LayerProps) {
     // todo: look into immutability
     const layer = this.getLayerById(layerId);
     if (!layer) {
@@ -148,11 +182,7 @@ export class LayerStore {
       return;
     }
     // in a few places we have the problem that props needs functions and instances
-    if (
-      layerId === 'ground-layer-surface-mesh' &&
-      props.data &&
-      !layer.isLoaded
-    ) {
+    if (layer.isMeshLayer && props.data && !layer.isLoaded) {
       props.mesh = new Geometry({
         attributes: {
           positions: new Float32Array(props.data.vertices),
@@ -161,7 +191,6 @@ export class LayerStore {
       });
       props.data = [1];
     }
-    Object.assign(layer, layerSettings);
     layer.props = Object.assign(layer.props, props);
   }
   renderLayers() {
@@ -173,21 +202,18 @@ export class LayerStore {
 
   // The layers should only be loaded here if they already are in a prepared format and can be loaded straight into the viewer
   // for any other fileformat, the calling application must first load the file and run it through some of the preprocessors/parsers in packages
-  async loadLayer(layer: Layer) {
+  async loadLayer(layer: LayerSetting) {
     if (!layer.url) {
       console.warn('No data url has been given for this layer');
       return;
     }
-    this.setLayerProps(layer.props.id, null, { isLoading: true });
+    this.setLayerState(layer.props.id, { isLoading: true });
     const response = await fetch(layer.url);
     const json = await response.json();
     const { data, modelMatrix = mat4.create() } = json;
     // todo: validation needed, and a specification for exactly how this JSON must look
-    this.setLayerProps(
-      layer.props.id,
-      { data, modelMatrix },
-      { isLoaded: true, isLoading: false }
-    );
+    this.setLayerProps(layer.props.id, { data, modelMatrix });
+    this.setLayerState(layer.props.id, { isLoading: false });
     this.renderLayers();
   }
 }
