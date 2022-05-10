@@ -1,5 +1,5 @@
-
 ![dtcv-flash-img](https://user-images.githubusercontent.com/3265950/166108531-b2e2bd4b-afe2-422f-a0ae-b14fb2492605.png)
+[![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
 
 # Digital Twin City Viewer
 
@@ -17,9 +17,9 @@ planning, design, exploration, experimentation and optimization of cities.
 
 [Read more about DTCC](https://dtcc.chalmers.se/)
 
-## Getting started
+## Status
 
-The Digital Twin City Viewer is expected to be released in a first stable version in the end of 2022. The documentation will be developed until then as more and more features will be released in alpha.
+The Digital Twin City Viewer is expected to be released in a first stable version in the end of 2022. The documentation will be developed continuously until then as more and more features will be released in alpha and beta.
 
 ## License
 
