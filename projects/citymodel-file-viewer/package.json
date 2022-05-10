@@ -5,14 +5,18 @@
   "description": "A viewer specifically to check different city model files",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack serve --config webpack.dev.config.js"
+    "clean": "rimraf dist",
+    "dev": "webpack serve --config webpack.dev.config.js",
+    "build": "clean && webpack --config webpack.prod.config.js",
+    "lint": "eslint --ext .ts,.js src"
   },
   "author": "andreasrudena <andreas@rudena.se>",
   "license": "MIT",
   "devDependencies": {
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^10.2.4",
-    "css-loader": "^6.7.1",
+    "eslint": "^8.9.0",
+    "eslint-config-prettier": "^8.3.0",
     "html-webpack-plugin": "^5.5.0",
     "style-loader": "^3.3.1",
     "ts-loader": "^9.3.0",
