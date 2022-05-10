@@ -7,7 +7,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "dev": "webpack serve --config webpack.dev.config.js",
-    "build": "clean && webpack --config webpack.prod.config.js",
+    "build": "npm run clean && webpack --config webpack.prod.config.js",
     "lint": "eslint --ext .ts,.js src"
   },
   "author": "andreasrudena <andreas@rudena.se>",
