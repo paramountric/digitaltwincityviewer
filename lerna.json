@@ -1,4 +1,13 @@
 {
   "packages": ["packages/*", "projects/*"],
+  "npmClient": "npm",
+  "command": {
+    "publish": {
+      "ignoreChanges": ["*.md"],
+      "message": "chore(release): publish",
+      "registry": "https://npm.pkg.github.com"
+    },
+    "bootstrap": {}
+  },
   "version": "1.0.0"
 }
