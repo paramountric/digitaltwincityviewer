@@ -34,19 +34,7 @@ const config = {
     ],
   ],
 
-  plugins: [
-    [
-      'docusaurus-plugin-includes',
-      {
-        sharedFolders: [
-          {
-            source: '../packages/viewer',
-            target: './docs/viewer',
-          },
-        ],
-      },
-    ],
-  ],
+  plugins: [],
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
