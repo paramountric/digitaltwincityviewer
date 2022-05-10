@@ -27,7 +27,7 @@ const FeatureList = [
         <div className={styles.buttons} style={{ marginTop: 20 }}>
           <Link
             className="button button--secondary button--md"
-            to="/docs/datasharing"
+            to="/docs/intro"
           >
             More about data sharing
           </Link>
