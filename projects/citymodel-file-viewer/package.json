@@ -1,6 +1,7 @@
 {
   "name": "@dtcv/citymodel-file-viewer",
   "version": "1.0.0",
+  "private": true,
   "description": "A viewer specifically to check different city model files",
   "main": "index.js",
   "scripts": {
