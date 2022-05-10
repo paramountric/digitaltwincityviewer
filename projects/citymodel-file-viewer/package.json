@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "webpack serve --config webpack.dev.config.js"
   },
-  "author": "andreas@paramountric.com",
+  "author": "andreasrudena <andreas@rudena.se>",
   "license": "MIT",
   "devDependencies": {
     "clean-webpack-plugin": "^4.0.0",
