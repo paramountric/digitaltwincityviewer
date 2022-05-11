@@ -2,7 +2,6 @@ import { makeObservable, observable, action } from 'mobx';
 import { Viewer, ViewerProps } from '@dtcv/viewer';
 import { parseCityModel } from '@dtcv/citymodel';
 
-// just testing app state here temporarily with a simple counter
 export class Store {
   public isLoading = false;
   public showLeftMenu = false;
