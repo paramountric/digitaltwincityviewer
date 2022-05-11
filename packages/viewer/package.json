@@ -16,7 +16,7 @@
   },
   "scripts": {
     "prepublish": "rimraf dist",
-    "prepublishOnly": "tsc",
+    "prepublishOnly": "tsc --project tsconfig.prod.json",
     "dev": "webpack serve --config webpack.dev.config.js",
     "tsc": "tsc",
     "watch": "tsc --watch",
