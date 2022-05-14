@@ -15,8 +15,8 @@ interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
 }
 
-@customElement('cmfv-file-loader')
-class CmfvFileLoader extends MobxLitElement {
+@customElement('fv-file-loader')
+class FileLoader extends MobxLitElement {
   static styles = css``;
   private exampleFiles = [
     {
@@ -132,4 +132,4 @@ class CmfvFileLoader extends MobxLitElement {
   }
 }
 
-export { CmfvFileLoader };
+export { FileLoader };

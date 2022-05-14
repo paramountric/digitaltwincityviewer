@@ -32,7 +32,7 @@ export default function Home() {
   return (
     <Layout
       title={`${siteConfig.title}`}
-      description="Digital Twin City Viewer - an open source toolkit for collaborative city data online - at the right time"
+      description="Digital Twin City Viewer - an open source toolkit for collaborative right-time city data online"
     >
       <HomepageHeader />
       <main>

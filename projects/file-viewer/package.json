@@ -1,8 +1,8 @@
 {
-  "name": "@dtcv/citymodel-file-viewer",
+  "name": "@dtcv/file-viewer",
   "version": "1.0.0",
   "private": true,
-  "description": "A viewer specifically to check different city model files",
+  "description": "A general viewer for checking different supported data formats through file upload",
   "main": "index.js",
   "scripts": {
     "clean": "rimraf dist",
@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "@adobe/lit-mobx": "^2.0.0",
-    "@dtcv/citygml": "^1.0.0",
     "@dtcv/citymodel": "^1.0.0",
     "@dtcv/viewer": "1.0.0",
     "@spectrum-web-components/accordion": "^0.6.9",

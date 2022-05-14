@@ -27,9 +27,9 @@ const FeatureList = [
         <div className={styles.buttons} style={{ marginTop: 20 }}>
           <Link
             className="button button--secondary button--md"
-            to="/docs/datasharing"
+            to="/docs/intro"
           >
-            Read more about data sharing here
+            More about data sharing
           </Link>
         </div>
       </>
@@ -48,7 +48,7 @@ const FeatureList = [
             className="button button--secondary button--md"
             href="https://dtcc.chalmers.se/"
           >
-            Read more about data DTCC here
+            More about DTCC
           </Link>
         </div>
       </>

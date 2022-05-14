@@ -45,8 +45,8 @@ const rounding = {
   groundHeight: 2,
 };
 
-@customElement('cmfv-right-menu')
-class CmfvRightMenu extends MobxLitElement {
+@customElement('fv-right-menu')
+class RightMenu extends MobxLitElement {
   static styles = css`
     :host {
       z-index: 3;
@@ -135,4 +135,4 @@ class CmfvRightMenu extends MobxLitElement {
   }
 }
 
-export { CmfvRightMenu };
+export { RightMenu };

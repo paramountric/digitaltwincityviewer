@@ -128,8 +128,16 @@ class Viewer {
     this.selectedObject = object;
   }
 
-  setLayerProps(layerId: string, props, settings) {
-    this.layerStore.setLayerProps(layerId, props, settings);
+  setLayerProps(layerId: string, props) {
+    this.layerStore.setLayerProps(layerId, props);
+  }
+
+  setLayerState(layerId: string, state) {
+    this.layerStore.setLayerState(layerId, state);
+  }
+
+  unload() {
+    this.layerStore.unload();
   }
 
   render() {

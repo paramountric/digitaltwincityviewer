@@ -3,9 +3,8 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  mode: 'development',
+  mode: 'production',
   entry: './src/index.ts',
-  devtool: 'inline-source-map',
   module: {
     rules: [
       {
@@ -22,16 +21,10 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js', 'json'],
   },
-  devServer: {
-    devMiddleware: {
-      index: true,
-      writeToDisk: true,
-    },
-    port: 3000,
-  },
   output: {
-    filename: 'index.js',
+    filename: 'bundle.[contenthash].js',
     path: path.resolve(__dirname, 'dist'),
+    publicPath: '',
   },
   plugins: [
     new CleanWebpackPlugin(),
