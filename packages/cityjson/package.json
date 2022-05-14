@@ -13,7 +13,7 @@
   "author": "andreasrudena <andreas@rudena.se>",
   "homepage": "https://www.digitaltwincityviewer.com",
   "license": "MIT",
-  "main": "dist/index.ts",
+  "main": "dist/index.js",
   "publishConfig": {
     "access": "public"
   },
@@ -33,6 +33,7 @@
     "url": "https://github.com/paramountric/digitaltwincityviewer/issues"
   },
   "dependencies": {
+    "@math.gl/polygon": "^3.5.7",
     "gl-matrix": "^3.4.3"
   },
   "devDependencies": {
