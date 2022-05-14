@@ -92,6 +92,7 @@ const layerGroupCatalog: LayerGroupState[] = [
           id: 'buildings-layer-surfaces-lod-3',
           data: [1],
           _instanced: false,
+          _useMeshColors: true,
           wireframe: false,
           coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
           getPosition: d => [0, 0, 0],
@@ -181,15 +182,18 @@ export class LayerStore {
       console.warn('layer was not found with the id: ', layerId);
       return;
     }
+    console.log(props);
     // in a few places we have the problem that props needs functions and instances
     if (layer.isMeshLayer && props.data && !layer.isLoaded) {
       props.mesh = new Geometry({
         attributes: {
           positions: new Float32Array(props.data.vertices),
+          COLOR_0: { size: 4, value: new Uint8Array(props.data.colors) },
         },
         indices: { size: 1, value: new Uint32Array(props.data.indices) },
       });
       props.data = [1];
+      console.log('render', props);
     }
     layer.props = Object.assign(layer.props, props);
   }
