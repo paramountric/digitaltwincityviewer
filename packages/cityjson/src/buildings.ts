@@ -38,32 +38,57 @@ function getModelMatrix(extent) {
 function prepareBoundary(
   boundary,
   vertices,
-  out = [],
   flatten = false,
-  closePolygon = false
+  closePolygon = false,
+  transform: undefined | mat4,
+  out = {
+    projected: [],
+    unprojected: [],
+  }
 ) {
   if (!Array.isArray(boundary[0])) {
+    if (boundary.length < 3) {
+      return out;
+    }
+    if (!transform) {
+      const n = calculateNormal(
+        vertices[boundary[0]],
+        vertices[boundary[1]],
+        vertices[boundary[2]]
+      );
+      const q = quat.rotationTo([0, 0, 0], n, [0, 0, 1]);
+      transform = mat4.fromQuat(mat4.create(), q);
+    }
     for (let i = 0; i < boundary.length; i++) {
+      const unprojected = vertices[boundary[i]];
+      const projected = vec3.transformMat4([0, 0, 0], unprojected, transform);
       if (flatten) {
-        out.push(...vertices[boundary[i]]);
+        out.projected.push(...projected);
+        out.unprojected.push(...unprojected);
       } else {
-        out.push(vertices[boundary[i]]);
+        out.projected.push(projected);
+        out.unprojected.push(unprojected);
       }
     }
     if (closePolygon && boundary[0] !== boundary[boundary.length - 1]) {
-      out.push(...vertices[boundary[0]]);
+      const firstPoint = vertices[boundary[0]];
+      out.projected.push(
+        ...vec3.transformMat4([0, 0, 0], firstPoint, transform)
+      );
+      out.unprojected.push(...firstPoint);
     }
   } else {
     if (!flatten) {
-      out.push([]);
+      out.projected.push([]);
     }
     for (let i = 0; i < boundary.length; i++) {
       prepareBoundary(
         boundary[i],
         vertices,
-        flatten ? out : out[out.length - 1],
         flatten,
-        closePolygon
+        closePolygon,
+        transform,
+        flatten ? out : out[out.projected.length - 1]
       );
     }
   }
@@ -93,16 +118,27 @@ export function multiPolygonDirection(multiPoly, direction) {
   return result;
 }
 
-function normal(p1, p2, p3) {
+function calculateNormal(p1, p2, p3) {
   const a = vec3.subtract(vec3.create(), p3, p1);
   const b = vec3.subtract(vec3.create(), p2, p1);
   const cross = vec3.cross(vec3.create(), b, a);
   return vec3.normalize(vec3.create(), cross);
 }
 
-// fix: check polygon type
-export function polygonNormal(multiPoly: MultiPolygon) {
-  return normal(multiPoly[0][0], multiPoly[0][1], multiPoly[0][2]);
+function polygonNormal(polygon: Polygon) {
+  return calculateNormal(polygon[0], polygon[1], polygon[2]);
+}
+
+// wip: just a very quick test to see if colors works
+// the colors can be set more granular in boundaries and semantics
+function getColor(geometry) {
+  const colors = {
+    RoofSurface: [1, 0, 0],
+    WallSurface: [1, 1, 1],
+    GroundSurface: [0.5, 0.5, 0.5],
+  };
+  const surface = geometry.semantics.surfaces.find(s => s.type);
+  return surface ? colors[surface.type] : [0, 0.5, 0];
 }
 
 export function buildingsLayerSurfacesLod3Data(cityJson: CityJSONV111) {
@@ -114,22 +150,33 @@ export function buildingsLayerSurfacesLod3Data(cityJson: CityJSONV111) {
   }
   const layerProps = {
     data: {
-      vertices,
+      vertices: [],
       indices: [],
+      colors: [],
     },
     modelMatrix: getModelMatrix(cityJson.metadata.geographicalExtent),
   };
 
-  const cityObjects = Object.values(cityJson.CityObjects);
+  const cityObjects = Object.values(cityJson.CityObjects).filter(
+    obj => obj.type === 'Building'
+  );
   for (const cityObject of cityObjects) {
     const geometries = (cityObject.geometry as any) || [];
     for (const geometry of geometries) {
+      const color = getColor(geometry);
       for (const boundary of geometry.boundaries) {
-        const flattened = [];
-        prepareBoundary(boundary, cityJson.vertices, flattened, true, false);
-        const { indices } = triangulate(flattened);
+        const { projected, unprojected } = prepareBoundary(
+          boundary,
+          cityJson.vertices,
+          true, // flatten
+          false, // close polygon
+          undefined // transform
+        );
+        const { indices } = triangulate(projected);
         layerProps.data.indices.push(...indices.map(i => i + vertexCount));
-        vertexCount += flattened.length / 3;
+        layerProps.data.vertices.push(...unprojected);
+        layerProps.data.colors.push(...color, 1, ...color, 1, ...color, 1);
+        vertexCount += projected.length / 3;
       }
     }
   }
