@@ -12,7 +12,7 @@
     "DTCC"
   ],
   "author": "andreasrudena <andreas@rudena.se>",
-  "homepage": "http://digitaltwincityviewer.com",
+  "homepage": "https://digitaltwincityviewer.com",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
