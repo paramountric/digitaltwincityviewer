@@ -62,15 +62,67 @@ function parseCityGml(xml: string, cb: (result) => void) {
 
   let currentNode: SaxesTagNS | null = null;
   const openTags = [];
-  let indexStart = 0;
 
   let currentCityObject;
+  let currentFunction = null;
   let currentSurfaceType: string;
   let currentLod: number;
   let currentGeometry;
   let currentPosList;
 
   const parserConfig = {
+    // * cityObjectMembers
+    'transportation:TrafficArea': {
+      opentag: node => {
+        const id = node.attributes['gml:id']?.value || createId();
+
+        const cityObject = {
+          type: 'TrafficArea',
+          geometry: [],
+        };
+
+        currentCityObject = cityObject;
+
+        result.CityObjects[id] = cityObject;
+      },
+      closeTag: node => {
+        currentCityObject = null;
+      },
+    },
+    'transportation:AuxiliaryTrafficArea': {
+      opentag: node => {
+        const id = node.attributes['gml:id']?.value || createId();
+
+        const cityObject = {
+          type: 'AuxiliaryTrafficArea',
+          geometry: [],
+        };
+
+        currentCityObject = cityObject;
+
+        result.CityObjects[id] = cityObject;
+      },
+      closeTag: node => {
+        currentCityObject = null;
+      },
+    },
+    'trecim:Facility': {
+      opentag: node => {
+        const id = node.attributes['gml:id']?.value || createId();
+
+        const cityObject = {
+          type: 'Facility',
+          geometry: [],
+        };
+
+        currentCityObject = cityObject;
+
+        result.CityObjects[id] = cityObject;
+      },
+      closeTag: node => {
+        currentCityObject = null;
+      },
+    },
     'bldg:Building': {
       opentag: node => {
         const id = node.attributes['gml:id']?.value || createId();
@@ -83,6 +135,23 @@ function parseCityGml(xml: string, cb: (result) => void) {
         currentCityObject = cityObject;
 
         result.CityObjects[id] = cityObject;
+      },
+      closeTag: node => {
+        currentCityObject = null;
+      },
+    },
+    // * semantics
+    'transportation:function': {
+      openTag: node => {
+        currentFunction = node;
+      },
+      text: text => {
+        if (currentFunction) {
+          currentCityObject.function = text;
+        }
+      },
+      closeTag: node => {
+        currentFunction = null;
       },
     },
     'bldg:GroundSurface': {
@@ -109,6 +178,15 @@ function parseCityGml(xml: string, cb: (result) => void) {
         currentSurfaceType = null;
       },
     },
+    // * lod levels
+    'transportation:lod2MultiSurface': {
+      opentag: node => {
+        currentLod = 2;
+      },
+      closetag: node => {
+        currentLod = null;
+      },
+    },
     'bldg:lod3MultiSurface': {
       opentag: node => {
         currentLod = 3;
@@ -117,6 +195,8 @@ function parseCityGml(xml: string, cb: (result) => void) {
         currentLod = null;
       },
     },
+    // * geometry
+    // note: if nested, the inner geometry will be used
     'gml:CompositeSurface': {
       opentag: node => {
         currentGeometry = {
@@ -135,6 +215,9 @@ function parseCityGml(xml: string, cb: (result) => void) {
         };
       },
       closetag: node => {
+        if (!currentGeometry) {
+          return;
+        }
         currentGeometry.semantics.values = Array(
           currentGeometry.boundaries.length
         ).fill(0);
@@ -142,11 +225,49 @@ function parseCityGml(xml: string, cb: (result) => void) {
         currentGeometry = null;
       },
     },
+    'gml:MultiSurface': {
+      opentag: node => {
+        if (!currentCityObject) {
+          return;
+        }
+        currentGeometry = {
+          id: node.attributes['gml:id']?.value || createId(),
+          type: 'MultiSurface',
+          lod: currentLod,
+          boundaries: [],
+          semantics: {
+            surfaces: [
+              {
+                type: currentSurfaceType,
+              },
+            ],
+            values: [],
+          },
+        };
+      },
+      closetag: node => {
+        if (!currentCityObject || !currentGeometry) {
+          return;
+        }
+        currentGeometry.semantics.values = Array(
+          currentGeometry.boundaries.length
+        ).fill(0);
+        currentCityObject.geometry.push(currentGeometry);
+        currentGeometry = null;
+      },
+    },
+    // * positions are pushed into current active geometry
     'gml:posList': {
       opentag: node => {
+        if (!currentGeometry) {
+          return;
+        }
         currentPosList = [];
       },
       text: text => {
+        if (!currentGeometry) {
+          return;
+        }
         const coords = text.split(' ').map(Number);
         for (let i = 0; i < coords.length; i += 3) {
           const x = coords[i];
@@ -185,8 +306,15 @@ function parseCityGml(xml: string, cb: (result) => void) {
         switch (currentGeometry.type) {
           case 'CompositeSurface':
             currentGeometry.boundaries.push([indices]);
+            result.vertices.push(...currentPosList);
+            break;
+          case 'MultiSurface':
+            currentGeometry.boundaries.push([indices]);
+            result.vertices.push(...currentPosList);
+            break;
+          default:
+            break;
         }
-        result.vertices.push(...currentPosList);
         currentPosList = null;
       },
     },
