@@ -39,6 +39,34 @@ const layerGroupCatalog: LayerGroupState[] = [
     ],
   },
   {
+    title: 'Land use',
+    description: 'Land use layer',
+    layers: [
+      {
+        type: SimpleMeshLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: true,
+        isMeshLayer: true,
+        props: {
+          opacity: 0.5,
+          id: 'landuse-layer-surface-lod-1',
+          data: [1],
+          _instanced: false,
+          _useMeshColors: true,
+          wireframe: false,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getPosition: d => [0, 0, 0],
+          parameters: {
+            depthTest: true,
+          },
+          getColor: d => [235, 235, 255],
+        },
+      },
+    ],
+  },
+  {
     title: 'Transportation',
     description: 'Transportation layer',
     layers: [
@@ -50,7 +78,28 @@ const layerGroupCatalog: LayerGroupState[] = [
         isClickable: true,
         isMeshLayer: true,
         props: {
-          id: 'transportation-layer-surfaces-lod-2',
+          id: 'transportation-layer-traffic-area-lod-2',
+          data: [1],
+          _instanced: false,
+          _useMeshColors: true,
+          wireframe: false,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getPosition: d => [0, 0, 0],
+          parameters: {
+            depthTest: true,
+          },
+          getColor: d => [235, 235, 255],
+        },
+      },
+      {
+        type: SimpleMeshLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: true,
+        isMeshLayer: true,
+        props: {
+          id: 'transportation-layer-auxiliary-traffic-area-lod-2',
           data: [1],
           _instanced: false,
           _useMeshColors: true,
@@ -214,7 +263,7 @@ export class LayerStore {
       props.mesh = new Geometry({
         attributes: {
           positions: new Float32Array(props.data.vertices),
-          COLOR_0: { size: 4, value: new Uint8Array(props.data.colors) },
+          COLOR_0: { size: 4, value: new Float32Array(props.data.colors) },
         },
         indices: { size: 1, value: new Uint32Array(props.data.indices) },
       });

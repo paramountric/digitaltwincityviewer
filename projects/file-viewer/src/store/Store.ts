@@ -1,10 +1,12 @@
 import { makeObservable, observable, action } from 'mobx';
 import { Viewer, ViewerProps } from '@dtcv/viewer';
 import { parseCityModel } from '@dtcv/citymodel';
-import { parseCityGml } from '@dtcv/citygml';
+import { parseCityGml, CityGmlParserOptions } from '@dtcv/citygml';
 import {
   buildingsLayerSurfacesLod3Data,
-  transportationLayerSurfacesLod2Data,
+  transportationLayerTrafficAreaLod2Data,
+  transportationLayerAuxiliaryTrafficAreaLod2Data,
+  landuseSurfaceLod1Data,
 } from '@dtcv/cityjson';
 
 export class Store {
@@ -32,15 +34,16 @@ export class Store {
     if (response.status !== 200) {
       return console.warn('response status: ', response.status);
     }
-    const options = {
+    const options: CityGmlParserOptions = {
       cityObjectMembers: {
-        'bldg:Building': false,
+        'bldg:Building': true,
         'transportation:TrafficArea': true,
+        'transportation:AuxiliaryTrafficArea': true,
+        'luse:LandUse': true,
       },
     };
     parseCityGml(await response.text(), options, cityGmlResult => {
-      const { data, modelMatrix } =
-        transportationLayerSurfacesLod2Data(cityGmlResult);
+      const { data, modelMatrix } = landuseSurfaceLod1Data(cityGmlResult);
       console.log(data, modelMatrix);
 
       if (options.cityObjectMembers['bldg:Building']) {
@@ -54,11 +57,34 @@ export class Store {
         });
       }
       if (options.cityObjectMembers['transportation:TrafficArea']) {
-        this.viewer.setLayerProps('transportation-layer-surfaces-lod-2', {
-          data,
-          modelMatrix,
+        this.viewer.setLayerProps(
+          'transportation-layer-traffic-area-lod-2',
+          transportationLayerTrafficAreaLod2Data(cityGmlResult)
+        );
+        this.viewer.setLayerState('transportation-layer-traffic-area-lod-2', {
+          url,
+          isLoaded: true,
         });
-        this.viewer.setLayerState('transportation-layer-surfaces-lod-2', {
+      }
+      if (options.cityObjectMembers['transportation:AuxiliaryTrafficArea']) {
+        this.viewer.setLayerProps(
+          'transportation-layer-auxiliary-traffic-area-lod-2',
+          transportationLayerAuxiliaryTrafficAreaLod2Data(cityGmlResult)
+        );
+        this.viewer.setLayerState(
+          'transportation-layer-auxiliary-traffic-area-lod-2',
+          {
+            url,
+            isLoaded: true,
+          }
+        );
+      }
+      if (options.cityObjectMembers['luse:LandUse']) {
+        this.viewer.setLayerProps(
+          'landuse-layer-surface-lod-1',
+          landuseSurfaceLod1Data(cityGmlResult)
+        );
+        this.viewer.setLayerState('landuse-layer-surface-lod-1', {
           url,
           isLoaded: true,
         });
