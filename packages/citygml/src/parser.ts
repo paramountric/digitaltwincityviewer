@@ -1,13 +1,28 @@
 import { SaxesParser, SaxesTagNS } from 'saxes';
 import { CityJSONV111 } from '@dtcv/cityjson';
 
+// ! This parser is just a brute force parser to get started quickly with some sample models
+// ! There are many sophisticated ways to parse data including lexers and schema generated functions
+// ! However, it's useful sometimes in a project to do a targeted implementation instead of working with a massive schema
+
 // just a backup plan for ids, there should always be an id in the original file for the relevant objects to parse
 let count = 1;
 function createId() {
   return `id-${count++}`;
 }
 
-function parseCityGml(xml: string, cb: (result) => void) {
+// todo: figure out how to group CityGML CityObjectMember selection to layers (now it is one layer per CityObjectMember)
+type CityGmlParserOptions = {
+  cityObjectMembers: {
+    [tagName: string]: boolean;
+  };
+};
+
+function parseCityGml(
+  xml: string,
+  options: CityGmlParserOptions,
+  cb: (result) => void
+) {
   const parser = new SaxesParser({
     xmlns: true,
     additionalNamespaces: {
@@ -73,6 +88,7 @@ function parseCityGml(xml: string, cb: (result) => void) {
   const parserConfig = {
     // * cityObjectMembers
     'transportation:TrafficArea': {
+      include: options.cityObjectMembers['transportation:TrafficArea'],
       opentag: node => {
         const id = node.attributes['gml:id']?.value || createId();
 
@@ -85,11 +101,12 @@ function parseCityGml(xml: string, cb: (result) => void) {
 
         result.CityObjects[id] = cityObject;
       },
-      closeTag: node => {
+      closetag: node => {
         currentCityObject = null;
       },
     },
     'transportation:AuxiliaryTrafficArea': {
+      include: options.cityObjectMembers['transportation:AuxiliaryTrafficArea'],
       opentag: node => {
         const id = node.attributes['gml:id']?.value || createId();
 
@@ -102,11 +119,17 @@ function parseCityGml(xml: string, cb: (result) => void) {
 
         result.CityObjects[id] = cityObject;
       },
-      closeTag: node => {
+      closetag: node => {
         currentCityObject = null;
       },
     },
+    'transportation:TransportationComplex': {
+      include:
+        options.cityObjectMembers['transportation:TransportationComplex'],
+    },
     'trecim:Facility': {
+      include: options.cityObjectMembers['trecim:Facility'],
+
       opentag: node => {
         const id = node.attributes['gml:id']?.value || createId();
 
@@ -119,11 +142,18 @@ function parseCityGml(xml: string, cb: (result) => void) {
 
         result.CityObjects[id] = cityObject;
       },
-      closeTag: node => {
+      closetag: node => {
         currentCityObject = null;
       },
     },
+    'luse:LandUse': {
+      include: options.cityObjectMembers['luse:LandUse'],
+    },
+    'frn:CityFurniture': {
+      include: options.cityObjectMembers['frn:CityFurniture'],
+    },
     'bldg:Building': {
+      include: options.cityObjectMembers['bldg:Building'],
       opentag: node => {
         const id = node.attributes['gml:id']?.value || createId();
 
@@ -136,25 +166,27 @@ function parseCityGml(xml: string, cb: (result) => void) {
 
         result.CityObjects[id] = cityObject;
       },
-      closeTag: node => {
+      closetag: node => {
         currentCityObject = null;
       },
     },
     // * semantics
     'transportation:function': {
-      openTag: node => {
+      include: true,
+      opentag: node => {
         currentFunction = node;
       },
       text: text => {
-        if (currentFunction) {
+        if (currentCityObject && currentFunction) {
           currentCityObject.function = text;
         }
       },
-      closeTag: node => {
+      closetag: node => {
         currentFunction = null;
       },
     },
     'bldg:GroundSurface': {
+      include: true,
       opentag: node => {
         currentSurfaceType = 'GroundSurface';
       },
@@ -163,6 +195,7 @@ function parseCityGml(xml: string, cb: (result) => void) {
       },
     },
     'bldg:WallSurface': {
+      include: true,
       opentag: node => {
         currentSurfaceType = 'WallSurface';
       },
@@ -171,6 +204,7 @@ function parseCityGml(xml: string, cb: (result) => void) {
       },
     },
     'bldg:RoofSurface': {
+      include: true,
       opentag: node => {
         currentSurfaceType = 'RoofSurface';
       },
@@ -180,6 +214,7 @@ function parseCityGml(xml: string, cb: (result) => void) {
     },
     // * lod levels
     'transportation:lod2MultiSurface': {
+      include: true,
       opentag: node => {
         currentLod = 2;
       },
@@ -188,6 +223,7 @@ function parseCityGml(xml: string, cb: (result) => void) {
       },
     },
     'bldg:lod3MultiSurface': {
+      include: true,
       opentag: node => {
         currentLod = 3;
       },
@@ -198,7 +234,12 @@ function parseCityGml(xml: string, cb: (result) => void) {
     // * geometry
     // note: if nested, the inner geometry will be used
     'gml:CompositeSurface': {
+      include: true,
       opentag: node => {
+        if (!currentCityObject) {
+          return;
+        }
+        console.log(currentCityObject);
         currentGeometry = {
           id: node.attributes['gml:id']?.value || createId(),
           type: 'CompositeSurface',
@@ -215,7 +256,7 @@ function parseCityGml(xml: string, cb: (result) => void) {
         };
       },
       closetag: node => {
-        if (!currentGeometry) {
+        if (!currentCityObject || !currentGeometry) {
           return;
         }
         currentGeometry.semantics.values = Array(
@@ -226,6 +267,7 @@ function parseCityGml(xml: string, cb: (result) => void) {
       },
     },
     'gml:MultiSurface': {
+      include: true,
       opentag: node => {
         if (!currentCityObject) {
           return;
@@ -258,14 +300,15 @@ function parseCityGml(xml: string, cb: (result) => void) {
     },
     // * positions are pushed into current active geometry
     'gml:posList': {
+      include: true,
       opentag: node => {
-        if (!currentGeometry) {
+        if (!currentCityObject || !currentGeometry) {
           return;
         }
         currentPosList = [];
       },
       text: text => {
-        if (!currentGeometry) {
+        if (!currentCityObject || !currentGeometry) {
           return;
         }
         const coords = text.split(' ').map(Number);
@@ -295,7 +338,7 @@ function parseCityGml(xml: string, cb: (result) => void) {
         }
       },
       closetag: node => {
-        if (!currentGeometry) {
+        if (!currentCityObject || !currentGeometry) {
           return;
         }
         removeDuplicatedPoint(currentPosList);
@@ -335,7 +378,7 @@ function parseCityGml(xml: string, cb: (result) => void) {
     }
   });
   parser.on('opentag', (node: SaxesTagNS) => {
-    if (parserConfig[node.name]) {
+    if (parserConfig[node.name] && parserConfig[node.name].include) {
       currentNode = node;
       openTags.push(node.name);
       if (parserConfig[node.name].opentag) {
@@ -344,7 +387,7 @@ function parseCityGml(xml: string, cb: (result) => void) {
     }
   });
   parser.on('closetag', node => {
-    if (parserConfig[node.name]) {
+    if (parserConfig[node.name] && parserConfig[node.name].include) {
       openTags.pop();
       if (parserConfig[node.name].closetag) {
         parserConfig[node.name].closetag(node);
