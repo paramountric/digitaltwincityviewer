@@ -12,7 +12,7 @@ function createId() {
 }
 
 // todo: figure out how to group CityGML CityObjectMember selection to layers (now it is one layer per CityObjectMember)
-type CityGmlParserOptions = {
+export type CityGmlParserOptions = {
   cityObjectMembers: {
     [tagName: string]: boolean;
   };
@@ -80,6 +80,7 @@ function parseCityGml(
 
   let currentCityObject;
   let currentFunction = null;
+  let currentClass = null;
   let currentSurfaceType: string;
   let currentLod: number;
   let currentGeometry;
@@ -126,6 +127,21 @@ function parseCityGml(
     'transportation:TransportationComplex': {
       include:
         options.cityObjectMembers['transportation:TransportationComplex'],
+      opentag: node => {
+        const id = node.attributes['gml:id']?.value || createId();
+
+        const cityObject = {
+          type: 'TransportationComplex',
+          geometry: [],
+        };
+
+        currentCityObject = cityObject;
+
+        result.CityObjects[id] = cityObject;
+      },
+      closetag: node => {
+        currentCityObject = null;
+      },
     },
     'trecim:Facility': {
       include: options.cityObjectMembers['trecim:Facility'],
@@ -148,9 +164,39 @@ function parseCityGml(
     },
     'luse:LandUse': {
       include: options.cityObjectMembers['luse:LandUse'],
+      opentag: node => {
+        const id = node.attributes['gml:id']?.value || createId();
+
+        const cityObject = {
+          type: 'LandUse',
+          geometry: [],
+        };
+
+        currentCityObject = cityObject;
+
+        result.CityObjects[id] = cityObject;
+      },
+      closetag: node => {
+        currentCityObject = null;
+      },
     },
     'frn:CityFurniture': {
       include: options.cityObjectMembers['frn:CityFurniture'],
+      opentag: node => {
+        const id = node.attributes['gml:id']?.value || createId();
+
+        const cityObject = {
+          type: 'CityFurniture',
+          geometry: [],
+        };
+
+        currentCityObject = cityObject;
+
+        result.CityObjects[id] = cityObject;
+      },
+      closetag: node => {
+        currentCityObject = null;
+      },
     },
     'bldg:Building': {
       include: options.cityObjectMembers['bldg:Building'],
@@ -172,6 +218,34 @@ function parseCityGml(
     },
     // * semantics
     'transportation:function': {
+      include: true,
+      opentag: node => {
+        currentFunction = node;
+      },
+      text: text => {
+        if (currentCityObject && currentFunction) {
+          currentCityObject.function = text;
+        }
+      },
+      closetag: node => {
+        currentFunction = null;
+      },
+    },
+    'luse:class': {
+      include: true,
+      opentag: node => {
+        currentClass = node;
+      },
+      text: text => {
+        if (currentCityObject && currentClass) {
+          currentCityObject.class = text;
+        }
+      },
+      closetag: node => {
+        currentClass = null;
+      },
+    },
+    'luse:function': {
       include: true,
       opentag: node => {
         currentFunction = node;
@@ -239,7 +313,6 @@ function parseCityGml(
         if (!currentCityObject) {
           return;
         }
-        console.log(currentCityObject);
         currentGeometry = {
           id: node.attributes['gml:id']?.value || createId(),
           type: 'CompositeSurface',

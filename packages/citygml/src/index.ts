@@ -1,1 +1,3 @@
-export { parseCityGml } from './parser';
+import { parseCityGml, CityGmlParserOptions } from './parser';
+
+export { parseCityGml, CityGmlParserOptions };
