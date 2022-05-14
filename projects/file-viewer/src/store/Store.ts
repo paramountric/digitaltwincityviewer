@@ -1,9 +1,13 @@
 import { makeObservable, observable, action } from 'mobx';
 import { Viewer, ViewerProps } from '@dtcv/viewer';
 import { parseCityModel } from '@dtcv/citymodel';
+import { parseCityGml } from '@dtcv/citygml';
+import { buildingsLayerSurfacesLod3Data } from '@dtcv/cityjson';
 
 export class Store {
   public isLoading = false;
+  public loadingMessage = '';
+  public loadingProgress = 0;
   public showLeftMenu = false;
   public viewer: Viewer;
   public constructor(viewer: Viewer) {
@@ -11,11 +15,46 @@ export class Store {
     makeObservable(this, {
       setIsLoading: action,
       isLoading: observable,
+      loadingProgress: observable,
+    });
+
+    this.loadCityGmlExample(
+      'http://localhost:9000/files/citygml/3CIM/testdata_3CIM_ver1_malmo_20220205_XSD.gml'
+    );
+  }
+
+  public async loadCityGmlExample(url: string) {
+    this.setIsLoading(true, 'Loading file');
+    const response = await fetch(url);
+    if (response.status !== 200) {
+      return console.warn('response status: ', response.status);
+    }
+    parseCityGml(await response.text(), cityGmlResult => {
+      const { data, modelMatrix } =
+        buildingsLayerSurfacesLod3Data(cityGmlResult);
+
+      console.log(data, modelMatrix);
+
+      this.viewer.setLayerProps('buildings-layer-surfaces-lod-3', {
+        data,
+        modelMatrix,
+      });
+      this.viewer.setLayerState('buildings-layer-surfaces-lod-3', {
+        url,
+        isLoaded: true,
+      });
+      this.viewer.render();
+      this.setIsLoading(false);
     });
   }
 
-  public setIsLoading(isLoading: boolean) {
+  public setIsLoading(isLoading: boolean, loadingMessage?: string) {
+    this.loadingMessage = loadingMessage || '';
     this.isLoading = isLoading;
+  }
+
+  public setLoadingProgress(percentage: number) {
+    this.loadingProgress = percentage;
   }
 
   public reset() {
