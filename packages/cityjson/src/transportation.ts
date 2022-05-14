@@ -2,19 +2,14 @@ import { CityJSONV111 } from './CityJSONV111';
 import { prepareBoundary, triangulate } from './boundary';
 import { getModelMatrix } from './layer';
 
-// wip: just a very quick test to see if colors works
-// the colors can be set more granular in boundaries and semantics
-function getColor(geometry) {
+function getColor(cityObject) {
   const colors = {
-    RoofSurface: [1, 0, 0],
-    WallSurface: [1, 1, 1],
-    GroundSurface: [0.5, 0.5, 0.5],
+    TrafficArea: [1, 1, 1],
   };
-  const surface = geometry.semantics.surfaces.find(s => s.type);
-  return surface ? colors[surface.type] : [0, 0.5, 0];
+  return colors[cityObject.type] || [1, 1, 1];
 }
 
-export function buildingsLayerSurfacesLod3Data(cityJson: CityJSONV111) {
+export function transportationLayerSurfacesLod2Data(cityJson: CityJSONV111) {
   const vertices = [];
   let vertexCount = 0;
 
@@ -31,12 +26,12 @@ export function buildingsLayerSurfacesLod3Data(cityJson: CityJSONV111) {
   };
 
   const cityObjects = Object.values(cityJson.CityObjects).filter(
-    obj => obj.type === 'Building'
+    obj => obj.type === 'TrafficArea'
   );
   for (const cityObject of cityObjects) {
+    const color = getColor(cityObject);
     const geometries = (cityObject.geometry as any) || [];
     for (const geometry of geometries) {
-      const color = getColor(geometry);
       for (const boundary of geometry.boundaries) {
         const { projected, unprojected } = prepareBoundary(
           boundary,
