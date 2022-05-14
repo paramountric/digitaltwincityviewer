@@ -2,7 +2,10 @@ import { makeObservable, observable, action } from 'mobx';
 import { Viewer, ViewerProps } from '@dtcv/viewer';
 import { parseCityModel } from '@dtcv/citymodel';
 import { parseCityGml } from '@dtcv/citygml';
-import { buildingsLayerSurfacesLod3Data } from '@dtcv/cityjson';
+import {
+  buildingsLayerSurfacesLod3Data,
+  transportationLayerSurfacesLod2Data,
+} from '@dtcv/cityjson';
 
 export class Store {
   public isLoading = false;
@@ -29,20 +32,38 @@ export class Store {
     if (response.status !== 200) {
       return console.warn('response status: ', response.status);
     }
-    parseCityGml(await response.text(), cityGmlResult => {
+    const options = {
+      cityObjectMembers: {
+        'bldg:Building': false,
+        'transportation:TrafficArea': true,
+      },
+    };
+    parseCityGml(await response.text(), options, cityGmlResult => {
       const { data, modelMatrix } =
-        buildingsLayerSurfacesLod3Data(cityGmlResult);
-
+        transportationLayerSurfacesLod2Data(cityGmlResult);
       console.log(data, modelMatrix);
 
-      this.viewer.setLayerProps('buildings-layer-surfaces-lod-3', {
-        data,
-        modelMatrix,
-      });
-      this.viewer.setLayerState('buildings-layer-surfaces-lod-3', {
-        url,
-        isLoaded: true,
-      });
+      if (options.cityObjectMembers['bldg:Building']) {
+        this.viewer.setLayerProps(
+          'buildings-layer-surfaces-lod-3',
+          buildingsLayerSurfacesLod3Data(cityGmlResult)
+        );
+        this.viewer.setLayerState('buildings-layer-surfaces-lod-3', {
+          url,
+          isLoaded: true,
+        });
+      }
+      if (options.cityObjectMembers['transportation:TrafficArea']) {
+        this.viewer.setLayerProps('transportation-layer-surfaces-lod-2', {
+          data,
+          modelMatrix,
+        });
+        this.viewer.setLayerState('transportation-layer-surfaces-lod-2', {
+          url,
+          isLoaded: true,
+        });
+      }
+
       this.viewer.render();
       this.setIsLoading(false);
     });
