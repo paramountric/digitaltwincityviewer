@@ -39,6 +39,33 @@ const layerGroupCatalog: LayerGroupState[] = [
     ],
   },
   {
+    title: 'Transportation',
+    description: 'Transportation layer',
+    layers: [
+      {
+        type: SimpleMeshLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: true,
+        isMeshLayer: true,
+        props: {
+          id: 'transportation-layer-surfaces-lod-2',
+          data: [1],
+          _instanced: false,
+          _useMeshColors: true,
+          wireframe: false,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getPosition: d => [0, 0, 0],
+          parameters: {
+            depthTest: true,
+          },
+          getColor: d => [235, 235, 255],
+        },
+      },
+    ],
+  },
+  {
     title: 'Buildings',
     description: 'Buildings layer',
     layers: [
@@ -182,7 +209,6 @@ export class LayerStore {
       console.warn('layer was not found with the id: ', layerId);
       return;
     }
-    console.log(props);
     // in a few places we have the problem that props needs functions and instances
     if (layer.isMeshLayer && props.data && !layer.isLoaded) {
       props.mesh = new Geometry({
@@ -193,7 +219,7 @@ export class LayerStore {
         indices: { size: 1, value: new Uint32Array(props.data.indices) },
       });
       props.data = [1];
-      console.log('render', props);
+      console.log('render', layerId, props);
     }
     layer.props = Object.assign(layer.props, props);
   }
