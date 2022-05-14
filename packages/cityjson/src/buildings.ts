@@ -50,7 +50,7 @@ export function buildingsLayerSurfacesLod3Data(cityJson: CityJSONV111) {
         layerProps.data.vertices.push(...unprojected);
         const numVertices = projected.length / 3;
         for (let i = 0; i < numVertices; i++) {
-          layerProps.data.colors.push(...color, 1, ...color, 1, ...color, 1);
+          layerProps.data.colors.push(...color, 1);
         }
         vertexCount += numVertices;
       }
