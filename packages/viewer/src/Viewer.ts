@@ -136,6 +136,10 @@ class Viewer {
     this.layerStore.setLayerState(layerId, state);
   }
 
+  setLayerStyle(layerId: string, style) {
+    this.layerStore.setLayerStyle(layerId, style);
+  }
+
   unload() {
     this.layerStore.unload();
   }

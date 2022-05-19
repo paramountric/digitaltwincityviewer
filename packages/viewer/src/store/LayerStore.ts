@@ -9,6 +9,7 @@ import { Geometry } from '@luma.gl/engine';
 import { Viewer } from '../Viewer';
 import GroundSurfaceLayer from '../layers/ground-surface-layer/GroundSurfaceLayer';
 import { mat4 } from 'gl-matrix';
+import { generateColor } from '../utils/colors';
 
 const layerGroupCatalog: LayerGroupState[] = [
   {
@@ -125,6 +126,7 @@ const layerGroupCatalog: LayerGroupState[] = [
         isLoading: false,
         isClickable: true,
         isMeshLayer: false,
+        layerStyle: null,
         props: {
           id: 'buildings-layer-polygons-lod-1',
           opacity: 1,
@@ -135,7 +137,7 @@ const layerGroupCatalog: LayerGroupState[] = [
           pickable: true,
           coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
           getPolygon: d => d.geometry.coordinates,
-          getFillColor: [255, 255, 255, 255],
+          getFillColor: d => d.properties.color || [255, 255, 255, 255],
           getLineColor: [100, 100, 100],
           getElevation: d => {
             return d.properties.height;
@@ -186,6 +188,7 @@ type LayerState = {
   isLoaded?: boolean;
   isLoading?: boolean;
   url?: string;
+  layerStyle?: LayerStyle;
 };
 
 type LayerSetting = LayerState & {
@@ -199,6 +202,19 @@ type LayerGroupState = {
   title: string;
   description: string;
   layers: LayerSetting[];
+};
+
+// This is supposed to cover 3DTiles styles spec, however, how to do color range according to that spec?
+// Extend this type gradually to support the 3DTiles spec
+// todo: move out to styling utils
+type LayerStyle = {
+  color?: ColorStyle;
+};
+// todo: move out to styling utils
+type ColorStyle = {
+  propertyKey: string;
+  sufficient: number;
+  excellent: number;
 };
 
 export class LayerStore {
@@ -250,6 +266,14 @@ export class LayerStore {
       return;
     }
     Object.assign(layer, layerState);
+    return layer;
+  }
+  setLayerStyle(layerId, layerStyle: LayerStyle) {
+    const layer = this.setLayerState(layerId, {
+      layerStyle,
+    });
+    this.applyLayerStyle(layer);
+    this.viewer.render();
   }
   setLayerProps(layerId, props: LayerProps) {
     // todo: look into immutability
@@ -268,7 +292,6 @@ export class LayerStore {
         indices: { size: 1, value: new Uint32Array(props.data.indices) },
       });
       props.data = [1];
-      console.log('render', layerId, props);
     }
     layer.props = Object.assign(layer.props, props);
   }
@@ -306,5 +329,31 @@ export class LayerStore {
       });
     }
     this.viewer.render();
+  }
+  // todo: move out to styling utils
+  applyLayerStyle(layer: LayerSetting) {
+    const features = layer.props.data;
+    const colorStyle = layer.layerStyle?.color;
+    if (colorStyle) {
+      for (const feature of features) {
+        this.setColor(feature, colorStyle);
+      }
+    }
+  }
+  // todo: move out to styling utils
+  setColor(feature, colorStyle) {
+    if (
+      feature.properties &&
+      colorStyle.propertyKey &&
+      colorStyle.sufficient &&
+      colorStyle.excellent
+    ) {
+      const color = generateColor(
+        feature.properties[colorStyle.propertyKey],
+        colorStyle.sufficient,
+        colorStyle.excellent
+      );
+      feature.properties.color = color;
+    }
   }
 }
