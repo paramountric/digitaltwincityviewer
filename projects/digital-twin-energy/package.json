@@ -1,0 +1,47 @@
+{
+  "name": "@dtcv/digital-twin-energy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Digital Twin Energy is project conducted by Chalmers and Göteborg Energi 2021-2023",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf dist",
+    "dev": "webpack serve --config webpack.dev.config.js",
+    "build": "npm run clean && webpack --config webpack.prod.config.js",
+    "lint": "eslint --ext .ts,.js src"
+  },
+  "author": "andreasrudena <andreas@rudena.se>",
+  "license": "MIT",
+  "devDependencies": {
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^10.2.4",
+    "eslint": "^8.9.0",
+    "eslint-config-prettier": "^8.3.0",
+    "html-webpack-plugin": "^5.5.0",
+    "style-loader": "^3.3.1",
+    "ts-loader": "^9.3.0",
+    "typescript": "^4.6.4",
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.8.1"
+  },
+  "dependencies": {
+    "@adobe/lit-mobx": "^2.0.0",
+    "@dtcv/citygml": "^1.0.0",
+    "@dtcv/citymodel": "^1.0.0",
+    "@dtcv/viewer": "1.0.0",
+    "@spectrum-web-components/accordion": "^0.6.9",
+    "@spectrum-web-components/button": "^0.17.3",
+    "@spectrum-web-components/dialog": "^0.10.3",
+    "@spectrum-web-components/dropzone": "^0.9.6",
+    "@spectrum-web-components/illustrated-message": "^0.8.8",
+    "@spectrum-web-components/link": "^0.12.3",
+    "@spectrum-web-components/overlay": "^0.16.0",
+    "@spectrum-web-components/progress-circle": "^0.4.6",
+    "@spectrum-web-components/styles": "^0.13.0",
+    "@spectrum-web-components/theme": "^0.11.0",
+    "@spectrum-web-components/top-nav": "^0.5.9",
+    "lit": "^2.2.3",
+    "mobx": "^6.5.0"
+  }
+}
