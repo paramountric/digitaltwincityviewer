@@ -470,7 +470,6 @@ function parseCityGml(
   });
   parser.on('end', () => {
     result.metadata.geographicalExtent = geographicalExtent;
-    console.log('end', result);
     cb(result);
   });
   parser.write(xml).close();

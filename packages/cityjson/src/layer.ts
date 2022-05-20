@@ -13,7 +13,6 @@ export function getModelMatrix(extent, addZ?: number) {
   const position = vec3.negate(vec3.create(), offset);
   if (addZ) {
     position[2] += addZ;
-    console.log(position);
   }
 
   const modelMatrix = mat4.fromTranslation(mat4.create(), position);
