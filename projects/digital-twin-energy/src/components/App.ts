@@ -9,6 +9,7 @@ import '@spectrum-web-components/theme/sp-theme.js';
 import './Header';
 import './LeftMenu';
 import './RightMenu';
+import './BottomDisplay';
 
 @customElement('dte-app')
 class App extends MobxLitElement {
@@ -44,11 +45,14 @@ class App extends MobxLitElement {
     const rightMenu = this.store?.viewer?.selectedObject
       ? html`<dte-right-menu .store=${this.store}></dte-right-menu>`
       : null;
+    const bottomDisplay = this.store
+      ? html`<dte-bottom-display .store=${this.store}></dte-bottom-display>`
+      : null;
 
     return html` <sp-theme theme="classic" color="lightest" scale="medium">
       ${header} ${leftMenu}
       <div id="viewport"></div>
-      ${rightMenu}
+      ${rightMenu} ${bottomDisplay}
     </sp-theme>`;
   }
 }

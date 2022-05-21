@@ -1,8 +1,6 @@
 import { MobxLitElement } from '@adobe/lit-mobx';
 import { css, html, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { toJS } from 'mobx';
-import { Viewer } from '@dtcv/viewer';
 import '@spectrum-web-components/accordion/sp-accordion.js';
 import '@spectrum-web-components/accordion/sp-accordion-item.js';
 import '@spectrum-web-components/top-nav/sp-top-nav.js';
