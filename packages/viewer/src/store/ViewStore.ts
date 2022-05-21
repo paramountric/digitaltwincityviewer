@@ -1,5 +1,5 @@
 import { Deck, MapViewState, MapView } from '@deck.gl/core';
-import { action, makeObservable, observable } from 'mobx';
+import { action, makeObservable, observable, computed } from 'mobx';
 import { Viewer, ViewerProps } from '../Viewer';
 
 const defaultViewStateProps = {
@@ -10,7 +10,6 @@ const defaultViewStateProps = {
   pitch: 60,
   bearing: 0,
 };
-
 export class ViewStore {
   viewState: MapViewState;
   viewer: Viewer;
@@ -24,7 +23,7 @@ export class ViewStore {
   }
   getView() {
     return new MapView({
-      id: 'main-view',
+      id: 'mapview',
       controller: true,
       viewState: this.getViewState(),
     });
@@ -32,6 +31,7 @@ export class ViewStore {
   get zoom() {
     return this.viewState.zoom;
   }
+
   getViewState() {
     return this.viewState;
   }
@@ -43,5 +43,8 @@ export class ViewStore {
       zoom: zoom || defaultViewStateProps.zoom,
     });
     this.viewState = newViewState;
+    if (!this.viewer.deck) {
+      return;
+    }
   }
 }

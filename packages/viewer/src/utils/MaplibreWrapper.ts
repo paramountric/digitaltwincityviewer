@@ -40,7 +40,7 @@ function getDeckInstance({ map, gl, deck }) {
       isExternal: false,
       maplibreLayers: new Set(),
     },
-    views: (deck && deck.props.views) || [new MapView({ id: 'mapbox' })],
+    views: (deck && deck.props.views) || [new MapView({ id: 'mapview' })],
   };
 
   if (!deck || deck.props.gl === gl) {

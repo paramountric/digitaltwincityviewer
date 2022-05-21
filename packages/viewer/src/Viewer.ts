@@ -53,6 +53,9 @@ const internalProps = {
 
 // There is a performance problem for extruded polygons that does not appear in the maplibre rendering settings
 // While figuring this out, maplibre is used to control the gl context and interaction
+// This is NOT ideal since the bundle size increase dramatically
+// todo: remove maplibre
+// ! note: the fast iterations have created three tracks on how the viewState works, however the code is kept in the repo for all of them -> if below is true, part of the other code is not used...
 const useMaplibre = true;
 
 type ViewerProps = {
@@ -101,13 +104,35 @@ class Viewer {
     this.render();
   }
 
+  getVisibleObjects(
+    layerIds: string[],
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ) {
+    const viewport = this.deck.viewManager.getViewport('mapview');
+    const {
+      x: defaultX,
+      y: defaultY,
+      width: defaultWidth,
+      height: defaultHeight,
+    } = viewport;
+    return this.deck.pickObjects({
+      x: x || defaultX,
+      y: y || defaultY,
+      width: width || defaultWidth,
+      height: height || defaultHeight,
+      layerIds,
+    });
+  }
+
   onWebGLInitialized(gl) {
     this.gl = gl;
     this.layerStore.renderLayers();
   }
 
   onViewStateChange({ viewState }) {
-    console.log(viewState);
     this.viewStore.setViewState(viewState);
     this.render();
   }
