@@ -8,6 +8,14 @@ exploration of digital twins for cities. However, it's also designed to be used 
 
 **A core feature of the Digital Twin City Viewer is that it enables "right-time" data sharing in a decentralized fashion.**
 
+More information on how this work will come later.
+
+## Status
+
+The Digital Twin City Viewer is expected to be released in a first stable version in the end of 2022.
+
+_Note that during 2022 the development will be very agile and explorative. Expect continuous breaking changes_
+
 ## DTCC Platform
 
 The DTCC Platform is developed and maintained by the Digital Twin Cities Centre (DTCC) hosted by Chalmers
@@ -16,10 +24,6 @@ data, modeling, simulation and visualization platform for interactive
 planning, design, exploration, experimentation and optimization of cities.
 
 [Read more about DTCC](https://dtcc.chalmers.se/)
-
-## Status
-
-The Digital Twin City Viewer is expected to be released in a first stable version in the end of 2022. The documentation will be developed continuously until then as more and more features will be released in alpha and beta.
 
 ## License
 
