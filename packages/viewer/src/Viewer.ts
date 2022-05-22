@@ -229,6 +229,10 @@ class Viewer {
         this.deck.needsRedraw({ clearRedrawFlags: true });
       });
 
+      this.maplibreMap.on('moveend', () => {
+        this.viewStore.setViewStateEnd();
+      });
+
       this.render();
     });
   }

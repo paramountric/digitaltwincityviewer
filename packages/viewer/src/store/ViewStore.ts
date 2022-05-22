@@ -12,13 +12,19 @@ const defaultViewStateProps = {
 };
 export class ViewStore {
   viewState: MapViewState;
+  // not sure about viewStateEnd, but is needs to be a way to listen to when the state is steady
+  // and ignore intermediate updates during user interactions and animations
+  viewStateEnd: MapViewState;
   viewer: Viewer;
   constructor(viewer) {
     this.viewer = viewer;
     this.viewState = defaultViewStateProps;
+    this.viewStateEnd = this.viewState;
     makeObservable(this, {
       viewState: observable,
+      viewStateEnd: observable,
       setViewState: action,
+      setViewStateEnd: action,
     });
   }
   getView() {
@@ -46,5 +52,8 @@ export class ViewStore {
     if (!this.viewer.deck) {
       return;
     }
+  }
+  setViewStateEnd() {
+    this.viewStateEnd = Object.assign({}, this.viewState);
   }
 }
