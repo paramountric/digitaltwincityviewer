@@ -34,6 +34,9 @@ function generateTimelineData(objects, propertyKey) {
     perM2: sum[monthlyPropertyKey].map((val, i) => val / sum.floorArea[i]),
   };
 }
+
+const propertyKeyOptions = ['finalEnergy', 'heatDemand'];
+const yearOptions = ['2020', '2030', '2050'];
 export class Store {
   public isLoading = false;
   public loadingMessage = '';
@@ -42,6 +45,7 @@ export class Store {
   public viewer: Viewer;
   public selectedPropertyKey: string = 'finalEnergy';
   public selectedYear: string = '2020';
+  public showTimelinePerM2 = false; // show total by default
   public timelineData: {
     total: number[];
     perM2: number[];
@@ -50,7 +54,7 @@ export class Store {
     this.viewer = viewer;
     this.timelineData = generateTimelineData([], this.selectedPropertyKey);
     reaction(
-      () => viewer.viewStore.viewState,
+      () => viewer.viewStore.viewStateEnd,
       viewState => {
         this.updateTimelineValues();
       }
@@ -88,7 +92,7 @@ export class Store {
       color: {
         sufficient: 150,
         excellent: 60,
-        propertyKey: `${this.selectedPropertyKey}${this.selectedYear}`,
+        propertyKey: `${this.selectedPropertyKey}${this.selectedYear}M2`,
       },
     });
   }
@@ -140,7 +144,7 @@ export class Store {
     // todo: some more sophisticated way of updating found layer data, instead of hardcoding the layer ids
     // (maybe send the result from parser directly to viewer as a default abstracted option, and let the viewer figure out how to map to layers)
     if (json.Buildings) {
-      const { buildings, ground, modelMatrix } = parseCityModel(json);
+      const { buildings, modelMatrix } = parseCityModel(json);
       this.preprocessBuildings(buildings);
       this.viewer.setLayerProps('buildings-layer-polygons-lod-1', {
         data: buildings,
@@ -150,15 +154,17 @@ export class Store {
         url,
         isLoaded: true,
       });
-      this.viewer.setLayerProps('ground-layer-surface-mesh', {
-        data: ground,
-        modelMatrix,
-      });
-      this.viewer.setLayerState('ground-layer-surface-mesh', {
-        url,
-        isLoaded: true,
-      });
+      // no surface atm
+      // this.viewer.setLayerProps('ground-layer-surface-mesh', {
+      //   data: ground,
+      //   modelMatrix,
+      // });
+      // this.viewer.setLayerState('ground-layer-surface-mesh', {
+      //   url,
+      //   isLoaded: true,
+      // });
       this.updateBuildingColors();
+      this.updateTimelineValues();
     }
   }
 

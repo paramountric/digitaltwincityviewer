@@ -46,7 +46,10 @@ class App extends MobxLitElement {
       ? html`<dte-right-menu .store=${this.store}></dte-right-menu>`
       : null;
     const bottomDisplay = this.store
-      ? html`<dte-bottom-display .store=${this.store}></dte-bottom-display>`
+      ? html`<dte-bottom-display
+          .timelineData=${this.store.timelineData}
+          .showTimeLinePerM2=${this.store.showTimelinePerM2}
+        ></dte-bottom-display>`
       : null;
 
     return html` <sp-theme theme="classic" color="lightest" scale="medium">
