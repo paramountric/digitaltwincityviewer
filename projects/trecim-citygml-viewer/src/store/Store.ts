@@ -1,7 +1,7 @@
 import { makeObservable, observable, action } from 'mobx';
 import { Viewer, ViewerProps } from '@dtcv/viewer';
 import { parseCityModel } from '@dtcv/citymodel';
-import { parseCityGml, CityGmlParserOptions } from '@dtcv/citygml';
+import { parseXsd, parseCityGml, CityGmlParserOptions } from '@dtcv/citygml';
 import {
   buildingsLayerSurfacesLod3Data,
   transportationLayerTrafficAreaLod2Data,
@@ -23,13 +23,36 @@ export class Store {
       loadingProgress: observable,
     });
 
-    this.loadCityModel(
+    this.loadProjectFiles();
+  }
+
+  // todo: promisify! also, prebuild the schema files and load from package
+  private async loadProjectFiles() {
+    this.setIsLoading(true, 'Loading schema');
+    const building = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/building.xsd'
+    );
+    this.setIsLoading(true, 'Loading extension');
+    const extension = await this.loadCityModelSchema(
+      'http://localhost:9000/files/citygml/3CIM/3CIM_ade_ver1.xsd'
+    );
+    await this.loadCityModel(
       'http://localhost:9000/files/citygml/3CIM/testdata_3CIM_ver1_malmo_20220205_XSD.gml'
     );
   }
 
+  public async loadCityModelSchema(url: string) {
+    const response = await fetch(url);
+    if (response.status !== 200) {
+      return console.warn('response status: ', response.status);
+    }
+    parseXsd(await response.text(), schema => {
+      console.log(schema);
+    });
+  }
+
   public async loadCityModel(url: string) {
-    this.setIsLoading(true, 'Loading file');
+    this.setIsLoading(true, 'Loading test data');
     const response = await fetch(url);
     if (response.status !== 200) {
       return console.warn('response status: ', response.status);
