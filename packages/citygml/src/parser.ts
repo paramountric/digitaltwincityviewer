@@ -79,9 +79,11 @@ function parseCityGml(
   const openTags = [];
 
   let currentCityObject;
+  let currentCityObjectId;
   let currentFunction = null;
   let currentClass = null;
   let currentSurfaceType: string;
+  //let currentSurfaceNumber = 0;
   let currentLod: number;
   let currentGeometry;
   let currentPosList;
@@ -99,6 +101,7 @@ function parseCityGml(
         };
 
         currentCityObject = cityObject;
+        currentCityObjectId = id;
 
         result.CityObjects[id] = cityObject;
       },
@@ -117,6 +120,7 @@ function parseCityGml(
         };
 
         currentCityObject = cityObject;
+        currentCityObjectId = id;
 
         result.CityObjects[id] = cityObject;
       },
@@ -136,6 +140,7 @@ function parseCityGml(
         };
 
         currentCityObject = cityObject;
+        currentCityObjectId = id;
 
         result.CityObjects[id] = cityObject;
       },
@@ -155,6 +160,7 @@ function parseCityGml(
         };
 
         currentCityObject = cityObject;
+        currentCityObjectId = id;
 
         result.CityObjects[id] = cityObject;
       },
@@ -173,6 +179,7 @@ function parseCityGml(
         };
 
         currentCityObject = cityObject;
+        currentCityObjectId = id;
 
         result.CityObjects[id] = cityObject;
       },
@@ -191,6 +198,7 @@ function parseCityGml(
         };
 
         currentCityObject = cityObject;
+        currentCityObjectId = id;
 
         result.CityObjects[id] = cityObject;
       },
@@ -209,6 +217,7 @@ function parseCityGml(
         };
 
         currentCityObject = cityObject;
+        currentCityObjectId = id;
 
         result.CityObjects[id] = cityObject;
       },
@@ -263,6 +272,7 @@ function parseCityGml(
       include: true,
       opentag: node => {
         currentSurfaceType = 'GroundSurface';
+        //currentSurfaceNumber++;
       },
       closetag: node => {
         currentSurfaceType = null;
@@ -272,6 +282,7 @@ function parseCityGml(
       include: true,
       opentag: node => {
         currentSurfaceType = 'WallSurface';
+        //currentSurfaceNumber++;
       },
       closetag: node => {
         currentSurfaceType = null;
@@ -281,6 +292,7 @@ function parseCityGml(
       include: true,
       opentag: node => {
         currentSurfaceType = 'RoofSurface';
+        //currentSurfaceNumber++;
       },
       closetag: node => {
         currentSurfaceType = null;
@@ -313,8 +325,9 @@ function parseCityGml(
         if (!currentCityObject) {
           return;
         }
+        const id = node.attributes['gml:id']?.value || createId();
         currentGeometry = {
-          id: node.attributes['gml:id']?.value || createId(),
+          id,
           type: 'CompositeSurface',
           lod: currentLod,
           boundaries: [],
@@ -322,6 +335,10 @@ function parseCityGml(
             surfaces: [
               {
                 type: currentSurfaceType,
+                geometryId: id,
+                lod: currentLod,
+                //surfaceNumber: currentSurfaceNumber,
+                cityObjectId: currentCityObjectId,
               },
             ],
             values: [],
