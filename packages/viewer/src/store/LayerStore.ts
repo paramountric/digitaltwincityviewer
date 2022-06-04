@@ -8,6 +8,7 @@ import GL from '@luma.gl/constants';
 import { Geometry } from '@luma.gl/engine';
 import { Viewer } from '../Viewer';
 import GroundSurfaceLayer from '../layers/ground-surface-layer/GroundSurfaceLayer';
+import BuildingSurfaceLayer from '../layers/building-surface-layer/BuildingSurfaceLayer';
 import { mat4 } from 'gl-matrix';
 import { generateColor } from '../utils/colors';
 
@@ -160,7 +161,7 @@ const layerGroupCatalog: LayerGroupState[] = [
         },
       },
       {
-        type: SimpleMeshLayer,
+        type: BuildingSurfaceLayer,
         url: null,
         isLoaded: false,
         isLoading: false,
@@ -168,14 +169,32 @@ const layerGroupCatalog: LayerGroupState[] = [
         isMeshLayer: true,
         props: {
           id: 'buildings-layer-surfaces-lod-3',
-          data: [1],
+          //autoHighlight: true,
+          //highlightColor: [0, 0, 0, 128],
+          highlightColor: { type: 'accessor', value: [0, 0, 0, 0] },
+          data: [],
           _instanced: false,
           _useMeshColors: true,
           wireframe: false,
+          pickable: true,
+          // onHover: e => {
+          //   console.log(e);
+          // },
           coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
           getPosition: d => [0, 0, 0],
           parameters: {
+            depthMask: true,
             depthTest: true,
+            blend: true,
+            blendFunc: [
+              GL.SRC_ALPHA,
+              GL.ONE_MINUS_SRC_ALPHA,
+              GL.ONE,
+              GL.ONE_MINUS_SRC_ALPHA,
+            ],
+            polygonOffsetFill: true,
+            depthFunc: GL.LEQUAL,
+            blendEquation: GL.FUNC_ADD,
           },
           getColor: d => [235, 235, 255],
         },
@@ -253,7 +272,9 @@ export class LayerStore {
       // not happy with re-assigning the event callback every time..
       if (layer.isClickable) {
         layer.props.onClick = d => {
-          this.viewer.setSelectedObject(d.object);
+          console.log(d);
+          const object = d.layer.props.data[0]?.objects[d.index];
+          this.viewer.setSelectedObject(object || d.object);
         };
       }
       return [...acc, new layer.type(layer.props)];
@@ -291,7 +312,8 @@ export class LayerStore {
         },
         indices: { size: 1, value: new Uint32Array(props.data.indices) },
       });
-      props.data = [1];
+      console.log(props);
+      props.data = [props.data];
     }
     layer.props = Object.assign(layer.props, props);
   }
