@@ -14,6 +14,14 @@ function getColor(geometry) {
   return surface ? colors[surface.type] : [0, 0.5, 0];
 }
 
+// https://github.com/visgl/deck.gl/blob/8.7-release/modules/core/src/lib/layer.js
+function encodePickingColor(i, target = []) {
+  target[0] = (i + 1) & 255;
+  target[1] = ((i + 1) >> 8) & 255;
+  target[2] = (((i + 1) >> 8) >> 8) & 255;
+  return target;
+}
+
 export function buildingsLayerSurfacesLod3Data(cityJson: CityJSONV111) {
   const vertices = [];
   let vertexCount = 0;
@@ -26,18 +34,38 @@ export function buildingsLayerSurfacesLod3Data(cityJson: CityJSONV111) {
       vertices: [],
       indices: [],
       colors: [],
+      customPickingColors: [],
+      objects: [],
     },
     modelMatrix: getModelMatrix(cityJson.metadata.geographicalExtent),
+    autoHighlight: true,
+    highlightColor: [100, 150, 250, 128],
   };
 
   const cityObjects = Object.values(cityJson.CityObjects).filter(
     obj => obj.type === 'Building'
   );
+  let currentSurfaceType;
+  let pickingColor = encodePickingColor(0);
   for (const cityObject of cityObjects) {
     const geometries = (cityObject.geometry as any) || [];
     for (const geometry of geometries) {
       const color = getColor(geometry);
+      let boundaryIndex = 0;
       for (const boundary of geometry.boundaries) {
+        const semantics =
+          geometry.semantics.surfaces[geometry.semantics.values[boundaryIndex]];
+        if (!currentSurfaceType) {
+          currentSurfaceType = semantics.type;
+        } else if (currentSurfaceType !== semantics.type) {
+          layerProps.data.objects.push({
+            type: semantics.type,
+            properties: semantics,
+          });
+          pickingColor = encodePickingColor(layerProps.data.objects.length);
+          currentSurfaceType = semantics.type;
+        }
+        boundaryIndex++;
         const { projected, unprojected } = prepareBoundary(
           boundary,
           cityJson.vertices,
@@ -51,6 +79,7 @@ export function buildingsLayerSurfacesLod3Data(cityJson: CityJSONV111) {
         const numVertices = projected.length / 3;
         for (let i = 0; i < numVertices; i++) {
           layerProps.data.colors.push(...color, 1);
+          layerProps.data.customPickingColors.push(...pickingColor);
         }
         vertexCount += numVertices;
       }
