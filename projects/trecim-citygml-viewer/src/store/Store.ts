@@ -28,14 +28,17 @@ export class Store {
 
   // todo: promisify! also, prebuild the schema files and load from package
   private async loadProjectFiles() {
-    this.setIsLoading(true, 'Loading schema');
-    const building = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/building.xsd'
-    );
-    this.setIsLoading(true, 'Loading extension');
-    const extension = await this.loadCityModelSchema(
-      'http://localhost:9000/files/citygml/3CIM/3CIM_ade_ver1.xsd'
-    );
+    // this.setIsLoading(true, 'Loading schema');
+    // const core = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/core.xsd'
+    // );
+    // const building = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/building.xsd'
+    // );
+    // this.setIsLoading(true, 'Loading extension');
+    // const extension = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/citygml/3CIM/3CIM_ade_ver1.xsd'
+    // );
     await this.loadCityModel(
       'http://localhost:9000/files/citygml/3CIM/testdata_3CIM_ver1_malmo_20220205_XSD.gml'
     );

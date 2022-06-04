@@ -10,25 +10,16 @@ import { Store } from '../store/Store';
 
 const displayProperties = [
   {
-    properties: [
-      'height',
-      'elevation',
-      'groundHeight',
-      'shpFileId',
-      'type',
-      'uuid',
-    ],
+    properties: ['cityObjectId', 'geometryId', 'lod', 'type'],
   },
 ];
 
 // all properties in the properties object will be shown, labels are taken from here
 const propertyLabels = {
-  height: 'Height',
-  elevation: 'Elevation',
-  groundHeight: 'Ground height',
-  shpFileId: 'Shapefile ID',
+  geometryId: 'Geometry ID',
   type: 'Type',
-  uuid: 'UUID',
+  lod: 'Level of Detail',
+  cityObjectId: 'City Object ID',
 };
 
 // these are the units, but could be done with enum instead
@@ -52,7 +43,7 @@ class RightMenu extends MobxLitElement {
       z-index: 3;
       position: absolute;
       background: #fff;
-      opacity: 0.7;
+      opacity: 1;
       top: 60px;
       right: 0;
       padding-right: 5px;
