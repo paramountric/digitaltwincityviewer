@@ -1,4 +1,4 @@
-import { Feature, Position, Polygon, MultiPolygon } from 'geojson';
+import { Feature, Position } from 'geojson';
 
 const EARTH_RADIUS = 6371008.8;
 const EARTH_CIRC = 2 * Math.PI * EARTH_RADIUS;
@@ -12,9 +12,15 @@ function coordinateToMeters(lng: number, lat: number) {
   return [x, y * HALF_EARTH_CIRC];
 }
 
-function forEachCoordinateInMultiPolygon(multiPolygon: Position[][][], fn) {
-  for (const polygon of multiPolygon) {
-    this.forEachCoordinateInPolygon(polygon, fn);
+function forEachCoordinateInLineString(lineString: Position[], fn) {
+  for (const point of lineString) {
+    fn(point);
+  }
+}
+
+function forEachCoordinateInMultiLineString(multiLineString: Position[][], fn) {
+  for (const lineString of multiLineString) {
+    forEachCoordinateInLineString(lineString, fn);
   }
 }
 
@@ -30,6 +36,12 @@ function forEachCoordinateInPolygon(polygon: Position[][], fn) {
   }
 }
 
+function forEachCoordinateInMultiPolygon(multiPolygon: Position[][][], fn) {
+  for (const polygon of multiPolygon) {
+    forEachCoordinateInPolygon(polygon, fn);
+  }
+}
+
 function projectCoordinateInline(lngLat: [number, number]) {
   const meters = coordinateToMeters(lngLat[0], lngLat[1]);
   lngLat[0] = meters[0];
@@ -38,8 +50,19 @@ function projectCoordinateInline(lngLat: [number, number]) {
 
 export function coordinatesToMeters(features: Feature[]) {
   for (const feature of features) {
-    // todo: add more types
-    if (feature.geometry.type === 'Polygon') {
+    if (feature.geometry.type === 'Point') {
+      projectCoordinateInline(feature.geometry.coordinates as [number, number]);
+    } else if (feature.geometry.type === 'LineString') {
+      forEachCoordinateInLineString(
+        feature.geometry.coordinates,
+        projectCoordinateInline
+      );
+    } else if (feature.geometry.type === 'MultiLineString') {
+      forEachCoordinateInMultiLineString(
+        feature.geometry.coordinates,
+        projectCoordinateInline
+      );
+    } else if (feature.geometry.type === 'Polygon') {
       forEachCoordinateInPolygon(
         feature.geometry.coordinates,
         projectCoordinateInline
