@@ -2,7 +2,7 @@
 // Licensed under the MIT License
 
 import { LayerProps, COORDINATE_SYSTEM } from '@deck.gl/core';
-import { SolidPolygonLayer } from '@deck.gl/layers';
+import { SolidPolygonLayer, GeoJsonLayer } from '@deck.gl/layers';
 import { SimpleMeshLayer } from '@deck.gl/mesh-layers';
 import GL from '@luma.gl/constants';
 import { Geometry } from '@luma.gl/engine';
@@ -12,7 +12,83 @@ import BuildingSurfaceLayer from '../layers/building-surface-layer/BuildingSurfa
 import { mat4 } from 'gl-matrix';
 import { generateColor } from '../utils/colors';
 
+export type UpdateLayerProps = {
+  layerId: string;
+  props?: LayerProps;
+  state?: LayerState;
+  style?: LayerStyle;
+};
+
+type LayerState = {
+  isLoaded?: boolean;
+  isLoading?: boolean;
+  url?: string;
+  layerStyle?: LayerStyle;
+};
+
+type LayerSetting = LayerState & {
+  type: GroundSurfaceLayer | SolidPolygonLayer | SimpleMeshLayer;
+  isClickable: boolean;
+  isMeshLayer: boolean;
+  props: LayerProps;
+};
+
+type LayerGroupState = {
+  title: string;
+  description: string;
+  layers: LayerSetting[];
+};
+
+// This is supposed to cover 3DTiles styles spec, however, how to do color range according to that spec?
+// Extend this type gradually to support the 3DTiles spec
+// todo: move out to styling utils
+type LayerStyle = {
+  color?: ColorStyle;
+};
+// todo: move out to styling utils
+type ColorStyle = {
+  propertyKey: string;
+  sufficient: number;
+  excellent: number;
+};
+
 const layerGroupCatalog: LayerGroupState[] = [
+  {
+    // The purpose of the "import geojson" layer is to show geojson data and let the user decide what is what according to a type system (schema or linked data)
+    // When the features have been typed, another more specific layer can be used (note that the unique keys of layers will make sure that duplicated representations will be avoided)
+    // Example of how to use the geojson layer: A CityJSON file is loaded, however the project need more context around the dataset and imports OSM data (converted to geojson)
+    // When the buildings of geojson have been "imported" they are added to for example "some-buildings-lod-1-layer" and should complement the existing lod 1 data from the CityJSON data
+    // This layer is in itself multiple layers (composite layer)
+    // It can only be used with one geojson dataset at a time
+    // (if multiple geojson sources should be able to be visualised at the same time, the layer id needs to be changed dynamically on getProps to avoid multiple layers with same id)
+    title: 'Import GeoJson',
+    description: 'GeoJson data consist of points, lines and polygons',
+    layers: [
+      {
+        type: GeoJsonLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: true,
+        isMeshLayer: false,
+        props: {
+          id: 'import-geojson',
+          pickable: true,
+          stroked: true,
+          filled: true,
+          extruded: false,
+          pointType: 'circle',
+          lineWidthScale: 1,
+          lineWidthMinPixels: 2,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getFillColor: d => d.properties.color || [255, 255, 255, 0], // color or transparent - use this to mark the features according to status (valid, typed but unvalid, etc)
+          getLineColor: [100, 100, 100, 100],
+          getPointRadius: 10,
+          getLineWidth: 1,
+        },
+      },
+    ],
+  },
   {
     title: 'Ground',
     description: 'Ground layer',
@@ -203,39 +279,6 @@ const layerGroupCatalog: LayerGroupState[] = [
   },
 ];
 
-type LayerState = {
-  isLoaded?: boolean;
-  isLoading?: boolean;
-  url?: string;
-  layerStyle?: LayerStyle;
-};
-
-type LayerSetting = LayerState & {
-  type: GroundSurfaceLayer | SolidPolygonLayer | SimpleMeshLayer;
-  isClickable: boolean;
-  isMeshLayer: boolean;
-  props: LayerProps;
-};
-
-type LayerGroupState = {
-  title: string;
-  description: string;
-  layers: LayerSetting[];
-};
-
-// This is supposed to cover 3DTiles styles spec, however, how to do color range according to that spec?
-// Extend this type gradually to support the 3DTiles spec
-// todo: move out to styling utils
-type LayerStyle = {
-  color?: ColorStyle;
-};
-// todo: move out to styling utils
-type ColorStyle = {
-  propertyKey: string;
-  sufficient: number;
-  excellent: number;
-};
-
 export class LayerStore {
   layerGroups: LayerGroupState[];
   viewer: Viewer;
@@ -272,9 +315,16 @@ export class LayerStore {
       // not happy with re-assigning the event callback every time..
       if (layer.isClickable) {
         layer.props.onClick = d => {
-          console.log(d);
+          if (d.object) {
+            this.viewer.setSelectedObject(d.object);
+            return;
+          }
           const object = d.layer.props.data[0]?.objects[d.index];
-          this.viewer.setSelectedObject(object || d.object);
+          if (!object) {
+            console.warn('clicked object could not be found', d);
+            return;
+          }
+          this.viewer.setSelectedObject(object);
         };
       }
       return [...acc, new layer.type(layer.props)];

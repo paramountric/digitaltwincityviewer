@@ -5,7 +5,7 @@ import { Deck, MapViewState, MapView } from '@deck.gl/core';
 import { Feature } from 'geojson';
 import { LayerSpecification, Map, MapOptions } from 'maplibre-gl';
 import { makeObservable, observable, action } from 'mobx';
-import { LayerStore } from './store/LayerStore';
+import { LayerStore, UpdateLayerProps } from './store/LayerStore';
 import { ViewStore } from './store/ViewStore';
 import MaplibreWrapper from './utils/MaplibreWrapper';
 
@@ -163,6 +163,19 @@ class Viewer {
 
   setLayerStyle(layerId: string, style) {
     this.layerStore.setLayerStyle(layerId, style);
+  }
+
+  public updateLayer(updateData: UpdateLayerProps) {
+    const { layerId } = updateData;
+    if (updateData.props) {
+      this.setLayerProps(layerId, updateData.props);
+    }
+    if (updateData.state) {
+      this.setLayerState(layerId, updateData.state);
+    }
+    if (updateData.style) {
+      this.setLayerStyle(layerId, updateData.style);
+    }
   }
 
   unload() {
