@@ -1,4 +1,10 @@
-import { Feature, Position, Polygon, MultiPolygon } from 'geojson';
+import {
+  FeatureCollection,
+  Feature,
+  Position,
+  Polygon,
+  MultiPolygon,
+} from 'geojson';
 import { vec3, mat4 } from 'gl-matrix';
 
 function getMultiPolygonBounds(multiPolygon: Position[][][], min, max) {
@@ -45,6 +51,14 @@ export function getBounds(features: Feature[]) {
     min,
     max,
   };
+}
+
+export function setBounds(featureCollection: FeatureCollection, force = false) {
+  if (featureCollection.bbox && !force) {
+    return featureCollection;
+  }
+  const { min, max } = getBounds(featureCollection.features);
+  featureCollection.bbox = [min[0], min[1], max[0], max[1]];
 }
 
 export function getModelMatrix(features: Feature[]) {
