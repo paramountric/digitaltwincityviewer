@@ -65,16 +65,18 @@ export class Store {
   }
 
   addData(features: any, url: string) {
-    const buildings = buildingsFromPolygons(features);
-    coordinatesToMeters(buildings);
-    const modelMatrix = getModelMatrix(buildings);
-    this.viewer.setLayerProps('buildings-layer-polygons-lod-1', {
-      data: buildings,
-      modelMatrix,
-    });
-    this.viewer.setLayerState('buildings-layer-polygons-lod-1', {
-      url,
-      isLoaded: true,
+    coordinatesToMeters(features);
+    const modelMatrix = getModelMatrix(features);
+    this.viewer.updateLayer({
+      layerId: 'import-geojson',
+      props: {
+        data: features,
+        modelMatrix,
+      },
+      state: {
+        url,
+        isLoaded: true,
+      },
     });
     this.viewer.render();
   }
