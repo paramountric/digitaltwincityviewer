@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/citymodel",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Utility function for CityModel format",
   "main": "./dist/index.js",
   "types": "./dist/types.d.ts",
