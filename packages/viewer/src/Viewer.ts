@@ -8,6 +8,7 @@ import { makeObservable, observable, action } from 'mobx';
 import { LayerStore, UpdateLayerProps } from './store/LayerStore';
 import { ViewStore } from './store/ViewStore';
 import MaplibreWrapper from './utils/MaplibreWrapper';
+import { getCity } from './utils/getCity';
 
 const maplibreStyle = {
   id: 'digitaltwincityviewer',
@@ -64,6 +65,13 @@ type ViewerProps = {
   zoom?: number;
   container?: HTMLElement | string;
 };
+
+// The viewer will have a reference city deferred from layer data
+type City = {
+  x: number;
+  y: number;
+  name: string;
+};
 class Viewer {
   gl: WebGL2RenderingContext;
   deck: Deck;
@@ -71,6 +79,7 @@ class Viewer {
   layerStore: LayerStore;
   maplibreMap?: Map;
   selectedObject: Feature | null;
+  currentCity: City;
   constructor(props: ViewerProps) {
     this.viewStore = new ViewStore(this);
     this.layerStore = new LayerStore(this);
@@ -154,6 +163,12 @@ class Viewer {
   }
 
   setLayerProps(layerId: string, props) {
+    if (!this.currentCity && props.modelMatrix) {
+      console.log(props.modelMatrix);
+      console.log(
+        getCity(props.modelMatrix[12] * -1, props.modelMatrix[13] * -1)
+      );
+    }
     this.layerStore.setLayerProps(layerId, props);
   }
 
@@ -171,6 +186,10 @@ class Viewer {
       this.setLayerProps(layerId, updateData.props);
     }
     if (updateData.state) {
+      // set isLoaded to true by default
+      if (updateData.state.isLoaded !== false) {
+        updateData.state.isLoaded = true;
+      }
       this.setLayerState(layerId, updateData.state);
     }
     if (updateData.style) {

@@ -12,7 +12,9 @@
     "downlevelIteration": true,
     "declaration": true,
     "declarationMap": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src/"],
   "exclude": ["dist", "node_modules"]

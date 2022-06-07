@@ -75,7 +75,7 @@ const layerGroupCatalog: LayerGroupState[] = [
           id: 'import-geojson',
           pickable: true,
           stroked: true,
-          filled: true,
+          filled: false,
           extruded: false,
           pointType: 'circle',
           lineWidthScale: 1,
@@ -128,7 +128,7 @@ const layerGroupCatalog: LayerGroupState[] = [
         isClickable: true,
         isMeshLayer: true,
         props: {
-          opacity: 0.5,
+          opacity: 1,
           id: 'landuse-layer-surface-lod-1',
           data: [1],
           _instanced: false,
@@ -362,7 +362,6 @@ export class LayerStore {
         },
         indices: { size: 1, value: new Uint32Array(props.data.indices) },
       });
-      console.log(props);
       props.data = [props.data];
     }
     layer.props = Object.assign(layer.props, props);
