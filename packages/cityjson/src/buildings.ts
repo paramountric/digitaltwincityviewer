@@ -1,6 +1,6 @@
 import { CityJSONV111 } from './CityJSONV111';
 import { prepareBoundary, triangulate } from './boundary';
-import { getModelMatrix } from './layer';
+import { getModelMatrix, projectCoordinate } from './layer';
 
 // wip: just a very quick test to see if colors works
 // the colors can be set more granular in boundaries and semantics
@@ -22,13 +22,12 @@ function encodePickingColor(i, target = []) {
   return target;
 }
 
-export function buildingsLayerSurfacesLod3Data(cityJson: CityJSONV111) {
-  const vertices = [];
+export function buildingsLayerSurfacesLod3Data(
+  cityJson: CityJSONV111,
+  addZ?: number
+) {
   let vertexCount = 0;
 
-  for (const vertex of cityJson.vertices) {
-    vertices.push(...vertex);
-  }
   const layerProps = {
     data: {
       vertices: [],
@@ -37,7 +36,7 @@ export function buildingsLayerSurfacesLod3Data(cityJson: CityJSONV111) {
       customPickingColors: [],
       objects: [],
     },
-    modelMatrix: getModelMatrix(cityJson.metadata.geographicalExtent),
+    modelMatrix: getModelMatrix(cityJson.metadata.geographicalExtent, addZ),
     autoHighlight: true,
     highlightColor: [100, 150, 250, 128],
   };

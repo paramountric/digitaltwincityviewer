@@ -21,7 +21,7 @@ function getColor(cityObject) {
   return colors[label] || [1, 1, 1, 1];
 }
 
-export function landuseSurfaceLod1Data(cityJson: CityJSONV111) {
+export function landuseSurfaceLod1Data(cityJson: CityJSONV111, addZ?: number) {
   const vertices = [];
   let vertexCount = 0;
 
@@ -34,7 +34,7 @@ export function landuseSurfaceLod1Data(cityJson: CityJSONV111) {
       indices: [],
       colors: [],
     },
-    modelMatrix: getModelMatrix(cityJson.metadata.geographicalExtent),
+    modelMatrix: getModelMatrix(cityJson.metadata.geographicalExtent, addZ),
   };
 
   const cityObjects = Object.values(cityJson.CityObjects).filter(

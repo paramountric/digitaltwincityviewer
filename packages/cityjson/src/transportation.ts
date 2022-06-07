@@ -10,7 +10,10 @@ function getColor(cityObject) {
   return colors[cityObject.type] || [0, 0, 0];
 }
 
-export function transportationLayerTrafficAreaLod2Data(cityJson: CityJSONV111) {
+export function transportationLayerTrafficAreaLod2Data(
+  cityJson: CityJSONV111,
+  addZ?: number
+) {
   const vertices = [];
   let vertexCount = 0;
 
@@ -23,7 +26,7 @@ export function transportationLayerTrafficAreaLod2Data(cityJson: CityJSONV111) {
       indices: [],
       colors: [],
     },
-    modelMatrix: getModelMatrix(cityJson.metadata.geographicalExtent),
+    modelMatrix: getModelMatrix(cityJson.metadata.geographicalExtent, addZ),
   };
 
   const cityObjects = Object.values(cityJson.CityObjects).filter(
@@ -57,7 +60,8 @@ export function transportationLayerTrafficAreaLod2Data(cityJson: CityJSONV111) {
 }
 
 export function transportationLayerAuxiliaryTrafficAreaLod2Data(
-  cityJson: CityJSONV111
+  cityJson: CityJSONV111,
+  addZ?: number
 ) {
   const vertices = [];
   let vertexCount = 0;
@@ -71,7 +75,7 @@ export function transportationLayerAuxiliaryTrafficAreaLod2Data(
       indices: [],
       colors: [],
     },
-    modelMatrix: getModelMatrix(cityJson.metadata.geographicalExtent, 0.1),
+    modelMatrix: getModelMatrix(cityJson.metadata.geographicalExtent, addZ),
   };
 
   const cityObjects = Object.values(cityJson.CityObjects).filter(

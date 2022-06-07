@@ -33,6 +33,7 @@ export {
   MultiPolygon,
 };
 
+// todo: there is no projection here anymore, change "project" to "transform"
 export function prepareBoundary(
   boundary,
   vertices,

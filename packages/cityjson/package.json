@@ -34,7 +34,8 @@
   },
   "dependencies": {
     "@math.gl/polygon": "^3.5.7",
-    "gl-matrix": "^3.4.3"
+    "gl-matrix": "^3.4.3",
+    "proj4": "^2.8.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.11.0",
