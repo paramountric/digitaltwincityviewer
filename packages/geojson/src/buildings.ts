@@ -2,6 +2,7 @@ import { Feature } from 'geojson';
 
 // given geojson features, decide what is a building (and related) from the properties
 export function buildingsFromPolygons(features: Feature[]) {
+  // OSM
   const buildings = features.filter(
     f => f.properties.building && f.properties.building !== 'no'
   );
