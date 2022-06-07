@@ -7,7 +7,10 @@ import {
   transportationLayerTrafficAreaLod2Data,
   transportationLayerAuxiliaryTrafficAreaLod2Data,
   landuseSurfaceLod1Data,
+  projectVertices,
+  projectExtent,
 } from '@dtcv/cityjson';
+import { getModelMatrix, coordinatesToMeters } from '@dtcv/geojson';
 
 export class Store {
   public isLoading = false;
@@ -42,6 +45,10 @@ export class Store {
     await this.loadCityModel(
       'http://localhost:9000/files/citygml/3CIM/testdata_3CIM_ver1_malmo_20220205_XSD.gml'
     );
+
+    await this.loadContextMap(
+      'http://localhost:9000/files/geojson/osm-malmo.json'
+    );
   }
 
   public async loadCityModelSchema(url: string) {
@@ -69,22 +76,31 @@ export class Store {
       },
     };
     parseCityGml(await response.text(), options, cityGmlResult => {
-      const { data, modelMatrix } = landuseSurfaceLod1Data(cityGmlResult);
+      console.log(cityGmlResult);
+      cityGmlResult.vertices = projectVertices(cityGmlResult.vertices);
+      cityGmlResult.metadata.geographicalExtent = projectExtent(
+        cityGmlResult.metadata.geographicalExtent
+      );
+
+      // these settings are for playing around with the z level of the layers, the viewer needs to be flexible here so that developers can configure the layers z slightly depending on project
+      const buildingsZ = 30;
+      const transportationZ = 30;
+      const transportationAuxZ = 30;
+      const landuseZ = 30;
 
       if (options.cityObjectMembers['bldg:Building']) {
-        this.viewer.setLayerProps(
-          'buildings-layer-surfaces-lod-3',
-          buildingsLayerSurfacesLod3Data(cityGmlResult)
-        );
-        this.viewer.setLayerState('buildings-layer-surfaces-lod-3', {
-          url,
-          isLoaded: true,
+        this.viewer.updateLayer({
+          layerId: 'buildings-layer-surfaces-lod-3',
+          props: buildingsLayerSurfacesLod3Data(cityGmlResult, buildingsZ),
+          state: {
+            url,
+          },
         });
       }
       if (options.cityObjectMembers['transportation:TrafficArea']) {
         this.viewer.setLayerProps(
           'transportation-layer-traffic-area-lod-2',
-          transportationLayerTrafficAreaLod2Data(cityGmlResult)
+          transportationLayerTrafficAreaLod2Data(cityGmlResult, transportationZ)
         );
         this.viewer.setLayerState('transportation-layer-traffic-area-lod-2', {
           url,
@@ -94,7 +110,10 @@ export class Store {
       if (options.cityObjectMembers['transportation:AuxiliaryTrafficArea']) {
         this.viewer.setLayerProps(
           'transportation-layer-auxiliary-traffic-area-lod-2',
-          transportationLayerAuxiliaryTrafficAreaLod2Data(cityGmlResult)
+          transportationLayerAuxiliaryTrafficAreaLod2Data(
+            cityGmlResult,
+            transportationAuxZ
+          )
         );
         this.viewer.setLayerState(
           'transportation-layer-auxiliary-traffic-area-lod-2',
@@ -107,7 +126,7 @@ export class Store {
       if (options.cityObjectMembers['luse:LandUse']) {
         this.viewer.setLayerProps(
           'landuse-layer-surface-lod-1',
-          landuseSurfaceLod1Data(cityGmlResult)
+          landuseSurfaceLod1Data(cityGmlResult, landuseZ)
         );
         this.viewer.setLayerState('landuse-layer-surface-lod-1', {
           url,
@@ -118,6 +137,31 @@ export class Store {
       this.viewer.render();
       this.setIsLoading(false);
     });
+  }
+
+  async loadContextMap(url) {
+    this.setIsLoading(true, 'Loading context map');
+    const response = await fetch(url);
+    if (response.status !== 200) {
+      return console.warn('response status: ', response.status);
+    }
+    const geojson = await response.json();
+    const { features } = geojson;
+    coordinatesToMeters(features);
+    const modelMatrix = getModelMatrix(features);
+    this.viewer.updateLayer({
+      layerId: 'import-geojson',
+      props: {
+        data: features,
+        modelMatrix,
+      },
+      state: {
+        url,
+        isLoaded: true,
+      },
+    });
+    this.viewer.render();
+    this.setIsLoading(false);
   }
 
   public setIsLoading(isLoading: boolean, loadingMessage?: string) {

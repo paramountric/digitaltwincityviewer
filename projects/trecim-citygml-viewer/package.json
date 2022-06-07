@@ -30,6 +30,7 @@
     "@dtcv/citygml": "^1.0.1",
     "@dtcv/cityjson": "^1.0.1",
     "@dtcv/citymodel": "^1.0.1",
+    "@dtcv/geojson": "^1.0.1",
     "@dtcv/viewer": "^1.0.1",
     "@spectrum-web-components/accordion": "^0.6.9",
     "@spectrum-web-components/button": "^0.17.3",
