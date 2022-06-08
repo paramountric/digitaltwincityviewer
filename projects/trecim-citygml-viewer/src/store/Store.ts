@@ -7,10 +7,16 @@ import {
   transportationLayerTrafficAreaLod2Data,
   transportationLayerAuxiliaryTrafficAreaLod2Data,
   landuseSurfaceLod1Data,
+  furnitureLod1Data,
+  facilityLod1Data,
   projectVertices,
   projectExtent,
 } from '@dtcv/cityjson';
-import { getModelMatrix, coordinatesToMeters } from '@dtcv/geojson';
+import {
+  getLayerPosition,
+  getBounds,
+  coordinatesToMeters,
+} from '@dtcv/geojson';
 
 export class Store {
   public isLoading = false;
@@ -72,7 +78,10 @@ export class Store {
         'bldg:Building': true,
         'transportation:TrafficArea': true,
         'transportation:AuxiliaryTrafficArea': true,
+        'transportation:TransportationComplex': false, // how to do with this?
         'luse:LandUse': true,
+        'frn:CityFurniture': false,
+        'trecim:Facility': false,
       },
     };
     parseCityGml(await response.text(), options, cityGmlResult => {
@@ -83,10 +92,12 @@ export class Store {
       );
 
       // these settings are for playing around with the z level of the layers, the viewer needs to be flexible here so that developers can configure the layers z slightly depending on project
-      const buildingsZ = 30;
+      const buildingsZ = 22;
       const transportationZ = 30;
-      const transportationAuxZ = 30;
+      const transportationAuxZ = 31;
       const landuseZ = 30;
+      const furnitureZ = 30;
+      const facilityZ = 31;
 
       if (options.cityObjectMembers['bldg:Building']) {
         this.viewer.updateLayer({
@@ -98,39 +109,64 @@ export class Store {
         });
       }
       if (options.cityObjectMembers['transportation:TrafficArea']) {
-        this.viewer.setLayerProps(
-          'transportation-layer-traffic-area-lod-2',
-          transportationLayerTrafficAreaLod2Data(cityGmlResult, transportationZ)
-        );
-        this.viewer.setLayerState('transportation-layer-traffic-area-lod-2', {
-          url,
-          isLoaded: true,
+        this.viewer.updateLayer({
+          layerId: 'transportation-layer-traffic-area-lod-2',
+          props: transportationLayerTrafficAreaLod2Data(
+            cityGmlResult,
+            transportationZ
+          ),
+          state: {
+            url,
+          },
         });
       }
       if (options.cityObjectMembers['transportation:AuxiliaryTrafficArea']) {
-        this.viewer.setLayerProps(
-          'transportation-layer-auxiliary-traffic-area-lod-2',
-          transportationLayerAuxiliaryTrafficAreaLod2Data(
+        this.viewer.updateLayer({
+          layerId: 'transportation-layer-auxiliary-traffic-area-lod-2',
+          props: transportationLayerAuxiliaryTrafficAreaLod2Data(
             cityGmlResult,
             transportationAuxZ
-          )
-        );
-        this.viewer.setLayerState(
-          'transportation-layer-auxiliary-traffic-area-lod-2',
-          {
+          ),
+          state: {
             url,
-            isLoaded: true,
-          }
-        );
+          },
+        });
       }
       if (options.cityObjectMembers['luse:LandUse']) {
-        this.viewer.setLayerProps(
-          'landuse-layer-surface-lod-1',
-          landuseSurfaceLod1Data(cityGmlResult, landuseZ)
-        );
-        this.viewer.setLayerState('landuse-layer-surface-lod-1', {
-          url,
-          isLoaded: true,
+        this.viewer.updateLayer({
+          layerId: 'landuse-layer-surface-lod-1',
+          props: landuseSurfaceLod1Data(cityGmlResult, landuseZ),
+          state: {
+            url,
+          },
+        });
+      }
+      if (options.cityObjectMembers['frn:CityFurniture']) {
+        const furnitureData = furnitureLod1Data(cityGmlResult, furnitureZ);
+        this.viewer.updateLayer({
+          layerId: 'city-furniture-polygon-layer-lod-1',
+          props: Object.assign({}, furnitureData, {
+            data: furnitureData.data.filter(d => d.geometry.type === 'Polygon'),
+          }),
+          state: {
+            url,
+          },
+        });
+        this.viewer.updateLayer({
+          layerId: 'city-furniture-general-layer-lod-1',
+          props: furnitureData, // the polygons can go here as well not extruded
+          state: {
+            url,
+          },
+        });
+      }
+      if (options.cityObjectMembers['trecim:Facility']) {
+        this.viewer.updateLayer({
+          layerId: 'citygml-ade-lod-1',
+          props: facilityLod1Data(cityGmlResult, facilityZ),
+          state: {
+            url,
+          },
         });
       }
 
@@ -148,16 +184,21 @@ export class Store {
     const geojson = await response.json();
     const { features } = geojson;
     coordinatesToMeters(features);
-    const modelMatrix = getModelMatrix(features);
+    const { min, max, center, width, height, modelMatrix } =
+      getLayerPosition(features);
     this.viewer.updateLayer({
       layerId: 'import-geojson',
       props: {
         data: features,
         modelMatrix,
+        min,
+        max,
+        center,
+        width,
+        height,
       },
       state: {
         url,
-        isLoaded: true,
       },
     });
     this.viewer.render();
