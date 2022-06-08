@@ -10,6 +10,8 @@ let count = 1;
 function createId() {
   return `id-${count++}`;
 }
+// an object to use during dev for examine all available tags
+const tags = {};
 
 // todo: figure out how to group CityGML CityObjectMember selection to layers (now it is one layer per CityObjectMember)
 export type CityGmlParserOptions = {
@@ -206,6 +208,29 @@ function parseCityGml(
         currentCityObject = null;
       },
     },
+    'frn:function': {
+      include: true,
+      opentag: node => {
+        currentFunction = node;
+      },
+      text: text => {
+        if (currentCityObject && currentFunction) {
+          currentCityObject.function = text;
+        }
+      },
+      closetag: node => {
+        currentFunction = null;
+      },
+    },
+    'frn:lod1Geometry': {
+      include: true,
+      opentag: node => {
+        currentLod = 1;
+      },
+      closetag: node => {
+        currentLod = null;
+      },
+    },
     'bldg:Building': {
       include: options.cityObjectMembers['bldg:Building'],
       opentag: node => {
@@ -388,7 +413,152 @@ function parseCityGml(
         currentGeometry = null;
       },
     },
+    'gml:Polygon': {
+      include: true,
+      opentag: node => {
+        if (!currentCityObject) {
+          return;
+        }
+        currentGeometry = {
+          id: node.attributes['gml:id']?.value || createId(),
+          type: 'Polygon',
+          lod: currentLod,
+          boundaries: [],
+          semantics: {
+            surfaces: [
+              {
+                type: currentSurfaceType,
+              },
+            ],
+            values: [],
+          },
+        };
+      },
+      closetag: node => {
+        if (!currentCityObject || !currentGeometry) {
+          return;
+        }
+        currentGeometry.semantics.values = Array(
+          currentGeometry.boundaries.length
+        ).fill(0);
+        currentCityObject.geometry.push(currentGeometry);
+        currentGeometry = null;
+      },
+    },
+    'gml:LineString': {
+      include: true,
+      opentag: node => {
+        if (!currentCityObject) {
+          return;
+        }
+        currentGeometry = {
+          id: node.attributes['gml:id']?.value || createId(),
+          type: 'LineString',
+          lod: currentLod,
+          boundaries: [],
+          semantics: {
+            surfaces: [],
+            values: [],
+          },
+        };
+      },
+      closetag: node => {
+        if (!currentCityObject || !currentGeometry) {
+          return;
+        }
+        currentGeometry.semantics.values = Array(
+          currentGeometry.boundaries.length
+        ).fill(0);
+        currentCityObject.geometry.push(currentGeometry);
+        currentGeometry = null;
+      },
+    },
+    'gml:Point': {
+      include: true,
+      opentag: node => {
+        if (!currentCityObject) {
+          return;
+        }
+        currentGeometry = {
+          id: node.attributes['gml:id']?.value || createId(),
+          type: 'Point',
+          lod: currentLod,
+          boundaries: [],
+          semantics: {
+            surfaces: [],
+            values: [],
+          },
+        };
+      },
+      closetag: node => {
+        if (!currentCityObject || !currentGeometry) {
+          return;
+        }
+        currentGeometry.semantics.values = Array(
+          currentGeometry.boundaries.length
+        ).fill(0);
+        currentCityObject.geometry.push(currentGeometry);
+        currentGeometry = null;
+      },
+    },
     // * positions are pushed into current active geometry
+    'gml:pos': {
+      include: true,
+      opentag: node => {
+        if (!currentCityObject || !currentGeometry) {
+          return;
+        }
+        currentPosList = [];
+      },
+      text: text => {
+        if (!currentCityObject || !currentGeometry) {
+          return;
+        }
+        const coords = text.split(' ').map(Number);
+        for (let i = 0; i < coords.length; i += 3) {
+          const x = coords[i];
+          const y = coords[i + 1];
+          const z = coords[i + 2];
+          if (x < geographicalExtent[0]) {
+            geographicalExtent[0] = x;
+          }
+          if (y < geographicalExtent[1]) {
+            geographicalExtent[1] = y;
+          }
+          if (z < geographicalExtent[2]) {
+            geographicalExtent[2] = z;
+          }
+          if (x > geographicalExtent[3]) {
+            geographicalExtent[3] = x;
+          }
+          if (y > geographicalExtent[4]) {
+            geographicalExtent[4] = y;
+          }
+          if (z > geographicalExtent[5]) {
+            geographicalExtent[5] = z;
+          }
+          currentPosList.push([x, y, z]);
+        }
+      },
+      closetag: node => {
+        if (!currentCityObject || !currentGeometry) {
+          return;
+        }
+        const vertexCount = result.vertices.length;
+        const indices = Array(currentPosList.length)
+          .fill(null)
+          .map((_, i) => vertexCount + i);
+        switch (currentGeometry.type) {
+          case 'Point':
+            currentGeometry.boundaries.push([indices]);
+            result.vertices.push(...currentPosList);
+            break;
+          default:
+            break;
+        }
+        currentPosList = null;
+      },
+    },
     'gml:posList': {
       include: true,
       opentag: node => {
@@ -445,6 +615,14 @@ function parseCityGml(
             currentGeometry.boundaries.push([indices]);
             result.vertices.push(...currentPosList);
             break;
+          case 'Polygon':
+            currentGeometry.boundaries.push([indices]);
+            result.vertices.push(...currentPosList);
+            break;
+          case 'LineString':
+            currentGeometry.boundaries.push([indices]);
+            result.vertices.push(...currentPosList);
+            break;
           default:
             break;
         }
@@ -468,6 +646,8 @@ function parseCityGml(
     }
   });
   parser.on('opentag', (node: SaxesTagNS) => {
+    tags[node.name] = (tags[node.name] || 0) + 1;
+
     if (parserConfig[node.name] && parserConfig[node.name].include) {
       currentNode = node;
       openTags.push(node.name);
@@ -487,6 +667,7 @@ function parseCityGml(
   });
   parser.on('end', () => {
     result.metadata.geographicalExtent = geographicalExtent;
+    //console.log(tags);
     cb(result);
   });
   parser.write(xml).close();
