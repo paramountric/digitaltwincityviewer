@@ -53,6 +53,7 @@ export function getBounds(features: Feature[]) {
   };
 }
 
+// Set bounds on the feature collection according to spec
 export function setBounds(featureCollection: FeatureCollection, force = false) {
   if (featureCollection.bbox && !force) {
     return featureCollection;
@@ -61,6 +62,7 @@ export function setBounds(featureCollection: FeatureCollection, force = false) {
   featureCollection.bbox = [min[0], min[1], max[0], max[1]];
 }
 
+// todo: deprecate this function since the center/bounds needs to be preserved (or sent in to the function)
 export function getModelMatrix(features: Feature[]) {
   const { min, max } = getBounds(features);
   const size = vec3.sub(vec3.create(), max as vec3, min as vec3);
@@ -72,4 +74,26 @@ export function getModelMatrix(features: Feature[]) {
   const position = vec3.negate(vec3.create(), offset);
   const modelMatrix = mat4.fromTranslation(mat4.create(), position);
   return modelMatrix;
+}
+
+// todo: this is a function needed for each module (different kind of data)
+// -> create type or maybe even put it in a central module (but to not over-dry!)
+export function getLayerPosition(features: Feature[]) {
+  const { min, max } = getBounds(features);
+  const size = vec3.sub(vec3.create(), max as vec3, min as vec3);
+  const offset = vec3.add(
+    vec3.create(),
+    min as vec3,
+    vec3.scale(vec3.create(), size, 0.5)
+  );
+  const position = vec3.negate(vec3.create(), offset);
+  const modelMatrix = mat4.fromTranslation(mat4.create(), position);
+  return {
+    min,
+    max,
+    width: size[0],
+    height: size[1],
+    center: [...offset],
+    modelMatrix,
+  };
 }

@@ -1,16 +1,21 @@
 import { Feature, Position } from 'geojson';
+import proj4 from 'proj4';
 
-const EARTH_RADIUS = 6371008.8;
-const EARTH_CIRC = 2 * Math.PI * EARTH_RADIUS;
-const HALF_EARTH_CIRC = EARTH_CIRC / 2;
-
-// todo: this should be moved to some util place, or why not use proj4
-// (epsg4326/epsg3857)
-function coordinateToMeters(lng: number, lat: number) {
-  const x = lng * (EARTH_CIRC / 360);
-  const y = Math.log(Math.tan(lat * (Math.PI / 360) + Math.PI / 4)) / Math.PI;
-  return [x, y * HALF_EARTH_CIRC];
+export function toWebmercator(lng, lat) {
+  return proj4('EPSG:4326', 'EPSG:3857', [lng, lat]);
 }
+
+// const EARTH_RADIUS = 6371008.8;
+// const EARTH_CIRC = 2 * Math.PI * EARTH_RADIUS;
+// const HALF_EARTH_CIRC = EARTH_CIRC / 2;
+
+// // todo: this should be moved to some util place, or why not use proj4
+// // (epsg4326/epsg3857)
+// function coordinateToMeters(lng: number, lat: number) {
+//   const x = lng * (EARTH_CIRC / 360);
+//   const y = Math.log(Math.tan(lat * (Math.PI / 360) + Math.PI / 4)) / Math.PI;
+//   return [x, y * HALF_EARTH_CIRC];
+// }
 
 function forEachCoordinateInLineString(lineString: Position[], fn) {
   for (const point of lineString) {
@@ -43,7 +48,7 @@ function forEachCoordinateInMultiPolygon(multiPolygon: Position[][][], fn) {
 }
 
 function projectCoordinateInline(lngLat: [number, number]) {
-  const meters = coordinateToMeters(lngLat[0], lngLat[1]);
+  const meters = toWebmercator(lngLat[0], lngLat[1]);
   lngLat[0] = meters[0];
   lngLat[1] = meters[1];
 }

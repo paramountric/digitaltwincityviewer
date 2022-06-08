@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@types/geojson": "^7946.0.8",
-    "gl-matrix": "^3.4.3"
+    "gl-matrix": "^3.4.3",
+    "proj4": "^2.8.0"
   }
 }
