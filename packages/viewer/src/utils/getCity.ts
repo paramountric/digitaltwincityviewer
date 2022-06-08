@@ -6,6 +6,12 @@ import Queue from 'tinyqueue';
 // https://simplemaps.com/data/se-cities
 import cities from './se.json';
 
+// The viewer will have a reference city deferred from layer data
+export type City = {
+  x: number;
+  y: number;
+  name: string;
+};
 // The knn was copied here due to propblems on the tinyqueue dependency
 // https://github.com/mourner/rbush-knn/blob/master/index.js
 // Copyright (c) 2016, Vladimir Agafonkin ISC License
@@ -74,9 +80,6 @@ function coordinateToMeters(lng: number, lat: number) {
 
 const data = cities.map(c => {
   const xy = coordinateToMeters(Number(c.lng), Number(c.lat));
-  if (c.city === 'Malmö') {
-    console.log(xy);
-  }
   // todo: the city should be represented with some "official" bounds and center
   return {
     minX: xy[0],
@@ -90,6 +93,10 @@ const tree = new RBush();
 tree.load(data);
 
 export function getCity(x, y) {
-  const city = knn(tree, x, y, 1);
-  return city;
+  const city = knn(tree, x, y, 1)[0];
+  return {
+    name: city.name,
+    x: city.minX,
+    y: city.minY,
+  } as City;
 }

@@ -7,6 +7,7 @@ import { SimpleMeshLayer } from '@deck.gl/mesh-layers';
 import GL from '@luma.gl/constants';
 import { Geometry } from '@luma.gl/engine';
 import { Viewer } from '../Viewer';
+import { getCity } from '../utils/getCity';
 import GroundSurfaceLayer from '../layers/ground-surface-layer/GroundSurfaceLayer';
 import BuildingSurfaceLayer from '../layers/building-surface-layer/BuildingSurfaceLayer';
 import { mat4 } from 'gl-matrix';
@@ -193,6 +194,126 @@ const layerGroupCatalog: LayerGroupState[] = [
     ],
   },
   {
+    title: 'City furniture',
+    description: 'City furniture layer',
+    layers: [
+      {
+        type: GeoJsonLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: false,
+        isMeshLayer: false,
+        props: {
+          id: 'city-furniture-general-layer-lod-1',
+          pickable: false,
+          stroked: true,
+          filled: false,
+          extruded: false,
+          pointType: 'circle',
+          lineWidthScale: 1,
+          lineWidthMinPixels: 2,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getFillColor: d => d.properties.color || [255, 255, 255, 0],
+          getLineColor: [0, 0, 0, 255],
+          getPointRadius: 10,
+          getLineWidth: 1,
+        },
+      },
+      {
+        type: SolidPolygonLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: true,
+        isMeshLayer: false,
+        props: {
+          id: 'city-furniture-polygon-layer-lod-1',
+          opacity: 1,
+          autoHighlight: true,
+          highlightColor: [100, 150, 250, 128],
+          extruded: true,
+          wireframe: true,
+          pickable: true,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getPolygon: d => {
+            return d.geometry.coordinates;
+          },
+          getFillColor: d => d.properties.color || [255, 255, 255, 255],
+          getLineColor: [100, 100, 100],
+          getElevation: d => {
+            return d.properties.height || 1;
+          },
+          useDevicePixels: true,
+          parameters: {
+            depthMask: true,
+            depthTest: true,
+            blend: true,
+            blendFunc: [
+              GL.SRC_ALPHA,
+              GL.ONE_MINUS_SRC_ALPHA,
+              GL.ONE,
+              GL.ONE_MINUS_SRC_ALPHA,
+            ],
+            polygonOffsetFill: true,
+            depthFunc: GL.LEQUAL,
+            blendEquation: GL.FUNC_ADD,
+          },
+        },
+      },
+      {
+        type: SimpleMeshLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: true,
+        isMeshLayer: true,
+        props: {
+          id: 'city-furniture-layer-lod-2',
+          data: [1],
+          _instanced: false,
+          _useMeshColors: true,
+          wireframe: false,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getPosition: d => [0, 0, 0],
+          parameters: {
+            depthTest: true,
+          },
+          getColor: d => [235, 235, 255],
+        },
+      },
+    ],
+  },
+  {
+    title: 'CityGML ADE LOD 1',
+    description: 'Simple geometry objects for CityGML extension',
+    layers: [
+      {
+        type: GeoJsonLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: true,
+        isMeshLayer: false,
+        props: {
+          id: 'citygml-ade-lod-1',
+          pickable: true,
+          stroked: true,
+          filled: false,
+          extruded: false,
+          pointType: 'circle',
+          lineWidthScale: 1,
+          lineWidthMinPixels: 2,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getFillColor: d => d.properties.color || [255, 255, 255, 0],
+          getLineColor: [0, 0, 0, 255],
+          getPointRadius: 5,
+          getLineWidth: 1,
+        },
+      },
+    ],
+  },
+  {
     title: 'Buildings',
     description: 'Buildings layer',
     layers: [
@@ -282,6 +403,8 @@ const layerGroupCatalog: LayerGroupState[] = [
 export class LayerStore {
   layerGroups: LayerGroupState[];
   viewer: Viewer;
+  layerOffset: [number, number];
+  layerCenter: [number, number];
   constructor(viewer) {
     this.viewer = viewer;
     this.layerGroups = layerGroupCatalog;
@@ -347,6 +470,27 @@ export class LayerStore {
     this.viewer.render();
   }
   setLayerProps(layerId, props: LayerProps) {
+    if (props.center) {
+      // todo: figure out a way to set the current city and center the data that is loaded
+      if (!this.viewer.currentCity) {
+        this.viewer.currentCity = getCity(props.center[0], props.center[1]);
+      }
+      const currentCity = this.viewer.currentCity;
+      const layerOffset = [
+        currentCity.x - props.center[0],
+        currentCity.y - props.center[1],
+      ];
+      const viewerCenter = [layerOffset[0] * -1, layerOffset[1] * -1];
+      this.viewer.setCenter(viewerCenter);
+      // here the mutation is troublesome, so better refactor this function to make props immutable
+      props = Object.assign({}, props);
+      props.modelMatrix = props.modelMatrix.slice();
+      props.modelMatrix[12] -= layerOffset[0]; // + props.width / 2;
+      props.modelMatrix[13] -= layerOffset[1]; // + props.height / 2;
+    } else {
+      console.warn('layer has no center: ', props);
+    }
+
     // todo: look into immutability
     const layer = this.getLayerById(layerId);
     if (!layer) {

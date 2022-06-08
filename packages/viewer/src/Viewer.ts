@@ -8,7 +8,8 @@ import { makeObservable, observable, action } from 'mobx';
 import { LayerStore, UpdateLayerProps } from './store/LayerStore';
 import { ViewStore } from './store/ViewStore';
 import MaplibreWrapper from './utils/MaplibreWrapper';
-import { getCity } from './utils/getCity';
+import { toLngLat } from './utils/projection';
+import { getCity, City } from './utils/getCity';
 
 const maplibreStyle = {
   id: 'digitaltwincityviewer',
@@ -64,13 +65,6 @@ type ViewerProps = {
   latitude?: number;
   zoom?: number;
   container?: HTMLElement | string;
-};
-
-// The viewer will have a reference city deferred from layer data
-type City = {
-  x: number;
-  y: number;
-  name: string;
 };
 class Viewer {
   gl: WebGL2RenderingContext;
@@ -163,13 +157,16 @@ class Viewer {
   }
 
   setLayerProps(layerId: string, props) {
-    if (!this.currentCity && props.modelMatrix) {
-      console.log(props.modelMatrix);
-      console.log(
-        getCity(props.modelMatrix[12] * -1, props.modelMatrix[13] * -1)
-      );
-    }
     this.layerStore.setLayerProps(layerId, props);
+  }
+
+  setCenter(webmercatorCenter) {
+    if (useMaplibre) {
+      const lngLatCenter = toLngLat(webmercatorCenter[0], webmercatorCenter[1]);
+      this.maplibreMap.setCenter(lngLatCenter);
+    } else {
+      this.viewStore.setCenter(webmercatorCenter);
+    }
   }
 
   setLayerState(layerId: string, state) {

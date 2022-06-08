@@ -3,6 +3,7 @@ import { action, makeObservable, observable, computed } from 'mobx';
 import { Viewer, ViewerProps } from '../Viewer';
 
 const defaultViewStateProps = {
+  // currently the EPSG:3857 is used instead of EPSG 4326
   longitude: 0,
   latitude: 0,
   zoom: 14,
@@ -37,9 +38,14 @@ export class ViewStore {
   get zoom() {
     return this.viewState.zoom;
   }
-
   getViewState() {
     return this.viewState;
+  }
+  setCenter(webmercatorCenter) {
+    this.setViewState({
+      longitude: webmercatorCenter[0],
+      latitude: webmercatorCenter[1],
+    });
   }
   setViewState({ longitude, latitude, zoom }: ViewerProps) {
     const existingViewState = this.getViewState();
