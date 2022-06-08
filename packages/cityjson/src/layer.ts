@@ -52,3 +52,24 @@ export function projectExtent(extent) {
   const projectedExtentMax = projectCoordinate(extent[3], extent[4]);
   return [...projectedExtentMin, extent[2], ...projectedExtentMax, extent[5]];
 }
+
+export function getLayerPosition(extent, addZ?: number) {
+  const min = [extent[0], extent[1], extent[2]] as vec3;
+  const max = [extent[3], extent[4], extent[5]] as vec3;
+  const modelMatrix = getModelMatrix(extent, addZ);
+  const size = vec3.sub(vec3.create(), max as vec3, min as vec3);
+  const center = vec3.add(
+    vec3.create(),
+    min as vec3,
+    vec3.scale(vec3.create(), size, 0.5)
+  );
+
+  return {
+    min,
+    max,
+    width: size[0],
+    height: size[1],
+    center,
+    modelMatrix,
+  };
+}

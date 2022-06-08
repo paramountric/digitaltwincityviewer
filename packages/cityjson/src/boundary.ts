@@ -33,7 +33,48 @@ export {
   MultiPolygon,
 };
 
-// todo: there is no projection here anymore, change "project" to "transform"
+// wip: buffer zone
+export function lineStringToPolygon(boundary, vertices, out) {
+  if (!Array.isArray(boundary[0])) {
+    const lineString = [];
+    for (let i = 0; i < boundary.length; i++) {
+      const vertex = vertices[boundary[i]];
+      lineString.push(vertex);
+    }
+    // todo: create buffer zone around line and return as polygon
+  } else {
+    out.push([]);
+    for (let i = 0; i < boundary.length; i++) {
+      lineStringToPolygon(boundary[i], vertices, out);
+    }
+  }
+  return out;
+}
+
+export function boundaryToPolygon(boundary, vertices, out) {
+  if (!Array.isArray(boundary[0])) {
+    if (boundary.length < 3) {
+      return out;
+    }
+
+    for (let i = 0; i < boundary.length; i++) {
+      const vertex = vertices[boundary[i]];
+      out.push(vertex);
+    }
+    if (boundary[0] !== boundary[boundary.length - 1]) {
+      const firstPoint = vertices[boundary[0]];
+      out.push(firstPoint);
+    }
+  } else {
+    out.push([]);
+    for (let i = 0; i < boundary.length; i++) {
+      boundaryToPolygon(boundary[i], vertices, out[out.length - 1]);
+    }
+  }
+  return out;
+}
+
+// note: the projection in this case means to project vertical surfaces to the ground
 export function prepareBoundary(
   boundary,
   vertices,

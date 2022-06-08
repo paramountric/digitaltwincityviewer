@@ -1,6 +1,6 @@
 import { CityJSONV111 } from './CityJSONV111';
 import { prepareBoundary, triangulate } from './boundary';
-import { getModelMatrix } from './layer';
+import { getLayerPosition } from './layer';
 
 function getColor(cityObject) {
   const label = `${cityObject.class}${cityObject.function || ''}`;
@@ -28,13 +28,24 @@ export function landuseSurfaceLod1Data(cityJson: CityJSONV111, addZ?: number) {
   for (const vertex of cityJson.vertices) {
     vertices.push(...vertex);
   }
+
+  const { modelMatrix, center, min, max, width, height } = getLayerPosition(
+    cityJson.metadata.geographicalExtent,
+    addZ
+  );
+
   const layerProps = {
     data: {
       vertices: [],
       indices: [],
       colors: [],
     },
-    modelMatrix: getModelMatrix(cityJson.metadata.geographicalExtent, addZ),
+    modelMatrix,
+    center,
+    min,
+    max,
+    width,
+    height,
   };
 
   const cityObjects = Object.values(cityJson.CityObjects).filter(

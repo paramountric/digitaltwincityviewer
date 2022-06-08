@@ -1,11 +1,11 @@
 import { CityJSONV111 } from './CityJSONV111';
 import { prepareBoundary, triangulate } from './boundary';
-import { getModelMatrix } from './layer';
+import { getLayerPosition } from './layer';
 
 function getColor(cityObject) {
   const colors = {
     TrafficArea: [0.5, 0.5, 0.5],
-    AuxiliaryTrafficArea: [0.1, 0.8, 0.1],
+    AuxiliaryTrafficArea: [0.1, 0.7, 0.1],
   };
   return colors[cityObject.type] || [0, 0, 0];
 }
@@ -20,13 +20,24 @@ export function transportationLayerTrafficAreaLod2Data(
   for (const vertex of cityJson.vertices) {
     vertices.push(...vertex);
   }
+
+  const { modelMatrix, center, min, max, width, height } = getLayerPosition(
+    cityJson.metadata.geographicalExtent,
+    addZ
+  );
+
   const layerProps = {
     data: {
       vertices: [],
       indices: [],
       colors: [],
     },
-    modelMatrix: getModelMatrix(cityJson.metadata.geographicalExtent, addZ),
+    modelMatrix,
+    center,
+    min,
+    max,
+    width,
+    height,
   };
 
   const cityObjects = Object.values(cityJson.CityObjects).filter(
@@ -69,13 +80,24 @@ export function transportationLayerAuxiliaryTrafficAreaLod2Data(
   for (const vertex of cityJson.vertices) {
     vertices.push(...vertex);
   }
+
+  const { modelMatrix, center, min, max, width, height } = getLayerPosition(
+    cityJson.metadata.geographicalExtent,
+    addZ
+  );
+
   const layerProps = {
     data: {
       vertices: [],
       indices: [],
       colors: [],
     },
-    modelMatrix: getModelMatrix(cityJson.metadata.geographicalExtent, addZ),
+    modelMatrix,
+    center,
+    min,
+    max,
+    width,
+    height,
   };
 
   const cityObjects = Object.values(cityJson.CityObjects).filter(
