@@ -1,6 +1,6 @@
 import { CityJSONV111 } from './CityJSONV111';
 import { prepareBoundary, triangulate, boundaryToPolygon } from './boundary';
-import { getLayerPosition } from './layer';
+import { getLayerPosition, LayerMatrixOptions } from './layer';
 
 function getColor(cityObject) {
   const colors = {
@@ -12,10 +12,13 @@ function getColor(cityObject) {
   return colors[cityObject.function] || [0, 0, 0];
 }
 
-export function facilityLod1Data(cityJson: CityJSONV111, addZ?: number) {
+export function facilityLod1Data(
+  cityJson: CityJSONV111,
+  options: LayerMatrixOptions
+) {
   const { modelMatrix, center, min, max, width, height } = getLayerPosition(
     cityJson.metadata.geographicalExtent,
-    addZ
+    options
   );
 
   const layerProps = {

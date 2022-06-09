@@ -1,6 +1,6 @@
 import { CityJSONV111 } from './CityJSONV111';
 import { prepareBoundary, triangulate } from './boundary';
-import { getLayerPosition } from './layer';
+import { getLayerPosition, LayerMatrixOptions } from './layer';
 
 function getColor(cityObject) {
   const colors = {
@@ -12,7 +12,7 @@ function getColor(cityObject) {
 
 export function transportationLayerTrafficAreaLod2Data(
   cityJson: CityJSONV111,
-  addZ?: number
+  options: LayerMatrixOptions
 ) {
   const vertices = [];
   let vertexCount = 0;
@@ -23,7 +23,7 @@ export function transportationLayerTrafficAreaLod2Data(
 
   const { modelMatrix, center, min, max, width, height } = getLayerPosition(
     cityJson.metadata.geographicalExtent,
-    addZ
+    options
   );
 
   const layerProps = {
@@ -72,7 +72,7 @@ export function transportationLayerTrafficAreaLod2Data(
 
 export function transportationLayerAuxiliaryTrafficAreaLod2Data(
   cityJson: CityJSONV111,
-  addZ?: number
+  options: LayerMatrixOptions
 ) {
   const vertices = [];
   let vertexCount = 0;
@@ -83,7 +83,7 @@ export function transportationLayerAuxiliaryTrafficAreaLod2Data(
 
   const { modelMatrix, center, min, max, width, height } = getLayerPosition(
     cityJson.metadata.geographicalExtent,
-    addZ
+    options
   );
 
   const layerProps = {

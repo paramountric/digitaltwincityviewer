@@ -1,17 +1,20 @@
 import { CityJSONV111 } from './CityJSONV111';
 import { prepareBoundary, triangulate } from './boundary';
-import { getLayerPosition } from './layer';
+import { getLayerPosition, LayerMatrixOptions, LayerProps } from './layer';
 
 // wip: just a very quick test to see if colors works
 // the colors can be set more granular in boundaries and semantics
-function getColor(geometry) {
+function getColor(surface) {
   const colors = {
     RoofSurface: [1, 0, 0],
     WallSurface: [1, 1, 1],
     GroundSurface: [0.5, 0.5, 0.5],
   };
-  const surface = geometry.semantics.surfaces.find(s => s.type);
-  return surface ? colors[surface.type] : [0, 0.5, 0];
+  if (!surface) {
+    return [0, 0.5, 0];
+  }
+
+  return colors[surface.type] || [0, 0.5, 0];
 }
 
 // https://github.com/visgl/deck.gl/blob/8.7-release/modules/core/src/lib/layer.js
@@ -24,16 +27,18 @@ function encodePickingColor(i, target = []) {
 
 export function buildingsLayerSurfacesLod3Data(
   cityJson: CityJSONV111,
-  addZ?: number
+  options: LayerMatrixOptions
 ) {
   let vertexCount = 0;
 
+  // find a way to reuse layer position between layer
+  // yet there needs to a way to modify layer individually
   const { modelMatrix, center, min, max, width, height } = getLayerPosition(
     cityJson.metadata.geographicalExtent,
-    addZ
+    options
   );
 
-  const layerProps = {
+  const layerProps: LayerProps = {
     data: {
       vertices: [],
       indices: [],
@@ -59,9 +64,9 @@ export function buildingsLayerSurfacesLod3Data(
   for (const cityObject of cityObjects) {
     const geometries = (cityObject.geometry as any) || [];
     for (const geometry of geometries) {
-      const color = getColor(geometry);
       let boundaryIndex = 0;
       for (const boundary of geometry.boundaries) {
+        const color = getColor(geometry.semantics?.surfaces[boundaryIndex]);
         const semantics =
           geometry.semantics.surfaces[geometry.semantics.values[boundaryIndex]];
         if (!currentSurfaceType) {

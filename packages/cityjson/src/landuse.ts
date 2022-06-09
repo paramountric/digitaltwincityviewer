@@ -1,6 +1,6 @@
 import { CityJSONV111 } from './CityJSONV111';
 import { prepareBoundary, triangulate } from './boundary';
-import { getLayerPosition } from './layer';
+import { getLayerPosition, LayerMatrixOptions } from './layer';
 
 function getColor(cityObject) {
   const label = `${cityObject.class}${cityObject.function || ''}`;
@@ -21,7 +21,10 @@ function getColor(cityObject) {
   return colors[label] || [1, 1, 1, 1];
 }
 
-export function landuseSurfaceLod1Data(cityJson: CityJSONV111, addZ?: number) {
+export function landuseSurfaceLod1Data(
+  cityJson: CityJSONV111,
+  options: LayerMatrixOptions
+) {
   const vertices = [];
   let vertexCount = 0;
 
@@ -31,7 +34,7 @@ export function landuseSurfaceLod1Data(cityJson: CityJSONV111, addZ?: number) {
 
   const { modelMatrix, center, min, max, width, height } = getLayerPosition(
     cityJson.metadata.geographicalExtent,
-    addZ
+    options
   );
 
   const layerProps = {
