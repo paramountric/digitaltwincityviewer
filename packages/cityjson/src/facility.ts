@@ -35,7 +35,6 @@ export function facilityLod1Data(
     obj => obj.type === 'Facility'
   );
   for (const cityObject of cityObjects) {
-    console.log(cityObject);
     const color = getColor(cityObject);
     const geometries = (cityObject.geometry as any) || [];
     for (const geometry of geometries) {
