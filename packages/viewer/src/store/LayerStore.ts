@@ -194,32 +194,92 @@ const layerGroupCatalog: LayerGroupState[] = [
     ],
   },
   {
-    title: 'City furniture',
-    description: 'City furniture layer',
+    title: 'Buildings',
+    description: 'Buildings layer',
     layers: [
       {
-        type: GeoJsonLayer,
+        type: SolidPolygonLayer,
         url: null,
         isLoaded: false,
         isLoading: false,
-        isClickable: false,
+        isClickable: true,
         isMeshLayer: false,
+        layerStyle: null,
         props: {
-          id: 'city-furniture-general-layer-lod-1',
-          pickable: false,
-          stroked: true,
-          filled: false,
-          extruded: false,
-          pointType: 'circle',
-          lineWidthScale: 1,
-          lineWidthMinPixels: 2,
+          id: 'buildings-layer-polygons-lod-1',
+          opacity: 1,
+          autoHighlight: true,
+          highlightColor: [100, 150, 250, 128],
+          extruded: true,
+          wireframe: true,
+          pickable: true,
           coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-          getFillColor: d => d.properties.color || [255, 255, 255, 0],
-          getLineColor: [0, 0, 0, 255],
-          getPointRadius: 10,
-          getLineWidth: 1,
+          getPolygon: d => d.geometry.coordinates,
+          getFillColor: d => d.properties.color || [255, 255, 255, 255],
+          getLineColor: [100, 100, 100],
+          getElevation: d => {
+            return d.properties.height;
+          },
+          useDevicePixels: true,
+          parameters: {
+            depthMask: true,
+            depthTest: true,
+            blend: true,
+            blendFunc: [
+              GL.SRC_ALPHA,
+              GL.ONE_MINUS_SRC_ALPHA,
+              GL.ONE,
+              GL.ONE_MINUS_SRC_ALPHA,
+            ],
+            polygonOffsetFill: true,
+            depthFunc: GL.LEQUAL,
+            blendEquation: GL.FUNC_ADD,
+          },
         },
       },
+      {
+        type: BuildingSurfaceLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: true,
+        isMeshLayer: true,
+        props: {
+          id: 'buildings-layer-surfaces-lod-3',
+          autoHighlight: true,
+          highlightColor: { type: 'accessor', value: [0, 0, 0, 0] },
+          data: [],
+          _instanced: false,
+          _useMeshColors: true,
+          wireframe: false,
+          pickable: true,
+          // onHover: e => {
+          //   console.log(e);
+          // },
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          parameters: {
+            depthMask: true,
+            depthTest: true,
+            blend: true,
+            blendFunc: [
+              GL.SRC_ALPHA,
+              GL.ONE_MINUS_SRC_ALPHA,
+              GL.ONE,
+              GL.ONE_MINUS_SRC_ALPHA,
+            ],
+            polygonOffsetFill: true,
+            depthFunc: GL.LEQUAL,
+            blendEquation: GL.FUNC_ADD,
+          },
+          getColor: [255, 255, 255],
+        },
+      },
+    ],
+  },
+  {
+    title: 'City furniture',
+    description: 'City furniture layer',
+    layers: [
       {
         type: SolidPolygonLayer,
         url: null,
@@ -230,11 +290,11 @@ const layerGroupCatalog: LayerGroupState[] = [
         props: {
           id: 'city-furniture-polygon-layer-lod-1',
           opacity: 1,
-          autoHighlight: true,
+          autoHighlight: false,
           highlightColor: [100, 150, 250, 128],
           extruded: true,
           wireframe: true,
-          pickable: true,
+          pickable: false,
           coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
           getPolygon: d => {
             return d.geometry.coordinates;
@@ -297,16 +357,33 @@ const layerGroupCatalog: LayerGroupState[] = [
         isMeshLayer: false,
         props: {
           id: 'citygml-ade-lod-1',
+          autoHighlight: true,
           pickable: true,
           stroked: true,
-          filled: false,
+          filled: true,
           extruded: false,
           pointType: 'circle',
           lineWidthScale: 1,
           lineWidthMinPixels: 2,
           coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-          getFillColor: d => d.properties.color || [255, 255, 255, 0],
-          getLineColor: [0, 0, 0, 255],
+          getFillColor: d =>
+            d.properties.color
+              ? [
+                  d.properties.color[0],
+                  d.properties.color[1],
+                  d.properties.color[2],
+                  100,
+                ]
+              : [255, 215, 0, 100],
+          getLineColor: d =>
+            d.properties.color
+              ? [
+                  d.properties.color[0],
+                  d.properties.color[1],
+                  d.properties.color[2],
+                  255,
+                ]
+              : [255, 215, 0, 255],
           getPointRadius: 5,
           getLineWidth: 1,
         },
@@ -314,86 +391,31 @@ const layerGroupCatalog: LayerGroupState[] = [
     ],
   },
   {
-    title: 'Buildings',
-    description: 'Buildings layer',
+    title: 'City furniture simple representation',
+    description: 'Simple geometry objects for City furniture extension',
     layers: [
       {
-        type: SolidPolygonLayer,
+        type: GeoJsonLayer,
         url: null,
         isLoaded: false,
         isLoading: false,
         isClickable: true,
         isMeshLayer: false,
-        layerStyle: null,
         props: {
-          id: 'buildings-layer-polygons-lod-1',
-          opacity: 1,
+          id: 'city-furniture-general-layer-lod-1',
           autoHighlight: true,
-          highlightColor: [100, 150, 250, 128],
-          extruded: true,
-          wireframe: true,
           pickable: true,
+          stroked: true,
+          filled: true,
+          extruded: false,
+          pointType: 'circle',
+          lineWidthScale: 1,
+          lineWidthMinPixels: 2,
           coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-          getPolygon: d => d.geometry.coordinates,
-          getFillColor: d => d.properties.color || [255, 255, 255, 255],
-          getLineColor: [100, 100, 100],
-          getElevation: d => {
-            return d.properties.height;
-          },
-          useDevicePixels: true,
-          parameters: {
-            depthMask: true,
-            depthTest: true,
-            blend: true,
-            blendFunc: [
-              GL.SRC_ALPHA,
-              GL.ONE_MINUS_SRC_ALPHA,
-              GL.ONE,
-              GL.ONE_MINUS_SRC_ALPHA,
-            ],
-            polygonOffsetFill: true,
-            depthFunc: GL.LEQUAL,
-            blendEquation: GL.FUNC_ADD,
-          },
-        },
-      },
-      {
-        type: BuildingSurfaceLayer,
-        url: null,
-        isLoaded: false,
-        isLoading: false,
-        isClickable: true,
-        isMeshLayer: true,
-        props: {
-          id: 'buildings-layer-surfaces-lod-3',
-          //autoHighlight: true,
-          //highlightColor: [0, 0, 0, 128],
-          highlightColor: { type: 'accessor', value: [0, 0, 0, 0] },
-          data: [],
-          _instanced: false,
-          _useMeshColors: true,
-          wireframe: false,
-          pickable: true,
-          // onHover: e => {
-          //   console.log(e);
-          // },
-          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-          getPosition: d => [0, 0, 0],
-          parameters: {
-            depthMask: true,
-            depthTest: true,
-            blend: true,
-            blendFunc: [
-              GL.SRC_ALPHA,
-              GL.ONE_MINUS_SRC_ALPHA,
-              GL.ONE,
-              GL.ONE_MINUS_SRC_ALPHA,
-            ],
-            polygonOffsetFill: true,
-            depthFunc: GL.LEQUAL,
-            blendEquation: GL.FUNC_ADD,
-          },
-          getColor: d => [235, 235, 255],
+          getFillColor: d => [100, 100, 100, 100],
+          getLineColor: [100, 100, 100, 255],
+          getPointRadius: 10,
+          getLineWidth: 1,
         },
       },
     ],
@@ -439,6 +461,7 @@ export class LayerStore {
       if (layer.isClickable) {
         layer.props.onClick = d => {
           if (d.object) {
+            console.log(d.object);
             this.viewer.setSelectedObject(d.object);
             return;
           }
