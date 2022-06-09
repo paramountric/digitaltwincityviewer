@@ -50,6 +50,11 @@ export type LayerMatrixOptions = {
 export function getLayerMatrix(extent, { refLat, addZ }: LayerMatrixOptions) {
   const modelMatrix = mat4.create();
 
+  if (refLat) {
+    const altScale = 1 + Math.cos((refLat * Math.PI) / 180);
+    mat4.scale(modelMatrix, modelMatrix, [1, 1, altScale]);
+  }
+
   const min = [extent[0], extent[1], extent[2]] as vec3;
   const max = [extent[3], extent[4], extent[5]] as vec3;
 
@@ -64,12 +69,7 @@ export function getLayerMatrix(extent, { refLat, addZ }: LayerMatrixOptions) {
     translate[2] += addZ;
   }
 
-  mat4.fromTranslation(modelMatrix, translate);
-
-  if (refLat) {
-    const altScale = 1 + Math.cos((refLat * Math.PI) / 180);
-    mat4.scale(modelMatrix, modelMatrix, [1, 1, altScale]);
-  }
+  mat4.translate(modelMatrix, modelMatrix, translate);
 
   return modelMatrix;
 }
