@@ -77,11 +77,22 @@ function parseCityGml(
     -Infinity,
   ];
 
+  // todo: this have to be properly used from CityJson, right now trying to figure out how to add ADE data to the CityObject
+  type CityObject = {
+    id?: string;
+    type: string;
+    version?: string;
+    function?: string;
+    geometry: [];
+  };
+
   let currentNode: SaxesTagNS | null = null;
   const openTags = [];
 
   let currentCityObject;
   let currentCityObjectId;
+  let currentId = null;
+  let currentVersion = null;
   let currentFunction = null;
   let currentClass = null;
   let currentSurfaceType: string;
@@ -97,7 +108,7 @@ function parseCityGml(
       opentag: node => {
         const id = node.attributes['gml:id']?.value || createId();
 
-        const cityObject = {
+        const cityObject: CityObject = {
           type: 'TrafficArea',
           geometry: [],
         };
@@ -150,6 +161,48 @@ function parseCityGml(
         currentCityObject = null;
       },
     },
+    'trecim:function': {
+      include: true,
+      opentag: node => {
+        currentFunction = node;
+      },
+      text: text => {
+        if (currentCityObject && currentFunction) {
+          currentCityObject.function = text;
+        }
+      },
+      closetag: node => {
+        currentFunction = null;
+      },
+    },
+    'trecim:version': {
+      include: true,
+      opentag: node => {
+        currentVersion = node;
+      },
+      text: text => {
+        if (currentCityObject && currentVersion) {
+          currentCityObject.version = text;
+        }
+      },
+      closetag: node => {
+        currentVersion = null;
+      },
+    },
+    'trecim:id': {
+      include: true,
+      opentag: node => {
+        currentId = node;
+      },
+      text: text => {
+        if (currentCityObject && currentId) {
+          currentCityObject.id = text;
+        }
+      },
+      closetag: node => {
+        currentId = null;
+      },
+    },
     'trecim:Facility': {
       include: options.cityObjectMembers['trecim:Facility'],
 
@@ -168,6 +221,15 @@ function parseCityGml(
       },
       closetag: node => {
         currentCityObject = null;
+      },
+    },
+    'trecim:lod1Point': {
+      include: true,
+      opentag: node => {
+        currentLod = 1;
+      },
+      closetag: node => {
+        currentLod = null;
       },
     },
     'luse:LandUse': {
