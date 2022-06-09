@@ -86,7 +86,10 @@ export class Store {
     };
     parseCityGml(await response.text(), options, cityGmlResult => {
       console.log(cityGmlResult);
-      cityGmlResult.vertices = projectVertices(cityGmlResult.vertices);
+      cityGmlResult.vertices = projectVertices(
+        cityGmlResult.vertices,
+        'EPSG:3008'
+      );
       cityGmlResult.metadata.geographicalExtent = projectExtent(
         cityGmlResult.metadata.geographicalExtent
       );
@@ -102,7 +105,10 @@ export class Store {
       if (options.cityObjectMembers['bldg:Building']) {
         this.viewer.updateLayer({
           layerId: 'buildings-layer-surfaces-lod-3',
-          props: buildingsLayerSurfacesLod3Data(cityGmlResult, buildingsZ),
+          props: buildingsLayerSurfacesLod3Data(cityGmlResult, {
+            addZ: buildingsZ,
+            refLat: 55.6,
+          }),
           state: {
             url,
           },
@@ -111,10 +117,9 @@ export class Store {
       if (options.cityObjectMembers['transportation:TrafficArea']) {
         this.viewer.updateLayer({
           layerId: 'transportation-layer-traffic-area-lod-2',
-          props: transportationLayerTrafficAreaLod2Data(
-            cityGmlResult,
-            transportationZ
-          ),
+          props: transportationLayerTrafficAreaLod2Data(cityGmlResult, {
+            addZ: transportationZ,
+          }),
           state: {
             url,
           },
@@ -125,7 +130,7 @@ export class Store {
           layerId: 'transportation-layer-auxiliary-traffic-area-lod-2',
           props: transportationLayerAuxiliaryTrafficAreaLod2Data(
             cityGmlResult,
-            transportationAuxZ
+            { addZ: transportationAuxZ }
           ),
           state: {
             url,
@@ -135,14 +140,16 @@ export class Store {
       if (options.cityObjectMembers['luse:LandUse']) {
         this.viewer.updateLayer({
           layerId: 'landuse-layer-surface-lod-1',
-          props: landuseSurfaceLod1Data(cityGmlResult, landuseZ),
+          props: landuseSurfaceLod1Data(cityGmlResult, { addZ: landuseZ }),
           state: {
             url,
           },
         });
       }
       if (options.cityObjectMembers['frn:CityFurniture']) {
-        const furnitureData = furnitureLod1Data(cityGmlResult, furnitureZ);
+        const furnitureData = furnitureLod1Data(cityGmlResult, {
+          addZ: furnitureZ,
+        });
         this.viewer.updateLayer({
           layerId: 'city-furniture-polygon-layer-lod-1',
           props: Object.assign({}, furnitureData, {
@@ -163,7 +170,7 @@ export class Store {
       if (options.cityObjectMembers['trecim:Facility']) {
         this.viewer.updateLayer({
           layerId: 'citygml-ade-lod-1',
-          props: facilityLod1Data(cityGmlResult, facilityZ),
+          props: facilityLod1Data(cityGmlResult, { addZ: facilityZ }),
           state: {
             url,
           },
