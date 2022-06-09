@@ -47,7 +47,7 @@ class App extends MobxLitElement {
 
     return html` <sp-theme theme="classic" color="lightest" scale="medium">
       ${header} ${leftMenu}
-      <div id="viewport"></div>
+      <div style="overflow:hidden" id="viewport"></div>
       ${rightMenu}
     </sp-theme>`;
   }
