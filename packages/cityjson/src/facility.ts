@@ -4,11 +4,11 @@ import { getLayerPosition, LayerMatrixOptions } from './layer';
 
 function getColor(cityObject) {
   const colors = {
-    Mur: [255, 255, 255],
-    ['Stödmur']: [0.1, 0.7, 0.1],
-    Fordonsramp: [0.1, 0.7, 0.1],
-    Staket: [0.1, 0.7, 0.1],
+    Dagvattenbrunn: [255, 215, 0],
   };
+  if (!colors[cityObject.function]) {
+    console.log('add color: ', cityObject.function);
+  }
   return colors[cityObject.function] || [0, 0, 0];
 }
 
@@ -35,6 +35,7 @@ export function facilityLod1Data(
     obj => obj.type === 'Facility'
   );
   for (const cityObject of cityObjects) {
+    console.log(cityObject);
     const color = getColor(cityObject);
     const geometries = (cityObject.geometry as any) || [];
     for (const geometry of geometries) {
@@ -52,12 +53,15 @@ export function facilityLod1Data(
           coordinates: point,
         },
         properties: {
-          color,
+          id: cityObject.id,
+          version: cityObject.version,
           function: cityObject.function,
+          type: cityObject.type,
+          lod: geometry.lod,
+          color,
         },
       });
     }
   }
-  console.log(layerProps);
   return layerProps;
 }
