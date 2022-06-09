@@ -52,9 +52,9 @@ export class Store {
       'http://localhost:9000/files/citygml/3CIM/testdata_3CIM_ver1_malmo_20220205_XSD.gml'
     );
 
-    await this.loadContextMap(
-      'http://localhost:9000/files/geojson/osm-malmo.json'
-    );
+    // await this.loadContextMap(
+    //   'http://localhost:9000/files/geojson/osm-malmo.json'
+    // );
   }
 
   public async loadCityModelSchema(url: string) {
@@ -80,8 +80,8 @@ export class Store {
         'transportation:AuxiliaryTrafficArea': true,
         'transportation:TransportationComplex': false, // how to do with this?
         'luse:LandUse': true,
-        'frn:CityFurniture': false,
-        'trecim:Facility': false,
+        'frn:CityFurniture': true,
+        'trecim:Facility': true,
       },
     };
     parseCityGml(await response.text(), options, cityGmlResult => {
@@ -99,7 +99,7 @@ export class Store {
       const transportationZ = 30;
       const transportationAuxZ = 31;
       const landuseZ = 30;
-      const furnitureZ = 30;
+      const furnitureZ = 31;
       const facilityZ = 31;
 
       if (options.cityObjectMembers['bldg:Building']) {
@@ -151,17 +151,19 @@ export class Store {
           addZ: furnitureZ,
         });
         this.viewer.updateLayer({
-          layerId: 'city-furniture-polygon-layer-lod-1',
+          layerId: 'city-furniture-general-layer-lod-1',
           props: Object.assign({}, furnitureData, {
-            data: furnitureData.data.filter(d => d.geometry.type === 'Polygon'),
+            data: furnitureData.data.filter(d => d.type !== 'Polygon'),
           }),
           state: {
             url,
           },
         });
         this.viewer.updateLayer({
-          layerId: 'city-furniture-general-layer-lod-1',
-          props: furnitureData, // the polygons can go here as well not extruded
+          layerId: 'city-furniture-polygon-layer-lod-1',
+          props: Object.assign({}, furnitureData, {
+            data: furnitureData.data.filter(d => d.type === 'Polygon'),
+          }),
           state: {
             url,
           },

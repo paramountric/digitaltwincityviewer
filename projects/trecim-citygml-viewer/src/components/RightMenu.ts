@@ -10,16 +10,19 @@ import { Store } from '../store/Store';
 
 const displayProperties = [
   {
-    properties: ['cityObjectId', 'geometryId', 'lod', 'type'],
+    properties: ['id', 'version', 'lod', 'type', 'function'],
   },
 ];
 
 // all properties in the properties object will be shown, labels are taken from here
 const propertyLabels = {
+  id: 'ID',
+  cityObjectId: 'City Object ID',
   geometryId: 'Geometry ID',
   type: 'Type',
   lod: 'Level of Detail',
-  cityObjectId: 'City Object ID',
+  function: 'Function',
+  version: 'Version',
 };
 
 // these are the units, but could be done with enum instead
