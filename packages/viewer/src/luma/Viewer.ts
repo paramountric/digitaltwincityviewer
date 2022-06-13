@@ -1,6 +1,9 @@
 // Copyright (C) 2022 Andreas Rudenå
 // Licensed under the MIT License
 
+// note: the original luma viewer is put on hold since the deck.gl track was used instead
+// for a simpler and stripped down viewer, the luma alternative could be continued
+
 import { AnimationLoop, ProgramManager, Timeline } from '@luma.gl/engine';
 import { AnimationLoopProps } from '@luma.gl/engine/src/lib/animation-loop';
 import {
@@ -18,9 +21,9 @@ import {
 import { EventManager } from 'mjolnir.js';
 import { Transform } from './Transform';
 import { DataSource, DataSourceProps } from './DataSource';
-import { GeoJsonBuildingLayer } from '../layers/GeoJsonBuildingLayer';
+//import { GeoJsonBuildingLayer } from '../layers/GeoJsonBuildingLayer';
 import GL from '@luma.gl/constants';
-import { PointOfInterestLayer } from '../layers/PointOfInterestLayer';
+//import { PointOfInterestLayer } from '../layers/PointOfInterestLayer';
 
 export type ViewerProps = {
   center?: [number, number];
@@ -38,8 +41,8 @@ export type ViewerProps = {
 };
 
 const layerTypes = {
-  'geojson-building': GeoJsonBuildingLayer,
-  'point-of-interest': PointOfInterestLayer,
+  // 'geojson-building': GeoJsonBuildingLayer,
+  // 'point-of-interest': PointOfInterestLayer,
 };
 
 const defaultViewerProps: ViewerProps = {
@@ -56,7 +59,7 @@ export class Viewer {
   transform: Transform;
   programManager: ProgramManager;
   sources: { [id: string]: DataSource };
-  layers: { [id: string]: GeoJsonBuildingLayer }; // todo: use a generic solution for layer types
+  layers: { [id: string]: any }; // todo: use a generic solution for layer types
   context: {
     gl: WebGLRenderingContext;
     timeline: Timeline;
