@@ -1,4 +1,4 @@
 import { parseCityGml, CityGmlParserOptions } from './parser';
-import { parseXsd } from './xsd';
+import { parseXsd, Schema } from './xsd';
 
-export { parseCityGml, CityGmlParserOptions, parseXsd };
+export { parseCityGml, CityGmlParserOptions, parseXsd, Schema };
