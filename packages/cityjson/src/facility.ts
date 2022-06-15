@@ -53,6 +53,7 @@ export function facilityLod1Data(
         },
         properties: {
           id: cityObject.id,
+          context: cityObject.namespace,
           version: cityObject.version,
           function: cityObject.function,
           type: cityObject.type,

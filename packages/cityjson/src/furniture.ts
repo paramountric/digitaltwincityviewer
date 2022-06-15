@@ -72,6 +72,7 @@ export function furnitureLod1Data(
             coordinates: polygon[0],
           },
           properties: {
+            context: cityObject.namespace,
             color,
             function: cityObject.function,
           },
