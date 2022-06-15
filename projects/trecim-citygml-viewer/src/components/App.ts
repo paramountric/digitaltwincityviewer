@@ -6,12 +6,43 @@ import { Store } from '../store/Store';
 import '@spectrum-web-components/theme/theme-lightest.js';
 import '@spectrum-web-components/theme/scale-medium.js';
 import '@spectrum-web-components/theme/sp-theme.js';
+import '@spectrum-web-components/switch/sp-switch.js';
 import './Header';
 import './LeftMenu';
 import './RightMenu';
 
 @customElement('trecim-app')
 class App extends MobxLitElement {
+  static styles = css`
+    :host {
+      overflow: hidden;
+      padding: 0;
+      margin: 0;
+    }
+    #show-menu-btn {
+      z-index: 13;
+      position: absolute;
+      background: #fff;
+      opacity: 0.7;
+      top: 70px;
+      cursor: pointer;
+      left: 10px;
+      border: 1px solid #ddd;
+      color: #666;
+      padding: 3px;
+      border-radius: 3px;
+    }
+    #show-menu-btn:hover {
+      border-color: #aaa;
+    }
+    #graph-switch {
+      position: absolute;
+      top: 10px;
+      left: 300px;
+      z-index: 13;
+    }
+  `;
+
   @state()
   store: Store;
 
@@ -34,19 +65,48 @@ class App extends MobxLitElement {
     }
   }
 
+  showLeftMenu() {
+    this.store.setShowLeftMenu(true);
+  }
+
+  toggleGraphSwitch() {
+    const isVisible = this.store.viewer.viewStore.showGraphView;
+    if (!isVisible) {
+      this.store.viewer.viewStore.setActiveView('graph');
+    }
+    this.store.viewer.viewStore.setShowGraphView(!isVisible);
+    this.store.viewer.render();
+  }
+
   render() {
     const header = this.store
       ? html`<trecim-header .store=${this.store}></trecim-header>`
       : html`<div></div>`;
-    const leftMenu = this.store?.showLeftMenu
+    const leftMenu = this.store?.isLoading
+      ? null
+      : this.store?.showLeftMenu
       ? html`<trecim-left-menu .store=${this.store}></trecim-left-menu>`
-      : '';
+      : html`<div id="show-menu-btn" @click=${this.showLeftMenu}>
+          Loaded data
+        </div>`;
     const rightMenu = this.store?.viewer?.selectedObject
       ? html`<trecim-right-menu .store=${this.store}></trecim-right-menu>`
       : null;
 
+    const layerSwitch =
+      Object.keys(this.store?.entityTypes || {}).length > 0
+        ? html`<sp-switch
+            id="graph-switch"
+            label="Graph"
+            ${this.store.viewer.viewStore.showGraphView ? html`checked` : false}
+            @click=${this.toggleGraphSwitch}
+          >
+            Graph/Map
+          </sp-switch>`
+        : null;
+
     return html` <sp-theme theme="classic" color="lightest" scale="medium">
-      ${header} ${leftMenu}
+      ${header} ${leftMenu} ${layerSwitch}
       <div style="overflow:hidden" id="viewport"></div>
       ${rightMenu}
     </sp-theme>`;

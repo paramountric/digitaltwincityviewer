@@ -5,12 +5,15 @@ import { customElement, property } from 'lit/decorators.js';
 import { Viewer } from '@dtcv/viewer';
 import '@spectrum-web-components/accordion/sp-accordion.js';
 import '@spectrum-web-components/accordion/sp-accordion-item.js';
+import '@spectrum-web-components/sidenav/sp-sidenav.js';
+import '@spectrum-web-components/sidenav/sp-sidenav-heading.js';
+import '@spectrum-web-components/sidenav/sp-sidenav-item.js';
 import '@spectrum-web-components/top-nav/sp-top-nav.js';
 import { Store } from '../store/Store';
 
 const displayProperties = [
   {
-    properties: ['id', 'version', 'lod', 'type', 'function'],
+    properties: ['id', 'version', 'lod', 'type', 'function', 'context'],
   },
 ];
 
@@ -23,6 +26,7 @@ const propertyLabels = {
   lod: 'Level of Detail',
   function: 'Function',
   version: 'Version',
+  context: 'Context',
 };
 
 // these are the units, but could be done with enum instead
@@ -46,7 +50,7 @@ class RightMenu extends MobxLitElement {
       z-index: 3;
       position: absolute;
       background: #fff;
-      opacity: 1;
+      opacity: 0.9;
       top: 60px;
       right: 0;
       padding-right: 5px;
@@ -81,10 +85,9 @@ class RightMenu extends MobxLitElement {
 
   formatValue(object, property) {
     let val = object.properties[property];
-    // special cases
-    // if this property is undefined its must be a building
-    if (property === 'heatedFloorAreaCount' && val === undefined) {
-      val = 1;
+    // exchange to type if mapped
+    if (this.store.elementToTypeMapping[val]) {
+      val = this.store.elementToTypeMapping[val];
     }
     if (val && (rounding[property] || rounding[property] === 0)) {
       val = val.toFixed(rounding[property]);
@@ -110,22 +113,31 @@ class RightMenu extends MobxLitElement {
       return memo;
     }, []);
     return html`<div>
-    <sp-top-nav>
-      <sp-top-nav-item placement="bottom-end">Selected Object</sp-top-nav-item>
-      <sp-top-nav-item placement="bottom-end" @click=${
-        this.handleCloseMenu
-      }>x</sp-top-nav-item>
-    </sp-top-nav>
-    <sp-accordion>
-    <sp-accordion-item open label="Properties">
-          ${properties.map(item => {
+      <sp-top-nav>
+        <sp-top-nav-item placement="bottom-end"
+          >Selected Object</sp-top-nav-item
+        >
+        <sp-top-nav-item placement="bottom-end" @click=${this.handleCloseMenu}
+          >x</sp-top-nav-item
+        >
+      </sp-top-nav>
+      <sp-side-nav variant="multilevel">
+        <sp-sidenav-heading label="Properties"
+          >${properties.map(item => {
             const val = this.formatValue(selectedObject, item.property);
-            return html`<div key=${item.property}>
+            return html`<sp-sidenav-item
+              @click=${() =>
+                this.store.showPropertyType(
+                  item.property,
+                  selectedObject.properties.type
+                )}
+            >
               <span>${item.label}:</span>
               <span>${val || '-'} ${units[item.property] || ''}</span>
-            </div>`;
+            </sp-sidenav-item>`;
           })}
-    </sp-accordion>
+        </sp-sidenav-heading>
+      </sp-side-nav>
     </div>`;
   }
 }
