@@ -46,11 +46,12 @@ const internalProps = {
   container: null,
   glOptions: {
     antialias: true,
-    depth: false,
+    depth: true,
   },
   layers: [],
   onWebGLInitialized: (): void => null,
   onViewStateChange: ({ viewState }) => viewState,
+  layerFilter: ({ viewport, layer }) => true,
 };
 
 // There is a performance problem for extruded polygons that does not appear in the maplibre rendering settings
@@ -58,13 +59,15 @@ const internalProps = {
 // This is NOT ideal since the bundle size increase dramatically
 // todo: remove maplibre
 // ! note: the fast iterations have created three tracks on how the viewState works, however the code is kept in the repo for all of them -> if below is true, part of the other code is not used...
-const useMaplibre = true;
+const useMaplibre = false;
 
 type ViewerProps = {
   longitude?: number;
   latitude?: number;
   zoom?: number;
   container?: HTMLElement | string;
+  bearing?: number;
+  pitch?: number;
 };
 class Viewer {
   gl: WebGL2RenderingContext;
@@ -72,7 +75,10 @@ class Viewer {
   viewStore: ViewStore;
   layerStore: LayerStore;
   maplibreMap?: Map;
-  selectedObject: Feature | null;
+  selectedObject: Feature | null = null;
+  selectedGraphObject: Feature | null = null;
+  hoveredObject: Feature | null = null;
+  hoveredGraphObject: Feature | null = null;
   currentCity: City;
   constructor(props: ViewerProps) {
     this.viewStore = new ViewStore(this);
@@ -85,12 +91,11 @@ class Viewer {
     } else {
       resolvedProps.onWebGLInitialized = this.onWebGLInitialized.bind(this);
       resolvedProps.onViewStateChange = this.onViewStateChange.bind(this);
+      resolvedProps.layerFilter = this.layerFilter.bind(this);
       resolvedProps.viewState = this.viewStore.getViewState();
       this.deck = new Deck(resolvedProps);
     }
     this.viewStore.setViewState(props);
-
-    this.setSelectedObject(null);
 
     makeObservable(this, {
       selectedObject: observable,
@@ -135,10 +140,25 @@ class Viewer {
     this.layerStore.renderLayers();
   }
 
-  onViewStateChange({ viewState }) {
-    this.viewStore.setViewState(viewState);
-    this.render();
+  onViewStateChange({ viewId, viewState }) {
+    if (viewId === 'graphview') {
+      this.viewStore.setGraphState(viewState);
+    } else {
+      this.viewStore.setViewState(viewState);
+    }
+    this.deck.setProps({
+      views: this.viewStore.getViews(),
+    });
   }
+
+  layerFilter = ({ layer, viewport }) => {
+    if (viewport.id === 'mapview' && layer.id !== 'graph-layer') {
+      return true;
+    } else if (viewport.id === 'graphview' && layer.id === 'graph-layer') {
+      return true;
+    }
+    return false;
+  };
 
   getProps() {
     if (useMaplibre) {
@@ -148,7 +168,7 @@ class Viewer {
     }
     return {
       layers: this.layerStore.getLayersInstances(),
-      views: this.viewStore.getView(),
+      views: this.viewStore.getViews(),
     };
   }
 
@@ -156,16 +176,37 @@ class Viewer {
     this.selectedObject = object;
   }
 
+  setSelectedGraphObject(object) {
+    this.selectedGraphObject = object;
+  }
+
+  setHoveredObject(object) {
+    this.hoveredObject = object;
+  }
+
+  setHoveredGraphObject(object) {
+    this.hoveredGraphObject = object;
+    this.deck.setProps({
+      views: this.viewStore.getViews(),
+    });
+  }
+
   setLayerProps(layerId: string, props) {
     this.layerStore.setLayerProps(layerId, props);
   }
 
+  getLayerData(layerId: string) {
+    this.layerStore.getLayerData(layerId);
+  }
+
+  // note: confusing, but due to artifacts when center on real webmercator, the center here is the offset relative to the city center
+  // (it means that the viewer camera is 0,0 at city center at start which is a epsg3857 coordinate from getCity function, and here moved to the area of interest with an offset)
   setCenter(webmercatorCenter) {
+    const lngLatCenter = toLngLat(webmercatorCenter[0], webmercatorCenter[1]);
     if (useMaplibre) {
-      const lngLatCenter = toLngLat(webmercatorCenter[0], webmercatorCenter[1]);
       this.maplibreMap.setCenter(lngLatCenter);
     } else {
-      this.viewStore.setCenter(webmercatorCenter);
+      this.viewStore.setCenter(lngLatCenter);
     }
   }
 
@@ -175,6 +216,10 @@ class Viewer {
 
   setLayerStyle(layerId: string, style) {
     this.layerStore.setLayerStyle(layerId, style);
+  }
+
+  setActiveView(viewId: 'graph' | 'map') {
+    this.viewStore.setActiveView(viewId);
   }
 
   public updateLayer(updateData: UpdateLayerProps) {
@@ -192,6 +237,10 @@ class Viewer {
     if (updateData.style) {
       this.setLayerStyle(layerId, updateData.style);
     }
+    if (layerId === 'graph-layer') {
+      this.viewStore.setShowGraphView(true);
+      this.viewStore.setActiveView('graph');
+    }
   }
 
   unload() {
@@ -199,6 +248,9 @@ class Viewer {
   }
 
   render() {
+    if (!this.deck) {
+      return;
+    }
     const props = this.getProps();
     this.deck.setProps(props);
   }

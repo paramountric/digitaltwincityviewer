@@ -10,6 +10,7 @@ import { Viewer } from '../Viewer';
 import { getCity } from '../utils/getCity';
 import GroundSurfaceLayer from '../layers/ground-surface-layer/GroundSurfaceLayer';
 import BuildingSurfaceLayer from '../layers/building-surface-layer/BuildingSurfaceLayer';
+import GraphLayer from '../layers/graph-layer/GraphLayer';
 import { mat4 } from 'gl-matrix';
 import { generateColor } from '../utils/colors';
 
@@ -141,6 +142,36 @@ const layerGroupCatalog: LayerGroupState[] = [
             depthTest: true,
           },
           getColor: d => [235, 235, 255],
+        },
+      },
+    ],
+  },
+  {
+    title: 'City furniture simple representation',
+    description: 'Simple geometry objects for City furniture extension',
+    layers: [
+      {
+        type: GeoJsonLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: true,
+        isMeshLayer: false,
+        props: {
+          id: 'city-furniture-general-layer-lod-1',
+          autoHighlight: true,
+          pickable: true,
+          stroked: true,
+          filled: true,
+          extruded: false,
+          pointType: 'circle',
+          lineWidthScale: 1,
+          lineWidthMinPixels: 2,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getFillColor: d => [100, 100, 100, 100],
+          getLineColor: [100, 100, 100, 255],
+          getPointRadius: 10,
+          getLineWidth: 1,
         },
       },
     ],
@@ -391,31 +422,21 @@ const layerGroupCatalog: LayerGroupState[] = [
     ],
   },
   {
-    title: 'City furniture simple representation',
-    description: 'Simple geometry objects for City furniture extension',
+    title: 'Graph layer',
+    description:
+      'This layer shows a graph visualisation on top of the city model',
     layers: [
       {
-        type: GeoJsonLayer,
+        type: GraphLayer,
         url: null,
-        isLoaded: false,
+        isLoaded: true, // the data is currently sent in directly from the app
         isLoading: false,
         isClickable: true,
         isMeshLayer: false,
         props: {
-          id: 'city-furniture-general-layer-lod-1',
-          autoHighlight: true,
+          id: 'graph-layer',
           pickable: true,
-          stroked: true,
-          filled: true,
-          extruded: false,
-          pointType: 'circle',
-          lineWidthScale: 1,
-          lineWidthMinPixels: 2,
-          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-          getFillColor: d => [100, 100, 100, 100],
-          getLineColor: [100, 100, 100, 255],
-          getPointRadius: 10,
-          getLineWidth: 1,
+          autoHighlight: true,
         },
       },
     ],
@@ -425,8 +446,8 @@ const layerGroupCatalog: LayerGroupState[] = [
 export class LayerStore {
   layerGroups: LayerGroupState[];
   viewer: Viewer;
+  // cached layer offset from 0,0 relative to ref city webmerc x,y
   layerOffset: [number, number];
-  layerCenter: [number, number];
   constructor(viewer) {
     this.viewer = viewer;
     this.layerGroups = layerGroupCatalog;
@@ -454,14 +475,13 @@ export class LayerStore {
       } else if (!layer.isLoaded) {
         this.loadLayer(layer);
         return acc;
-      } else if (!layer.props.data?.length) {
+      } else if (!layer.props.data?.length && !layer.props.nodes) {
         return acc;
       }
       // not happy with re-assigning the event callback every time..
       if (layer.isClickable) {
         layer.props.onClick = d => {
           if (d.object) {
-            console.log(d.object);
             this.viewer.setSelectedObject(d.object);
             return;
           }
@@ -471,6 +491,29 @@ export class LayerStore {
             return;
           }
           this.viewer.setSelectedObject(object);
+        };
+      }
+      if (layer.isHoverable) {
+        layer.props.onHover = d => {
+          if (d.object) {
+            this.viewer.setHoveredObject(d.object);
+          } else {
+            this.viewer.setHoveredObject(null);
+          }
+        };
+      }
+      if (layer.props.id === 'graph-layer') {
+        layer.props.onHover = d => {
+          if (d.object) {
+            this.viewer.setHoveredGraphObject(d.object);
+          } else {
+            this.viewer.setHoveredGraphObject(null);
+          }
+        };
+      }
+      if (layer.type === GraphLayer) {
+        layer.props.onTick = tick => {
+          console.log(tick);
         };
       }
       return [...acc, new layer.type(layer.props)];
@@ -493,6 +536,7 @@ export class LayerStore {
     this.viewer.render();
   }
   setLayerProps(layerId, props: LayerProps) {
+    // (epsg:3857)
     if (props.center) {
       // todo: figure out a way to set the current city and center the data that is loaded
       if (!this.viewer.currentCity) {
@@ -505,13 +549,18 @@ export class LayerStore {
       ];
       const viewerCenter = [layerOffset[0] * -1, layerOffset[1] * -1];
       this.viewer.setCenter(viewerCenter);
+      this.layerOffset = viewerCenter as [number, number];
       // here the mutation is troublesome, so better refactor this function to make props immutable
       props = Object.assign({}, props);
-      props.modelMatrix = props.modelMatrix.slice();
-      props.modelMatrix[12] -= layerOffset[0]; // + props.width / 2;
-      props.modelMatrix[13] -= layerOffset[1]; // + props.height / 2;
+      props.modelMatrix = (props.modelMatrix || mat4.create()).slice();
+      props.modelMatrix[12] -= layerOffset[0];
+      props.modelMatrix[13] -= layerOffset[1];
+    } else if (this.layerOffset) {
+      props.modelMatrix = mat4.create();
+      props.modelMatrix[12] = this.layerOffset[0];
+      props.modelMatrix[13] = this.layerOffset[1];
     } else {
-      console.warn('layer has no center: ', props);
+      console.warn('layer has no center, and city is not set: ', props);
     }
 
     // todo: look into immutability
@@ -532,6 +581,9 @@ export class LayerStore {
       props.data = [props.data];
     }
     layer.props = Object.assign(layer.props, props);
+  }
+  getLayerData(layerId) {
+    return this.getLayerById(layerId)?.props.data;
   }
   renderLayers() {
     this.viewer.render();

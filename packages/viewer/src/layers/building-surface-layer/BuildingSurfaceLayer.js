@@ -223,7 +223,6 @@ export default class BuildingSurfaceLayer extends Layer {
   calculatePickingColors(attribute) {
     const { data } = this.props;
     attribute.value = new Uint8Array(data[0].customPickingColors);
-    console.log(data, attribute);
   }
 }
 
