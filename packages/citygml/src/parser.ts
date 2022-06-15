@@ -80,6 +80,7 @@ function parseCityGml(
   // todo: this have to be properly used from CityJson, right now trying to figure out how to add ADE data to the CityObject
   type CityObject = {
     id?: string;
+    namespace: string;
     type: string;
     version?: string;
     function?: string;
@@ -109,6 +110,7 @@ function parseCityGml(
         const id = node.attributes['gml:id']?.value || createId();
 
         const cityObject: CityObject = {
+          namespace: 'transportation',
           type: 'TrafficArea',
           geometry: [],
         };
@@ -127,7 +129,8 @@ function parseCityGml(
       opentag: node => {
         const id = node.attributes['gml:id']?.value || createId();
 
-        const cityObject = {
+        const cityObject: CityObject = {
+          namespace: 'transportation',
           type: 'AuxiliaryTrafficArea',
           geometry: [],
         };
@@ -147,7 +150,8 @@ function parseCityGml(
       opentag: node => {
         const id = node.attributes['gml:id']?.value || createId();
 
-        const cityObject = {
+        const cityObject: CityObject = {
+          namespace: 'transportation',
           type: 'TransportationComplex',
           geometry: [],
         };
@@ -209,7 +213,8 @@ function parseCityGml(
       opentag: node => {
         const id = node.attributes['gml:id']?.value || createId();
 
-        const cityObject = {
+        const cityObject: CityObject = {
+          namespace: 'trecim',
           type: 'Facility',
           geometry: [],
         };
@@ -237,7 +242,8 @@ function parseCityGml(
       opentag: node => {
         const id = node.attributes['gml:id']?.value || createId();
 
-        const cityObject = {
+        const cityObject: CityObject = {
+          namespace: 'luse',
           type: 'LandUse',
           geometry: [],
         };
@@ -256,7 +262,8 @@ function parseCityGml(
       opentag: node => {
         const id = node.attributes['gml:id']?.value || createId();
 
-        const cityObject = {
+        const cityObject: CityObject = {
+          namespace: 'frn',
           type: 'CityFurniture',
           geometry: [],
         };
@@ -298,7 +305,8 @@ function parseCityGml(
       opentag: node => {
         const id = node.attributes['gml:id']?.value || createId();
 
-        const cityObject = {
+        const cityObject: CityObject = {
+          namespace: 'bldg',
           type: 'Building',
           geometry: [],
         };

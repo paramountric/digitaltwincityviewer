@@ -67,6 +67,8 @@ export function parseXsd(xsd: string) {
             } else if (key === 'xmlns') {
               // in this context the xmlns is root, later the caller of this context will determine the prefix
               acc[key] = node.attributes[key];
+            } else if (key === 'targetNamespace') {
+              acc[key] = node.attributes[key];
             }
             return acc;
           }, {});
@@ -80,6 +82,8 @@ export function parseXsd(xsd: string) {
               acc[splits[1]] = node.attributes[key];
             } else if (key === 'xmlns') {
               // in this context the xmlns is root, later the caller of this context will determine the prefix
+              acc[key] = node.attributes[key];
+            } else if (key === 'targetNamespace') {
               acc[key] = node.attributes[key];
             }
             return acc;
