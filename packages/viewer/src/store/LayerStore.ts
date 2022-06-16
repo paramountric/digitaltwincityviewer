@@ -583,7 +583,19 @@ export class LayerStore {
     layer.props = Object.assign(layer.props, props);
   }
   getLayerData(layerId) {
-    return this.getLayerById(layerId)?.props.data;
+    const layer = this.getLayerById(layerId);
+    if (!layer) {
+      return null;
+    }
+    const { data } = layer.props;
+    if (!data) {
+      return null;
+    }
+    if (layer.isMeshLayer) {
+      return data[0]?.objects;
+    } else {
+      return data;
+    }
   }
   renderLayers() {
     this.viewer.render();

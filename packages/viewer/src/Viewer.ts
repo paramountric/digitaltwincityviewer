@@ -196,7 +196,7 @@ class Viewer {
   }
 
   getLayerData(layerId: string) {
-    this.layerStore.getLayerData(layerId);
+    return this.layerStore.getLayerData(layerId);
   }
 
   // note: confusing, but due to artifacts when center on real webmercator, the center here is the offset relative to the city center
