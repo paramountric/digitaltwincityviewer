@@ -107,6 +107,9 @@ export class Store {
     types: {
       [typeKey: string]: boolean;
     };
+    contexts: {
+      [contextKey: string]: boolean;
+    };
   };
   // the instances will have an element name (tag name) and this is not the same as type
   // so this mapping needs to take instances and find the relevant types (data does not contain the types, only the schema)
@@ -123,6 +126,7 @@ export class Store {
     this.entityTypeFilter = {
       instances: {},
       types: {},
+      contexts: {},
     };
     this.elementToTypeMapping = {};
     makeObservable(this, {
@@ -166,22 +170,59 @@ export class Store {
       },
       []
     );
+    const filteredContexts = Object.keys(this.contexts).reduce(
+      (acc, contextKey) => {
+        const namespaceEntities = Object.keys(this.contexts[contextKey])
+          .filter(namespaceKey => {
+            if (
+              this.entityTypeFilter.contexts[`${contextKey}:${namespaceKey}`]
+            ) {
+              return true;
+            }
+            return false;
+          })
+          .map(namespaceKey => {
+            return {
+              id: `${contextKey}:${namespaceKey}`,
+              type: 'Context',
+              properties: {
+                iri: this.contexts[contextKey][namespaceKey],
+                namespace: namespaceKey,
+              },
+              relationships: {},
+            };
+          });
+        acc.push(...namespaceEntities);
+        return acc;
+      },
+      []
+    );
+    console.log(filteredContexts);
+    console.log(this);
     // this is just prototype code!
     const nodes = [];
     const edges = [];
     const nodeMap = {};
-    for (const entityType of [...filteredEntityTypes, ...filteredEntities]) {
-      nodes.push({
-        id: entityType.id,
-        name: `${entityType.type}: ${entityType.id}`,
-      });
+    for (const entityType of [
+      ...filteredEntityTypes,
+      ...filteredEntities,
+      ...filteredContexts,
+    ]) {
+      if (!nodeMap[entityType.id]) {
+        nodes.push({
+          id: entityType.id,
+          name: `${entityType.type}: ${entityType.id}`,
+        });
+      }
       nodeMap[entityType.id] = true;
+
       edges.push({
         id: entityType.id, //+ 'hasType' + entityType.type,
         name: 'hasType',
         source: entityType.id,
         target: entityType.type,
       });
+
       for (const propertyKey of Object.keys(entityType.properties || {})) {
         const nodeId = `${propertyKey}${entityType.type}`;
         const val = entityType.properties[propertyKey] as {
@@ -190,11 +231,14 @@ export class Store {
         };
         const displayVal = val.type || val;
         console.log(displayVal);
-        nodes.push({
-          id: nodeId,
-          name: `${propertyKey}: ${displayVal}`,
-        });
+        if (!nodeMap[nodeId]) {
+          nodes.push({
+            id: nodeId,
+            name: `${propertyKey}: ${displayVal}`,
+          });
+        }
         nodeMap[nodeId] = true;
+
         edges.push({
           id: entityType.id + 'hasProperty' + nodeId,
           name: 'hasProperty',
@@ -211,6 +255,14 @@ export class Store {
       for (const relationshipKey of Object.keys(
         entityType.relationships || {}
       )) {
+        if (
+          relationshipKey === 'hasContext' &&
+          !this.entityTypeFilter.contexts[
+            entityType.relationships[relationshipKey]
+          ]
+        ) {
+          continue;
+        }
         edges.push({
           id:
             entityType.id +
@@ -274,6 +326,60 @@ export class Store {
     );
     this.addToContext(building, 'building');
 
+    // this.setIsLoading(true, 'Loading appearance schema');
+    // const appearance = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/appearance.xsd'
+    // );
+    // this.addToContext(appearance, 'appearance');
+
+    this.setIsLoading(true, 'Loading bridge schema');
+    const bridge = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/bridge.xsd'
+    );
+    this.addToContext(bridge, 'bridge');
+
+    this.setIsLoading(true, 'Loading cityFurniture schema');
+    const cityFurniture = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/cityFurniture.xsd'
+    );
+    this.addToContext(cityFurniture, 'cityFurniture');
+
+    this.setIsLoading(true, 'Loading landUse schema');
+    const landUse = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/landUse.xsd'
+    );
+    this.addToContext(landUse, 'landUse');
+
+    this.setIsLoading(true, 'Loading transportation schema');
+    const transportation = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/transportation.xsd'
+    );
+    this.addToContext(transportation, 'transportation');
+
+    this.setIsLoading(true, 'Loading tunnel schema');
+    const tunnel = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/tunnel.xsd'
+    );
+    this.addToContext(tunnel, 'tunnel');
+
+    this.setIsLoading(true, 'Loading vegetation schema');
+    const vegetation = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/vegetation.xsd'
+    );
+    this.addToContext(vegetation, 'vegetation');
+
+    this.setIsLoading(true, 'Loading waterBody schema');
+    const waterBody = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/waterBody.xsd'
+    );
+    this.addToContext(waterBody, 'waterBody');
+
+    // this.setIsLoading(true, 'Loading xAL schema');
+    // const xAL = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/xAL.xsd'
+    // );
+    // this.addToContext(xAL, 'xAL');
+
     this.setIsLoading(true, 'Loading city model');
     await this.loadCityModel(
       'http://localhost:9000/files/citygml/3CIM/testdata_3CIM_ver1_malmo_20220205_XSD.gml'
@@ -310,7 +416,12 @@ export class Store {
       },
     };
     parseCityGml(await response.text(), options, cityGmlResult => {
-      console.log(cityGmlResult);
+      for (const cityObject of Object.values(cityGmlResult.CityObjects)) {
+        // @ts-ignore
+        cityObject.type =
+          // @ts-ignore
+          this.elementToTypeMapping[cityObject.type] || cityObject.type;
+      }
       cityGmlResult.vertices = projectVertices(
         cityGmlResult.vertices,
         'EPSG:3008'
@@ -452,21 +563,29 @@ export class Store {
     this.showLeftMenu = show;
   }
 
+  // todo: change these show functions, they are specifically for the graph
   public showEntityInstance(instanceId: string, show: boolean) {
     this.entityTypeFilter.instances[instanceId] = show;
     this.updateEntityGraph();
-    console.log(this);
   }
 
   public showEntityType(typeKey: string, show: boolean) {
     this.entityTypeFilter.types[typeKey] = show;
     this.updateEntityGraph();
-    console.log(this);
+  }
+
+  public showContextType(contextKey: string, namespace: string, show: boolean) {
+    this.entityTypeFilter.contexts[`${contextKey}:${namespace}`] = show;
+    this.updateEntityGraph();
   }
 
   public showPropertyType(propertyKey: string, type: string) {
     const entityType = this.entityTypes[type];
-    console.log(entityType);
+    this.showEntityType(
+      entityType.type,
+      !Boolean(this.entityTypeFilter.types[entityType.id])
+    );
+    this.updateEntityGraph();
   }
 
   public reset() {
@@ -502,7 +621,6 @@ export class Store {
       parsedSchema.context.xmlns || parsedSchema.context.targetNamespace;
     Object.assign(context, parsedSchema.context);
     this.contexts[namespace] = context;
-    console.log(parsedSchema);
     const prefix = namespace !== DEFAULT_CONTEXT ? `${namespace}:` : '';
     const schemas: ParsedSchema[] = Object.values(parsedSchema.schemas);
     for (const schema of schemas) {
@@ -578,7 +696,6 @@ export class Store {
         this.entityTypes[`${prefix}${schema.name}`] = simpleType;
       }
     }
-    console.log(this);
   }
 
   getLayerData(layerId) {
