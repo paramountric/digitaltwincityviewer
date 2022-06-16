@@ -32,7 +32,7 @@ export function facilityLod1Data(
   };
 
   const cityObjects = Object.values(cityJson.CityObjects).filter(
-    obj => obj.type === 'Facility'
+    obj => obj.type === 'FacilityFeature'
   );
   for (const cityObject of cityObjects) {
     const color = getColor(cityObject);

@@ -61,8 +61,10 @@ export function furnitureLod1Data(
             id: cityObject.id,
             type: cityObject.type,
             context: cityObject.namespace,
+            version: cityObject.version,
             color,
             function: cityObject.function,
+            lod: geometry.lod,
           },
         });
       } else {
@@ -78,8 +80,10 @@ export function furnitureLod1Data(
             id: cityObject.id,
             type: cityObject.type,
             context: cityObject.namespace,
+            version: cityObject.version,
             color,
             function: cityObject.function,
+            lod: geometry.lod,
           },
         });
       }

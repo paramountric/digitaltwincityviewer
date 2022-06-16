@@ -26,11 +26,16 @@ export type Schema = {
   };
 };
 
+// a major hack, since convension to add Type in the end of a type does not play well with linked data
+function typeHack(str: string) {
+  return str.slice(-4) === 'Type' ? str.slice(0, -4) : str;
+}
+
 function createNamedNode(node) {
   const { attributes } = node;
   return {
     name: attributes.name,
-    type: attributes.type,
+    type: typeHack(attributes.type),
     substitutionGroup: attributes.substitutionGroup,
     tagName: node.name,
     isAbstract: attributes.abstract === 'true' ? true : false,
@@ -95,7 +100,29 @@ export function parseXsd(xsd: string) {
           if (!currentSchema) {
             currentNode = node;
             currentSchema = {
-              name: node.attributes.name,
+              name: typeHack(node.attributes.name),
+              tagName: node.name,
+              isAbstract: node.attributes.abstract === 'true' ? true : false,
+            };
+          }
+        },
+        closetag: node => {
+          if (currentSchema && node.name === currentSchema.tagName) {
+            result.schemas[currentSchema.name] = currentSchema;
+            currentSchema = null;
+            currentNode = null;
+          }
+        },
+        text: text => {
+          currentSchema.documentation = text;
+        },
+      },
+      'xs:simpleType': {
+        opentag: node => {
+          if (!currentSchema) {
+            currentNode = node;
+            currentSchema = {
+              name: typeHack(node.attributes.name),
               tagName: node.name,
               isAbstract: node.attributes.abstract === 'true' ? true : false,
             };
@@ -144,7 +171,7 @@ export function parseXsd(xsd: string) {
           if (!currentSchema) {
             currentNode = node;
             currentSchema = {
-              name: node.attributes.name,
+              name: typeHack(node.attributes.name),
               tagName: node.name,
               isAbstract: node.attributes.abstract === 'true' ? true : false,
               elements: {},
@@ -168,7 +195,7 @@ export function parseXsd(xsd: string) {
           if (!currentSchema) {
             currentNode = node;
             currentSchema = {
-              name: node.attributes.name,
+              name: typeHack(node.attributes.name),
               tagName: node.name,
               isAbstract: node.attributes.abstract === 'true' ? true : false,
               elements: {},
