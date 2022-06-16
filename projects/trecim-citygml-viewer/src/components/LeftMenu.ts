@@ -112,6 +112,29 @@ class LeftMenu extends MobxLitElement {
           })}</sp-sidenav-heading
         >
       </sp-side-nav>
+      <sp-sidenav-heading label="Contexts"
+          >${Object.keys(this.store.contexts).map(contextKey => {
+            return html`<sp-sidenav-item value=${contextKey} label=${contextKey}
+              >${Object.keys(this.store.contexts[contextKey]).map(
+                namespace => html`<sp-sidenav-item
+                  value=${namespace}
+                  label=${namespace}
+                  @click=${() =>
+                    this.store.showContextType(
+                      contextKey,
+                      namespace,
+                      !Boolean(
+                        this.store.entityTypeFilter.contexts[
+                          `${contextKey}:${namespace}`
+                        ]
+                      )
+                    )}
+                ></sp-sidenav-item>`
+              )}</sp-sidenav-item
+            >`;
+          })}</sp-sidenav-heading
+        >
+      </sp-side-nav>
     </div>`;
   }
 }
