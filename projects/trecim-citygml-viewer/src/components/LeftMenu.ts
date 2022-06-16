@@ -50,7 +50,47 @@ class LeftMenu extends MobxLitElement {
         >
       </sp-top-nav>
       <sp-side-nav variant="multilevel">
-        <sp-sidenav-heading label="City Objects"> </sp-sidenav-heading>
+        <sp-sidenav-heading label="City Objects"
+          >${Object.keys(loadedData).map(groupKey => {
+            const sorted = loadedData[groupKey].sort((a, b) =>
+              a.id.localeCompare(b.id)
+            );
+            return html`<sp-sidenav-item value=${groupKey} label=${groupKey}
+              >${sorted.map(type => {
+                if (!type.children) {
+                  // if not children, this is actually an instance
+                  const name = type.name || `${type.type}:${type.id}`;
+                  return html`<sp-sidenav-item
+                    value=${name}
+                    label=${name}
+                    @click=${() =>
+                      this.store.showEntityInstance(
+                        type.id,
+                        !Boolean(this.store.entityTypeFilter.instances[type.id])
+                      )}
+                  ></sp-sidenav-item>`;
+                }
+                return html`<sp-sidenav-item value=${type.id} label=${type.id}
+                  >${type.children.map(instance => {
+                    const name =
+                      instance.name || `${instance.type}:${instance.id}`;
+                    return html`<sp-sidenav-item
+                      value=${name}
+                      label=${name}
+                      @click=${() =>
+                        this.store.showEntityInstance(
+                          instance.id,
+                          !Boolean(
+                            this.store.entityTypeFilter.instances[instance.id]
+                          )
+                        )}
+                    ></sp-sidenav-item>`;
+                  })}</sp-sidenav-item
+                >`;
+              })}</sp-sidenav-item
+            >`;
+          })}</sp-sidenav-heading
+        >
         <sp-sidenav-heading label="Types"
           >${Object.keys(typesByContext).map(contextKey => {
             const sorted = typesByContext[contextKey].sort((a, b) =>

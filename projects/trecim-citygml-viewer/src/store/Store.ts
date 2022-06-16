@@ -51,6 +51,20 @@ type EntityType = {
   };
 };
 
+// todo: combine this with EntityType
+type TreeItem = {
+  id: string;
+  type: string;
+  name?: string;
+  properties?: {
+    [pKey: string]: string;
+  };
+  relationships?: {
+    [rKey: string]: string; // this must link to other type keys
+  };
+  children?: TreeItem[];
+};
+
 // this is a bit tricky, it's the json version of xsd specifications
 type ParsedSchema = {
   name: string;
@@ -77,7 +91,7 @@ export class Store {
   public isLoading = false;
   public loadingMessage = '';
   public loadingProgress = 0;
-  public showLeftMenu = false;
+  public showLeftMenu = true;
   public viewer: Viewer;
   // this should be loaded into the app dynamically
   public contexts: {
@@ -87,6 +101,9 @@ export class Store {
     [entityKey: string]: EntityType;
   } = {};
   public entityTypeFilter: {
+    instances: {
+      [instanceId: string]: boolean;
+    };
     types: {
       [typeKey: string]: boolean;
     };
@@ -104,6 +121,7 @@ export class Store {
     };
     this.entityTypes = {};
     this.entityTypeFilter = {
+      instances: {},
       types: {},
     };
     this.elementToTypeMapping = {};
@@ -129,14 +147,33 @@ export class Store {
         }
       }
     );
+
+    const loadedData = this.getLoadedData();
+    const filteredEntities = Object.values(loadedData).reduce(
+      (acc, groupArr) => {
+        for (const group of groupArr) {
+          if (this.entityTypeFilter.instances[group.id]) {
+            acc.push(group);
+          }
+          if (group.children) {
+            const filtered = group.children.filter(
+              child => this.entityTypeFilter.instances[child.id]
+            );
+            acc.push(...filtered);
+          }
+        }
+        return acc;
+      },
+      []
+    );
     // this is just prototype code!
     const nodes = [];
     const edges = [];
     const nodeMap = {};
-    for (const entityType of filteredEntityTypes) {
+    for (const entityType of [...filteredEntityTypes, ...filteredEntities]) {
       nodes.push({
         id: entityType.id,
-        name: entityType.id,
+        name: `${entityType.type}: ${entityType.id}`,
       });
       nodeMap[entityType.id] = true;
       edges.push({
@@ -145,18 +182,24 @@ export class Store {
         source: entityType.id,
         target: entityType.type,
       });
-      for (const property of Object.values(entityType.properties)) {
-        const propertyKey = `${property.key}${entityType.type}`;
+      for (const propertyKey of Object.keys(entityType.properties || {})) {
+        const nodeId = `${propertyKey}${entityType.type}`;
+        const val = entityType.properties[propertyKey] as {
+          key: string;
+          type: string;
+        };
+        const displayVal = val.type || val;
+        console.log(displayVal);
         nodes.push({
-          id: propertyKey,
-          name: property.key,
+          id: nodeId,
+          name: `${propertyKey}: ${displayVal}`,
         });
-        nodeMap[propertyKey] = true;
+        nodeMap[nodeId] = true;
         edges.push({
-          id: entityType.id + 'hasProperty' + propertyKey,
+          id: entityType.id + 'hasProperty' + nodeId,
           name: 'hasProperty',
           source: entityType.id,
-          target: propertyKey,
+          target: nodeId,
         });
         // edges.push({
         //   id: propertyKey + 'hasType' + property.type,
@@ -165,7 +208,9 @@ export class Store {
         //   target: property.type,
         // });
       }
-      for (const relationshipKey of Object.keys(entityType.relationships)) {
+      for (const relationshipKey of Object.keys(
+        entityType.relationships || {}
+      )) {
         edges.push({
           id:
             entityType.id +
@@ -407,6 +452,12 @@ export class Store {
     this.showLeftMenu = show;
   }
 
+  public showEntityInstance(instanceId: string, show: boolean) {
+    this.entityTypeFilter.instances[instanceId] = show;
+    this.updateEntityGraph();
+    console.log(this);
+  }
+
   public showEntityType(typeKey: string, show: boolean) {
     this.entityTypeFilter.types[typeKey] = show;
     this.updateEntityGraph();
@@ -534,9 +585,80 @@ export class Store {
     return this.viewer.getLayerData(layerId);
   }
 
-  getLoadedData() {
-    return {
-      BuildingSurfaces: this.getLayerData('buildings-layer-surfaces-lod3'),
-    };
+  // ! messy code ahead. Todo: data objects should be unified regardless of layer, for example use geojson feature/properties
+  // note that here the layerIds are used again, so some kind of help function for layer management should be provided by the viewer
+
+  getLoadedData(): {
+    // ok, refactor this, it became a hacky tree structure
+    [id: string]: TreeItem[];
+  } {
+    const buildingSurfaces = this.getLayerData(
+      'buildings-layer-surfaces-lod-3'
+    );
+    const buildings = buildingSurfaces.reduce((acc, surface) => {
+      acc[surface.cityObjectId] =
+        acc[surface.cityObjectId] ||
+        ({
+          type: 'Building',
+          id: surface.cityObjectId,
+          children: [],
+        } as any);
+      acc[surface.cityObjectId].children.push(surface);
+      return acc;
+    }, {});
+    const trafficAreas = this.getLayerData(
+      'transportation-layer-traffic-area-lod-2'
+    );
+    const auxTrafficAreas = this.getLayerData(
+      'transportation-layer-auxiliary-traffic-area-lod-2'
+    );
+    const transportation = [...trafficAreas, ...auxTrafficAreas].map(obj => ({
+      id: obj.cityObjectId,
+      type: obj.type,
+    }));
+    const trecim = this.getLayerData('citygml-ade-lod-1').reduce((acc, obj) => {
+      acc[obj.properties.type] = acc[obj.properties.type] || [];
+      acc[obj.properties.type].push({
+        id: obj.properties.id,
+        type: obj.properties.type,
+        name: `${obj.properties.function || obj.properties.class}: ${
+          obj.properties.id
+        }`,
+        properties: obj.properties,
+      });
+      return acc;
+    }, {});
+    const landuse = this.getLayerData('landuse-layer-surface-lod-1').map(
+      obj => ({
+        id: obj.properties.id,
+        type: obj.properties.type,
+        name: `${obj.properties.function || obj.properties.class}: ${
+          obj.properties.id
+        }`,
+        properties: obj.properties,
+      })
+    );
+    const cityFurniture = [
+      ...this.getLayerData('city-furniture-general-layer-lod-1'),
+      ...this.getLayerData('city-furniture-polygon-layer-lod-1'),
+    ].map(obj => {
+      return {
+        id: obj.properties.id,
+        type: obj.properties.type,
+        name: `${obj.properties.function || obj.properties.class}: ${
+          obj.properties.id
+        }`,
+        properties: obj.properties,
+      };
+    });
+    return Object.assign(
+      {
+        Buildings: Object.values(buildings),
+        Transportation: transportation,
+        'Land use': landuse,
+        'City furniture': cityFurniture,
+      },
+      trecim
+    );
   }
 }
