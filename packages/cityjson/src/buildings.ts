@@ -73,6 +73,8 @@ export function buildingsLayerSurfacesLod3Data(
           currentSurfaceType = semantics.type;
         } else if (currentSurfaceType !== semantics.type) {
           layerProps.data.objects.push({
+            cityObjectId: cityObject.id as string,
+            id: geometry.id,
             type: semantics.type,
             properties: semantics,
           });

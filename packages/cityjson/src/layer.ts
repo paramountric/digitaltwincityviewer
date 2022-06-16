@@ -19,6 +19,8 @@ proj4.defs(
 // In some files a subdivision of CityObject is wanted in the viewer -> is this a badly designed CityGML file?
 // = are CityObject the least pickable object in the viewer? For example a bldg:Building are boundedBy surfaces -> the surfaces should be pickable?
 type SemanticObject = {
+  cityObjectId?: string;
+  id: string;
   type: string;
   properties: any;
 };

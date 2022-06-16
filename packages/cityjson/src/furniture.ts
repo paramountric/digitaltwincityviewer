@@ -58,6 +58,9 @@ export function furnitureLod1Data(
             coordinates: lineString,
           },
           properties: {
+            id: cityObject.id,
+            type: cityObject.type,
+            context: cityObject.namespace,
             color,
             function: cityObject.function,
           },
@@ -72,6 +75,8 @@ export function furnitureLod1Data(
             coordinates: polygon[0],
           },
           properties: {
+            id: cityObject.id,
+            type: cityObject.type,
             context: cityObject.namespace,
             color,
             function: cityObject.function,

@@ -31,6 +31,7 @@ export function transportationLayerTrafficAreaLod2Data(
       vertices: [],
       indices: [],
       colors: [],
+      objects: [],
     },
     modelMatrix,
     center,
@@ -45,6 +46,10 @@ export function transportationLayerTrafficAreaLod2Data(
   );
   for (const cityObject of cityObjects) {
     const color = getColor(cityObject);
+    layerProps.data.objects.push({
+      cityObjectId: cityObject.id as string,
+      type: cityObject.type,
+    });
     const geometries = (cityObject.geometry as any) || [];
     for (const geometry of geometries) {
       for (const boundary of geometry.boundaries) {
@@ -91,6 +96,7 @@ export function transportationLayerAuxiliaryTrafficAreaLod2Data(
       vertices: [],
       indices: [],
       colors: [],
+      objects: [],
     },
     modelMatrix,
     center,
@@ -105,6 +111,10 @@ export function transportationLayerAuxiliaryTrafficAreaLod2Data(
   );
   for (const cityObject of cityObjects) {
     const color = getColor(cityObject);
+    layerProps.data.objects.push({
+      cityObjectId: cityObject.id as string,
+      type: cityObject.type,
+    });
     const geometries = (cityObject.geometry as any) || [];
     for (const geometry of geometries) {
       for (const boundary of geometry.boundaries) {

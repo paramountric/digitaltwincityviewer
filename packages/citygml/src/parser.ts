@@ -110,6 +110,7 @@ function parseCityGml(
         const id = node.attributes['gml:id']?.value || createId();
 
         const cityObject: CityObject = {
+          id,
           namespace: 'transportation',
           type: 'TrafficArea',
           geometry: [],
@@ -130,6 +131,7 @@ function parseCityGml(
         const id = node.attributes['gml:id']?.value || createId();
 
         const cityObject: CityObject = {
+          id,
           namespace: 'transportation',
           type: 'AuxiliaryTrafficArea',
           geometry: [],
@@ -151,6 +153,7 @@ function parseCityGml(
         const id = node.attributes['gml:id']?.value || createId();
 
         const cityObject: CityObject = {
+          id,
           namespace: 'transportation',
           type: 'TransportationComplex',
           geometry: [],
@@ -214,6 +217,7 @@ function parseCityGml(
         const id = node.attributes['gml:id']?.value || createId();
 
         const cityObject: CityObject = {
+          id,
           namespace: 'trecim',
           type: 'Facility',
           geometry: [],
@@ -243,6 +247,7 @@ function parseCityGml(
         const id = node.attributes['gml:id']?.value || createId();
 
         const cityObject: CityObject = {
+          id,
           namespace: 'luse',
           type: 'LandUse',
           geometry: [],
@@ -263,6 +268,7 @@ function parseCityGml(
         const id = node.attributes['gml:id']?.value || createId();
 
         const cityObject: CityObject = {
+          id,
           namespace: 'frn',
           type: 'CityFurniture',
           geometry: [],
@@ -306,6 +312,7 @@ function parseCityGml(
         const id = node.attributes['gml:id']?.value || createId();
 
         const cityObject: CityObject = {
+          id,
           namespace: 'bldg',
           type: 'Building',
           geometry: [],

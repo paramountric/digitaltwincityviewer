@@ -42,6 +42,7 @@ export function landuseSurfaceLod1Data(
       vertices: [],
       indices: [],
       colors: [],
+      objects: [],
     },
     modelMatrix,
     center,
@@ -56,6 +57,18 @@ export function landuseSurfaceLod1Data(
   );
   for (const cityObject of cityObjects) {
     const color = getColor(cityObject);
+    layerProps.data.objects.push({
+      id: cityObject.id,
+      type: cityObject.type,
+      properties: {
+        id: cityObject.id,
+        type: cityObject.type,
+        class: cityObject.class,
+        function: cityObject.function,
+        context: cityObject.namespace,
+        version: cityObject.version,
+      },
+    });
     const geometries = (cityObject.geometry as any) || [];
     for (const geometry of geometries) {
       for (const boundary of geometry.boundaries) {
