@@ -7,6 +7,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "dev": "NODE_ENV=development webpack serve --config webpack.dev.config.js",
+    "local": "NODE_ENV=localhost webpack serve --config webpack.local.config.js",
     "build": "NODE_ENV=production npm run clean && webpack --config webpack.prod.config.js",
     "lint": "eslint --ext .ts,.js src"
   },

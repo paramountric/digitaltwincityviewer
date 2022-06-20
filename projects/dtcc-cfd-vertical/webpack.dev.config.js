@@ -4,7 +4,6 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const publicPath = 'https://pmtric-local.com/dtcv/';
-//const publicPath = 'http://localhost:3000';
 
 module.exports = {
   mode: 'development',
