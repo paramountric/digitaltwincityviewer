@@ -59,7 +59,7 @@ const internalProps = {
 // This is NOT ideal since the bundle size increase dramatically
 // todo: remove maplibre
 // ! note: the fast iterations have created three tracks on how the viewState works, however the code is kept in the repo for all of them -> if below is true, part of the other code is not used...
-const useMaplibre = false;
+const useMaplibre = true;
 
 type ViewerProps = {
   longitude?: number;
@@ -241,6 +241,7 @@ class Viewer {
       this.viewStore.setShowGraphView(true);
       this.viewStore.setActiveView('graph');
     }
+    this.render();
   }
 
   unload() {
