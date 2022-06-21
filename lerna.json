@@ -1,5 +1,5 @@
 {
-  "packages": ["packages/*", "projects/*"],
+  "packages": ["packages/*", "projects/*", "services/*"],
   "npmClient": "npm",
   "command": {
     "publish": {
