@@ -4,6 +4,7 @@
 import { LayerProps, COORDINATE_SYSTEM } from '@deck.gl/core';
 import { SolidPolygonLayer, GeoJsonLayer } from '@deck.gl/layers';
 import { SimpleMeshLayer } from '@deck.gl/mesh-layers';
+import { TripsLayer } from '@deck.gl/geo-layers';
 import GL from '@luma.gl/constants';
 import { Geometry } from '@luma.gl/engine';
 import { Viewer } from '../Viewer';
@@ -113,7 +114,33 @@ const layerGroupCatalog: LayerGroupState[] = [
             depthTest: true,
           },
           getColor: d => [200, 200, 200],
-          waterLevel: 0,
+        },
+      },
+    ],
+  },
+  {
+    title: 'Ground',
+    description: 'Ground result layer',
+    layers: [
+      {
+        type: GroundSurfaceLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: false,
+        isMeshLayer: true,
+        props: {
+          id: 'ground-layer-result-mesh',
+          data: [1],
+          _instanced: false,
+          _useMeshColors: true,
+          wireframe: false,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getPosition: d => [0, 0, 0],
+          parameters: {
+            depthTest: true,
+          },
+          getColor: d => [200, 200, 200],
         },
       },
     ],
@@ -422,6 +449,32 @@ const layerGroupCatalog: LayerGroupState[] = [
     ],
   },
   {
+    title: 'Movement layer',
+    description: 'This layer shows movement trails',
+    layers: [
+      {
+        type: TripsLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isMeshLayer: false,
+        isClickable: false,
+        props: {
+          id: 'movement-layer',
+          getPath: d => d.geometry.coordinates.map(p => [p[0], p[1]]),
+          getTimestamps: d => d.geometry.coordinates.map(p => p[3]),
+          getColor: [253, 128, 93],
+          opacity: 0.8,
+          widthMinPixels: 5,
+          rounded: true,
+          fadeTrail: true,
+          trailLength: 984,
+          currentTime: 100,
+        },
+      },
+    ],
+  },
+  {
     title: 'Graph layer',
     description:
       'This layer shows a graph visualisation on top of the city model',
@@ -540,7 +593,9 @@ export class LayerStore {
     if (props.center) {
       // todo: figure out a way to set the current city and center the data that is loaded
       if (!this.viewer.currentCity) {
+        console.log(props.center);
         this.viewer.currentCity = getCity(props.center[0], props.center[1]);
+        console.log(this.viewer.currentCity);
       }
       const currentCity = this.viewer.currentCity;
       const layerOffset = [
@@ -553,6 +608,7 @@ export class LayerStore {
       // here the mutation is troublesome, so better refactor this function to make props immutable
       props = Object.assign({}, props);
       props.modelMatrix = (props.modelMatrix || mat4.create()).slice();
+      console.log(layerOffset);
       props.modelMatrix[12] -= layerOffset[0];
       props.modelMatrix[13] -= layerOffset[1];
     } else if (this.layerOffset) {
@@ -574,7 +630,7 @@ export class LayerStore {
       props.mesh = new Geometry({
         attributes: {
           positions: new Float32Array(props.data.vertices),
-          COLOR_0: { size: 4, value: new Float32Array(props.data.colors) },
+          COLOR_0: { size: 4, value: new Uint8Array(props.data.colors) },
         },
         indices: { size: 1, value: new Uint32Array(props.data.indices) },
       });
