@@ -9,6 +9,7 @@ import '@spectrum-web-components/theme/sp-theme.js';
 import './Header';
 import './LeftMenu';
 import './RightMenu';
+import './LayerDialog';
 
 @customElement('dtcc-app')
 class App extends MobxLitElement {
@@ -38,17 +39,20 @@ class App extends MobxLitElement {
     const header = this.store
       ? html`<dtcc-header .store=${this.store}></dtcc-header>`
       : html`<div></div>`;
-    const leftMenu = this.store?.showLeftMenu
+    const leftMenu = this.store?.showUiComponents.leftMenu
       ? html`<dtcc-left-menu .store=${this.store}></dtcc-left-menu>`
       : '';
     const rightMenu = this.store?.viewer?.selectedObject
       ? html`<dtcc-right-menu .store=${this.store}></dtcc-right-menu>`
       : null;
+    const layerDialog = this.store?.showUiComponents.layerDialog
+      ? html`<dtcc-layer-dialog .store=${this.store}></dtcc-layer-dialog>`
+      : null;
 
     return html` <sp-theme theme="classic" color="lightest" scale="medium">
       ${header} ${leftMenu}
       <div id="viewport"></div>
-      ${rightMenu}
+      ${rightMenu} ${layerDialog}
     </sp-theme>`;
   }
 }
