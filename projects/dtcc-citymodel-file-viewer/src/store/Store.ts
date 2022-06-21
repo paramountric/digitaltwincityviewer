@@ -32,13 +32,15 @@ export class Store {
     // (maybe send the result from parser directly to viewer as a default abstracted option, and let the viewer figure out how to map to layers)
     if (json.Buildings) {
       const { buildings, ground, modelMatrix } = parseCityModel(json);
-      this.viewer.setLayerProps('buildings-layer-polygons-lod-1', {
-        data: buildings,
-        modelMatrix,
-      });
-      this.viewer.setLayerState('buildings-layer-polygons-lod-1', {
-        url,
-        isLoaded: true,
+      this.viewer.updateLayer({
+        layerId: 'buildings-layer-polygons-lod-1',
+        props: {
+          data: buildings,
+          modelMatrix,
+        },
+        state: {
+          url,
+        },
       });
       this.viewer.setLayerProps('ground-layer-surface-mesh', {
         data: ground,
