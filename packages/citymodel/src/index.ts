@@ -11,14 +11,10 @@ proj4.defs(
 );
 
 function parseGround(fileData) {
-  const {
-    GroundSurface: groundSurface,
-    Origin: origin,
-    Faces,
-    Vertices,
-  } = fileData;
-  const vertices = groundSurface ? groundSurface.vertices : Vertices;
-  const indices = groundSurface ? groundSurface.faces : Faces;
+  const groundSurface = fileData.GroundSurface || fileData.groundSurface;
+  const origin = fileData.Origin || fileData.origin || { x: 0, y: 0 };
+  const vertices = groundSurface ? groundSurface.vertices : fileData.vertices;
+  const indices = groundSurface ? groundSurface.faces : fileData.faces;
   if (!vertices) {
     return null;
   }
@@ -27,11 +23,13 @@ function parseGround(fileData) {
   let maxX = -Infinity;
   let maxY = -Infinity;
   const projectedVertices = [];
-  for (let i = 0; i < vertices.length; i += 3) {
-    const transformed = transformCoordinate(vertices[i], vertices[i + 1], {
-      translate: [origin.x, origin.y],
-    });
-    const projected = projectCoordinate(transformed[0], transformed[1]);
+  for (let i = 0; i < vertices.length; i++) {
+    const v = vertices[i];
+    const projected = [v.x || 0, v.y || 0, v.z || 0];
+    // const transformed = transformCoordinate(vertices[i], vertices[i + 1], {
+    //   translate: [origin.x, origin.y],
+    // });
+    // const projected = projectCoordinate(transformed[0], transformed[1]);
     if (projected[0] < minX) {
       minX = projected[0];
     }
@@ -45,15 +43,31 @@ function parseGround(fileData) {
       maxY = projected[1];
     }
     // todo: adjust for altitude in espg:3857
-    projectedVertices.push(projected[0], projected[1], vertices[i + 2]);
+    projectedVertices.push(...projected);
   }
 
   const bounds = [minX, minY, 0, maxX, maxY, 0];
 
-  console.log('bounds', bounds);
-
   const { modelMatrix, center, min, max, width, height } =
     getLayerPosition(bounds);
+
+  const flatIndices = indices.reduce((acc, i) => {
+    if (typeof i === 'number') {
+      acc.push(i);
+    }
+    if (i.v0) {
+      acc.push(i.v0);
+    } else if (i.v1) {
+      acc.push(0);
+    }
+    if (i.v1) {
+      acc.push(i.v1);
+    }
+    if (i.v2) {
+      acc.push(i.v2);
+    }
+    return acc;
+  }, []);
   return {
     origin,
     bounds,
@@ -64,7 +78,7 @@ function parseGround(fileData) {
     width,
     height,
     data: {
-      indices,
+      indices: flatIndices,
       vertices: projectedVertices,
     },
   };
@@ -103,7 +117,7 @@ function getModelMatrix(bounds) {
 
   const modelMatrix = mat4.fromTranslation(mat4.create(), position);
 
-  return modelMatrix;
+  return Array.from(modelMatrix);
 }
 
 function getLayerPosition(extent) {
@@ -122,14 +136,15 @@ function getLayerPosition(extent) {
     max,
     width: size[0],
     height: size[1],
-    center,
+    center: Array.from(center),
     modelMatrix,
   };
 }
 
 // Only for lod 1 so far
 function parseBuildings(fileData) {
-  const { Buildings: buildings, Origin: origin } = fileData;
+  const buildings = fileData.Buildings || fileData.buildings;
+  const origin = fileData.Origin || fileData.origin || { x: 0, y: 0 };
   if (!buildings) {
     return null;
   }
@@ -141,14 +156,16 @@ function parseBuildings(fileData) {
 
   for (let i = 0; i < buildings.length; i++) {
     const building = buildings[i];
-    const footprint = building.Footprint;
+    const footprint = building.Footprint || building.footPrint;
     const coordinates = [];
-    for (let j = 0; j < footprint.length; j++) {
-      const { x, y } = footprint[j];
-      const transformed = transformCoordinate(x, y, {
-        translate: [origin.x, origin.y],
-      });
-      const projected = projectCoordinate(transformed[0], transformed[1]);
+    const polygon = footprint.vertices ? footprint.vertices : footprint;
+    for (let j = 0; j < polygon.length; j++) {
+      const { x, y } = polygon[j];
+      const projected = [x, y];
+      // const transformed = transformCoordinate(x, y, {
+      //   translate: [origin.x, origin.y],
+      // });
+      // const projected = projectCoordinate(transformed[0], transformed[1]);
       if (projected[0] < minX) {
         minX = projected[0];
       }
@@ -161,7 +178,11 @@ function parseBuildings(fileData) {
       if (projected[1] > maxY) {
         maxY = projected[1];
       }
-      coordinates.push([projected[0], projected[1], building.GroundHeight]);
+      coordinates.push([
+        projected[0],
+        projected[1],
+        building.GroundHeight || building.groundHeight,
+      ]);
     }
     coordinates.push([...coordinates[0]]);
     const feature = {
@@ -169,11 +190,11 @@ function parseBuildings(fileData) {
       type: 'Feature',
       properties: {
         type: 'building',
-        uuid: building.UUID,
+        uuid: building.UUID || building.uuid,
         shpFileId: building.SHPFileID,
-        elevation: building.Height,
-        groundHeight: building.GroundHeight,
-        height: building.Height,
+        elevation: building.Height || building.height,
+        groundHeight: building.GroundHeight || building.groundHeight,
+        height: building.Height || building.height,
       },
       geometry: {
         type: 'Polygon',
@@ -205,19 +226,129 @@ function parseBuildings(fileData) {
   };
 }
 
-function parseCityModel(fileData) {
+function parseSurfaceField(fileData) {
+  if (!fileData.surface || !fileData.values) {
+    console.log('1');
+    return null;
+  }
+  const origin = fileData.Origin || fileData.origin || { x: 0, y: 0 };
+  const vertices = fileData.surface.vertices;
+  const indices = fileData.surface.faces;
+  const values = fileData.values;
+  if (!vertices) {
+    console.log('3');
+
+    return null;
+  }
+  console.log('2');
+
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  const projectedVertices = [];
+  for (let i = 0; i < vertices.length; i++) {
+    const v = vertices[i];
+    const projected = [v.x || 0, v.y || 0, v.z || 0];
+    // const transformed = transformCoordinate(vertices[i], vertices[i + 1], {
+    //   translate: [origin.x, origin.y],
+    // });
+    // const projected = projectCoordinate(transformed[0], transformed[1]);
+    if (projected[0] < minX) {
+      minX = projected[0];
+    }
+    if (projected[1] < minY) {
+      minY = projected[1];
+    }
+    if (projected[0] > maxX) {
+      maxX = projected[0];
+    }
+    if (projected[1] > maxY) {
+      maxY = projected[1];
+    }
+    // todo: adjust for altitude in espg:3857
+    projectedVertices.push(...projected);
+  }
+
+  const bounds = [minX, minY, 0, maxX, maxY, 0];
+
+  const { modelMatrix, center, min, max, width, height } =
+    getLayerPosition(bounds);
+
+  const colors = [];
+  for (let i = 0; i < values.length; i++) {
+    colors.push(0, 0, (values[i] + 2) / 2, 0.6);
+  }
+  const flatIndices = indices.reduce((acc, i) => {
+    if (typeof i === 'number') {
+      acc.push(i);
+    }
+    if (i.v0) {
+      acc.push(i.v0);
+    } else if (i.v1) {
+      acc.push(0);
+    }
+    if (i.v1) {
+      acc.push(i.v1);
+    }
+    if (i.v2) {
+      acc.push(i.v2);
+    }
+    return acc;
+  }, []);
+  return {
+    origin,
+    bounds,
+    modelMatrix,
+    center,
+    min,
+    max,
+    width,
+    height,
+    data: {
+      indices: flatIndices,
+      vertices: projectedVertices,
+      colors,
+    },
+  };
+}
+
+// function fixLegacyUpperCase(fileData, fixKeys) {
+//   for (const key of fixKeys) {
+//     if (!fileData[key]) {
+//       continue;
+//     }
+//     const val = fileData[key];
+//     const lowerCase = key.charAt(0).toLowerCase() + key.slice(1);
+//     fileData[lowerCase] = val;
+//     delete fileData[key];
+//   }
+// }
+
+function parseCityModel(fileData, type) {
   const result: {
     buildings?: any;
     ground?: any;
+    surfaceField?: any;
   } = {};
-  const buildings = parseBuildings(fileData);
-  if (buildings) {
-    result.buildings = buildings;
+  console.log('parse ', type);
+  if (type === 'CityModel') {
+    const buildings = parseBuildings(fileData);
+    if (buildings) {
+      result.buildings = buildings;
+    }
+  } else if (type === 'Surface3D') {
+    const ground = parseGround(fileData);
+    if (ground) {
+      result.ground = ground;
+    }
+  } else if (type === 'SurfaceField3D') {
+    const surfaceField = parseSurfaceField(fileData);
+    if (surfaceField) {
+      result.surfaceField = surfaceField;
+    }
   }
-  const ground = parseGround(fileData);
-  if (ground) {
-    result.ground = ground;
-  }
+
   return result;
 }
 

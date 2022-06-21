@@ -5,10 +5,11 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "noImplicitAny": false,
-    "module": "es6",
+    "module": "CommonJS",
     "target": "es6",
     "allowJs": false,
-    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
     "downlevelIteration": true,
     "declaration": true,
     "declarationMap": true
