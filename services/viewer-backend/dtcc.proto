@@ -1,0 +1,183 @@
+syntax = "proto3";
+
+package DTCC;
+
+//--- Geometry ---
+
+message Vector2D
+{
+  float x = 1;
+  float y = 2;
+}
+
+message Vector3D
+{
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+message Simplex1D
+{
+  int32 v0 = 1;
+  int32 v1 = 2;
+}
+
+message Simplex2D
+{
+  int32 v0 = 1;
+  int32 v1 = 2;
+  int32 v2 = 3;
+}
+
+message Simplex3D
+{
+  int32 v0 = 1;
+  int32 v1 = 2;
+  int32 v2 = 3;
+  int32 v3 = 4;
+}
+
+message BoundingBox2D
+{
+  Vector2D p = 1;
+  Vector2D q = 2;
+}
+
+message BoundingBox3D
+{
+  Vector3D p = 1;
+  Vector3D q = 2;
+}
+
+message Polygon
+{
+  repeated Vector2D vertices = 1;
+}
+
+//--- Grids and meshes ---
+
+message Grid2D
+{
+  BoundingBox2D boundingBox = 1;
+  int32 xSize = 2;
+  int32 ySize = 3;
+  float xStep = 4;
+  float yStep = 5;
+}
+
+message Grid3D
+{
+  BoundingBox3D boundingBox = 1;
+  int32 xSize = 2;
+  int32 ySize = 3;
+  int32 zSize = 4;
+  float xStep = 5;
+  float yStep = 6;
+  float zStep = 7;
+}
+
+message Mesh2D
+{
+  repeated Vector2D vertices = 1;
+  repeated Simplex2D cells = 2;
+  repeated int32 markers = 3;
+}
+
+message Mesh3D
+{
+  repeated Vector3D vertices = 1;
+  repeated Simplex3D cells = 2;
+  repeated int32 markers = 3;
+}
+
+message Surface2D
+{
+  repeated Vector2D vertices = 1;
+  repeated Vector2D normals = 2;
+  repeated Simplex1D edges = 3;
+}
+
+message Surface3D
+{
+  repeated Vector3D vertices = 1;
+  repeated Vector3D normals = 2;
+  repeated Simplex2D faces = 3;
+}
+
+//--- Fields ---
+
+message GridField2D
+{
+  Grid2D grid = 1;
+  repeated float values = 2;
+}
+
+message GridField3D
+{
+  Grid3D grid = 1;
+  repeated float values = 2;
+}
+
+message GridVectorField2D
+{
+  Grid2D grid = 1;
+  repeated float values = 2;
+}
+
+message GridVectorField3D
+{
+  Grid3D grid = 1;
+  repeated float values = 2;
+}
+
+message MeshField2D
+{
+  Mesh2D mesh = 1;
+  repeated float values = 2;
+}
+
+message MeshField3D
+{
+  Mesh3D mesh = 1;
+  repeated float values = 2;
+}
+
+message MeshVectorField2D
+{
+  Mesh2D mesh = 1;
+  repeated float values = 2;
+}
+
+message MeshVectorField3D
+{
+  Mesh3D mesh = 1;
+  repeated float values = 2;
+}
+
+message SurfaceField2D
+{
+  Surface2D surface = 1;
+  repeated float values = 3;
+}
+
+message SurfaceField3D
+{
+  Surface3D surface = 1;
+  repeated float values = 3;
+}
+
+//--- City model ---
+
+message Building
+{
+  string uuid = 1;
+  Polygon footPrint = 2;
+  double height = 3;
+  double groundHeight = 4;
+}
+
+message CityModel
+{
+  repeated Building buildings = 4;
+}
