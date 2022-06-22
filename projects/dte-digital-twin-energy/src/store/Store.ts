@@ -144,10 +144,11 @@ export class Store {
     // todo: some more sophisticated way of updating found layer data, instead of hardcoding the layer ids
     // (maybe send the result from parser directly to viewer as a default abstracted option, and let the viewer figure out how to map to layers)
     if (json.Buildings) {
-      const { buildings, modelMatrix } = parseCityModel(json);
-      this.preprocessBuildings(buildings);
+      const { buildings } = parseCityModel(json);
+      const { data, modelMatrix } = buildings;
+      this.preprocessBuildings(data);
       this.viewer.setLayerProps('buildings-layer-polygons-lod-1', {
-        data: buildings,
+        data,
         modelMatrix,
       });
       this.viewer.setLayerState('buildings-layer-polygons-lod-1', {
