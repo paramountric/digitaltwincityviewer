@@ -11,13 +11,7 @@ import { Store } from '../store/Store';
 const displayProperties = [
   {
     // todo: move non-energy properties to another panel
-    properties: [
-      // 'heatedFloorAreaCount',
-      // 'area',
-      // 'heatedFloorAreaSum',
-      // 'heatedFloorArea',
-      // 'height',
-    ],
+    properties: ['uuid', 'type', 'address', 'height', 'heatedFloorArea'],
   },
   {
     properties: [],
@@ -26,6 +20,9 @@ const displayProperties = [
 
 // all properties in the attribute object will be shown, labels are taken from here
 const propertyLabels = {
+  address: 'Address',
+  uuid: 'UUID',
+  type: 'Type',
   deliveredEnergy2020: 'Delivered energy 2020',
   deliveredEnergy2030: 'Delivered energy 2030',
   deliveredEnergy2050: 'Delivered energy 2050',
@@ -48,11 +45,6 @@ const propertyLabels = {
   // finalEnergyBuildingAreaNorm: 'Final energy/m²',
   // ghgEmissions: 'GHG emissions',
   // ghgEmissionsBuildingAreaNorm: 'GHG emissions/m²',
-  // height: 'Building height',
-  // area: 'Area',
-  // heatedFloorArea: 'Heated floor area',
-  // heatedFloorAreaSum: 'Heated floor area total',
-  // heatedFloorAreaCount: 'Number of buildings',
   // primaryEnergy: 'Primary energy',
   // primaryEnergyBuildingAreaNorm: 'Primary energy/m²',
 };
