@@ -143,6 +143,7 @@ function getLayerPosition(extent) {
 
 // Only for lod 1 so far
 function parseBuildings(fileData) {
+  console.log(fileData);
   const buildings = fileData.Buildings || fileData.buildings;
   const origin = fileData.Origin || fileData.origin || { x: 0, y: 0 };
   if (!buildings) {
@@ -325,7 +326,7 @@ function parseSurfaceField(fileData) {
 //   }
 // }
 
-function parseCityModel(fileData, type) {
+function parseCityModel(fileData, type?) {
   const result: {
     buildings?: any;
     ground?: any;
@@ -347,6 +348,17 @@ function parseCityModel(fileData, type) {
     if (surfaceField) {
       result.surfaceField = surfaceField;
     }
+  } else {
+    // legacy
+    const buildings = parseBuildings(fileData);
+    if (buildings) {
+      result.buildings = buildings;
+    }
+    const ground = parseGround(fileData);
+    if (ground) {
+      result.ground = ground;
+    }
+    console.log(result);
   }
 
   return result;
