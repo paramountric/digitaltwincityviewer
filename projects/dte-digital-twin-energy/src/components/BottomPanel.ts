@@ -6,8 +6,8 @@ import { select, selectAll } from 'd3-selection';
 import { scaleBand, scaleLinear } from 'd3-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
 
-@customElement('dte-bottom-display')
-class BottomDisplay extends MobxLitElement {
+@customElement('dte-bottom-panel')
+class BottomPanel extends MobxLitElement {
   static styles = css`
     :host {
       z-index: 3;
@@ -104,4 +104,4 @@ class BottomDisplay extends MobxLitElement {
   }
 }
 
-export { BottomDisplay };
+export { BottomPanel };
