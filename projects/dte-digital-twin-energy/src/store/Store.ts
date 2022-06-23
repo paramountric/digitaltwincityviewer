@@ -2,6 +2,18 @@ import { makeObservable, observable, action, reaction } from 'mobx';
 import { Viewer, ViewerProps } from '@dtcv/viewer';
 import { parseCityModel } from '@dtcv/citymodel';
 
+export type SelectablePropertyKey =
+  | 'finalEnergy'
+  | 'heatDemand'
+  | 'primaryEnergy'
+  | 'ghgEmissions';
+
+export type PropertyKeyOption = {
+  key: SelectablePropertyKey;
+  label: string;
+  unit: string;
+};
+
 function generateTimelineData(objects, propertyKey) {
   const timeResolution = 12;
   if (objects.length === 0) {
@@ -35,21 +47,31 @@ function generateTimelineData(objects, propertyKey) {
   };
 }
 
-const propertyKeyOptions = ['finalEnergy', 'heatDemand'];
-const yearOptions = ['2020', '2030', '2050'];
 export class Store {
   public isLoading = false;
   public loadingMessage = '';
   public loadingProgress = 0;
   public showLeftMenu = false;
   public viewer: Viewer;
-  public selectedPropertyKey: string = 'finalEnergy';
+  public selectedPropertyKey: SelectablePropertyKey = 'finalEnergy';
   public selectedYear: string = '2020';
   public showTimelinePerM2 = false; // show total by default
   public timelineData: {
     total: number[];
     perM2: number[];
   };
+
+  public propertyKeyOptions: PropertyKeyOption[] = [
+    { key: 'finalEnergy', label: 'Final energy', unit: 'kWh/m²' },
+    { key: 'heatDemand', label: 'Heat demand', unit: 'kWh/m²' },
+    { key: 'primaryEnergy', label: 'Primary energy', unit: 'kWh/m²' },
+    {
+      key: 'ghgEmissions',
+      label: 'Greenhouse gas emissions',
+      unit: 'kgCO2-eq./m²',
+    },
+  ];
+  public yearOptions = ['2020', '2030', '2050'];
   public constructor(viewer: Viewer) {
     this.viewer = viewer;
     this.timelineData = generateTimelineData([], this.selectedPropertyKey);
@@ -75,6 +97,7 @@ export class Store {
     );
     makeObservable(this, {
       setIsLoading: action,
+      selectedPropertyKey: observable,
       isLoading: observable,
       loadingProgress: observable,
       timelineData: observable,
@@ -88,6 +111,7 @@ export class Store {
     if (!this.selectedPropertyKey || !this.selectedYear) {
       return;
     }
+    console.log(this.selectedPropertyKey, this.selectedYear);
     this.viewer.setLayerStyle('buildings-layer-polygons-lod-1', {
       color: {
         sufficient: 150,
@@ -129,6 +153,22 @@ export class Store {
 
   public setLoadingProgress(percentage: number) {
     this.loadingProgress = percentage;
+  }
+
+  public getSelectedPropertyLabel() {
+    return (
+      this.propertyKeyOptions.find(
+        option => option.key === this.selectedPropertyKey
+      )?.label || 'Select indicator'
+    );
+  }
+
+  public getSelectedPropertyUnit() {
+    return (
+      this.propertyKeyOptions.find(
+        option => option.key === this.selectedPropertyKey
+      )?.unit || ''
+    );
   }
 
   public reset() {
