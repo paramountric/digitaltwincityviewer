@@ -2,9 +2,6 @@ import { MobxLitElement } from '@adobe/lit-mobx';
 import { css, html, TemplateResult } from 'lit';
 import { observable } from 'mobx';
 import { customElement, property } from 'lit/decorators.js';
-import '@spectrum-web-components/accordion/sp-accordion.js';
-import '@spectrum-web-components/accordion/sp-accordion-item.js';
-import '@spectrum-web-components/top-nav/sp-top-nav.js';
 import { Store } from '../store/Store';
 
 // structure is for later grouping in the panel
@@ -23,6 +20,8 @@ const propertyLabels = {
   address: 'Address',
   uuid: 'UUID',
   type: 'Type',
+  heatedFloorArea: 'Heated floor area',
+  height: 'Height',
   deliveredEnergy2020: 'Delivered energy 2020',
   deliveredEnergy2030: 'Delivered energy 2030',
   deliveredEnergy2050: 'Delivered energy 2050',
@@ -63,32 +62,29 @@ const units = {
   finalEnergy2020: 'kWh',
   finalEnergy2030: 'kWh',
   finalEnergy2050: 'kWh',
-  ghgEmissions: 'kWh',
-  ghgEmissions2020: 'kWh',
-  ghgEmissions2030: 'kWh',
-  ghgEmissions2050: 'kWh',
+  ghgEmissions: 'kgCO2-eq.',
+  ghgEmissions2020: 'kgCO2-eq.',
+  ghgEmissions2030: 'kgCO2-eq.',
+  ghgEmissions2050: 'kgCO2-eq.',
   heatDemand: 'kWh',
   heatDemand2020: 'kWh',
   heatDemand2030: 'kWh',
   heatDemand2050: 'kWh',
   // todo: these should be moved to a more central location
-  // height: 'm',
-  // deliveredEnergy: 'kWh',
-  // deliveredEnergy2020: 'kWh',
+  height: 'm',
   // deliveredEnergyBuildingAreaNorm: 'kWh',
-  // finalEnergy: 'kWh',
   // finalEnergyBuildingAreaNorm: 'kWh',
   // area: 'm²',
-  // heatedFloorArea: 'm²',
+  heatedFloorArea: 'm²',
   // heatedFloorAreaSum: 'm²',
-  // primaryEnergy: 'kWh',
   // primaryEnergyBuildingAreaNorm: 'kWh',
-  // ghgEmissions: 'kgCO2-eq.',
   // ghgEmissionsBuildingAreaNorm: 'kgCO2-eq.',
 };
 
 // if needs to be rounded
 const rounding = {
+  height: 1,
+  heatedFloorArea: 0,
   deliveredEnergy: 0,
   deliveredEnergy2020: 0,
   deliveredEnergy2030: 0,
@@ -114,7 +110,7 @@ const rounding = {
 @customElement('dte-building-feature-energy-panel')
 export class BuildingFeatureEnergyPanel extends MobxLitElement {
   static styles = css`
-    :host span:first-child {
+    :host td:first-child {
       font-weight: bolder;
     }
   `;
@@ -155,13 +151,17 @@ export class BuildingFeatureEnergyPanel extends MobxLitElement {
       return memo;
     }, []);
     return html`<div>
-      ${properties.map(item => {
-        const val = this.formatValue(this.properties, item.property);
-        return html`<div>
-          <span>${item.label || 'fixme'}:</span>
-          <span>${val || '-'} ${units[item.property] || ''}</span>
-        </div>`;
-      })}
+      <table>
+        <tbody>
+          ${properties.map(item => {
+            const val = this.formatValue(this.properties, item.property);
+            return html`<tr>
+              <td>${item.label || 'fixme'}:</td>
+              <td>${val || '-'} ${units[item.property] || ''}</td>
+            </tr>`;
+          })}
+        </tbody>
+      </table>
     </div>`;
   }
 }
