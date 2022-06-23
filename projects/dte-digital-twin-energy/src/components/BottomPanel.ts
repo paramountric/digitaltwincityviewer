@@ -44,6 +44,8 @@ class BottomPanel extends MobxLitElement {
     if (max === 0) {
       return;
     }
+    const min = Math.min(...timelineValues);
+
     const margin = { top: 20, right: 20, bottom: 20, left: 100 };
     const width =
       this._barchart.getBoundingClientRect().width - margin.left - margin.right;
@@ -66,6 +68,10 @@ class BottomPanel extends MobxLitElement {
     var x = scaleBand().domain(months).range([0, width]).padding(0.5);
     var y = scaleLinear().domain([0, max]).range([height, 0]);
 
+    var colorScale = scaleLinear()
+      .domain([min, max])
+      .range(['#eff3ff', '#2171b5']);
+
     const svg = select(this._barchart)
       .append('svg')
       .attr('width', width + margin.left + margin.right)
@@ -77,7 +83,7 @@ class BottomPanel extends MobxLitElement {
       .data(timelineValues)
       .enter()
       .append('rect')
-      .attr('fill', '#fff')
+      .attr('fill', d => colorScale(d))
       .attr('stroke', '#999')
       .attr('class', 'bar')
       .attr('x', function (d, i) {
