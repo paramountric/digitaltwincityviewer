@@ -4,11 +4,10 @@ import { observable } from 'mobx';
 import { customElement, property } from 'lit/decorators.js';
 import { Store } from '../store/Store';
 
-// structure is for later grouping in the panel
+// todo: add one smaller panel for each indicator
 const displayProperties = [
   {
-    // todo: move non-energy properties to another panel
-    properties: ['uuid', 'type', 'address', 'height', 'heatedFloorArea'],
+    properties: [],
   },
   {
     properties: [],
@@ -17,11 +16,6 @@ const displayProperties = [
 
 // all properties in the attribute object will be shown, labels are taken from here
 const propertyLabels = {
-  address: 'Address',
-  uuid: 'UUID',
-  type: 'Type',
-  heatedFloorArea: 'Heated floor area',
-  height: 'Height',
   deliveredEnergy2020: 'Delivered energy 2020',
   deliveredEnergy2030: 'Delivered energy 2030',
   deliveredEnergy2050: 'Delivered energy 2050',
@@ -37,15 +31,6 @@ const propertyLabels = {
   heatDemand2020: 'Heat demand 2020',
   heatDemand2030: 'Heat demand 2030',
   heatDemand2050: 'Heat demand 2050',
-
-  // todo: fill up with more related values
-  // deliveredEnergyBuildingAreaNorm: 'Delivered energy/m²',
-  // finalEnergy: 'Final energy',
-  // finalEnergyBuildingAreaNorm: 'Final energy/m²',
-  // ghgEmissions: 'GHG emissions',
-  // ghgEmissionsBuildingAreaNorm: 'GHG emissions/m²',
-  // primaryEnergy: 'Primary energy',
-  // primaryEnergyBuildingAreaNorm: 'Primary energy/m²',
 };
 
 // these are the units, but could be done with enum instead
@@ -70,15 +55,6 @@ const units = {
   heatDemand2020: 'kWh',
   heatDemand2030: 'kWh',
   heatDemand2050: 'kWh',
-  // todo: these should be moved to a more central location
-  height: 'm',
-  // deliveredEnergyBuildingAreaNorm: 'kWh',
-  // finalEnergyBuildingAreaNorm: 'kWh',
-  // area: 'm²',
-  heatedFloorArea: 'm²',
-  // heatedFloorAreaSum: 'm²',
-  // primaryEnergyBuildingAreaNorm: 'kWh',
-  // ghgEmissionsBuildingAreaNorm: 'kgCO2-eq.',
 };
 
 // if needs to be rounded
