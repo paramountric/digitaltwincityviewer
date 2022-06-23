@@ -1,9 +1,6 @@
 import { MobxLitElement } from '@adobe/lit-mobx';
 import { css, html, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import '@spectrum-web-components/accordion/sp-accordion.js';
-import '@spectrum-web-components/accordion/sp-accordion-item.js';
-import '@spectrum-web-components/top-nav/sp-top-nav.js';
 import { Store } from '../store/Store';
 import './BuildingFeatureEnergyPanel';
 
