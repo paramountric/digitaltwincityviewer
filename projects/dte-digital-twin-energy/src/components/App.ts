@@ -48,10 +48,10 @@ class App extends MobxLitElement {
   render() {
     const header = this.store
       ? html`<dte-header .store=${this.store}></dte-header>`
-      : html`<div></div>`;
+      : null;
     const leftMenu = this.store?.showLeftMenu
       ? html`<dte-left-menu .store=${this.store}></dte-left-menu>`
-      : '';
+      : null;
     const rightMenu = this.store?.viewer?.selectedObject
       ? html`<dte-right-menu .store=${this.store}></dte-right-menu>`
       : null;
@@ -59,18 +59,20 @@ class App extends MobxLitElement {
       ? html`<dte-bottom-panel
           .timelineData=${this.store.timelineData}
           .showTimeLinePerM2=${this.store.showTimelinePerM2}
+          .label=${this.store.getSelectedPropertyLabel()}
         ></dte-bottom-panel>`
       : null;
-    const legendsPanel = this.store
-      ? html`<dte-legends-panel .store=${this.store}></dte-legends-panel>`
-      : null;
+    const legendsPanel =
+      !rightMenu && this.store
+        ? html`<dte-legends-panel .store=${this.store}></dte-legends-panel>`
+        : null;
     const actionPanel = this.store
       ? html`<dte-action-panel .store=${this.store}></dte-action-panel>`
       : null;
 
     return html` <sp-theme theme="classic" color="lightest" scale="medium">
       ${header} ${actionPanel} ${leftMenu}
-      <div id="viewport"></div>
+      <div style="overflow:hidden" id="viewport"></div>
       ${legendsPanel} ${rightMenu} ${bottomDisplay}
     </sp-theme>`;
   }

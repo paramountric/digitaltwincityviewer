@@ -14,9 +14,9 @@ class BottomPanel extends MobxLitElement {
       position: absolute;
       background: #fff;
       opacity: 1;
-      height: 20vh;
-      bottom: 0px;
+      bottom: 5px;
       padding-left: 5px;
+      opacity: 0.95;
       width: 100%;
     }
   `;
@@ -29,6 +29,9 @@ class BottomPanel extends MobxLitElement {
 
   @property({ type: Boolean })
   public showTimelinePerM2;
+
+  @property({ type: String })
+  public label;
 
   willUpdate(): void {
     if (this._barchart) {
@@ -46,7 +49,7 @@ class BottomPanel extends MobxLitElement {
     }
     const min = Math.min(...timelineValues);
 
-    const margin = { top: 20, right: 20, bottom: 20, left: 100 };
+    const margin = { top: 20, right: 20, bottom: 40, left: 100 };
     const width =
       this._barchart.getBoundingClientRect().width - margin.left - margin.right;
     const height = 200 - margin.top - margin.bottom;
@@ -101,6 +104,14 @@ class BottomPanel extends MobxLitElement {
       .append('g')
       .attr('transform', 'translate(0,' + height + ')')
       .call(axisBottom(x));
+
+    svg
+      .append('text')
+      .attr('x', width / 2)
+      .attr('y', height + margin.bottom - 5)
+      .attr('text-anchor', 'middle')
+      .style('font-size', '14px')
+      .text(this.label);
 
     svg.append('g').call(axisLeft(y));
   }

@@ -1,13 +1,27 @@
 import { MobxLitElement } from '@adobe/lit-mobx';
-import { css, html, TemplateResult } from 'lit';
-import { observable } from 'mobx';
+import { css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { Store } from '../store/Store';
+import './BuildingEnergyIndicatorDisplay';
 
-// todo: add one smaller panel for each indicator
 const displayProperties = [
   {
-    properties: [],
+    properties: [
+      'deliveredEnergy2020',
+      'deliveredEnergy2030',
+      'deliveredEnergy2050',
+      'primaryEnergy2020',
+      'primaryEnergy2030',
+      'primaryEnergy2050',
+      'finalEnergy2020',
+      'finalEnergy2030',
+      'finalEnergy2050',
+      'ghgEmissions2020',
+      'ghgEmissions2030',
+      'ghgEmissions2050',
+      'heatDemand2020',
+      'heatDemand2030',
+      'heatDemand2050',
+    ],
   },
   {
     properties: [],
@@ -126,18 +140,20 @@ export class BuildingFeatureEnergyPanel extends MobxLitElement {
       memo.push(...items);
       return memo;
     }, []);
+    const indicatorKeys = [
+      'deliveredEnergy',
+      'finalEnergy',
+      'ghgEmissions',
+      'heatDemand',
+      'primaryEnergy',
+    ];
     return html`<div>
-      <table>
-        <tbody>
-          ${properties.map(item => {
-            const val = this.formatValue(this.properties, item.property);
-            return html`<tr>
-              <td>${item.label || 'fixme'}:</td>
-              <td>${val || '-'} ${units[item.property] || ''}</td>
-            </tr>`;
-          })}
-        </tbody>
-      </table>
+      ${indicatorKeys.map(key => {
+        return html`<dte-building-energy-indicator-display
+          .key=${key}
+          .properties=${this.properties}
+        ></dte-building-energy-indicator-display>`;
+      })}
     </div>`;
   }
 }

@@ -12,12 +12,10 @@ export class ActionPanel extends MobxLitElement {
       z-index: 10;
       position: absolute;
       background: #fff;
-      opacity: 1;
-      bottom: 300px;
+      opacity: 0.95;
       left: 50%;
-      top: 100px;
+      top: 80px;
       transform: translate(-50%, -50%);
-      height: 80px;
     }
   `;
 

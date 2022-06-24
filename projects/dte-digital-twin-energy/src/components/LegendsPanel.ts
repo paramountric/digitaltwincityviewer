@@ -16,9 +16,10 @@ export class LegendsPanel extends MobxLitElement {
       z-index: 10;
       position: absolute;
       background: #fff;
-      opacity: 0.7;
+      opacity: 1;
       bottom: 300px;
       right: 5px;
+      opacity: 0.95;
       width: 200px;
     }
 
