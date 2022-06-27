@@ -113,38 +113,60 @@ export class Store {
     //   'buildings'
     // );
 
+    // await this.getCachedLayer(
+    //   'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/CityModel.pb',
+    //   'buildings-layer-polygons-lod-1',
+    //   'buildings'
+    // );
+
+    // this.addLayer({
+    //   name: 'Buildings',
+    //   isLoading: true,
+    // });
+
+    // await this.getCachedLayer(
+    //   'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/GroundSurface.pb',
+    //   'ground-layer-surface-mesh',
+    //   'ground'
+    // );
+
+    // this.addLayer({
+    //   name: 'Ground surface',
+    //   isLoading: true,
+    // });
+
     await this.getCachedLayer(
-      'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/CityModel.pb',
-      'buildings-layer-polygons-lod-1',
-      'buildings'
-    );
-
-    this.addLayer({
-      name: 'Buildings',
-      isLoading: true,
-    });
-
-    await this.getCachedLayer(
-      'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/GroundSurface.pb',
-      'ground-layer-surface-mesh',
-      'ground'
-    );
-
-    this.addLayer({
-      name: 'Ground surface',
-      isLoading: true,
-    });
-
-    await this.getCachedLayer(
-      'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/FlowField.pb',
+      'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/VelocitySurface.pb',
       'ground-layer-result-mesh',
       'surfaceField'
     );
+
+    // this.addLayer({
+    //   name: 'Simulation result',
+    //   isLoading: true,
+    // });
+
+    // await this.getCachedLayer(
+    //   'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/PressureSurface.pb',
+    //   'ground-layer-result-mesh',
+    //   'surfaceField'
+    // );
 
     this.addLayer({
       name: 'Simulation result',
       isLoading: true,
     });
+
+    // await this.getCachedLayer(
+    //   'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/FlowField.pb',
+    //   'ground-layer-result-mesh',
+    //   'surfaceField'
+    // );
+
+    // this.addLayer({
+    //   name: 'Simulation result',
+    //   isLoading: true,
+    // });
 
     setTimeout(() => {
       this.updateLayer({ name: 'Buildings', isLoading: false });
