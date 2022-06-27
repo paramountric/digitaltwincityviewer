@@ -1,5 +1,6 @@
 import { vec3, mat4 } from 'gl-matrix';
 import proj4 from 'proj4';
+import { generateColor } from '@dtcv/indicators';
 
 proj4.defs(
   'EPSG:3008',
@@ -228,6 +229,7 @@ function parseBuildings(fileData) {
 }
 
 function parseSurfaceField(fileData) {
+  console.log(fileData);
   if (!fileData.surface || !fileData.values) {
     return null;
   }
@@ -272,9 +274,20 @@ function parseSurfaceField(fileData) {
     getLayerPosition(bounds);
 
   const colors = [];
+  let minVal = Infinity;
+  let maxVal = -Infinity;
   for (let i = 0; i < values.length; i++) {
-    colors.push(0, 0, (values[i] + 2) / 2, 0.6);
+    if (values[i] < minVal) {
+      minVal = values[i];
+    }
+    if (values[i] > maxVal) {
+      maxVal = values[i];
+    }
+    //const color = generateColor(values[i], 4, 2);
+    const color = generateColor(values[i], 1, 0);
+    colors.push(color[0] / 255, color[1] / 255, color[2] / 255, 0.6);
   }
+  console.log(minVal, maxVal);
   const flatIndices = indices.reduce((acc, i) => {
     if (typeof i === 'number') {
       acc.push(i);
@@ -327,7 +340,6 @@ function parseCityModel(fileData, type?) {
     ground?: any;
     surfaceField?: any;
   } = {};
-  console.log('parse ', type);
   if (type === 'CityModel') {
     const buildings = parseBuildings(fileData);
     if (buildings) {
@@ -353,7 +365,6 @@ function parseCityModel(fileData, type?) {
     if (ground) {
       result.ground = ground;
     }
-    console.log(result);
   }
 
   return result;

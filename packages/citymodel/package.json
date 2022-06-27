@@ -4,6 +4,7 @@
   "description": "Utility function for CityModel format",
   "main": "./dist/index.js",
   "types": "./dist/types.d.ts",
+  "type": "module",
   "files": [
     "dist"
   ],
@@ -33,6 +34,7 @@
     "url": "https://github.com/paramountric/digitaltwincityviewer/issues"
   },
   "dependencies": {
+    "@dtcv/indicators": "^1.0.1",
     "gl-matrix": "^3.4.3",
     "proj4": "^2.8.0"
   },
