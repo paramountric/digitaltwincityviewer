@@ -229,7 +229,6 @@ function parseBuildings(fileData) {
 
 function parseSurfaceField(fileData) {
   if (!fileData.surface || !fileData.values) {
-    console.log('1');
     return null;
   }
   const origin = fileData.Origin || fileData.origin || { x: 0, y: 0 };
@@ -237,12 +236,8 @@ function parseSurfaceField(fileData) {
   const indices = fileData.surface.faces;
   const values = fileData.values;
   if (!vertices) {
-    console.log('3');
-
     return null;
   }
-  console.log('2');
-
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
