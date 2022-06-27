@@ -624,11 +624,8 @@ export class LayerStore {
       console.warn('layer was not found with the id: ', layerId);
       return;
     }
-    console.log(layer);
     // in a few places we have the problem that props needs functions and instances
     if (layer.isMeshLayer && props.data && !layer.isLoaded) {
-      console.log(layer);
-      console.log(props.data);
       props.mesh = new Geometry({
         attributes: {
           positions: new Float32Array(props.data.vertices),
