@@ -50,7 +50,7 @@ class LeftMenu extends MobxLitElement {
         >`;
       })}
       <sp-menu-item @click=${this.openLayerDialog}
-        ><sp-icon-add-circle slot="icon"></sp-icon-add-circle>Add
+        ><sp-icon-add-circle slot="icon"></sp-icon-add-circle>New
         layer</sp-menu-item
       >
     </sp-menu>`;

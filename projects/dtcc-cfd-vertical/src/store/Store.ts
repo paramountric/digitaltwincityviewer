@@ -16,16 +16,24 @@ const websocketUrl =
     ? 'ws://localhost:4000'
     : 'wss://pmtric-local.com/dtcv/ws';
 
+// todo: create one LayerStatus and one Layer type
 type Layer = {
   name: string;
-  isLoading: boolean;
+  isLoading?: boolean;
+  // for loading
+  task?: string; // main task
+  status?: string; // status text
+  progress?: number; // percentage
+  statusCode?: number; // some codes for success, failed, etc
 };
 export class Store {
   public isLoading = false;
   public showUiComponents: {
     [uiComponentKey: string]: boolean;
   };
+  public progressList: Layer[] = []; // fill this with numbers corresponding to loaded status messages, just for prototyping the loading function
   public activeLayer: string | null;
+  public activeLayerDialogTab: string | null;
   public viewer: Viewer;
   private socket: WebSocket;
   public layers: Layer[] = [];
@@ -42,6 +50,7 @@ export class Store {
       setIsLoading: action,
       addLayer: action,
       showUiComponent: action,
+      updateLayer: action,
     });
     this.init();
   }
@@ -69,7 +78,22 @@ export class Store {
 
   public updateLayer(layerData: Layer) {
     const layer = this.layers.find(l => l.name === layerData.name);
-    layer.isLoading = layerData.isLoading;
+    if (!layer) {
+      return;
+    }
+    const { isLoading, task, status, progress } = layerData;
+    if (isLoading || isLoading === false) {
+      layer.isLoading = isLoading;
+    }
+    if (task || task === '') {
+      layer.task = task;
+    }
+    if (status || status === '') {
+      layer.status = status;
+    }
+    if (progress || progress === 0) {
+      layer.progress = progress;
+    }
   }
 
   public setActiveLayer(layerName: string) {
@@ -277,5 +301,92 @@ export class Store {
         reject();
       });
     });
+  }
+
+  simulateLayerLoadingProgress(sequence, i = 0, percentage = 0) {
+    if (percentage) {
+      this.updateLayer({
+        name: 'Buildings',
+        progress: percentage,
+      });
+    } else {
+      const { task, status } = sequence.reduce(
+        (acc, s) => {
+          if (acc.task) {
+            return acc;
+          }
+          for (const p of s.progress) {
+            if (acc.count === i) {
+              acc.task = s.task;
+              acc.status = p;
+            }
+            acc.count++;
+          }
+          return acc;
+        },
+        { task: '', status: '', count: 0 }
+      );
+      if (!status) {
+        this.updateLayer({
+          name: 'Buildings',
+          task: '',
+          status: 'Finished',
+          progress: 0,
+        });
+        return;
+      }
+      this.updateLayer({
+        name: 'Buildings',
+        task,
+        status,
+      });
+      this.progressList.push({
+        name: 'Buildings',
+        task,
+        status,
+        statusCode: 1,
+      });
+      i++;
+    }
+    setTimeout(() => {
+      percentage += 20;
+      this.simulateLayerLoadingProgress(sequence, i, percentage % 120);
+    }, 200);
+  }
+
+  selectArea() {
+    console.log('select area');
+    this.updateLayer({ name: 'Buildings', isLoading: true });
+    this.updateLayer({ name: 'Ground surface', isLoading: true });
+    const sequence = [
+      {
+        task: 'Loading input data',
+        progress: ['Loading point cloud', 'Loading shapefile'],
+      },
+      {
+        task: 'Processing geometry',
+        progress: [
+          'Processing point cloud',
+          'Processing polygon data',
+          'Building meshes',
+        ],
+      },
+      {
+        task: 'Preparing surfaces',
+        progress: ['Simplification', 'Serializing'],
+      },
+      {
+        task: 'Preparing city model',
+        progress: ['Extracting polygons', 'Adding buildings'],
+      },
+      {
+        task: 'Finalizing',
+        progress: ['Saving to db', 'loading...'],
+      },
+    ];
+    this.simulateLayerLoadingProgress(sequence);
+  }
+  simulate() {
+    this.updateLayer({ name: 'Simulation result', isLoading: true });
   }
 }

@@ -45,14 +45,12 @@ class App extends MobxLitElement {
     const rightMenu = this.store?.viewer?.selectedObject
       ? html`<dtcc-right-menu .store=${this.store}></dtcc-right-menu>`
       : null;
-    const layerDialog = this.store?.showUiComponents.layerDialog
-      ? html`<dtcc-layer-dialog .store=${this.store}></dtcc-layer-dialog>`
-      : null;
 
     return html` <sp-theme theme="classic" color="lightest" scale="medium">
       ${header} ${leftMenu}
       <div id="viewport"></div>
-      ${rightMenu} ${layerDialog}
+      ${rightMenu}
+      <dtcc-layer-dialog .store=${this.store}></dtcc-layer-dialog>
     </sp-theme>`;
   }
 }
