@@ -50,9 +50,40 @@ message BoundingBox3D
   Vector3D q = 2;
 }
 
-message Polygon
+message MultiPoint
+{
+  repeated Vector2D points = 1;
+}
+
+message MultiPoint3D
+{
+  repeated Vector3D points = 1;
+}
+
+message LineString
 {
   repeated Vector2D vertices = 1;
+}
+
+message LineString3D
+{
+  repeated Vector3D vertices = 1;
+}
+
+message LinearRing
+{
+  repeated Vector2D vertices = 1;
+}
+
+message Polygon
+{
+  LinearRing shell = 1;
+  repeated LinearRing holes = 2;
+}
+
+message MultiPolygon
+{
+  repeated Polygon polygons = 1;
 }
 
 //--- Grids and meshes ---
@@ -158,13 +189,25 @@ message MeshVectorField3D
 message SurfaceField2D
 {
   Surface2D surface = 1;
-  repeated float values = 3;
+  repeated float values = 2;
 }
 
 message SurfaceField3D
 {
   Surface3D surface = 1;
-  repeated float values = 3;
+  repeated float values = 2;
+}
+
+message SurfaceVectorField2D
+{
+  Surface2D surface = 1;
+  repeated float values = 2;
+}
+
+message SurfaceVectorField3D
+{
+  Surface3D surface = 1;
+  repeated float values = 2;
 }
 
 //--- City model ---

@@ -1,5 +1,5 @@
 import mqtt from 'mqtt';
-import { server } from './server';
+import { server } from './server.js';
 import protobuf from 'protobufjs';
 
 const { MQTT_INTERNAL_HOST, MQTT_HUB } = process.env;

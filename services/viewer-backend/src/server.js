@@ -1,11 +1,11 @@
 import http from 'http';
 import fetch from 'node-fetch';
-import WebSocket from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
 import NodeCache from 'node-cache';
 import { parseCityModel } from '@dtcv/citymodel';
 
 const cache = new NodeCache();
-const server = http.createServer((req, res) => {
+export const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Request-Method', '*');
   res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
@@ -27,7 +27,7 @@ const server = http.createServer((req, res) => {
   res.end();
 });
 
-let wss = new WebSocket.Server({
+let wss = new WebSocketServer({
   noServer: true,
   maxPayload: 4096,
 });
@@ -115,18 +115,22 @@ wss.on('connection', async function connection(wsClient, request, user) {
     })
   );
 
-  addCodeSprintData(
-    'http://localhost:9000/files/HelsingborgOceanen/CityModel.pb',
-    'CityModel'
-  );
-  addCodeSprintData(
-    'http://localhost:9000/files/HelsingborgOceanen/GroundSurface.pb',
-    'Surface3D'
-  );
-  addCodeSprintData(
-    'http://localhost:9000/files/HelsingborgOceanen/FlowField.pb',
+  // await addCodeSprintData(
+  //   'http://localhost:9000/files/HelsingborgOceanen/CityModel.pb',
+  //   'CityModel'
+  // );
+  // await addCodeSprintData(
+  //   'http://localhost:9000/files/HelsingborgOceanen/GroundSurface.pb',
+  //   'Surface3D'
+  // );
+  await addCodeSprintData(
+    'http://localhost:9000/files/HelsingborgOceanen/VelocitySurface.pb',
     'SurfaceField3D'
   );
+  // await addCodeSprintData(
+  //   'http://localhost:9000/files/HelsingborgOceanen/PressureSurface.pb',
+  //   'SurfaceField3D'
+  // );
 
   // somehow the client must tell which layers are needed, and subscribe to those layers
   wsClient.layers = [];
@@ -183,4 +187,4 @@ wss.on('close', function close() {
   clearInterval(interval);
 });
 
-export { server, wss };
+export { wss };

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Viewer backend is used for dynamic data updates and off-loading of data in layers",
   "main": "index.js",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "nodemon src/index.js --exec babel-node",
