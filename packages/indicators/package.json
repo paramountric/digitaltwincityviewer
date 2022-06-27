@@ -1,0 +1,47 @@
+{
+  "name": "@dtcv/indicators",
+  "version": "1.0.1",
+  "description": "This package contains settings for common indicators, such as ranges, colors, units, etc",
+  "main": "./dist/index.js",
+  "types": "./dist/types.d.ts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "Indicators",
+    "DTCC"
+  ],
+  "author": "andreasrudena <andreas@rudena.se>",
+  "homepage": "https://digitaltwincityviewer.com",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paramountric/digitaltwincityviewer.git"
+  },
+  "scripts": {
+    "prepublish": "rimraf dist",
+    "prepublishOnly": "tsc",
+    "tsc": "tsc",
+    "watch": "tsc --watch",
+    "lint": "eslint --ext .ts,.js src",
+    "format": "prettier --ignore-path .eslintignore --write \"src/**/*.+(js|ts|json)\""
+  },
+  "bugs": {
+    "url": "https://github.com/paramountric/digitaltwincityviewer/issues"
+  },
+  "dependencies": {
+    "d3-scale": "^4.0.2"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.11.0",
+    "@typescript-eslint/parser": "^5.11.0",
+    "eslint": "^8.9.0",
+    "eslint-config-prettier": "^8.3.0",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.5.5"
+  }
+}
