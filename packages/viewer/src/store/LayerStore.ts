@@ -157,7 +157,6 @@ const layerGroupCatalog: LayerGroupState[] = [
         isClickable: true,
         isMeshLayer: true,
         props: {
-          opacity: 1,
           id: 'landuse-layer-surface-lod-1',
           data: [1],
           _instanced: false,
@@ -625,12 +624,15 @@ export class LayerStore {
       console.warn('layer was not found with the id: ', layerId);
       return;
     }
+    console.log(layer);
     // in a few places we have the problem that props needs functions and instances
     if (layer.isMeshLayer && props.data && !layer.isLoaded) {
+      console.log(layer);
+      console.log(props.data);
       props.mesh = new Geometry({
         attributes: {
           positions: new Float32Array(props.data.vertices),
-          COLOR_0: { size: 4, value: new Uint8Array(props.data.colors) },
+          COLOR_0: { size: 4, value: new Float32Array(props.data.colors) },
         },
         indices: { size: 1, value: new Uint32Array(props.data.indices) },
       });
