@@ -30,34 +30,32 @@ export class ViewStore {
       pitch: 0,
     });
     this.viewStateEnd = this.viewState;
-    this.showGraphView = true;
+    // this setting is used to control which view is active of interaction
+    this.showGraphView = false;
     this.activeView = 'map';
     makeObservable(this, {
       viewState: observable,
       viewStateEnd: observable,
       graphState: observable,
       activeView: observable,
+      showGraphView: observable,
+      setActiveView: action,
       setViewState: action,
       setViewStateEnd: action,
       setGraphState: action,
+      setShowGraphView: action,
     });
   }
   getViews() {
     const mapView = new MapView({
       id: 'mapview',
-      controller: true,
-      //viewState: toJS(this.viewState),
+      controller: this.activeView !== 'graph',
     });
-
-    // some apps will not enable the graph view
-    if (!this.showGraphView) {
-      return mapView;
-    }
 
     const graphView = new MapView({
       id: 'graphview',
-      controller: true,
-      //viewState: toJS(this.graphState),
+      controller: this.activeView === 'graph',
+      //viewState: toJS(this.graphState),x
     });
 
     return this.activeView === 'graph'
@@ -96,18 +94,13 @@ export class ViewStore {
       longitude: webmercatorCenter[0],
       latitude: webmercatorCenter[1],
     });
-    console.log(this.viewer.deck);
-    console.log(this.getViewState());
   }
   setViewState({ longitude, latitude, zoom, bearing, pitch }: ViewerProps) {
-    const existingViewState = this.getViewState();
-    console.log('set viewstate', longitude, latitude, zoom);
-    console.log('existing', existingViewState);
     const newViewState: ViewerProps = {};
-    if (longitude) {
+    if (longitude || longitude === 0) {
       newViewState.longitude = longitude;
     }
-    if (latitude) {
+    if (latitude || latitude === 0) {
       newViewState.latitude = latitude;
     }
     if (zoom || zoom === 0) {
@@ -124,8 +117,6 @@ export class ViewStore {
   }
   setGraphState({ longitude, latitude, zoom, bearing, pitch }: ViewerProps) {
     const existingState = this.getGraphState();
-    console.log('set graphstate', longitude, latitude);
-    console.log('existing', existingState);
     const newState = Object.assign({}, existingState, {
       longitude: longitude || existingState.longitude,
       latitude: latitude || existingState.latitude,
