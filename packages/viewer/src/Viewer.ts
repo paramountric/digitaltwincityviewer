@@ -42,7 +42,6 @@ const maplibreOptions = {
 // internalProps = not to be set from parent component
 const internalProps = {
   debug: false,
-  viewState: null,
   container: null,
   glOptions: {
     antialias: true,
@@ -59,7 +58,7 @@ const internalProps = {
 // This is NOT ideal since the bundle size increase dramatically
 // todo: remove maplibre
 // ! note: the fast iterations have created three tracks on how the viewState works, however the code is kept in the repo for all of them -> if below is true, part of the other code is not used...
-const useMaplibre = true;
+const useMaplibre = false;
 
 type ViewerProps = {
   longitude?: number;
@@ -92,10 +91,9 @@ class Viewer {
       resolvedProps.onWebGLInitialized = this.onWebGLInitialized.bind(this);
       resolvedProps.onViewStateChange = this.onViewStateChange.bind(this);
       resolvedProps.layerFilter = this.layerFilter.bind(this);
-      resolvedProps.viewState = this.viewStore.getViewState();
       this.deck = new Deck(resolvedProps);
     }
-    this.viewStore.setViewState(props);
+    //this.viewStore.setViewState(props);
 
     makeObservable(this, {
       selectedObject: observable,
@@ -148,6 +146,7 @@ class Viewer {
     }
     this.deck.setProps({
       views: this.viewStore.getViews(),
+      viewState: this.viewStore.getViewStates(),
     });
   }
 
@@ -169,6 +168,7 @@ class Viewer {
     return {
       layers: this.layerStore.getLayersInstances(),
       views: this.viewStore.getViews(),
+      viewState: this.viewStore.getViewStates(),
     };
   }
 
@@ -208,6 +208,9 @@ class Viewer {
     } else {
       this.viewStore.setCenter(lngLatCenter);
     }
+    this.deck.setProps({
+      views: this.viewStore.getViews(),
+    });
   }
 
   setLayerState(layerId: string, state) {

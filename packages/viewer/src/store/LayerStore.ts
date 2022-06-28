@@ -146,6 +146,33 @@ const layerGroupCatalog: LayerGroupState[] = [
     ],
   },
   {
+    title: 'Ground',
+    description: 'Ground result layer 2',
+    layers: [
+      {
+        type: GroundSurfaceLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: false,
+        isMeshLayer: true,
+        props: {
+          id: 'ground-layer-result-mesh-2',
+          data: [1],
+          _instanced: false,
+          _useMeshColors: true,
+          wireframe: false,
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          getPosition: d => [0, 0, 0],
+          parameters: {
+            depthTest: true,
+          },
+          getColor: d => [200, 200, 200],
+        },
+      },
+    ],
+  },
+  {
     title: 'Land use',
     description: 'Land use layer',
     layers: [
