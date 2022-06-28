@@ -15,7 +15,32 @@ function getBad(sufficient, excellent) {
   return sufficient - span;
 }
 
-export function generateColor(value, sufficient, excellent) {
+function toNumericArray(d3Color) {
+  // this could probably be done smarter, this is a quick fix
+  // maybe there is a setting
+  const colorRgb = d3Color.split('(')[1].split(')')[0].split(',').map(Number);
+  return colorRgb;
+}
+
+export function generateColor(
+  value,
+  min,
+  max,
+  from: string,
+  to: string,
+  via?: string
+) {
+  const middle = min + (max - min) / 2;
+  const colorRange = scaleLinear()
+    .domain([min, middle, max])
+    .range(via ? [from, via, to] : [from, to]);
+
+  colorRange.clamp(true);
+
+  return toNumericArray(colorRange(value));
+}
+
+export function extrapolateColor(value, sufficient, excellent) {
   const bad = getBad(sufficient, excellent);
 
   const colorRange = scaleLinear()
@@ -23,14 +48,7 @@ export function generateColor(value, sufficient, excellent) {
     .range(['red', 'yellow', 'blue']);
 
   colorRange.clamp(true);
-  // this could probably be done smarter, this is a quick fix
-  const colorRgb = colorRange(value)
-    .split('(')[1]
-    .split(')')[0]
-    .split(',')
-    .map(Number);
-
-  return colorRgb;
+  return toNumericArray(colorRange(value));
 }
 
 export function getIndicatorColor(indicatorId: string, value: number) {
@@ -40,5 +58,5 @@ export function getIndicatorColor(indicatorId: string, value: number) {
     return null;
   }
 
-  return generateColor(value, sufficient, excellent);
+  return extrapolateColor(value, sufficient, excellent);
 }
