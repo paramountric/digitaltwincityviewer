@@ -7,6 +7,8 @@ import '@spectrum-web-components/menu/sp-menu.js';
 import '@spectrum-web-components/menu/sp-menu-item.js';
 import '@spectrum-web-components/icons-workflow/icons/sp-icon-show-one-layer.js';
 import '@spectrum-web-components/icons-workflow/icons/sp-icon-add-circle';
+import '@spectrum-web-components/icons-workflow/icons/sp-icon-visibility';
+import '@spectrum-web-components/icons-workflow/icons/sp-icon-visibility-off';
 import '@spectrum-web-components/progress-circle/sp-progress-circle.js';
 import { Store } from '../store/Store';
 
@@ -32,6 +34,16 @@ class LeftMenu extends MobxLitElement {
     }
   }
 
+  setLayerVisibility(e, layer, show) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.store.updateLayer({
+      name: layer.name,
+      id: layer.id,
+      isVisible: show,
+    });
+  }
+
   render(): TemplateResult {
     return html`<sp-menu selectable>
       ${this.store.layers.map(layer => {
@@ -46,7 +58,17 @@ class LeftMenu extends MobxLitElement {
                   size="s"
                 ></sp-progress-circle
               ></kbd>`
-            : null}</sp-menu-item
+            : layer.isVisible
+            ? html`<kbd
+                @click=${e => this.setLayerVisibility(e, layer, false)}
+                slot="value"
+                ><sp-icon-visibility></sp-icon-visibility
+              ></kbd>`
+            : html`<kbd
+                @click=${e => this.setLayerVisibility(e, layer, true)}
+                slot="value"
+                ><sp-icon-visibility-off></sp-icon-visibility-off
+              ></kbd>`}</sp-menu-item
         >`;
       })}
       <sp-menu-item @click=${this.openLayerDialog}

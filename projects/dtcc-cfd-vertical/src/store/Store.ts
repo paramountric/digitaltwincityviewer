@@ -18,8 +18,10 @@ const websocketUrl =
 
 // todo: create one LayerStatus and one Layer type
 type Layer = {
+  id?: string;
   name: string;
   isLoading?: boolean;
+  isVisible?: boolean;
   // for loading
   task?: string; // main task
   status?: string; // status text
@@ -81,9 +83,16 @@ export class Store {
     if (!layer) {
       return;
     }
-    const { isLoading, task, status, progress } = layerData;
+    const { isLoading, isVisible, task, status, progress } = layerData;
     if (isLoading || isLoading === false) {
       layer.isLoading = isLoading;
+    }
+    if (isVisible || isVisible === false) {
+      layer.isVisible = isVisible;
+      this.viewer.setLayerProps(layer.id, {
+        visible: isVisible,
+      });
+      this.viewer.render();
     }
     if (task || task === '') {
       layer.task = task;
@@ -113,49 +122,54 @@ export class Store {
     //   'buildings'
     // );
 
-    // await this.getCachedLayer(
-    //   'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/CityModel.pb',
-    //   'buildings-layer-polygons-lod-1',
-    //   'buildings'
-    // );
-
-    // this.addLayer({
-    //   name: 'Buildings',
-    //   isLoading: true,
-    // });
-
-    // await this.getCachedLayer(
-    //   'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/GroundSurface.pb',
-    //   'ground-layer-surface-mesh',
-    //   'ground'
-    // );
-
-    // this.addLayer({
-    //   name: 'Ground surface',
-    //   isLoading: true,
-    // });
+    this.addLayer({
+      id: 'buildings-layer-polygons-lod-1',
+      name: 'Buildings',
+      isLoading: true,
+      isVisible: true,
+    });
+    this.addLayer({
+      id: 'ground-layer-surface-mesh',
+      name: 'Ground surface',
+      isVisible: true,
+      isLoading: true,
+    });
+    this.addLayer({
+      id: 'ground-layer-result-mesh',
+      name: 'Velocity magnitude surface',
+      isLoading: true,
+      isVisible: true,
+    });
+    this.addLayer({
+      id: 'ground-layer-result-mesh-2',
+      name: 'Pressure surface',
+      isLoading: true,
+      isVisible: false,
+    });
 
     await this.getCachedLayer(
-      'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/VelocitySurface.pb',
+      'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/CityModel.pb',
+      'buildings-layer-polygons-lod-1',
+      'buildings'
+    );
+
+    await this.getCachedLayer(
+      'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/GroundSurface.pb',
+      'ground-layer-surface-mesh',
+      'ground'
+    );
+
+    await this.getCachedLayer(
+      'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/VelocityMagnitudeSurface.pb',
       'ground-layer-result-mesh',
       'surfaceField'
     );
 
-    // this.addLayer({
-    //   name: 'Simulation result',
-    //   isLoading: true,
-    // });
-
-    // await this.getCachedLayer(
-    //   'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/PressureSurface.pb',
-    //   'ground-layer-result-mesh',
-    //   'surfaceField'
-    // );
-
-    this.addLayer({
-      name: 'Simulation result',
-      isLoading: true,
-    });
+    await this.getCachedLayer(
+      'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/PressureSurface.pb',
+      'ground-layer-result-mesh-2',
+      'surfaceField'
+    );
 
     // await this.getCachedLayer(
     //   'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/FlowField.pb',
@@ -172,6 +186,11 @@ export class Store {
       this.updateLayer({ name: 'Buildings', isLoading: false });
       this.updateLayer({ name: 'Ground surface', isLoading: false });
       this.updateLayer({ name: 'Simulation result', isLoading: false });
+      this.updateLayer({
+        name: 'Velocity magnitude surface',
+        isLoading: false,
+      });
+      this.updateLayer({ name: 'Pressure surface', isLoading: false });
     }, 1000);
 
     // await this.loadLayerData(
