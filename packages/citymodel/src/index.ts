@@ -144,7 +144,6 @@ function getLayerPosition(extent) {
 
 // Only for lod 1 so far
 function parseBuildings(fileData) {
-  console.log(fileData);
   const buildings = fileData.Buildings || fileData.buildings;
   const origin = fileData.Origin || fileData.origin || { x: 0, y: 0 };
   if (!buildings) {
@@ -160,7 +159,14 @@ function parseBuildings(fileData) {
     const building = buildings[i];
     const footprint = building.Footprint || building.footPrint;
     const coordinates = [];
-    const polygon = footprint.vertices ? footprint.vertices : footprint;
+    if (footprint.holes) {
+      console.log(footprint);
+    }
+    const polygon = footprint.shell
+      ? footprint.shell.vertices
+      : footprint.vertices
+      ? footprint.vertices
+      : footprint;
     for (let j = 0; j < polygon.length; j++) {
       const { x, y } = polygon[j];
       const projected = [x, y];
@@ -186,7 +192,9 @@ function parseBuildings(fileData) {
         building.GroundHeight || building.groundHeight,
       ]);
     }
-    coordinates.push([...coordinates[0]]);
+    if (coordinates[0]) {
+      coordinates.push([...coordinates[0]]);
+    }
     const feature = {
       id: null,
       type: 'Feature',
@@ -229,7 +237,6 @@ function parseBuildings(fileData) {
 }
 
 function parseSurfaceField(fileData) {
-  console.log(fileData);
   if (!fileData.surface || !fileData.values) {
     return null;
   }
@@ -283,11 +290,20 @@ function parseSurfaceField(fileData) {
     if (values[i] > maxVal) {
       maxVal = values[i];
     }
+  }
+  for (let i = 0; i < values.length; i++) {
     //const color = generateColor(values[i], 4, 2);
-    const color = generateColor(values[i], 1, 0);
+    const color = generateColor(
+      values[i],
+      minVal,
+      maxVal,
+      'red',
+      'blue',
+      'orange'
+    );
     colors.push(color[0] / 255, color[1] / 255, color[2] / 255, 0.6);
   }
-  console.log(minVal, maxVal);
+  //console.log(minVal, maxVal);
   const flatIndices = indices.reduce((acc, i) => {
     if (typeof i === 'number') {
       acc.push(i);
