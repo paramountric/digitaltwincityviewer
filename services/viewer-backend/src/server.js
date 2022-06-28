@@ -115,22 +115,22 @@ wss.on('connection', async function connection(wsClient, request, user) {
     })
   );
 
-  // await addCodeSprintData(
-  //   'http://localhost:9000/files/HelsingborgOceanen/CityModel.pb',
-  //   'CityModel'
-  // );
-  // await addCodeSprintData(
-  //   'http://localhost:9000/files/HelsingborgOceanen/GroundSurface.pb',
-  //   'Surface3D'
-  // );
   await addCodeSprintData(
-    'http://localhost:9000/files/HelsingborgOceanen/VelocitySurface.pb',
+    'http://localhost:9000/files/HelsingborgOceanen/CityModel.pb',
+    'CityModel'
+  );
+  await addCodeSprintData(
+    'http://localhost:9000/files/HelsingborgOceanen/GroundSurface.pb',
+    'Surface3D'
+  );
+  await addCodeSprintData(
+    'http://localhost:9000/files/HelsingborgOceanen/VelocityMagnitudeSurface.pb',
     'SurfaceField3D'
   );
-  // await addCodeSprintData(
-  //   'http://localhost:9000/files/HelsingborgOceanen/PressureSurface.pb',
-  //   'SurfaceField3D'
-  // );
+  await addCodeSprintData(
+    'http://localhost:9000/files/HelsingborgOceanen/PressureSurface.pb',
+    'SurfaceField3D'
+  );
 
   // somehow the client must tell which layers are needed, and subscribe to those layers
   wsClient.layers = [];
