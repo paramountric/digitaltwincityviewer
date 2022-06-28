@@ -197,8 +197,6 @@ export class Store {
       },
       []
     );
-    console.log(filteredContexts);
-    console.log(this);
     // this is just prototype code!
     const nodes = [];
     const edges = [];
@@ -302,6 +300,8 @@ export class Store {
         url: 'no-url',
       },
     });
+    this.viewer.viewStore.setActiveView('graph');
+    this.viewer.viewStore.setShowGraphView(true);
     this.viewer.render();
   }
 

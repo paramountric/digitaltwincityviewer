@@ -70,11 +70,17 @@ class App extends MobxLitElement {
   }
 
   toggleGraphSwitch() {
-    const isVisible = this.store.viewer.viewStore.showGraphView;
-    if (!isVisible) {
-      this.store.viewer.viewStore.setActiveView('graph');
-    }
-    this.store.viewer.viewStore.setShowGraphView(!isVisible);
+    // first set the new state
+    this.store.viewer.setActiveView(
+      this.store.viewer.viewStore.activeView === 'map' ? 'graph' : 'map'
+    );
+    // then update according to new state
+    const { activeView } = this.store.viewer.viewStore;
+    // hide the graph if switching to map
+    this.store.viewer.viewStore.setShowGraphView(activeView === 'graph');
+    this.store.viewer.setLayerProps('graph-layer', {
+      visible: activeView === 'graph',
+    });
     this.store.viewer.render();
   }
 
@@ -98,10 +104,10 @@ class App extends MobxLitElement {
         ? html`<sp-switch
             id="graph-switch"
             label="Graph"
-            ${this.store.viewer.viewStore.showGraphView ? html`checked` : false}
+            ?checked=${this.store.viewer.viewStore.activeView === 'graph'}
             @click=${this.toggleGraphSwitch}
           >
-            Graph/Map
+            Map/Graph
           </sp-switch>`
         : null;
 
