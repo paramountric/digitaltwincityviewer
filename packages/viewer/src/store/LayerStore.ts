@@ -25,6 +25,7 @@ export type UpdateLayerProps = {
 type LayerState = {
   isLoaded?: boolean;
   isLoading?: boolean;
+  highlightAll?: boolean;
   url?: string;
   layerStyle?: LayerStyle;
 };
@@ -54,6 +55,8 @@ type ColorStyle = {
   sufficient: number;
   excellent: number;
 };
+
+const HIGHLIGHT_COLOR = [100, 150, 250, 255];
 
 const layerGroupCatalog: LayerGroupState[] = [
   {
@@ -194,7 +197,7 @@ const layerGroupCatalog: LayerGroupState[] = [
           parameters: {
             depthTest: true,
           },
-          getColor: d => [235, 235, 255],
+          getColor: [235, 235, 255],
         },
       },
     ],
@@ -213,6 +216,7 @@ const layerGroupCatalog: LayerGroupState[] = [
         props: {
           id: 'city-furniture-general-layer-lod-1',
           autoHighlight: true,
+          highlightColor: HIGHLIGHT_COLOR,
           pickable: true,
           stroked: true,
           filled: true,
@@ -251,7 +255,7 @@ const layerGroupCatalog: LayerGroupState[] = [
           parameters: {
             depthTest: true,
           },
-          getColor: d => [235, 235, 255],
+          getColor: [235, 235, 255],
         },
       },
       {
@@ -293,7 +297,7 @@ const layerGroupCatalog: LayerGroupState[] = [
           id: 'buildings-layer-polygons-lod-1',
           opacity: 1,
           autoHighlight: true,
-          highlightColor: [100, 150, 250, 128],
+          highlightColor: HIGHLIGHT_COLOR,
           extruded: true,
           wireframe: true,
           pickable: true,
@@ -331,7 +335,7 @@ const layerGroupCatalog: LayerGroupState[] = [
         props: {
           id: 'buildings-layer-surfaces-lod-3',
           autoHighlight: true,
-          highlightColor: { type: 'accessor', value: [0, 0, 0, 0] },
+          highlightColor: HIGHLIGHT_COLOR,
           data: [],
           _instanced: false,
           _useMeshColors: true,
@@ -355,7 +359,7 @@ const layerGroupCatalog: LayerGroupState[] = [
             depthFunc: GL.LEQUAL,
             blendEquation: GL.FUNC_ADD,
           },
-          getColor: [255, 255, 255],
+          getColor: [235, 235, 255],
         },
       },
     ],
@@ -374,11 +378,11 @@ const layerGroupCatalog: LayerGroupState[] = [
         props: {
           id: 'city-furniture-polygon-layer-lod-1',
           opacity: 1,
-          autoHighlight: false,
-          highlightColor: [100, 150, 250, 128],
+          autoHighlight: true,
+          highlightColor: HIGHLIGHT_COLOR,
           extruded: true,
           wireframe: true,
-          pickable: false,
+          pickable: true,
           coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
           getPolygon: d => {
             return d.geometry.coordinates;
@@ -442,6 +446,7 @@ const layerGroupCatalog: LayerGroupState[] = [
         props: {
           id: 'citygml-ade-lod-1',
           autoHighlight: true,
+          highlightColor: HIGHLIGHT_COLOR,
           pickable: true,
           stroked: true,
           filled: true,
@@ -581,6 +586,34 @@ export class LayerStore {
           }
         };
       }
+      // todo: refactor this into dynamic props assignment in original spec
+      if (layer.highlightAll) {
+        console.log(layer);
+        // just prototyping to try out highlighting the layer
+        layer.props.prevGetColor =
+          layer.props.prevGetColor || layer.props.getColor;
+        layer.props.prevGetFillColor =
+          layer.props.prevGetFillColor || layer.props.getFillColor;
+        layer.props.prevGetLineColor =
+          layer.props.prevGetLineColor || layer.props.getLineColor;
+        layer.props._useMeshColors = false;
+        layer.props.getColor = HIGHLIGHT_COLOR;
+        layer.props.getFillColor = HIGHLIGHT_COLOR;
+        layer.props.getLineColor = HIGHLIGHT_COLOR;
+        layer.props.updateTriggers = {
+          getFillColor: true,
+          getLineColor: true,
+        };
+      } else if (layer.props.prevGetColor || layer.props.prevGetFillColor) {
+        layer.props._useMeshColors = layer.isMeshLayer ? true : false;
+        layer.props.getColor = layer.props.prevGetColor;
+        layer.props.getFillColor = layer.props.prevGetFillColor;
+        layer.props.getLineColor = layer.props.prevGetLineColor;
+        layer.props.updateTriggers = {
+          getFillColor: false,
+          getLineColor: false,
+        };
+      }
       if (layer.props.id === 'graph-layer') {
         layer.props.onHover = d => {
           if (d.object) {
@@ -619,7 +652,6 @@ export class LayerStore {
     if (props.center) {
       // todo: figure out a way to set the current city and center the data that is loaded
       if (!this.viewer.currentCity) {
-        console.log(props.center);
         this.viewer.currentCity = getCity(props.center[0], props.center[1]);
         console.log(this.viewer.currentCity);
       }
@@ -634,13 +666,12 @@ export class LayerStore {
       // here the mutation is troublesome, so better refactor this function to make props immutable
       props = Object.assign({}, props);
       props.modelMatrix = (props.modelMatrix || mat4.create()).slice();
-      console.log(layerOffset);
       props.modelMatrix[12] -= layerOffset[0];
       props.modelMatrix[13] -= layerOffset[1];
     } else if (this.layerOffset) {
-      props.modelMatrix = mat4.create();
-      props.modelMatrix[12] = this.layerOffset[0];
-      props.modelMatrix[13] = this.layerOffset[1];
+      // props.modelMatrix = mat4.create();
+      // props.modelMatrix[12] = this.layerOffset[0];
+      // props.modelMatrix[13] = this.layerOffset[1];
     } else {
       console.warn('layer has no center, and city is not set: ', props);
     }
@@ -663,6 +694,7 @@ export class LayerStore {
       props.data = [props.data];
     }
     layer.props = Object.assign(layer.props, props);
+    console.log(layer);
   }
   getLayerData(layerId) {
     const layer = this.getLayerById(layerId);
