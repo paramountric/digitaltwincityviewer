@@ -86,12 +86,26 @@ type ParsedSchema = {
 };
 
 const DEFAULT_CONTEXT = 'trecim';
+const typeToLayerMapping = {
+  Building: ['buildings-layer-surfaces-lod-3'],
+  Transportation: [
+    'transportation-layer-traffic-area-lod-2',
+    'transportation-layer-auxiliary-traffic-area-lod-2',
+  ],
+  Landuse: ['landuse-layer-surface-lod-1'],
+  CityFurniture: [
+    'city-furniture-general-layer-lod-1',
+    'city-furniture-polygon-layer-lod-1',
+  ],
+  Facility: ['citygml-ade-lod-1'],
+};
 
 export class Store {
   public isLoading = false;
   public loadingMessage = '';
   public loadingProgress = 0;
   public showLeftMenu = true;
+  public selectedObjectId: string;
   public viewer: Viewer;
   // this should be loaded into the app dynamically
   public contexts: {
@@ -209,7 +223,7 @@ export class Store {
       if (!nodeMap[entityType.id]) {
         nodes.push({
           id: entityType.id,
-          name: `${entityType.type}: ${entityType.id}`,
+          name: `${entityType.id}`,
         });
       }
       nodeMap[entityType.id] = true;
@@ -232,7 +246,7 @@ export class Store {
         if (!nodeMap[nodeId]) {
           nodes.push({
             id: nodeId,
-            name: `${propertyKey}: ${displayVal}`,
+            name: `${propertyKey}`, //: ${displayVal}`,
           });
         }
         nodeMap[nodeId] = true;
@@ -314,17 +328,17 @@ export class Store {
     );
     this.addToContext(extension, DEFAULT_CONTEXT);
 
-    this.setIsLoading(true, 'Loading core schema');
-    const core = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/core.xsd'
-    );
-    this.addToContext(core, 'core');
+    // this.setIsLoading(true, 'Loading core schema');
+    // const core = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/core.xsd'
+    // );
+    // this.addToContext(core, 'core');
 
-    this.setIsLoading(true, 'Loading building schema');
-    const building = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/building.xsd'
-    );
-    this.addToContext(building, 'building');
+    // this.setIsLoading(true, 'Loading building schema');
+    // const building = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/building.xsd'
+    // );
+    // this.addToContext(building, 'building');
 
     // this.setIsLoading(true, 'Loading appearance schema');
     // const appearance = await this.loadCityModelSchema(
@@ -332,47 +346,47 @@ export class Store {
     // );
     // this.addToContext(appearance, 'appearance');
 
-    this.setIsLoading(true, 'Loading bridge schema');
-    const bridge = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/bridge.xsd'
-    );
-    this.addToContext(bridge, 'bridge');
+    // this.setIsLoading(true, 'Loading bridge schema');
+    // const bridge = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/bridge.xsd'
+    // );
+    // this.addToContext(bridge, 'bridge');
 
-    this.setIsLoading(true, 'Loading cityFurniture schema');
-    const cityFurniture = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/cityFurniture.xsd'
-    );
-    this.addToContext(cityFurniture, 'cityFurniture');
+    // this.setIsLoading(true, 'Loading cityFurniture schema');
+    // const cityFurniture = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/cityFurniture.xsd'
+    // );
+    // this.addToContext(cityFurniture, 'cityFurniture');
 
-    this.setIsLoading(true, 'Loading landUse schema');
-    const landUse = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/landUse.xsd'
-    );
-    this.addToContext(landUse, 'landUse');
+    // this.setIsLoading(true, 'Loading landUse schema');
+    // const landUse = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/landUse.xsd'
+    // );
+    // this.addToContext(landUse, 'landUse');
 
-    this.setIsLoading(true, 'Loading transportation schema');
-    const transportation = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/transportation.xsd'
-    );
-    this.addToContext(transportation, 'transportation');
+    // this.setIsLoading(true, 'Loading transportation schema');
+    // const transportation = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/transportation.xsd'
+    // );
+    // this.addToContext(transportation, 'transportation');
 
-    this.setIsLoading(true, 'Loading tunnel schema');
-    const tunnel = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/tunnel.xsd'
-    );
-    this.addToContext(tunnel, 'tunnel');
+    // this.setIsLoading(true, 'Loading tunnel schema');
+    // const tunnel = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/tunnel.xsd'
+    // );
+    // this.addToContext(tunnel, 'tunnel');
 
-    this.setIsLoading(true, 'Loading vegetation schema');
-    const vegetation = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/vegetation.xsd'
-    );
-    this.addToContext(vegetation, 'vegetation');
+    // this.setIsLoading(true, 'Loading vegetation schema');
+    // const vegetation = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/vegetation.xsd'
+    // );
+    // this.addToContext(vegetation, 'vegetation');
 
-    this.setIsLoading(true, 'Loading waterBody schema');
-    const waterBody = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/waterBody.xsd'
-    );
-    this.addToContext(waterBody, 'waterBody');
+    // this.setIsLoading(true, 'Loading waterBody schema');
+    // const waterBody = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/waterBody.xsd'
+    // );
+    // this.addToContext(waterBody, 'waterBody');
 
     // this.setIsLoading(true, 'Loading xAL schema');
     // const xAL = await this.loadCityModelSchema(
@@ -588,6 +602,61 @@ export class Store {
     this.updateEntityGraph();
   }
 
+  public setSelectedObject(type, id) {
+    const layers = typeToLayerMapping[type] || [];
+    for (const layer of layers) {
+      const layerData = this.getLayerData(layer);
+      if (layerData) {
+        const found = layerData.find(
+          d => d.id === id || d.properties.id === id
+        );
+        if (found) {
+          this.viewer.setSelectedObject(found);
+        }
+      }
+    }
+  }
+
+  public highlightCityObject(cityObject, highlight = true) {
+    const layers = typeToLayerMapping[cityObject.type] || [];
+    for (const layer of layers) {
+      if (highlight) {
+        const layerData = this.getLayerData(layer);
+        if (layerData) {
+          const found = layerData.find(
+            d => d.id === cityObject.id || d.properties.id === cityObject.id
+          );
+          if (found) {
+            const index = layerData.indexOf(found);
+            this.viewer.setLayerProps(layer, {
+              highlightedObjectIndex: index,
+            });
+          }
+        }
+      } else {
+        // somehow needed to first remove highlight, then enable autohighlight with null
+        this.viewer.setLayerProps(layer, {
+          highlightedObjectIndex: -1,
+        });
+        this.viewer.setLayerProps(layer, {
+          highlightedObjectIndex: null,
+        });
+      }
+    }
+    this.render();
+  }
+
+  public highlightType(type, highlight = true) {
+    const layers = typeToLayerMapping[type] || [];
+    for (const layer of layers) {
+      this.viewer.setLayerState(layer, {
+        highlightAll: highlight,
+      });
+    }
+
+    this.render();
+  }
+
   public reset() {
     this.viewer.setSelectedObject(null);
     this.viewer.unload();
@@ -614,6 +683,7 @@ export class Store {
   }
 
   addToContext(parsedSchema: any, namespace) {
+    console.log(parsedSchema);
     const context = this.contexts[namespace] || {
       type: '@type',
     };
@@ -626,14 +696,14 @@ export class Store {
     for (const schema of schemas) {
       if (schema.type) {
         const type = this.getType(schema);
-        // this.entityTypes[`${prefix}${schema.name}`] = {
-        //   id: schema.name,
-        //   type,
-        //   properties: {},
-        //   relationships: {
-        //     context: namespace,
-        //   },
-        // };
+        this.entityTypes[`${prefix}${schema.name}`] = {
+          id: schema.name,
+          type,
+          properties: {},
+          relationships: {
+            context: namespace,
+          },
+        };
         this.elementToTypeMapping[schema.name] = type;
       } else if (
         schema.tagName === 'xsd:complexType' ||
@@ -770,10 +840,10 @@ export class Store {
     });
     return Object.assign(
       {
-        Buildings: Object.values(buildings),
+        Building: Object.values(buildings),
         Transportation: transportation,
-        'Land use': landuse,
-        'City furniture': cityFurniture,
+        Landuse: landuse,
+        CityFurniture: cityFurniture,
       },
       trecim
     );

@@ -125,18 +125,34 @@ class RightMenu extends MobxLitElement {
         <sp-sidenav-heading label="Properties"
           >${properties.map(item => {
             const val = this.formatValue(selectedObject, item.property);
-            return html`<sp-sidenav-item
-              @click=${() =>
-                this.store.showPropertyType(
-                  item.property,
-                  selectedObject.properties.type
-                )}
-            >
+            return html`<sp-sidenav-item>
               <span>${item.label}:</span>
               <span>${val || '-'} ${units[item.property] || ''}</span>
             </sp-sidenav-item>`;
           })}
         </sp-sidenav-heading>
+        <sp-sidenav-item
+          value="Add instance to graph"
+          label="Add instance to
+        graph"
+          @click=${() =>
+            this.store.showEntityInstance(
+              selectedObject.id,
+              !Boolean(this.store.entityTypeFilter.instances[selectedObject.id])
+            )}
+        >
+        </sp-sidenav-item>
+        <sp-sidenav-item
+          value="Add type to graph"
+          label="Add type to
+        graph"
+          @click=${() =>
+            this.store.showEntityType(
+              selectedObject.type,
+              !Boolean(this.store.entityTypeFilter.types[selectedObject.type])
+            )}
+        >
+        </sp-sidenav-item>
       </sp-side-nav>
     </div>`;
   }

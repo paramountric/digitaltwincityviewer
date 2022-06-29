@@ -22,6 +22,10 @@ class LeftMenu extends MobxLitElement {
       overflow-x: hidden;
       overflow-y: auto;
     }
+    :host sp-sidenav-item {
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
   `;
 
   @property({ type: Object })
@@ -33,7 +37,6 @@ class LeftMenu extends MobxLitElement {
 
   render(): TemplateResult {
     const loadedData = this.store.getLoadedData();
-    console.log(loadedData);
     const typesByContext = Object.values(this.store.entityTypes).reduce(
       (acc, e) => {
         acc[e.relationships.context] = acc[e.relationships.context] || [];
@@ -55,35 +58,48 @@ class LeftMenu extends MobxLitElement {
             const sorted = loadedData[groupKey].sort((a, b) =>
               a.id.localeCompare(b.id)
             );
-            return html`<sp-sidenav-item value=${groupKey} label=${groupKey}
-              >${sorted.map(type => {
-                if (!type.children) {
+            return html`<sp-sidenav-item
+              @mouseover=${e => {
+                e.stopImmediatePropagation();
+                this.store.highlightType(groupKey, true);
+              }}
+              @mouseout=${e => {
+                e.stopImmediatePropagation();
+                this.store.highlightType(groupKey, false);
+              }}
+              value=${groupKey}
+              label=${groupKey}
+              >${sorted.map(cityObject => {
+                if (!cityObject.children) {
                   // if not children, this is actually an instance
-                  const name = type.name || `${type.type}:${type.id}`;
+                  const name =
+                    cityObject.name || `${cityObject.type}:${cityObject.id}`;
                   return html`<sp-sidenav-item
                     value=${name}
                     label=${name}
+                    @mouseover=${e => {
+                      e.stopImmediatePropagation();
+                      this.store.highlightCityObject(cityObject, true);
+                    }}
+                    @mouseout=${e => {
+                      e.stopImmediatePropagation();
+                      this.store.highlightCityObject(cityObject, false);
+                    }}
                     @click=${() =>
-                      this.store.showEntityInstance(
-                        type.id,
-                        !Boolean(this.store.entityTypeFilter.instances[type.id])
-                      )}
+                      this.store.setSelectedObject(groupKey, cityObject.id)}
                   ></sp-sidenav-item>`;
                 }
-                return html`<sp-sidenav-item value=${type.id} label=${type.id}
-                  >${type.children.map(instance => {
+                return html`<sp-sidenav-item
+                  value=${cityObject.id}
+                  label=${cityObject.id}
+                  >${cityObject.children.map(instance => {
                     const name =
                       instance.name || `${instance.type}:${instance.id}`;
                     return html`<sp-sidenav-item
                       value=${name}
                       label=${name}
                       @click=${() =>
-                        this.store.showEntityInstance(
-                          instance.id,
-                          !Boolean(
-                            this.store.entityTypeFilter.instances[instance.id]
-                          )
-                        )}
+                        this.store.setSelectedObject(groupKey, instance.id)}
                     ></sp-sidenav-item>`;
                   })}</sp-sidenav-item
                 >`;
