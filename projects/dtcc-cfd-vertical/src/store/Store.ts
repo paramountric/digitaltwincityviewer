@@ -140,36 +140,45 @@ export class Store {
       isLoading: true,
       isVisible: true,
     });
-    this.addLayer({
-      id: 'ground-layer-result-mesh-2',
-      name: 'Pressure surface',
-      isLoading: true,
-      isVisible: false,
-    });
+    // this.addLayer({
+    //   id: 'ground-layer-result-mesh-2',
+    //   name: 'Pressure surface',
+    //   isLoading: true,
+    //   isVisible: false,
+    // });
+
+    // const test = await fetch(
+    //   'http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/CityModel',
+    //   {
+    //     mode: 'cors',
+    //   }
+    // );
+    // const data = await test.arrayBuffer();
+    // console.log(data);
 
     await this.getCachedLayer(
-      'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/CityModel.pb',
+      'http://localhost:4000/cache?http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/CityModel',
       'buildings-layer-polygons-lod-1',
       'buildings'
     );
 
     await this.getCachedLayer(
-      'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/GroundSurface.pb',
+      'http://localhost:4000/cache?http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/GroundSurface',
       'ground-layer-surface-mesh',
       'ground'
     );
 
     await this.getCachedLayer(
-      'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/VelocityMagnitudeSurface.pb',
+      'http://localhost:4000/cache?http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/VelocityMagnitudeSurface',
       'ground-layer-result-mesh',
       'surfaceField'
     );
 
-    await this.getCachedLayer(
-      'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/PressureSurface.pb',
-      'ground-layer-result-mesh-2',
-      'surfaceField'
-    );
+    // await this.getCachedLayer(
+    //   'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/PressureSurface.pb',
+    //   'ground-layer-result-mesh-2',
+    //   'surfaceField'
+    // );
 
     // await this.getCachedLayer(
     //   'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/FlowField.pb',
