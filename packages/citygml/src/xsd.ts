@@ -26,9 +26,13 @@ export type Schema = {
   };
 };
 
-// a major hack, since convension to add Type in the end of a type does not play well with linked data
+// a major hack, since convension to add Type (or FeatureType in trecim) in the end of a type does not play well with linked data
 function typeHack(str: string) {
-  return str.slice(-4) === 'Type' ? str.slice(0, -4) : str;
+  return str.slice(-11) === 'FeatureType'
+    ? str.slice(0, -11)
+    : str.slice(-4) === 'Type'
+    ? str.slice(0, -4)
+    : str;
 }
 
 function createNamedNode(node) {
