@@ -57,6 +57,38 @@ const addCodeSprintData = async (url, type) => {
   cache.set(url, parsed);
 };
 
+// this should be removed, only for codesprint data
+addCodeSprintData(
+  'http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/CityModel',
+  'CityModel'
+);
+addCodeSprintData(
+  'http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/GroundSurface',
+  'Surface3D'
+);
+addCodeSprintData(
+  'http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/VelocityMagnitudeSurface',
+  'SurfaceField3D'
+);
+
+// await addCodeSprintData(
+//   'http://localhost:9000/files/HelsingborgOceanen/CityModel.pb',
+//   'CityModel'
+// );
+
+// await addCodeSprintData(
+//   'http://localhost:9000/files/HelsingborgOceanen/GroundSurface.pb',
+//   'Surface3D'
+// );
+// await addCodeSprintData(
+//   'http://localhost:9000/files/HelsingborgOceanen/VelocityMagnitudeSurface.pb',
+//   'SurfaceField3D'
+// );
+// await addCodeSprintData(
+//   'http://localhost:9000/files/HelsingborgOceanen/PressureSurface.pb',
+//   'SurfaceField3D'
+// );
+
 // setup traffic from websocket to mqtt (will be overwritten from parent context)
 server.onWebsocketMessage = json => {
   console.warn(
@@ -113,23 +145,6 @@ wss.on('connection', async function connection(wsClient, request, user) {
     JSON.stringify({
       message: 'ws connection established',
     })
-  );
-
-  await addCodeSprintData(
-    'http://localhost:9000/files/HelsingborgOceanen/CityModel.pb',
-    'CityModel'
-  );
-  await addCodeSprintData(
-    'http://localhost:9000/files/HelsingborgOceanen/GroundSurface.pb',
-    'Surface3D'
-  );
-  await addCodeSprintData(
-    'http://localhost:9000/files/HelsingborgOceanen/VelocityMagnitudeSurface.pb',
-    'SurfaceField3D'
-  );
-  await addCodeSprintData(
-    'http://localhost:9000/files/HelsingborgOceanen/PressureSurface.pb',
-    'SurfaceField3D'
   );
 
   // somehow the client must tell which layers are needed, and subscribe to those layers
