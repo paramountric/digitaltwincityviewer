@@ -223,7 +223,10 @@ export class Store {
       if (!nodeMap[entityType.id]) {
         nodes.push({
           id: entityType.id,
-          name: `${entityType.id}`,
+          name: `${
+            entityType.type === 'EntityType' ? 'Type' : entityType.type
+          }:${entityType.id}`,
+          radius: 800,
         });
       }
       nodeMap[entityType.id] = true;
@@ -246,7 +249,8 @@ export class Store {
         if (!nodeMap[nodeId]) {
           nodes.push({
             id: nodeId,
-            name: `${propertyKey}`, //: ${displayVal}`,
+            name: `${propertyKey}: ${displayVal}`,
+            radius: 400,
           });
         }
         nodeMap[nodeId] = true;
@@ -292,6 +296,7 @@ export class Store {
         nodes.push({
           id: edge.source,
           name: edge.source,
+          radius: 800,
         });
         nodeMap[edge.source] = true;
       }
@@ -299,6 +304,7 @@ export class Store {
         nodes.push({
           id: edge.target,
           name: edge.target,
+          radius: 800,
         });
         nodeMap[edge.target] = true;
       }

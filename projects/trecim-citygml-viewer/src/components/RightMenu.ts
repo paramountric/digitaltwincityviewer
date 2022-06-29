@@ -137,8 +137,12 @@ class RightMenu extends MobxLitElement {
         graph"
           @click=${() =>
             this.store.showEntityInstance(
-              selectedObject.id,
-              !Boolean(this.store.entityTypeFilter.instances[selectedObject.id])
+              selectedObject.properties.id,
+              !Boolean(
+                this.store.entityTypeFilter.instances[
+                  selectedObject.properties.id
+                ]
+              )
             )}
         >
         </sp-sidenav-item>
@@ -148,8 +152,12 @@ class RightMenu extends MobxLitElement {
         graph"
           @click=${() =>
             this.store.showEntityType(
-              selectedObject.type,
-              !Boolean(this.store.entityTypeFilter.types[selectedObject.type])
+              selectedObject.properties.type,
+              !Boolean(
+                this.store.entityTypeFilter.types[
+                  selectedObject.properties.type
+                ]
+              )
             )}
         >
         </sp-sidenav-item>
