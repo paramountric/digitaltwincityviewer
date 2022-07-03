@@ -28,6 +28,26 @@ class LayerPanel extends MobxLitElement {
     :host {
       z-index: 20;
     }
+
+    #progress-header {
+      width: 250px;
+      text-align: center;
+    }
+
+    #status-bar {
+      width: 500px;
+      text-align: center;
+    }
+
+    #status-list {
+      border-radius: 3px;
+      margin: 20px;
+      padding: 20px;
+      width: 500px;
+      height: 400px;
+      font-family: monospace;
+      background: #333;
+    }
   `;
 
   @property({ type: Object })
@@ -107,12 +127,13 @@ class LayerPanel extends MobxLitElement {
       if (statusCode === -1) {
         return 'negative';
       }
-      return 'disabled';
+      return 'neutral';
     };
     const statusList = task
       ? this.store.progressList.map(
           p =>
             html`<sp-status-light
+              style="color:#fff"
               size="m"
               variant=${getStatusVariant(p.statusCode)}
               >${p.status}</sp-status-light
@@ -154,12 +175,14 @@ class LayerPanel extends MobxLitElement {
           <sp-tab-panel style="flex-direction: column" value="select-area">
             <div style="width: 250px">
               <sp-button quiet variant="secondary" @click=${this.selectArea}>
-                Test
+                Run task
               </sp-button>
             </div>
-            <div style="width: 250px">${progressHeader}</div>
-            <div style="width: 250px">${statusList}</div>
-            <div style="width: 250px">${statusBar}</div>
+            <div style="margin: auto">
+              <div id="progress-header">${progressHeader}</div>
+              ${task ? html`<div id="status-list">${statusList}</div>` : null}
+              <div id="status-bar">${statusBar}</div>
+            </div>
           </sp-tab-panel>
           <sp-tab-panel value="layers">${layerList}</sp-tab-panel>
           <sp-tab-panel value="add-layer"

@@ -34,6 +34,7 @@ export class Store {
     [uiComponentKey: string]: boolean;
   };
   public progressList: Layer[] = []; // fill this with numbers corresponding to loaded status messages, just for prototyping the loading function
+  public progressHistoryList: Layer[][] = []; // add previous progress lists in this list
   public activeLayer: string | null;
   public activeLayerDialogTab: string | null;
   public viewer: Viewer;
@@ -383,6 +384,8 @@ export class Store {
           status: 'Finished',
           progress: 0,
         });
+        this.progressHistoryList.push([...this.progressList]);
+        this.progressList = [];
         return;
       }
       this.updateLayer({
@@ -390,11 +393,21 @@ export class Store {
         task,
         status,
       });
+      const previousProgressItem =
+        this.progressList[this.progressList.length - 1];
+      if (previousProgressItem) {
+        previousProgressItem.statusCode = Math.random() > 0.9 ? -1 : 1;
+        previousProgressItem.status = `${
+          previousProgressItem.status
+        } (${Math.ceil(Math.random() * 10).toFixed()}s)`;
+      }
       this.progressList.push({
         name: 'Buildings',
         task,
-        status,
-        statusCode: 1,
+        status: `${new Date().toLocaleString('se-SE', {
+          timeZone: 'UTC',
+        })} ${status}`,
+        statusCode: null,
       });
       i++;
     }
