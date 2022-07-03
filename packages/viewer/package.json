@@ -8,6 +8,7 @@
     "dist"
   ],
   "publishConfig": {
+    "registry": "https://npm.pkg.github.com/",
     "access": "public"
   },
   "repository": {
@@ -67,6 +68,7 @@
     "rbush": "^3.0.1",
     "rbush-knn": "^3.0.1",
     "stream": "0.0.2",
-    "threads": "^1.7.0"
+    "threads": "^1.7.0",
+    "webcola": "^3.4.0"
   }
 }
