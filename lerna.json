@@ -1,15 +1,10 @@
 {
-  "packages": [
-    "packages/*",
-    "projects/*",
-    "services/*"
-  ],
+  "packages": ["packages/*", "projects/*", "services/*"],
   "npmClient": "npm",
   "command": {
     "publish": {
-      "ignoreChanges": [
-        "**/*.md"
-      ],
+      "registry": "https://npm.pkg.github.com/digitaltwincityviewer",
+      "ignoreChanges": ["**/*.md"],
       "message": "chore(release): publish"
     },
     "bootstrap": {}

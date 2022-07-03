@@ -6,7 +6,7 @@
     "bootstrap": "lerna bootstrap",
     "tsc": "lerna run tsc --stream",
     "watch": "lerna run watch --stream",
-    "publish": "lerna publish from-package"
+    "publish": "lerna publish from-package --no-private"
   },
   "devDependencies": {
     "lerna": "^4.0.0"
