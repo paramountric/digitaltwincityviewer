@@ -2,6 +2,7 @@ import {
   CompositeLayer,
   UpdateParameters,
   COORDINATE_SYSTEM,
+  Context,
 } from '@deck.gl/core';
 import { TextLayer, ScatterplotLayer, LineLayer } from '@deck.gl/layers';
 import {
@@ -19,6 +20,7 @@ type Node = {
   y?: number;
   fx?: number;
   fy?: number;
+  radius?: number;
 };
 
 type Edge = {
@@ -37,6 +39,7 @@ const defaultProps = {};
 export default class GraphLayer extends CompositeLayer {
   static layerName = 'GraphLayer';
   static defaultProps = defaultProps;
+  context: Context;
   state: {
     nodes: Node[];
     edges: Edge[];
@@ -90,6 +93,7 @@ export default class GraphLayer extends CompositeLayer {
           y: node.y || 0,
           fx: node.fx || null,
           fy: node.fy || null,
+          radius: node.radius || DEFAULT_COLLISION_RADIUS,
         });
       }
     }
@@ -116,6 +120,35 @@ export default class GraphLayer extends CompositeLayer {
     this.setNeedsUpdate(true);
   }
 
+  onHover(info) {
+    //console.log(info);
+  }
+
+  onClick(info) {
+    //console.log(info);
+  }
+
+  onDragStart(info, e) {
+    //console.log(this);
+    //console.log(info, e);
+  }
+
+  onDrag(info, e) {
+    console.log(info, e);
+    e.preventDefault();
+    info.object.x = info.coordinate[0];
+    info.object.fx = info.coordinate[0];
+    info.object.y = info.coordinate[1];
+    info.object.fy = info.coordinate[1];
+    this.renderLayers();
+  }
+
+  onDragEnd(info, e) {
+    console.log(info, e);
+    info.object.fx = null;
+    info.object.fy = null;
+  }
+
   public runSimulation() {
     if (this.state.simulation) {
       this.state.simulation.on('tick', null).on('end', null);
@@ -125,7 +158,7 @@ export default class GraphLayer extends CompositeLayer {
     this.state.simulation = new ForceSimulation(this.state.nodes)
       .force(
         'charge',
-        forceManyBody().strength(-900).distanceMin(1000).distanceMax(1000)
+        forceManyBody().strength(-1000).distanceMin(500).distanceMax(500)
       )
       .force(
         'link',
@@ -137,9 +170,7 @@ export default class GraphLayer extends CompositeLayer {
       .force('center', forceCenter())
       .force(
         'collision',
-        forceCollide().radius(
-          d => d.collisionRadius || DEFAULT_COLLISION_RADIUS
-        )
+        forceCollide().radius(d => d.radius || DEFAULT_COLLISION_RADIUS)
       )
       .alpha(ALPHA);
     this.state.simulation
@@ -193,8 +224,7 @@ export default class GraphLayer extends CompositeLayer {
           data: this.state.edges,
           autoHighlight: false,
           coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-          // @ts-ignore somehow the parent methods are not visible to TS
-          sizeScale: this.context.viewport.zoom / 1.5, // todo: this must be connected to the graph view viewport
+          sizeScale: Math.max(0, this.context.viewport.zoom),
           getPosition: e => {
             const edgePoints = [
               [e.source.x, e.source.y],
@@ -226,7 +256,7 @@ export default class GraphLayer extends CompositeLayer {
             return angle;
           },
           getColor: [100, 100, 100],
-          getSize: 1,
+          getSize: 0.7,
           billboard: false,
           background: true,
           getBorderWidth: 1,
@@ -235,6 +265,7 @@ export default class GraphLayer extends CompositeLayer {
           getText: d => d.name,
           updateTriggers: {
             getPosition: d => [d.x, d.y],
+            //getSize: [1, this.context.viewport.zoom],
             getAngle: d => d,
           },
           parameters: {
@@ -279,7 +310,7 @@ export default class GraphLayer extends CompositeLayer {
           autoHighlight: false,
           coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
           // @ts-ignore somehow the parent methods are not visible to TS
-          sizeScale: this.context.viewport.zoom, // todo: this must be connected to the graph view viewport
+          sizeScale: this.context.viewport.zoom,
           getPosition: d => {
             return [d.x, d.y, this.state.graphLayerAltitude];
           },
@@ -289,6 +320,7 @@ export default class GraphLayer extends CompositeLayer {
           getText: d => d.name,
           updateTriggers: {
             getPosition: d => [d.x, d.y],
+            //getSize: [1, this.context.viewport.zoom],
           },
           parameters: {
             depthTest: false,

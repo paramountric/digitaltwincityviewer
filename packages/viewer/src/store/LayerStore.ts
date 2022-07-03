@@ -577,18 +577,17 @@ export class LayerStore {
           this.viewer.setSelectedObject(object);
         };
       }
-      if (layer.isHoverable) {
-        layer.props.onHover = d => {
-          if (d.object) {
-            this.viewer.setHoveredObject(d.object);
-          } else {
-            this.viewer.setHoveredObject(null);
-          }
-        };
-      }
+      // if (layer.isHoverable) {
+      //   layer.props.onHover = d => {
+      //     if (d.object) {
+      //       this.viewer.setHoveredObject(d.object);
+      //     } else {
+      //       this.viewer.setHoveredObject(null);
+      //     }
+      //   };
+      // }
       // todo: refactor this into dynamic props assignment in original spec
       if (layer.highlightAll) {
-        console.log(layer);
         // just prototyping to try out highlighting the layer
         layer.props.prevGetColor =
           layer.props.prevGetColor || layer.props.getColor;
@@ -615,18 +614,19 @@ export class LayerStore {
         };
       }
       if (layer.props.id === 'graph-layer') {
-        layer.props.onHover = d => {
-          if (d.object) {
-            this.viewer.setHoveredGraphObject(d.object);
-          } else {
-            this.viewer.setHoveredGraphObject(null);
-          }
-        };
+        // layer.props.onHover = d => {
+        //   if (d.object) {
+        //     console.log(d.object);
+        //     this.viewer.setHoveredGraphObject(d.object);
+        //   } else {
+        //     this.viewer.setHoveredGraphObject(null);
+        //   }
+        // };
       }
       if (layer.type === GraphLayer) {
-        layer.props.onTick = tick => {
-          console.log(tick);
-        };
+        // layer.props.onTick = tick => {
+        //   console.log(tick);
+        // };
       }
       return [...acc, new layer.type(layer.props)];
     }, []);
@@ -648,6 +648,13 @@ export class LayerStore {
     this.viewer.render();
   }
   setLayerProps(layerId, props: LayerProps) {
+    // todo: look into immutability
+    const layer = this.getLayerById(layerId);
+    if (!layer) {
+      console.warn('layer was not found with the id: ', layerId);
+      return;
+    }
+
     // (epsg:3857)
     if (props.center) {
       // todo: figure out a way to set the current city and center the data that is loaded
@@ -668,20 +675,14 @@ export class LayerStore {
       props.modelMatrix = (props.modelMatrix || mat4.create()).slice();
       props.modelMatrix[12] -= layerOffset[0];
       props.modelMatrix[13] -= layerOffset[1];
-    } else if (this.layerOffset) {
-      // props.modelMatrix = mat4.create();
-      // props.modelMatrix[12] = this.layerOffset[0];
-      // props.modelMatrix[13] = this.layerOffset[1];
+    } else if (this.layerOffset && !layer.props.modelMatrix) {
+      props.modelMatrix = mat4.create();
+      props.modelMatrix[12] = this.layerOffset[0];
+      props.modelMatrix[13] = this.layerOffset[1];
     } else {
       console.warn('layer has no center, and city is not set: ', props);
     }
 
-    // todo: look into immutability
-    const layer = this.getLayerById(layerId);
-    if (!layer) {
-      console.warn('layer was not found with the id: ', layerId);
-      return;
-    }
     // in a few places we have the problem that props needs functions and instances
     if (layer.isMeshLayer && props.data && !layer.isLoaded) {
       props.mesh = new Geometry({
@@ -694,7 +695,6 @@ export class LayerStore {
       props.data = [props.data];
     }
     layer.props = Object.assign(layer.props, props);
-    console.log(layer);
   }
   getLayerData(layerId) {
     const layer = this.getLayerById(layerId);
