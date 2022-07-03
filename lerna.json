@@ -3,7 +3,6 @@
   "npmClient": "npm",
   "command": {
     "publish": {
-      "registry": "https://npm.pkg.github.com/paramountric/digitaltwincityviewer",
       "ignoreChanges": ["**/*.md"],
       "message": "chore(release): publish"
     },
