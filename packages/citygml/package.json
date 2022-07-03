@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/citygml",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Functionality for (mostly parsing) CityGML",
   "keywords": [
     "CityGML",
@@ -31,7 +31,7 @@
     "url": "https://github.com/paramountric/digitaltwincityviewer/issues"
   },
   "dependencies": {
-    "@dtcv/cityjson": "^1.0.1",
+    "@dtcv/cityjson": "^1.0.2",
     "earcut": "^2.2.3",
     "gl-matrix": "^3.4.3",
     "json-schema-to-typescript": "^10.1.5",

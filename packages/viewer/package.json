@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/viewer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A viewport component for distributed layered geometry",
   "main": "./dist/index.js",
   "types": "./dist/types.d.ts",
