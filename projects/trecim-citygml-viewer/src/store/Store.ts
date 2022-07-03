@@ -239,13 +239,13 @@ export class Store {
       });
 
       for (const propertyKey of Object.keys(entityType.properties || {})) {
-        const nodeId = `${propertyKey}${entityType.type}`;
         const val = entityType.properties[propertyKey] as {
           key: string;
           type: string;
         };
+        const nodeId = `${propertyKey}${entityType.type}${val}`;
+
         const displayVal = val.type || val;
-        console.log(displayVal);
         if (!nodeMap[nodeId]) {
           nodes.push({
             id: nodeId,
@@ -334,17 +334,17 @@ export class Store {
     );
     this.addToContext(extension, DEFAULT_CONTEXT);
 
-    // this.setIsLoading(true, 'Loading core schema');
-    // const core = await this.loadCityModelSchema(
-    //   'http://localhost:9000/files/xsd/citygml2/core.xsd'
-    // );
-    // this.addToContext(core, 'core');
+    this.setIsLoading(true, 'Loading core schema');
+    const core = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/core.xsd'
+    );
+    this.addToContext(core, 'core');
 
-    // this.setIsLoading(true, 'Loading building schema');
-    // const building = await this.loadCityModelSchema(
-    //   'http://localhost:9000/files/xsd/citygml2/building.xsd'
-    // );
-    // this.addToContext(building, 'building');
+    this.setIsLoading(true, 'Loading building schema');
+    const building = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/building.xsd'
+    );
+    this.addToContext(building, 'building');
 
     // this.setIsLoading(true, 'Loading appearance schema');
     // const appearance = await this.loadCityModelSchema(
@@ -352,47 +352,47 @@ export class Store {
     // );
     // this.addToContext(appearance, 'appearance');
 
-    // this.setIsLoading(true, 'Loading bridge schema');
-    // const bridge = await this.loadCityModelSchema(
-    //   'http://localhost:9000/files/xsd/citygml2/bridge.xsd'
-    // );
-    // this.addToContext(bridge, 'bridge');
+    this.setIsLoading(true, 'Loading bridge schema');
+    const bridge = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/bridge.xsd'
+    );
+    this.addToContext(bridge, 'bridge');
 
-    // this.setIsLoading(true, 'Loading cityFurniture schema');
-    // const cityFurniture = await this.loadCityModelSchema(
-    //   'http://localhost:9000/files/xsd/citygml2/cityFurniture.xsd'
-    // );
-    // this.addToContext(cityFurniture, 'cityFurniture');
+    this.setIsLoading(true, 'Loading cityFurniture schema');
+    const cityFurniture = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/cityFurniture.xsd'
+    );
+    this.addToContext(cityFurniture, 'cityFurniture');
 
-    // this.setIsLoading(true, 'Loading landUse schema');
-    // const landUse = await this.loadCityModelSchema(
-    //   'http://localhost:9000/files/xsd/citygml2/landUse.xsd'
-    // );
-    // this.addToContext(landUse, 'landUse');
+    this.setIsLoading(true, 'Loading landUse schema');
+    const landUse = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/landUse.xsd'
+    );
+    this.addToContext(landUse, 'landUse');
 
-    // this.setIsLoading(true, 'Loading transportation schema');
-    // const transportation = await this.loadCityModelSchema(
-    //   'http://localhost:9000/files/xsd/citygml2/transportation.xsd'
-    // );
-    // this.addToContext(transportation, 'transportation');
+    this.setIsLoading(true, 'Loading transportation schema');
+    const transportation = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/transportation.xsd'
+    );
+    this.addToContext(transportation, 'transportation');
 
-    // this.setIsLoading(true, 'Loading tunnel schema');
-    // const tunnel = await this.loadCityModelSchema(
-    //   'http://localhost:9000/files/xsd/citygml2/tunnel.xsd'
-    // );
-    // this.addToContext(tunnel, 'tunnel');
+    this.setIsLoading(true, 'Loading tunnel schema');
+    const tunnel = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/tunnel.xsd'
+    );
+    this.addToContext(tunnel, 'tunnel');
 
-    // this.setIsLoading(true, 'Loading vegetation schema');
-    // const vegetation = await this.loadCityModelSchema(
-    //   'http://localhost:9000/files/xsd/citygml2/vegetation.xsd'
-    // );
-    // this.addToContext(vegetation, 'vegetation');
+    this.setIsLoading(true, 'Loading vegetation schema');
+    const vegetation = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/vegetation.xsd'
+    );
+    this.addToContext(vegetation, 'vegetation');
 
-    // this.setIsLoading(true, 'Loading waterBody schema');
-    // const waterBody = await this.loadCityModelSchema(
-    //   'http://localhost:9000/files/xsd/citygml2/waterBody.xsd'
-    // );
-    // this.addToContext(waterBody, 'waterBody');
+    this.setIsLoading(true, 'Loading waterBody schema');
+    const waterBody = await this.loadCityModelSchema(
+      'http://localhost:9000/files/xsd/citygml2/waterBody.xsd'
+    );
+    this.addToContext(waterBody, 'waterBody');
 
     // this.setIsLoading(true, 'Loading xAL schema');
     // const xAL = await this.loadCityModelSchema(

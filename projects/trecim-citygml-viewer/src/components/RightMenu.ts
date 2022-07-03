@@ -131,36 +131,34 @@ class RightMenu extends MobxLitElement {
             </sp-sidenav-item>`;
           })}
         </sp-sidenav-heading>
-        <sp-sidenav-item
-          value="Add instance to graph"
-          label="Add instance to
-        graph"
-          @click=${() =>
-            this.store.showEntityInstance(
-              selectedObject.properties.id,
-              !Boolean(
-                this.store.entityTypeFilter.instances[
-                  selectedObject.properties.id
-                ]
-              )
-            )}
-        >
-        </sp-sidenav-item>
-        <sp-sidenav-item
-          value="Add type to graph"
-          label="Add type to
-        graph"
-          @click=${() =>
-            this.store.showEntityType(
-              selectedObject.properties.type,
-              !Boolean(
-                this.store.entityTypeFilter.types[
-                  selectedObject.properties.type
-                ]
-              )
-            )}
-        >
-        </sp-sidenav-item>
+        <sp-sidenav-heading label="Graph visualisation">
+          <sp-sidenav-item
+            @click=${() =>
+              this.store.showEntityInstance(
+                selectedObject.properties.id,
+                !Boolean(
+                  this.store.entityTypeFilter.instances[
+                    selectedObject.properties.id
+                  ]
+                )
+              )}
+          >
+            <span>Add instance to graph</span>
+          </sp-sidenav-item>
+          <sp-sidenav-item
+            @click=${() =>
+              this.store.showEntityType(
+                selectedObject.properties.type,
+                !Boolean(
+                  this.store.entityTypeFilter.types[
+                    selectedObject.properties.type
+                  ]
+                )
+              )}
+          >
+            <span>Add type to graph</span>
+          </sp-sidenav-item>
+        </sp-sidenav-heading>
       </sp-side-nav>
     </div>`;
   }
