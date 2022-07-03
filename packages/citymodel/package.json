@@ -16,7 +16,6 @@
   "homepage": "https://digitaltwincityviewer.com",
   "license": "MIT",
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/",
     "access": "public"
   },
   "repository": {
