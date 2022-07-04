@@ -1,7 +1,10 @@
-import { coordinatesToMeters } from './project';
-import { buildingsFromPolygons, validateBuildingProperties } from './buildings';
-import { toEntities } from './entities';
-import { getModelMatrix, getBounds, getLayerPosition } from './getBounds';
+import { coordinatesToMeters } from './project.js';
+import {
+  buildingsFromPolygons,
+  validateBuildingProperties,
+} from './buildings.js';
+import { toEntities } from './entities.js';
+import { getModelMatrix, getBounds, getLayerPosition } from './getBounds.js';
 
 export {
   buildingsFromPolygons,
@@ -10,4 +13,5 @@ export {
   getModelMatrix,
   getBounds,
   coordinatesToMeters,
+  toEntities,
 };

@@ -8,8 +8,8 @@ import GL from '@luma.gl/constants';
 import { Model, Geometry, Texture2D, isWebGL2 } from '@luma.gl/core';
 import { hasFeature, FEATURES } from '@luma.gl/webgl';
 
-import vs from './building-surface-mesh-layer-vertex.glsl';
-import fs from './building-surface-mesh-layer-fragment.glsl';
+import vs from './building-surface-mesh-layer-vertex.glsl.js';
+import fs from './building-surface-mesh-layer-fragment.glsl.js';
 
 function validateGeometryAttributes(attributes, useMeshColors) {
   const hasColorAttribute = attributes.COLOR_0 || attributes.colors;

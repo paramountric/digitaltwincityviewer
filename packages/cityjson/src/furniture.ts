@@ -1,6 +1,6 @@
-import { CityJSONV111 } from './CityJSONV111';
-import { boundaryToPolygon } from './boundary';
-import { getLayerPosition, LayerMatrixOptions } from './layer';
+import { CityJSONV111 } from './CityJSONV111.js';
+import { boundaryToPolygon } from './boundary.js';
+import { getLayerPosition, LayerMatrixOptions } from './layer.js';
 
 function getColor(cityObject) {
   const colors = {

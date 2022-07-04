@@ -7,13 +7,13 @@ import { SimpleMeshLayer } from '@deck.gl/mesh-layers';
 import { TripsLayer } from '@deck.gl/geo-layers';
 import GL from '@luma.gl/constants';
 import { Geometry } from '@luma.gl/engine';
-import { Viewer } from '../Viewer';
-import { getCity } from '../utils/getCity';
-import GroundSurfaceLayer from '../layers/ground-surface-layer/GroundSurfaceLayer';
-import BuildingSurfaceLayer from '../layers/building-surface-layer/BuildingSurfaceLayer';
-import GraphLayer from '../layers/graph-layer/GraphLayer';
 import { mat4 } from 'gl-matrix';
-import { generateColor } from '../utils/colors';
+import { Viewer } from '../Viewer.js';
+import { getCity } from '../utils/getCity.js';
+import GroundSurfaceLayer from '../layers/ground-surface-layer/GroundSurfaceLayer.js';
+import BuildingSurfaceLayer from '../layers/building-surface-layer/BuildingSurfaceLayer.js';
+import GraphLayer from '../layers/graph-layer/GraphLayer.js';
+import { generateColor } from '../utils/colors.js';
 
 export type UpdateLayerProps = {
   layerId: string;

@@ -1,6 +1,6 @@
-import { CityJSONV111 } from './CityJSONV111';
-import { prepareBoundary, triangulate } from './boundary';
-import { getLayerPosition, LayerMatrixOptions, LayerProps } from './layer';
+import { CityJSONV111 } from './CityJSONV111.js';
+import { prepareBoundary, triangulate } from './boundary.js';
+import { getLayerPosition, LayerMatrixOptions, LayerProps } from './layer.js';
 
 // wip: just a very quick test to see if colors works
 // the colors can be set more granular in boundaries and semantics

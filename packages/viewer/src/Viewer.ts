@@ -5,11 +5,11 @@ import { Deck, MapViewState, MapView } from '@deck.gl/core';
 import { Feature } from 'geojson';
 import { LayerSpecification, Map, MapOptions } from 'maplibre-gl';
 import { makeObservable, observable, action } from 'mobx';
-import { LayerStore, UpdateLayerProps } from './store/LayerStore';
-import { ViewStore } from './store/ViewStore';
-import MaplibreWrapper from './utils/MaplibreWrapper';
-import { toLngLat } from './utils/projection';
-import { getCity, City } from './utils/getCity';
+import { LayerStore, UpdateLayerProps } from './store/LayerStore.js';
+import { ViewStore } from './store/ViewStore.js';
+import MaplibreWrapper from './utils/MaplibreWrapper.js';
+import { toLngLat } from './utils/projection.js';
+import { getCity, City } from './utils/getCity.js';
 
 const maplibreStyle = {
   id: 'digitaltwincityviewer',

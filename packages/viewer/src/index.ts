@@ -1,3 +1,5 @@
-export { Viewer, ViewerProps } from './Viewer';
-export { UpdateLayerProps } from './store/LayerStore';
-export { generateColor } from './utils/colors';
+import { Viewer, ViewerProps } from './Viewer.js';
+import { UpdateLayerProps } from './store/LayerStore.js';
+import { generateColor } from './utils/colors.js';
+
+export { Viewer, ViewerProps, UpdateLayerProps, generateColor };

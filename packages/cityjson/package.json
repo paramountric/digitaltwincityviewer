@@ -1,6 +1,7 @@
 {
   "name": "@dtcv/cityjson",
   "version": "1.0.2",
+  "type": "module",
   "description": "CityJSON parser for Digital Twin City Viewer project",
   "keywords": [
     "CityJSON",
@@ -27,7 +28,8 @@
     "tsc": "tsc",
     "watch": "tsc --watch",
     "lint": "eslint --ext .ts,.js src",
-    "format": "prettier --ignore-path .eslintignore --write \"src/**/*.+(js|ts|json)\""
+    "format": "prettier --ignore-path .eslintignore --write \"src/**/*.+(js|ts|json)\"",
+    "test": "jest"
   },
   "bugs": {
     "url": "https://github.com/paramountric/digitaltwincityviewer/issues"
@@ -38,11 +40,14 @@
     "proj4": "^2.8.0"
   },
   "devDependencies": {
+    "@types/jest": "^28.1.4",
     "@typescript-eslint/eslint-plugin": "^5.11.0",
     "@typescript-eslint/parser": "^5.11.0",
     "eslint": "^8.9.0",
     "eslint-config-prettier": "^8.3.0",
+    "jest": "^28.1.2",
     "rimraf": "^3.0.2",
+    "ts-jest": "^28.0.5",
     "typescript": "^4.5.5"
   }
 }

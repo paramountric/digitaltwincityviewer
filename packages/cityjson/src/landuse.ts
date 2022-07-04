@@ -1,6 +1,6 @@
-import { CityJSONV111 } from './CityJSONV111';
-import { prepareBoundary, triangulate } from './boundary';
-import { getLayerPosition, LayerMatrixOptions } from './layer';
+import { CityJSONV111 } from './CityJSONV111.js';
+import { prepareBoundary, triangulate } from './boundary.js';
+import { getLayerPosition, LayerMatrixOptions } from './layer.js';
 
 function getColor(cityObject) {
   const label = `${cityObject.class}${cityObject.function || ''}`;
