@@ -4,8 +4,9 @@
   "scripts": {
     "lerna": "lerna",
     "bootstrap": "lerna bootstrap",
-    "tsc": "lerna run tsc --stream",
-    "watch": "lerna run watch --stream",
+    "tsc": "lerna run tsc --stream --no-private",
+    "watch": "lerna run watch --stream --no-private",
+    "test": "lerna run test --no-private",
     "publish": "lerna publish from-package --no-private"
   },
   "devDependencies": {
