@@ -660,7 +660,7 @@ export class LayerStore {
       // todo: figure out a way to set the current city and center the data that is loaded
       if (!this.viewer.currentCity) {
         this.viewer.currentCity = getCity(props.center[0], props.center[1]);
-        //console.log(this.viewer.currentCity);
+        console.log(this.viewer.currentCity);
       }
       const currentCity = this.viewer.currentCity;
       const layerOffset = [
