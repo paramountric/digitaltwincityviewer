@@ -6,7 +6,13 @@ on:
       - main
       - development
     paths:
-      - packages
+      - packages/**/*.ts
+  push:
+    branches:
+      - main
+      - development
+    paths:
+      - packages/**/*.ts
 
 jobs:
   checks:
