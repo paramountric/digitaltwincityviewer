@@ -24,6 +24,7 @@
     "node-cache": "^5.1.2",
     "node-fetch": "^2.6.7",
     "protobufjs": "^6.11.3",
+    "redis": "^4.1.1",
     "ws": "^8.8.0"
   },
   "devDependencies": {

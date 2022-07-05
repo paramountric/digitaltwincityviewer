@@ -1,6 +1,7 @@
 import mqtt from 'mqtt';
-import { server } from './server.js';
+import { createClient } from 'redis';
 import protobuf from 'protobufjs';
+import { server } from './server.js';
 
 const { MQTT_INTERNAL_HOST, MQTT_HUB } = process.env;
 const WS_PORT = 4000;
@@ -10,6 +11,16 @@ const mqttUrl = mqttDev || MQTT_HUB || 'https://test.mosquitto.org/'; // 'mqtt:/
 //const mqttClient = mqtt.connect(mqttUrl);
 
 const run = async () => {
+  const client = createClient({
+    url: process.env.REDIS_URL,
+  });
+
+  client.on('error', err => console.log('Redis Client Error', err));
+  await client.connect();
+  await client.set('key', 'value');
+  const value = await client.get('key');
+  console.log('test redis: ', value);
+
   const protoRoot = await protobuf.load('dtcc.proto');
   server.protoRoot = protoRoot;
   server.listen(WS_PORT, () => {
