@@ -6,11 +6,16 @@ on:
       - development
       - main
     paths:
-      - packages
+      - packages/**/*.ts
+  push:
+    branches:
+      - main
+      - development
+    paths:
+      - packages/**/*.ts
 
 jobs:
   publish:
-    if: github.event.pull_request.merged == true # Condition
     runs-on: ubuntu-latest
     
     steps:
