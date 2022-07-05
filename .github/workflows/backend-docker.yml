@@ -17,17 +17,20 @@ on:
 
 env:
   IMAGE_NAME: viewer-backend
+  CONTEXT_PATH: services/viewer-backend
 
 jobs:
   push:
+    defaults:
+      run:
+        working-directory: $CONTEXT_PATH
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
 
     steps:
       - uses: actions/checkout@v2
 
       - name: Build image
-        run: docker build . --file services/viewer-backend/Dockerfile --tag $IMAGE_NAME
+        run: docker build . --file Dockerfile --tag $IMAGE_NAME
 
       - name: Log into GitHub Container Registry
         run: echo "${{ secrets.CR_PAT }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
