@@ -10,6 +10,8 @@ const mqttDev = isDev ? MQTT_INTERNAL_HOST : null;
 const mqttUrl = mqttDev || MQTT_HUB || 'https://test.mosquitto.org/'; // 'mqtt://mqtt-broker';
 //const mqttClient = mqtt.connect(mqttUrl);
 
+// test
+
 const run = async () => {
   const client = createClient({
     url: process.env.REDIS_URL,
