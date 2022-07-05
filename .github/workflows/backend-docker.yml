@@ -16,7 +16,7 @@ on:
       - services/viewer-backend/**
 
 env:
-  IMAGE_NAME: viewer-backend
+  IMAGE_NAME: dtcv-backend
 
 jobs:
   push:
