@@ -6,14 +6,14 @@ on:
       - main
       - development
     paths:
-      - services/viewer-backend
+      - services/viewer-backend/**
 
   pull_request:
     branches:
       - main
       - development
     paths:
-      - services/viewer-backend
+      - services/viewer-backend/**
 
 env:
   IMAGE_NAME: viewer-backend
