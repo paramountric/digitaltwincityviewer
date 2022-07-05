@@ -17,13 +17,12 @@ on:
 
 env:
   IMAGE_NAME: viewer-backend
-  CONTEXT_PATH: services/viewer-backend
 
 jobs:
   push:
     defaults:
       run:
-        working-directory: $CONTEXT_PATH
+        working-directory: services/viewer-backend
     runs-on: ubuntu-latest
 
     steps:
