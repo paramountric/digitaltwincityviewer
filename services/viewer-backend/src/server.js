@@ -58,18 +58,18 @@ const addCodeSprintData = async (url, type) => {
 };
 
 // this should be removed, only for codesprint data
-addCodeSprintData(
-  'http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/CityModel',
-  'CityModel'
-);
-addCodeSprintData(
-  'http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/GroundSurface',
-  'Surface3D'
-);
-addCodeSprintData(
-  'http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/VelocityMagnitudeSurface',
-  'SurfaceField3D'
-);
+// addCodeSprintData(
+//   'http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/CityModel',
+//   'CityModel'
+// );
+// addCodeSprintData(
+//   'http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/GroundSurface',
+//   'Surface3D'
+// );
+// addCodeSprintData(
+//   'http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/VelocityMagnitudeSurface',
+//   'SurfaceField3D'
+// );
 
 // await addCodeSprintData(
 //   'http://localhost:9000/files/HelsingborgOceanen/CityModel.pb',
