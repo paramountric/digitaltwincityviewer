@@ -134,7 +134,6 @@ export default class GraphLayer extends CompositeLayer {
   }
 
   onDrag(info, e) {
-    console.log(info, e);
     e.preventDefault();
     info.object.x = info.coordinate[0];
     info.object.fx = info.coordinate[0];
@@ -144,7 +143,6 @@ export default class GraphLayer extends CompositeLayer {
   }
 
   onDragEnd(info, e) {
-    console.log(info, e);
     info.object.fx = null;
     info.object.fy = null;
   }
