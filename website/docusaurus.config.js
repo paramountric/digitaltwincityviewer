@@ -93,7 +93,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Paramountric. Built with support from Chalmers University of Technology and VINNOVA.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Paramountric. Built with support from Chalmers University of Technology and Sweden's Innovation Agency Vinnova.`,
       },
       prism: {
         theme: lightCodeTheme,
