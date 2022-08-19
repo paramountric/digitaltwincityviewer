@@ -10,7 +10,7 @@ proj4.defs(
 );
 
 export function toWebmercator(lng, lat) {
-  return proj4('EPSG:4326', 'EPSG:3845', [lng, lat]);
+  return proj4('EPSG:4326', 'EPSG:3857', [lng, lat]);
 }
 
 export function toLngLat(x, y) {

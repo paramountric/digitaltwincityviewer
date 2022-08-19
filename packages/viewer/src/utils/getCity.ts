@@ -92,8 +92,16 @@ const data = cities.map(c => {
 const tree = new RBush();
 tree.load(data);
 
-export function getCity(x, y) {
-  const city = knn(tree, x, y, 1)[0];
+// webmercator, or send boolean for lnglat
+export function getCity(x: number, y: number, isLngLat?: boolean) {
+  let c1 = x;
+  let c2 = y;
+  if (isLngLat) {
+    const meters = coordinateToMeters(c1, c2);
+    c1 = meters[0];
+    c2 = meters[1];
+  }
+  const city = knn(tree, c1, c2, 1)[0];
   return {
     name: city.name,
     x: city.minX,

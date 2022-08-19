@@ -2,14 +2,21 @@
 // Licensed under the MIT License
 
 import { Deck, MapViewState, MapView } from '@deck.gl/core';
+import {
+  JSONConverter,
+  JSONConfiguration,
+  _shallowEqualObjects,
+} from '@deck.gl/json';
 import { Feature } from 'geojson';
 import { LayerSpecification, Map, MapOptions } from 'maplibre-gl';
 import { makeObservable, observable, action } from 'mobx';
+import { tileToQuadkey } from '@mapbox/tilebelt';
 import { LayerStore, UpdateLayerProps } from './store/LayerStore.js';
 import { ViewStore } from './store/ViewStore.js';
 import MaplibreWrapper from './utils/MaplibreWrapper.js';
 import { toLngLat } from './utils/projection.js';
 import { getCity, City } from './utils/getCity.js';
+import JSON_CONVERTER_CONFIGURATION from './config/converter-config';
 
 const maplibreStyle = {
   id: 'digitaltwincityviewer',
@@ -71,6 +78,7 @@ type ViewerProps = {
 class Viewer {
   gl: WebGL2RenderingContext;
   deck: Deck;
+  jsonConverter: JSONConverter;
   viewStore: ViewStore;
   layerStore: LayerStore;
   maplibreMap?: Map;
@@ -80,6 +88,9 @@ class Viewer {
   hoveredGraphObject: Feature | null = null;
   currentCity: City;
   constructor(props: ViewerProps) {
+    this.jsonConverter = new JSONConverter({
+      configuration: new JSONConfiguration(JSON_CONVERTER_CONFIGURATION),
+    });
     this.viewStore = new ViewStore(this);
     this.layerStore = new LayerStore(this);
 
@@ -108,6 +119,11 @@ class Viewer {
   set zoom(zoom) {
     this.viewStore.setViewState({ zoom });
     this.render();
+  }
+
+  // todo: determine the most convenient way to set the current city, enumeration?
+  setCity(city: City) {
+    this.currentCity = city;
   }
 
   getVisibleObjects(
@@ -249,6 +265,23 @@ class Viewer {
 
   unload() {
     this.layerStore.unload();
+  }
+
+  setJson(json) {
+    if (!this.deck) {
+      return;
+    }
+
+    const props = this.jsonConverter.convert(json);
+
+    console.log(json);
+
+    console.log(props);
+    this.deck.setProps(props);
+  }
+
+  getQuadkey(x: number, y: number, z: number) {
+    return tileToQuadkey([x, y, z]);
   }
 
   render() {
