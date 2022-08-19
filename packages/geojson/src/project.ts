@@ -17,65 +17,116 @@ export function toWebmercator(lng, lat) {
 //   return [x, y * HALF_EARTH_CIRC];
 // }
 
-function forEachCoordinateInLineString(lineString: Position[], fn) {
+function forEachCoordinateInLineString(
+  lineString: Position[],
+  fn,
+  meterOffsetX = 0,
+  meterOffsetY = 0
+) {
   for (const point of lineString) {
-    fn(point);
+    fn(point, meterOffsetX, meterOffsetY);
   }
 }
 
-function forEachCoordinateInMultiLineString(multiLineString: Position[][], fn) {
+function forEachCoordinateInMultiLineString(
+  multiLineString: Position[][],
+  fn,
+  meterOffsetX = 0,
+  meterOffsetY = 0
+) {
   for (const lineString of multiLineString) {
-    forEachCoordinateInLineString(lineString, fn);
+    forEachCoordinateInLineString(lineString, fn, meterOffsetX, meterOffsetY);
   }
 }
 
-function forEachCoordinateInPolygon(polygon: Position[][], fn) {
+function forEachCoordinateInPolygon(
+  polygon: Position[][],
+  fn,
+  meterOffsetX = 0,
+  meterOffsetY = 0
+) {
   const multiPolygon =
     Array.isArray(polygon[0]) && Number.isFinite(polygon[0][0])
       ? [polygon]
       : polygon;
   for (const poly of multiPolygon) {
     for (const point of poly) {
-      fn(point);
+      fn(point, meterOffsetX, meterOffsetY);
     }
   }
 }
 
-function forEachCoordinateInMultiPolygon(multiPolygon: Position[][][], fn) {
+function forEachCoordinateInMultiPolygon(
+  multiPolygon: Position[][][],
+  fn,
+  meterOffsetX = 0,
+  meterOffsetY = 0
+) {
   for (const polygon of multiPolygon) {
-    forEachCoordinateInPolygon(polygon, fn);
+    forEachCoordinateInPolygon(polygon, fn, meterOffsetX, meterOffsetY);
   }
 }
 
-function projectCoordinateInline(lngLat: [number, number]) {
+function projectCoordinateInline(
+  lngLat: [number, number],
+  meterOffsetX = 0,
+  meterOffsetY = 0
+) {
   const meters = toWebmercator(lngLat[0], lngLat[1]);
-  lngLat[0] = meters[0];
-  lngLat[1] = meters[1];
+  lngLat[0] = meters[0] - meterOffsetX;
+  lngLat[1] = meters[1] - meterOffsetY;
 }
 
-export function coordinatesToMeters(features: Feature[]) {
+export function coordinatesToMeterOffsets(
+  features: Feature[],
+  lng: number,
+  lat: number
+) {
+  const center = toWebmercator(lng, lat);
+  console.log(center);
+  return coordinatesToMeters(features, center[0], center[1]);
+}
+
+export function coordinatesToMeters(
+  features: Feature[],
+  meterOffsetX = 0,
+  meterOffsetY = 0
+) {
+  console.log(meterOffsetX, meterOffsetY);
   for (const feature of features) {
     if (feature.geometry.type === 'Point') {
-      projectCoordinateInline(feature.geometry.coordinates as [number, number]);
+      projectCoordinateInline(
+        feature.geometry.coordinates as [number, number],
+        meterOffsetX,
+        meterOffsetY
+      );
     } else if (feature.geometry.type === 'LineString') {
       forEachCoordinateInLineString(
         feature.geometry.coordinates,
-        projectCoordinateInline
+        projectCoordinateInline,
+        meterOffsetX,
+        meterOffsetY
       );
     } else if (feature.geometry.type === 'MultiLineString') {
       forEachCoordinateInMultiLineString(
         feature.geometry.coordinates,
-        projectCoordinateInline
+        projectCoordinateInline,
+        meterOffsetX,
+        meterOffsetY
       );
     } else if (feature.geometry.type === 'Polygon') {
       forEachCoordinateInPolygon(
         feature.geometry.coordinates,
-        projectCoordinateInline
+        projectCoordinateInline,
+        meterOffsetX,
+        meterOffsetY
       );
     } else if (feature.geometry.type === 'MultiPolygon') {
       forEachCoordinateInMultiPolygon(
         feature.geometry.coordinates,
-        projectCoordinateInline
+        projectCoordinateInline,
+        meterOffsetX,
+        meterOffsetY
       );
     } else {
       console.warn('fix me!: ', feature);
