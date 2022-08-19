@@ -50,8 +50,8 @@ const ViewerPage: NextPage = () => {
             ],
             viewState: {
               mainview: {
-                // longitude: sampleCenter[0], //viewerCenter[0],
-                // latitude: sampleCenter[1], //viewerCenter[1],
+                // longitude: sampleCenter[0],
+                // latitude: sampleCenter[1],
                 longitude: 0, //cityLocation[0],
                 latitude: 0, //cityLocation[1],
                 zoom: 14,
