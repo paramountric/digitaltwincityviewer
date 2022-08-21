@@ -1,15 +1,15 @@
-type Props = {
+type InputLabelProps = {
   label: string;
   children: JSX.Element;
 };
 
-function InputLabel({label, children}: Props) {
+const InputLabel: React.FC<InputLabelProps> = ({label, children}) => {
   return (
     <label>
       <span>{label}</span>
       {children}
     </label>
   );
-}
+};
 
 export default InputLabel;

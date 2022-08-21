@@ -1,14 +1,13 @@
-import {NextPage} from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import {useSignOut} from '../hooks/use-signout';
 import {useUserInfo} from '../hooks/use-userinfo';
 
-interface HeaderPageProps {
+interface HeaderProps {
   title: string;
 }
 
-const Header: NextPage<HeaderPageProps> = ({title}) => {
+const Header: React.FC<HeaderProps> = ({title}) => {
   const userInfo = useUserInfo();
   const signOut = useSignOut();
   console.log(userInfo);
