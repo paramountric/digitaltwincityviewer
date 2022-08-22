@@ -48,7 +48,7 @@ async function run(): Promise<void> {
         if (fileDirectory) {
           return true;
         }
-        return 'Invalid project name: ' + fileDirectory;
+        return 'Invalid or missing file directory: ' + fileDirectory;
       },
     });
 
