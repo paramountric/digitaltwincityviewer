@@ -22,5 +22,5 @@ export function useUserInfo() {
       staleTime: 60000,
     }
   );
-  return query.data;
+  return query.data as UserInfo;
 }

@@ -8,7 +8,11 @@ interface SignIn {
   password: string;
 }
 
-export const useSignIn = async () => {
+export const useSignIn = (): {
+  signIn: ({email, password}: SignIn) => Promise<boolean>;
+  signInError: boolean;
+  signInLoading: boolean;
+} => {
   const queryClient = useQueryClient();
   const signInUrl = '/api/signin';
   const mutation = useMutation(async ({email, password}: SignIn) => {
@@ -20,7 +24,7 @@ export const useSignIn = async () => {
     return await res.json();
   });
   return {
-    signIn: async ({email, password}: SignIn) => {
+    signIn: async ({email, password}: SignIn): Promise<boolean> => {
       try {
         const user = await mutation.mutateAsync({email, password});
         queryClient.setQueryData(USERINFO_QUERY_KEY, user);
