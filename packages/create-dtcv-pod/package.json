@@ -1,6 +1,6 @@
 {
   "name": "create-dtcv-pod",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Create data assets for decentralized data management for Digital Twin City Viewer",
   "author": "Andreas Rudena <andreas@rudena.se>",
   "homepage": "https://github.com/paramountric/digitaltwincityviewer#readme",
