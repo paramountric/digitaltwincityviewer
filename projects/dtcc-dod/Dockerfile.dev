@@ -1,0 +1,19 @@
+# Install dependencies only when needed
+FROM node:16-alpine AS deps
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+ARG CR_PAT
+ENV CR_PAT=$CR_PAT
+
+RUN echo registry=https://registry.npmjs.org/ >> ~/.npmrc
+RUN echo @paramountric:registry=https://npm.pkg.github.com/ >> ~/.npmrc
+RUN echo //npm.pkg.github.com/:_authToken=$CR_PAT >> ~/.npmrc
+
+COPY package.json package-lock.json* ./
+RUN npm i
+
+COPY . .
+
+CMD ["npm", "run", "dev"];
