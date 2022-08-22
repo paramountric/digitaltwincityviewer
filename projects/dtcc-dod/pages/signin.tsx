@@ -1,18 +1,25 @@
 import {useRouter} from 'next/router';
-import {EventHandler, useState} from 'react';
-import Header from '../components/header';
-import InputLabel from '../components/input-label';
+import {useState} from 'react';
+import Header from '../components/Header';
+import InputLabel from '../components/InputLabel';
 import {useSignIn} from '../hooks/use-signin';
+import {useUserInfo} from '../hooks/use-userinfo';
 
 function SignInPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const user = useUserInfo();
   const {signIn, signInError, signInLoading} = useSignIn();
+
+  if (user) {
+    console.log(user);
+    router.push('/');
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const valid = await signIn(email, password);
+    const valid = await signIn({email, password});
     if (valid) {
       router.push('/');
     }
