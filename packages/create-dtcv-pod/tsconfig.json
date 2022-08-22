@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "target": "ES6",
+    "module": "ES6",
+    "moduleResolution": "Node",
+    "strict": true,
+    "noImplicitAny": false,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": false
+  },
+  "include": ["src/"],
+  "exclude": ["dist", "node_modules"]
+}
