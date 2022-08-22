@@ -11,6 +11,6 @@
     "esModuleInterop": true,
     "skipLibCheck": false
   },
-  "include": ["index.ts", "package.json"],
+  "include": ["index.ts", "index.test.ts", "package.json"],
   "exclude": ["dist", "node_modules"]
 }
