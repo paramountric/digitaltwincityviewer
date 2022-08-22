@@ -16,11 +16,17 @@ program
   .version(packageJson.version)
   .usage(`${chalk.green('create-dtcv-app')} [options]`)
   .option(
-    '-d <dir>',
+    '-d, --directory <dir>',
     `
     Use relative path to file directory. Defaults to current directory.
     `,
     '.'
+  )
+  .option(
+    '-u, --url <url>',
+    `
+    Verified URL for publishing the output.
+    `
   )
   .option(
     '--static',
