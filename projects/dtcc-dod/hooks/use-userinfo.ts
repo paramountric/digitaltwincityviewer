@@ -1,4 +1,7 @@
 import {useQuery} from 'react-query';
+import constants from '../config/constants';
+
+const {USERINFO_QUERY_KEY, IS_DEV} = constants;
 
 interface UserInfo {
   name: string;
@@ -8,7 +11,7 @@ interface UserInfo {
 export function useUserInfo() {
   const userUrl = '/api/user';
   const query = useQuery(
-    'userinfo',
+    USERINFO_QUERY_KEY,
     async () => {
       try {
         const res = await fetch(userUrl);
