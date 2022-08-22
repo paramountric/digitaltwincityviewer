@@ -49,7 +49,9 @@ function SignInPage() {
         {signInLoading ? (
           <p>Loading...</p>
         ) : (
-          <button type="submit">Sign In</button>
+          <>
+            <button type="submit">Sign In</button>
+          </>
         )}
       </form>
     </>

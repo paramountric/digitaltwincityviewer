@@ -32,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({title}) => {
           </>
         ) : (
           <li>
-            <Link href="/signin">
+            <Link href="/api/auth/signin">
               <a>Sign In</a>
             </Link>
           </li>

@@ -3,6 +3,8 @@ import cookie from 'cookie';
 
 type SignOutResult = {};
 
+// this is not in use, but if using cookie later, use it
+
 export default function handleSignOut(
   req: NextApiRequest,
   res: NextApiResponse<SignOutResult>

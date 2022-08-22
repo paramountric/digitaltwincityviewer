@@ -5,6 +5,7 @@ import {
   getLayerPosition,
   coordinatesToMeterOffsets,
 } from '@dtcv/geojson';
+import {useUserInfo} from '../hooks/use-userinfo';
 
 type ViewerProps = {};
 
