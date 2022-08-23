@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.2](https://github.com/paramountric/digitaltwincityviewer/compare/@dtcv/viewer@1.1.1...@dtcv/viewer@1.1.2) (2022-08-23)
+
+
+### Bug Fixes
+
+* remember the extension for modules support ([43c7c0b](https://github.com/paramountric/digitaltwincityviewer/commit/43c7c0b0e4d4694a96455b974f377008e03f50d5))
+
+
+
+
+
 ## [1.1.1](https://github.com/paramountric/digitaltwincityviewer/compare/@dtcv/viewer@1.1.0...@dtcv/viewer@1.1.1) (2022-08-23)
 
 **Note:** Version bump only for package @dtcv/viewer
