@@ -14,7 +14,7 @@ const ViewerPage: NextPage = () => {
       <main>
         {/* Use a wrapper for the app UI to keep the canvas fixed */}
         <div className="absolute z-50 overflow-hidden">
-          <Header title="Design och Data" />
+          <Header />
         </div>
 
         {userInfo ? (

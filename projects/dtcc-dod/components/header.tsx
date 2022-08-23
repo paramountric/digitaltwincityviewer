@@ -4,7 +4,7 @@ import {useSignOut} from '../hooks/use-signout';
 import {useUserInfo} from '../hooks/use-userinfo';
 
 interface HeaderProps {
-  title: string;
+  title?: string;
 }
 
 const Header: React.FC<HeaderProps> = ({title}) => {
