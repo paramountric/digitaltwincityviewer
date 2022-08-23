@@ -3,6 +3,47 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 1.1.0 (2022-08-23)
+
+
+
+## 1.0.6 (2022-08-23)
+
+
+
+## 1.0.3 (2022-08-22)
+
+
+
+## 1.0.2 (2022-07-03)
+
+
+### Bug Fixes
+
+* remove layer dependency on luma version of viewer ([f085b88](https://github.com/paramountric/digitaltwincityviewer/commit/f085b886ad3dab1e1834696b8a593a606278aa06))
+* the colors are 0-1 not uint8, use float ([af5da5b](https://github.com/paramountric/digitaltwincityviewer/commit/af5da5be90314f11cdf2a09b45ad7d4e74076d7a))
+
+
+
+## 1.0.1 (2022-06-06)
+
+
+### Bug Fixes
+
+* adjust canvas size on init ([a994392](https://github.com/paramountric/digitaltwincityviewer/commit/a9943922c9573aad7936eedc8096b7724f7335b8))
+* the translate is used in pixelmatrix, move back to projMatrix. Also, clean up the zoom option for pixel to point function ([28d363e](https://github.com/paramountric/digitaltwincityviewer/commit/28d363ed1d95a75957bce504913c3e8f1cf7f0a4))
+
+
+### Features
+
+* add first version of coloring, very primitive yet though ([d1db994](https://github.com/paramountric/digitaltwincityviewer/commit/d1db9941ff105707b100042653dc09b7bcf062fd))
+* animation loop up and running ([0040f52](https://github.com/paramountric/digitaltwincityviewer/commit/0040f52ea3a70ee17fa8d0e9b062c2e7d9fcfda9))
+* rotate ([f667212](https://github.com/paramountric/digitaltwincityviewer/commit/f6672123098fd250be806a306136501783396ac1))
+
+
+
+
+
 ## [1.0.6](https://github.com/paramountric/digitaltwincityviewer/compare/v1.0.5...v1.0.6) (2022-08-23)
 
 **Note:** Version bump only for package @dtcv/viewer

@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 1.1.0 (2022-08-23)
+
+
+
+## 1.0.6 (2022-08-23)
+
+
+
+## 1.0.3 (2022-08-22)
+
+
+### Features
+
+* set layer visibility, add some more layer data ([67f908a](https://github.com/paramountric/digitaltwincityviewer/commit/67f908ab8170f37c04e1c7956288b3b3c0b05c5e))
+
+
+
+
+
 ## [1.0.6](https://github.com/paramountric/digitaltwincityviewer/compare/v1.0.5...v1.0.6) (2022-08-23)
 
 **Note:** Version bump only for package @dtcv/cfd-vertical
