@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/previewer",
-  "version": "1.0.3",
+  "version": "1.0.6",
   "private": true,
   "description": "This viewer is targeted for preview and validate of single layers before publishing",
   "main": "index.js",
@@ -29,7 +29,7 @@
     "@adobe/lit-mobx": "^2.0.0",
     "@dtcv/geojson": "^1.0.3",
     "@dtcv/osm": "^1.0.3",
-    "@dtcv/viewer": "^1.0.3",
+    "@dtcv/viewer": "^1.0.6",
     "@spectrum-web-components/accordion": "^0.6.9",
     "@spectrum-web-components/button": "^0.17.3",
     "@spectrum-web-components/dialog": "^0.10.3",
