@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/citymodel-file-viewer",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "private": true,
   "description": "A viewer specifically to check different city model files",
   "main": "index.js",
@@ -29,7 +29,7 @@
     "@adobe/lit-mobx": "^2.0.0",
     "@dtcv/citygml": "^1.0.6",
     "@dtcv/citymodel": "^1.0.6",
-    "@dtcv/viewer": "^1.1.5",
+    "@dtcv/viewer": "^1.1.6",
     "@spectrum-web-components/accordion": "^0.6.9",
     "@spectrum-web-components/button": "^0.17.3",
     "@spectrum-web-components/dialog": "^0.10.3",
