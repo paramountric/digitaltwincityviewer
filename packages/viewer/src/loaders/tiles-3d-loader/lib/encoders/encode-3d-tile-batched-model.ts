@@ -4,27 +4,33 @@
 import {
   padToNBytes,
   copyBinaryToDataView,
-  copyPaddedStringToDataView
+  copyPaddedStringToDataView,
 } from '@loaders.gl/loader-utils';
-import {MAGIC_ARRAY} from '../constants';
-import {encode3DTileHeader, encode3DTileByteLength} from './helpers/encode-3d-tile-header';
+import { MAGIC_ARRAY } from '../constants.js';
+import {
+  encode3DTileHeader,
+  encode3DTileByteLength,
+} from './helpers/encode-3d-tile-header.js';
 
 // Procedurally encode the tile array dataView for testing purposes
 export function encodeBatchedModel3DTile(tile, dataView, byteOffset, options) {
-  const {featuresLength = 0, batchTable} = tile;
+  const { featuresLength = 0, batchTable } = tile;
 
   const featureTableJson = {
-    BATCH_LENGTH: featuresLength
+    BATCH_LENGTH: featuresLength,
   };
   const featureTableJsonString = JSON.stringify(featureTableJson);
   const batchTableJsonString = batchTable ? JSON.stringify(batchTable) : '';
-  const featureTableJsonByteLength = padToNBytes(featureTableJsonString.length, 8);
+  const featureTableJsonByteLength = padToNBytes(
+    featureTableJsonString.length,
+    8
+  );
   const batchTableJsonByteLength = batchTableJsonString
     ? padToNBytes(batchTableJsonString.length, 8)
     : 0;
 
   // Add default magic for this tile type
-  tile = {magic: MAGIC_ARRAY.BATCHED_MODEL, ...tile};
+  tile = { magic: MAGIC_ARRAY.BATCHED_MODEL, ...tile };
 
   const byteOffsetStart = byteOffset;
 
@@ -39,20 +45,39 @@ export function encodeBatchedModel3DTile(tile, dataView, byteOffset, options) {
   byteOffset += 16;
 
   // TODO feature table binary
-  byteOffset = copyPaddedStringToDataView(dataView, byteOffset, featureTableJsonString, 8);
+  byteOffset = copyPaddedStringToDataView(
+    dataView,
+    byteOffset,
+    featureTableJsonString,
+    8
+  );
 
   if (batchTable) {
-    byteOffset = copyPaddedStringToDataView(dataView, byteOffset, batchTableJsonString, 8);
+    byteOffset = copyPaddedStringToDataView(
+      dataView,
+      byteOffset,
+      batchTableJsonString,
+      8
+    );
   }
 
   // Add encoded GLTF to the end of data
   const gltfEncoded = tile.gltfEncoded;
   if (gltfEncoded) {
-    byteOffset = copyBinaryToDataView(dataView, byteOffset, gltfEncoded, gltfEncoded.byteLength);
+    byteOffset = copyBinaryToDataView(
+      dataView,
+      byteOffset,
+      gltfEncoded,
+      gltfEncoded.byteLength
+    );
   }
 
   // Go "back" and rewrite the tile's `byteLength` now that we know the value
-  encode3DTileByteLength(dataView, byteOffsetStart, byteOffset - byteOffsetStart);
+  encode3DTileByteLength(
+    dataView,
+    byteOffsetStart,
+    byteOffset - byteOffsetStart
+  );
 
   return byteOffset;
 }

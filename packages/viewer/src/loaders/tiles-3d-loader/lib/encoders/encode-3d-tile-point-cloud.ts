@@ -1,34 +1,37 @@
 // This file is derived from the Cesium code base under Apache 2 license
 // See LICENSE.md and https://github.com/AnalyticalGraphicsInc/cesium/blob/master/LICENSE.md
 
-import {MAGIC_ARRAY} from '../constants';
-import {encode3DTileHeader, encode3DTileByteLength} from './helpers/encode-3d-tile-header';
+import { MAGIC_ARRAY } from '../constants.js';
+import {
+  encode3DTileHeader,
+  encode3DTileByteLength,
+} from './helpers/encode-3d-tile-header.js';
 import {
   padStringToByteAlignment,
   copyStringToDataView,
-  copyBinaryToDataView
+  copyBinaryToDataView,
 } from '@loaders.gl/loader-utils';
 
 const DEFAULT_FEATURE_TABLE_JSON = {
   POINTS_LENGTH: 1,
   POSITIONS: {
-    byteOffset: 0
-  }
+    byteOffset: 0,
+  },
 };
 
 export function encodePointCloud3DTile(tile, dataView, byteOffset, options) {
-  const {featureTableJson = DEFAULT_FEATURE_TABLE_JSON} = tile;
+  const { featureTableJson = DEFAULT_FEATURE_TABLE_JSON } = tile;
 
   let featureTableJsonString = JSON.stringify(featureTableJson);
   featureTableJsonString = padStringToByteAlignment(featureTableJsonString, 4);
 
-  const {featureTableJsonByteLength = featureTableJsonString.length} = tile;
+  const { featureTableJsonByteLength = featureTableJsonString.length } = tile;
 
   const featureTableBinary = new ArrayBuffer(12); // Enough space to hold 3 floats
   const featureTableBinaryByteLength = featureTableBinary.byteLength;
 
   // Add default magic for this tile type
-  tile = {magic: MAGIC_ARRAY.POINT_CLOUD, ...tile};
+  tile = { magic: MAGIC_ARRAY.POINT_CLOUD, ...tile };
 
   const byteOffsetStart = byteOffset;
 
@@ -56,7 +59,11 @@ export function encodePointCloud3DTile(tile, dataView, byteOffset, options) {
   );
 
   // Go "back" and rewrite the tile's `byteLength` now that we know the value
-  encode3DTileByteLength(dataView, byteOffsetStart, byteOffset - byteOffsetStart);
+  encode3DTileByteLength(
+    dataView,
+    byteOffsetStart,
+    byteOffset - byteOffsetStart
+  );
 
   return byteOffset;
 }

@@ -1,10 +1,13 @@
 // This file is derived from the Cesium code base under Apache 2 license
 // See LICENSE.md and https://github.com/AnalyticalGraphicsInc/cesium/blob/master/LICENSE.md
 
-import {assert} from '@loaders.gl/loader-utils';
+import { assert } from '@loaders.gl/loader-utils';
 
-import {createTypedArrayFromAccessor} from './helpers/tile-3d-accessor-utils';
-import {initializeHierarchy, traverseHierarchy} from './tile-3d-batch-table-hierarchy';
+import { createTypedArrayFromAccessor } from './helpers/tile-3d-accessor-utils.js';
+import {
+  initializeHierarchy,
+  traverseHierarchy,
+} from './tile-3d-batch-table-hierarchy.js';
 
 function defined(x) {
   return x !== undefined && x !== null;
@@ -16,7 +19,7 @@ const clone = (x, y) => x;
 const IGNORED_PROPERTY_FIELDS = {
   HIERARCHY: true, // Deprecated HIERARCHY property
   extensions: true,
-  extras: true
+  extras: true,
 };
 
 // The size of this array equals the maximum instance count among all loaded tiles, which has the potential to be large.
@@ -56,7 +59,9 @@ export default class Tile3DBatchTableParser {
   }
 
   getExtension(extensionName) {
-    return this.json && this.json.extensions && this.json.extensions[extensionName];
+    return (
+      this.json && this.json.extensions && this.json.extensions[extensionName]
+    );
   }
 
   memorySizeInBytes(): number {
@@ -72,11 +77,15 @@ export default class Tile3DBatchTableParser {
       // PERFORMANCE_IDEA : cache results in the ancestor classes
       //   to speed up this check if this area becomes a hotspot
       // PERFORMANCE_IDEA : treat class names as integers for faster comparisons
-      const result = traverseHierarchy(this._hierarchy, batchId, (hierarchy, instanceIndex) => {
-        const classId = hierarchy.classIds[instanceIndex];
-        const instanceClass = hierarchy.classes[classId];
-        return instanceClass.name === className;
-      });
+      const result = traverseHierarchy(
+        this._hierarchy,
+        batchId,
+        (hierarchy, instanceIndex) => {
+          const classId = hierarchy.classIds[instanceIndex];
+          const instanceClass = hierarchy.classes[classId];
+          return instanceClass.name === className;
+        }
+      );
       return defined(result);
     }
 
@@ -106,7 +115,10 @@ export default class Tile3DBatchTableParser {
     this._checkBatchId(batchId);
     assert(typeof name === 'string', name);
 
-    return defined(this._properties[name]) || this._hasPropertyInHierarchy(batchId, name);
+    return (
+      defined(this._properties[name]) ||
+      this._hasPropertyInHierarchy(batchId, name)
+    );
   }
 
   getPropertyNames(batchId, results) {
@@ -236,7 +248,7 @@ export default class Tile3DBatchTableParser {
         typedArray: accessor.values,
         componentCount: accessor.size,
         unpack: accessor.unpacker,
-        pack: accessor.packer
+        pack: accessor.packer,
       };
     }
 
@@ -250,11 +262,15 @@ export default class Tile3DBatchTableParser {
       return false;
     }
 
-    const result = traverseHierarchy(this._hierarchy, batchId, (hierarchy, instanceIndex) => {
-      const classId = hierarchy.classIds[instanceIndex];
-      const instances = hierarchy.classes[classId].instances;
-      return defined(instances[name]);
-    });
+    const result = traverseHierarchy(
+      this._hierarchy,
+      batchId,
+      (hierarchy, instanceIndex) => {
+        const classId = hierarchy.classIds[instanceIndex];
+        const instances = hierarchy.classes[classId].instances;
+        return defined(instances[name]);
+      }
+    );
 
     return defined(result);
   }
@@ -274,38 +290,49 @@ export default class Tile3DBatchTableParser {
   }
 
   _getHierarchyProperty(batchId, name) {
-    return traverseHierarchy(this._hierarchy, batchId, (hierarchy, instanceIndex) => {
-      const classId = hierarchy.classIds[instanceIndex];
-      const instanceClass = hierarchy.classes[classId];
-      const indexInClass = hierarchy.classIndexes[instanceIndex];
-      const propertyValues = instanceClass.instances[name];
-      if (defined(propertyValues)) {
-        if (defined(propertyValues.typedArray)) {
-          return this._getBinaryProperty(propertyValues, indexInClass);
+    return traverseHierarchy(
+      this._hierarchy,
+      batchId,
+      (hierarchy, instanceIndex) => {
+        const classId = hierarchy.classIds[instanceIndex];
+        const instanceClass = hierarchy.classes[classId];
+        const indexInClass = hierarchy.classIndexes[instanceIndex];
+        const propertyValues = instanceClass.instances[name];
+        if (defined(propertyValues)) {
+          if (defined(propertyValues.typedArray)) {
+            return this._getBinaryProperty(propertyValues, indexInClass);
+          }
+          return clone(propertyValues[indexInClass], true);
         }
-        return clone(propertyValues[indexInClass], true);
+        return null;
       }
-      return null;
-    });
+    );
   }
 
   _setHierarchyProperty(batchTable, batchId, name, value) {
-    const result = traverseHierarchy(this._hierarchy, batchId, (hierarchy, instanceIndex) => {
-      const classId = hierarchy.classIds[instanceIndex];
-      const instanceClass = hierarchy.classes[classId];
-      const indexInClass = hierarchy.classIndexes[instanceIndex];
-      const propertyValues = instanceClass.instances[name];
-      if (defined(propertyValues)) {
-        assert(instanceIndex === batchId, `Inherited property "${name}" is read-only.`);
-        if (defined(propertyValues.typedArray)) {
-          this._setBinaryProperty(propertyValues, indexInClass, value);
-        } else {
-          propertyValues[indexInClass] = clone(value, true);
+    const result = traverseHierarchy(
+      this._hierarchy,
+      batchId,
+      (hierarchy, instanceIndex) => {
+        const classId = hierarchy.classIds[instanceIndex];
+        const instanceClass = hierarchy.classes[classId];
+        const indexInClass = hierarchy.classIndexes[instanceIndex];
+        const propertyValues = instanceClass.instances[name];
+        if (defined(propertyValues)) {
+          assert(
+            instanceIndex === batchId,
+            `Inherited property "${name}" is read-only.`
+          );
+          if (defined(propertyValues.typedArray)) {
+            this._setBinaryProperty(propertyValues, indexInClass, value);
+          } else {
+            propertyValues[indexInClass] = clone(value, true);
+          }
+          return true;
         }
-        return true;
+        return false;
       }
-      return false;
-    });
+    );
     return defined(result);
   }
 }
