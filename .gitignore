@@ -130,5 +130,8 @@ dist
 # TernJS port file
 .tern-port
 
-k8s
-skaffold
+# This is a special case for the builder script
+packages/create-dtcv-pod/index.js
+packages/create-dtcv-pod/index.js.map
+packages/create-dtcv-pod/index.test.js
+packages/create-dtcv-pod/index.test.js.map
