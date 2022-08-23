@@ -1,13 +1,13 @@
-import type {Availability, BoundingVolume, Subtree} from '../../../types';
-import {Tile3DSubtreeLoader} from '../../../tile-3d-subtree-loader';
-import {load} from '@loaders.gl/core';
+import type { Availability, BoundingVolume, Subtree } from '../../../types.js';
+import { Tile3DSubtreeLoader } from '../../../tile-3d-subtree-loader.js';
+import { load } from '@loaders.gl/core';
 
 const QUADTREE_DEVISION_COUNT = 4;
 const OCTREE_DEVISION_COUNT = 8;
 
 const SUBDIVISION_COUNT_MAP = {
   QUADTREE: QUADTREE_DEVISION_COUNT,
-  OCTREE: OCTREE_DEVISION_COUNT
+  OCTREE: OCTREE_DEVISION_COUNT,
 };
 
 /**
@@ -26,10 +26,16 @@ const SUBDIVISION_COUNT_MAP = {
 export async function parseImplicitTiles(params: {
   subtree: Subtree;
   options: any;
-  parentData?: {mortonIndex: number; x: number; y: number; z: number};
+  parentData?: { mortonIndex: number; x: number; y: number; z: number };
   childIndex?: number;
   level?: number;
-  globalData?: {level: number; mortonIndex: number; x: number; y: number; z: number};
+  globalData?: {
+    level: number;
+    mortonIndex: number;
+    x: number;
+    y: number;
+    z: number;
+  };
 }) {
   const {
     options,
@@ -37,7 +43,7 @@ export async function parseImplicitTiles(params: {
       mortonIndex: 0,
       x: 0,
       y: 0,
-      z: 0
+      z: 0,
     },
     childIndex = 0,
     globalData = {
@@ -45,20 +51,20 @@ export async function parseImplicitTiles(params: {
       mortonIndex: 0,
       x: 0,
       y: 0,
-      z: 0
-    }
+      z: 0,
+    },
   } = params;
-  let {subtree, level = 0} = params;
+  let { subtree, level = 0 } = params;
   const {
     subdivisionScheme,
     subtreeLevels,
     maximumLevel,
     contentUrlTemplate,
     subtreesUriTemplate,
-    basePath
+    basePath,
   } = options;
 
-  const tile = {children: [], lodMetricValue: 0, contentUrl: ''};
+  const tile = { children: [], lodMetricValue: 0, contentUrl: '' };
 
   const childrenPerTile = SUBDIVISION_COUNT_MAP[subdivisionScheme];
 
@@ -100,7 +106,13 @@ export async function parseImplicitTiles(params: {
 
   if (isChildSubtreeAvailable) {
     const subtreePath = `${basePath}/${subtreesUriTemplate}`;
-    const childSubtreeUrl = replaceContentUrlTemplate(subtreePath, lev, x, y, z);
+    const childSubtreeUrl = replaceContentUrlTemplate(
+      subtreePath,
+      lev,
+      x,
+      y,
+      z
+    );
     const childSubtree = await load(childSubtreeUrl, Tile3DSubtreeLoader);
 
     subtree = childSubtree;
@@ -119,7 +131,10 @@ export async function parseImplicitTiles(params: {
     level = 0;
   }
 
-  const isTileAvailable = getAvailabilityResult(subtree.tileAvailability, tileAvailabilityIndex);
+  const isTileAvailable = getAvailabilityResult(
+    subtree.tileAvailability,
+    tileAvailabilityIndex
+  );
 
   if (!isTileAvailable || level > maximumLevel) {
     return tile;
@@ -131,11 +146,22 @@ export async function parseImplicitTiles(params: {
   );
 
   if (isContentAvailable) {
-    tile.contentUrl = replaceContentUrlTemplate(contentUrlTemplate, lev, x, y, z);
+    tile.contentUrl = replaceContentUrlTemplate(
+      contentUrlTemplate,
+      lev,
+      x,
+      y,
+      z
+    );
   }
 
   const childTileLevel = level + 1;
-  const pData = {mortonIndex: childTileMortonIndex, x: childTileX, y: childTileY, z: childTileZ};
+  const pData = {
+    mortonIndex: childTileMortonIndex,
+    x: childTileX,
+    y: childTileY,
+    z: childTileZ,
+  };
 
   for (let index = 0; index < childrenPerTile; index++) {
     const currentTile = await parseImplicitTiles({
@@ -144,13 +170,18 @@ export async function parseImplicitTiles(params: {
       parentData: pData,
       childIndex: index,
       level: childTileLevel,
-      globalData
+      globalData,
     });
 
     if (currentTile.contentUrl || currentTile.children.length) {
       const globalLevel = lev + 1;
-      const childCoordinates = {childTileX, childTileY, childTileZ};
-      const formattedTile = formatTileData(currentTile, globalLevel, childCoordinates, options);
+      const childCoordinates = { childTileX, childTileY, childTileZ };
+      const formattedTile = formatTileData(
+        currentTile,
+        globalLevel,
+        childCoordinates,
+        options
+      );
       // @ts-ignore
       tile.children.push(formattedTile);
     }
@@ -159,13 +190,19 @@ export async function parseImplicitTiles(params: {
   return tile;
 }
 
-function getAvailabilityResult(availabilityData: Availability, index: number): boolean {
+function getAvailabilityResult(
+  availabilityData: Availability,
+  index: number
+): boolean {
   if ('constant' in availabilityData) {
     return Boolean(availabilityData.constant);
   }
 
   if (availabilityData.explicitBitstream) {
-    return getBooleanValueFromBitstream(index, availabilityData.explicitBitstream);
+    return getBooleanValueFromBitstream(
+      index,
+      availabilityData.explicitBitstream
+    );
   }
 
   return false;
@@ -182,7 +219,11 @@ function getAvailabilityResult(availabilityData: Availability, index: number): b
 function formatTileData(
   tile,
   level: number,
-  childCoordinates: {childTileX: number; childTileY: number; childTileZ: number},
+  childCoordinates: {
+    childTileX: number;
+    childTileY: number;
+    childTileZ: number;
+  },
   options: any
 ) {
   const {
@@ -192,7 +233,7 @@ function formatTileData(
     lodMetricType,
     getTileType,
     rootLodMetricValue,
-    rootBoundingVolume
+    rootBoundingVolume,
   } = options;
   const uri = tile.contentUrl && tile.contentUrl.replace(`${basePath}/`, '');
   const lodMetricValue = rootLodMetricValue / 2 ** level;
@@ -205,13 +246,13 @@ function formatTileData(
   return {
     children: tile.children,
     contentUrl: tile.contentUrl,
-    content: {uri},
+    content: { uri },
     id: tile.contentUrl,
     refine: getRefine(refine),
     type: getTileType(tile),
     lodMetricType,
     lodMetricValue,
-    boundingVolume
+    boundingVolume,
     // Temp debug values. Remove when real implicit tileset will be tested.
     // x: tile.x,
     // y: tile.y,
@@ -230,26 +271,44 @@ function formatTileData(
 function calculateBoundingVolumeForChildTile(
   level: number,
   rootBoundingVolume: BoundingVolume,
-  childCoordinates: {childTileX: number; childTileY: number; childTileZ: number}
+  childCoordinates: {
+    childTileX: number;
+    childTileY: number;
+    childTileZ: number;
+  }
 ): BoundingVolume | null {
   if (rootBoundingVolume.region) {
-    const {childTileX, childTileY, childTileZ} = childCoordinates;
-    const [west, south, east, north, minimumHeight, maximumHeight] = rootBoundingVolume.region;
+    const { childTileX, childTileY, childTileZ } = childCoordinates;
+    const [west, south, east, north, minimumHeight, maximumHeight] =
+      rootBoundingVolume.region;
     const boundingVolumesCount = 2 ** level;
 
     const sizeX = (east - west) / boundingVolumesCount;
     const sizeY = (north - south) / boundingVolumesCount;
     const sizeZ = (maximumHeight - minimumHeight) / boundingVolumesCount;
 
-    const [childWest, childEast] = [west + sizeX * childTileX, west + sizeX * (childTileX + 1)];
-    const [childSouth, childNorth] = [south + sizeY * childTileY, south + sizeY * (childTileY + 1)];
+    const [childWest, childEast] = [
+      west + sizeX * childTileX,
+      west + sizeX * (childTileX + 1),
+    ];
+    const [childSouth, childNorth] = [
+      south + sizeY * childTileY,
+      south + sizeY * (childTileY + 1),
+    ];
     const [childMinimumHeight, childMaximumHeight] = [
       minimumHeight + sizeZ * childTileZ,
-      minimumHeight + sizeZ * (childTileZ + 1)
+      minimumHeight + sizeZ * (childTileZ + 1),
     ];
 
     return {
-      region: [childWest, childSouth, childEast, childNorth, childMinimumHeight, childMaximumHeight]
+      region: [
+        childWest,
+        childSouth,
+        childEast,
+        childNorth,
+        childMinimumHeight,
+        childMaximumHeight,
+      ],
     };
   }
 
@@ -282,15 +341,20 @@ export function replaceContentUrlTemplate(
   y: number,
   z: number
 ): string {
-  const mapUrl = generateMapUrl({level, x, y, z});
-  return templateUrl.replace(/{level}|{x}|{y}|{z}/gi, (matched) => mapUrl[matched]);
+  const mapUrl = generateMapUrl({ level, x, y, z });
+  return templateUrl.replace(
+    /{level}|{x}|{y}|{z}/gi,
+    matched => mapUrl[matched]
+  );
 }
 
 /**
  * Get Map object for content url generation
  * @param items
  */
-function generateMapUrl(items: {[key: string]: number}): {[key: string]: string} {
+function generateMapUrl(items: { [key: string]: number }): {
+  [key: string]: string;
+} {
   const mapUrl = {};
 
   for (const key in items) {

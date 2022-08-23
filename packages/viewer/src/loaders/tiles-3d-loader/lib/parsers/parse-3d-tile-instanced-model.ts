@@ -1,18 +1,36 @@
 // This file is derived from the Cesium code base under Apache 2 license
 // See LICENSE.md and https://github.com/AnalyticalGraphicsInc/cesium/blob/master/LICENSE.md
 
-import {Vector3, Matrix3, Matrix4, Quaternion} from '@math.gl/core';
-import {Ellipsoid} from '@math.gl/geospatial';
-import {GL} from '@loaders.gl/math'; // 'math.gl/geometry';
-import Tile3DFeatureTable from '../classes/tile-3d-feature-table';
-import Tile3DBatchTable from '../classes/tile-3d-batch-table';
+import { Vector3, Matrix3, Matrix4, Quaternion } from '@math.gl/core';
+import { Ellipsoid } from '@math.gl/geospatial';
+import { GL } from '@loaders.gl/math'; // 'math.gl/geometry';
+import Tile3DFeatureTable from '../classes/tile-3d-feature-table.js';
+import Tile3DBatchTable from '../classes/tile-3d-batch-table.js';
 
-import {parse3DTileHeaderSync} from './helpers/parse-3d-tile-header';
-import {parse3DTileTablesHeaderSync, parse3DTileTablesSync} from './helpers/parse-3d-tile-tables';
-import {parse3DTileGLTFViewSync, extractGLTF} from './helpers/parse-3d-tile-gltf-view';
+import { parse3DTileHeaderSync } from './helpers/parse-3d-tile-header.js';
+import {
+  parse3DTileTablesHeaderSync,
+  parse3DTileTablesSync,
+} from './helpers/parse-3d-tile-tables.js';
+import {
+  parse3DTileGLTFViewSync,
+  extractGLTF,
+} from './helpers/parse-3d-tile-gltf-view.js';
 
-export async function parseInstancedModel3DTile(tile, arrayBuffer, byteOffset, options, context) {
-  byteOffset = parseInstancedModel(tile, arrayBuffer, byteOffset, options, context);
+export async function parseInstancedModel3DTile(
+  tile,
+  arrayBuffer,
+  byteOffset,
+  options,
+  context
+) {
+  byteOffset = parseInstancedModel(
+    tile,
+    arrayBuffer,
+    byteOffset,
+    options,
+    context
+  );
   await extractGLTF(tile, tile.gltfFormat, options, context);
   return byteOffset;
 }
@@ -20,7 +38,9 @@ export async function parseInstancedModel3DTile(tile, arrayBuffer, byteOffset, o
 function parseInstancedModel(tile, arrayBuffer, byteOffset, options, context) {
   byteOffset = parse3DTileHeaderSync(tile, arrayBuffer, byteOffset);
   if (tile.version !== 1) {
-    throw new Error(`Instanced 3D Model version ${tile.version} is not supported`);
+    throw new Error(
+      `Instanced 3D Model version ${tile.version} is not supported`
+    );
   }
 
   byteOffset = parse3DTileTablesHeaderSync(tile, arrayBuffer, byteOffset);
@@ -40,7 +60,10 @@ function parseInstancedModel(tile, arrayBuffer, byteOffset, options, context) {
     throw new Error('i3dm parser: featureTableJsonByteLength is zero.');
   }
 
-  const featureTable = new Tile3DFeatureTable(tile.featureTableJson, tile.featureTableBinary);
+  const featureTable = new Tile3DFeatureTable(
+    tile.featureTableJson,
+    tile.featureTableBinary
+  );
 
   const instancesLength = featureTable.getGlobalProperty('INSTANCES_LENGTH');
   featureTable.featuresLength = instancesLength;
@@ -64,7 +87,12 @@ function parseInstancedModel(tile, arrayBuffer, byteOffset, options, context) {
 }
 
 // eslint-disable-next-line max-statements, complexity
-function extractInstancedAttributes(tile, featureTable, batchTable, instancesLength) {
+function extractInstancedAttributes(
+  tile,
+  featureTable,
+  batchTable,
+  instancesLength
+) {
   // Create model instance collection
   const collectionOptions = {
     instances: new Array(instancesLength),
@@ -77,7 +105,7 @@ function extractInstancedAttributes(tile, featureTable, batchTable, instancesLen
     incrementallyLoadTextures: false,
     // TODO - tileset is not available at this stage, tile is parsed independently
     // upAxis: (tileset && tileset._gltfUpAxis) || [0, 1, 0],
-    forwardAxis: [1, 0, 0]
+    forwardAxis: [1, 0, 0],
   };
 
   const instances = collectionOptions.instances;
@@ -100,7 +128,13 @@ function extractInstancedAttributes(tile, featureTable, batchTable, instancesLen
 
     // Get the instance position
     if (featureTable.hasProperty('POSITION')) {
-      position = featureTable.getProperty('POSITION', GL.FLOAT, 3, i, instancePosition);
+      position = featureTable.getProperty(
+        'POSITION',
+        GL.FLOAT,
+        3,
+        i,
+        instancePosition
+      );
     } else if (featureTable.hasProperty('POSITION_QUANTIZED')) {
       position = featureTable.getProperty(
         'POSITION_QUANTIZED',
@@ -137,12 +171,15 @@ function extractInstancedAttributes(tile, featureTable, batchTable, instancesLen
       const MAX_UNSIGNED_SHORT = 65535.0;
       for (let j = 0; j < 3; j++) {
         position[j] =
-          (position[j] / MAX_UNSIGNED_SHORT) * quantizedVolumeScale[j] + quantizedVolumeOffset[j];
+          (position[j] / MAX_UNSIGNED_SHORT) * quantizedVolumeScale[j] +
+          quantizedVolumeOffset[j];
       }
     }
 
     if (!position) {
-      throw new Error('i3dm: POSITION or POSITION_QUANTIZED must be defined for each instance.');
+      throw new Error(
+        'i3dm: POSITION or POSITION_QUANTIZED must be defined for each instance.'
+      );
     }
 
     instancePosition.copy(position);
@@ -150,13 +187,27 @@ function extractInstancedAttributes(tile, featureTable, batchTable, instancesLen
     instanceTranslationRotationScale.translation = instancePosition;
 
     // Get the instance rotation
-    tile.normalUp = featureTable.getProperty('NORMAL_UP', GL.FLOAT, 3, i, scratch1);
-    tile.normalRight = featureTable.getProperty('NORMAL_RIGHT', GL.FLOAT, 3, i, scratch2);
+    tile.normalUp = featureTable.getProperty(
+      'NORMAL_UP',
+      GL.FLOAT,
+      3,
+      i,
+      scratch1
+    );
+    tile.normalRight = featureTable.getProperty(
+      'NORMAL_RIGHT',
+      GL.FLOAT,
+      3,
+      i,
+      scratch2
+    );
 
     const hasCustomOrientation = false;
     if (tile.normalUp) {
       if (!tile.normalRight) {
-        throw new Error('i3dm: Custom orientation requires both NORMAL_UP and NORMAL_RIGHT.');
+        throw new Error(
+          'i3dm: Custom orientation requires both NORMAL_UP and NORMAL_RIGHT.'
+        );
       }
       // Vector3.unpack(normalUp, 0, instanceNormalUp);
       // Vector3.unpack(normalRight, 0, instanceNormalRight);
@@ -189,7 +240,10 @@ function extractInstancedAttributes(tile, featureTable, batchTable, instancesLen
         hasCustomOrientation = true;
         */
       } else if (tile.eastNorthUp) {
-        Ellipsoid.WGS84.eastNorthUpToFixedFrame(instancePosition, instanceTransform);
+        Ellipsoid.WGS84.eastNorthUpToFixedFrame(
+          instancePosition,
+          instanceTransform
+        );
         instanceTransform.getRotationMatrix3(instanceRotation);
       } else {
         instanceRotation.identity();
@@ -197,7 +251,10 @@ function extractInstancedAttributes(tile, featureTable, batchTable, instancesLen
     }
 
     if (hasCustomOrientation) {
-      instanceNormalForward.copy(instanceNormalRight).cross(instanceNormalUp).normalize();
+      instanceNormalForward
+        .copy(instanceNormalRight)
+        .cross(instanceNormalUp)
+        .normalize();
       instanceRotation.setColumn(0, instanceNormalRight);
       instanceRotation.setColumn(1, instanceNormalUp);
       instanceRotation.setColumn(2, instanceNormalForward);
@@ -213,7 +270,13 @@ function extractInstancedAttributes(tile, featureTable, batchTable, instancesLen
     if (Number.isFinite(scale)) {
       instanceScale.multiplyByScalar(scale);
     }
-    const nonUniformScale = featureTable.getProperty('SCALE_NON_UNIFORM', GL.FLOAT, 3, i, scratch1);
+    const nonUniformScale = featureTable.getProperty(
+      'SCALE_NON_UNIFORM',
+      GL.FLOAT,
+      3,
+      i,
+      scratch1
+    );
     if (nonUniformScale) {
       instanceScale.scale(nonUniformScale);
     }
@@ -229,7 +292,9 @@ function extractInstancedAttributes(tile, featureTable, batchTable, instancesLen
     }
 
     // @ts-expect-error
-    const rotationMatrix = new Matrix4().fromQuaternion(instanceTranslationRotationScale.rotation);
+    const rotationMatrix = new Matrix4().fromQuaternion(
+      instanceTranslationRotationScale.rotation
+    );
 
     // Create the model matrix and the instance
     instanceTransform.identity();
@@ -242,7 +307,7 @@ function extractInstancedAttributes(tile, featureTable, batchTable, instancesLen
     const modelMatrix = instanceTransform.clone();
     instances[i] = {
       modelMatrix,
-      batchId
+      batchId,
     };
   }
 

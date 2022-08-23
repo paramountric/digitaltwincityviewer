@@ -1,12 +1,12 @@
 import type { LoaderWithParser } from '@loaders.gl/loader-utils';
 import { path } from '@loaders.gl/loader-utils';
 import { TILESET_TYPE, LOD_METRIC_TYPE } from '@loaders.gl/tiles';
-import { VERSION } from './lib/utils/version';
-import { parse3DTile } from './lib/parsers/parse-3d-tile';
+import { VERSION } from './lib/utils/version.js';
+import { parse3DTile } from './lib/parsers/parse-3d-tile.js';
 import {
   normalizeTileHeaders,
   normalizeImplicitTileHeaders,
-} from './lib/parsers/parse-3d-tile-header';
+} from './lib/parsers/parse-3d-tile-header.js';
 
 const IMPLICIT_TILING_EXTENSION_NAME = '3DTILES_implicit_tiling';
 

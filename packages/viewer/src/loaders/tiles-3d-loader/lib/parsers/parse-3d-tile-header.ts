@@ -1,8 +1,16 @@
-import {Tile3DSubtreeLoader} from '../../tile-3d-subtree-loader';
-import {load} from '@loaders.gl/core';
-import {Tileset3D, LOD_METRIC_TYPE, TILE_REFINEMENT, TILE_TYPE} from '@loaders.gl/tiles';
-import {Subtree} from '../../types';
-import {parseImplicitTiles, replaceContentUrlTemplate} from './helpers/parse-3d-implicit-tiles';
+import { Tile3DSubtreeLoader } from '../../tile-3d-subtree-loader.js';
+import { load } from '@loaders.gl/core';
+import {
+  Tileset3D,
+  LOD_METRIC_TYPE,
+  TILE_REFINEMENT,
+  TILE_TYPE,
+} from '@loaders.gl/tiles';
+import { Subtree } from '../../types.js';
+import {
+  parseImplicitTiles,
+  replaceContentUrlTemplate,
+} from './helpers/parse-3d-implicit-tiles.js';
 
 function getTileType(tile) {
   if (!tile.contentUrl) {
@@ -81,7 +89,7 @@ export function normalizeTileHeaders(tileset) {
     const tile = stack.pop() || {};
     const children = tile.children || [];
     for (const childHeader of children) {
-      normalizeTileData(childHeader, {basePath});
+      normalizeTileData(childHeader, { basePath });
       stack.push(childHeader);
     }
   }
@@ -100,12 +108,13 @@ export async function normalizeImplicitTileHeaders(tileset: Tileset3D) {
   }
 
   const basePath = tileset.basePath;
-  const implicitTilingExtension = tileset.root.extensions['3DTILES_implicit_tiling'];
+  const implicitTilingExtension =
+    tileset.root.extensions['3DTILES_implicit_tiling'];
   const {
     subdivisionScheme,
     maximumLevel,
     subtreeLevels,
-    subtrees: {uri: subtreesUriTemplate}
+    subtrees: { uri: subtreesUriTemplate },
   } = implicitTilingExtension;
   const subtreeUrl = replaceContentUrlTemplate(subtreesUriTemplate, 0, 0, 0, 0);
   const rootSubtreeUrl = resolveUri(subtreeUrl, basePath);
@@ -128,7 +137,7 @@ export async function normalizeImplicitTileHeaders(tileset: Tileset3D) {
     rootLodMetricValue,
     rootBoundingVolume,
     getTileType,
-    getRefine
+    getRefine,
   };
 
   return await normalizeImplicitTileData(tileset.root, rootSubtree, options);
@@ -141,7 +150,11 @@ export async function normalizeImplicitTileHeaders(tileset: Tileset3D) {
  * @param options
  * @returns
  */
-export async function normalizeImplicitTileData(tile, rootSubtree: Subtree, options: any) {
+export async function normalizeImplicitTileData(
+  tile,
+  rootSubtree: Subtree,
+  options: any
+) {
   if (!tile) {
     return null;
   }
@@ -150,11 +163,14 @@ export async function normalizeImplicitTileData(tile, rootSubtree: Subtree, opti
   tile.lodMetricValue = tile.geometricError;
   tile.transformMatrix = tile.transform;
 
-  const {children, contentUrl} = await parseImplicitTiles({subtree: rootSubtree, options});
+  const { children, contentUrl } = await parseImplicitTiles({
+    subtree: rootSubtree,
+    options,
+  });
 
   if (contentUrl) {
     tile.contentUrl = contentUrl;
-    tile.content = {uri: contentUrl.replace(`${options.basePath}/`, '')};
+    tile.content = { uri: contentUrl.replace(`${options.basePath}/`, '') };
   }
 
   tile.refine = getRefine(tile.refine);

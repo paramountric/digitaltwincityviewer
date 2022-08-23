@@ -1,7 +1,7 @@
 // This file is derived from the Cesium code base under Apache 2 license
 // See LICENSE.md and https://github.com/AnalyticalGraphicsInc/cesium/blob/master/LICENSE.md
 
-import {getStringFromArrayBuffer} from './parse-utils';
+import { getStringFromArrayBuffer } from './parse-utils.js';
 
 const SIZEOF_UINT32 = 4;
 const DEPRECATION_WARNING = 'b3dm tile in legacy format.';
@@ -65,10 +65,14 @@ export function parse3DTileTablesSync(tile, arrayBuffer, byteOffset, options) {
 }
 
 function parse3DTileFeatureTable(tile, arrayBuffer, byteOffset, options) {
-  const {featureTableJsonByteLength, featureTableBinaryByteLength, batchLength} = tile.header;
+  const {
+    featureTableJsonByteLength,
+    featureTableBinaryByteLength,
+    batchLength,
+  } = tile.header;
 
   tile.featureTableJson = {
-    BATCH_LENGTH: batchLength || 0
+    BATCH_LENGTH: batchLength || 0,
   };
 
   if (featureTableJsonByteLength > 0) {
@@ -81,7 +85,11 @@ function parse3DTileFeatureTable(tile, arrayBuffer, byteOffset, options) {
   }
   byteOffset += featureTableJsonByteLength;
 
-  tile.featureTableBinary = new Uint8Array(arrayBuffer, byteOffset, featureTableBinaryByteLength);
+  tile.featureTableBinary = new Uint8Array(
+    arrayBuffer,
+    byteOffset,
+    featureTableBinaryByteLength
+  );
   byteOffset += featureTableBinaryByteLength;
 
   /*
@@ -95,7 +103,7 @@ function parse3DTileFeatureTable(tile, arrayBuffer, byteOffset, options) {
 }
 
 function parse3DTileBatchTable(tile, arrayBuffer, byteOffset, options) {
-  const {batchTableJsonByteLength, batchTableBinaryByteLength} = tile.header;
+  const { batchTableJsonByteLength, batchTableBinaryByteLength } = tile.header;
 
   if (batchTableJsonByteLength > 0) {
     const batchTableString = getStringFromArrayBuffer(
@@ -108,7 +116,11 @@ function parse3DTileBatchTable(tile, arrayBuffer, byteOffset, options) {
 
     if (batchTableBinaryByteLength > 0) {
       // Has a batch table binary
-      tile.batchTableBinary = new Uint8Array(arrayBuffer, byteOffset, batchTableBinaryByteLength);
+      tile.batchTableBinary = new Uint8Array(
+        arrayBuffer,
+        byteOffset,
+        batchTableBinaryByteLength
+      );
       // Copy the batchTableBinary section and let the underlying ArrayBuffer be freed
       tile.batchTableBinary = new Uint8Array(tile.batchTableBinary);
 

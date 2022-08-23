@@ -1,11 +1,11 @@
-import type {LoaderWithParser} from '@loaders.gl/loader-utils';
-import {Tiles3DLoader} from './tiles-3d-loader';
-import {getIonTilesetMetadata} from './lib/ion/ion';
+import type { LoaderWithParser } from '@loaders.gl/loader-utils';
+import { Tiles3DLoader } from './tiles-3d-loader.js';
+import { getIonTilesetMetadata } from './lib/ion/ion.js';
 
 async function preload(url, options = {}) {
   options = options['cesium-ion'] || {};
   // @ts-ignore
-  const {accessToken} = options;
+  const { accessToken } = options;
   // @ts-ignore
   let assetId = options.assetId;
   if (!Number.isFinite(assetId)) {
@@ -25,7 +25,7 @@ export const CesiumIonLoader: LoaderWithParser = {
   // @ts-ignore
   preload,
   parse: async (data, options?, context?) => {
-    options = {...options};
+    options = { ...options };
     options['3d-tiles'] = options['cesium-ion'];
     // @ts-ignore
     options.loader = CesiumIonLoader;
@@ -34,7 +34,7 @@ export const CesiumIonLoader: LoaderWithParser = {
   options: {
     'cesium-ion': {
       ...Tiles3DLoader.options['3d-tiles'],
-      accessToken: null
-    }
-  }
+      accessToken: null,
+    },
+  },
 };

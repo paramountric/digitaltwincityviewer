@@ -1,5 +1,5 @@
-import type {Subtree, ExplicitBitstream} from '../../../types';
-import {fetchFile} from '@loaders.gl/core';
+import type { Subtree, ExplicitBitstream } from '../../../types.js';
+import { fetchFile } from '@loaders.gl/core';
 
 const SUBTREE_FILE_MAGIC = 0x74627573;
 const SUBTREE_FILE_VERSION = 1;
@@ -11,7 +11,9 @@ const SUBTREE_FILE_VERSION = 1;
  * @returns
  */
 // eslint-disable-next-line max-statements
-export default async function parse3DTilesSubtree(data: ArrayBuffer): Promise<Subtree> {
+export default async function parse3DTilesSubtree(
+  data: ArrayBuffer
+): Promise<Subtree> {
   const magic = new Uint32Array(data.slice(0, 4));
 
   if (magic[0] !== SUBTREE_FILE_MAGIC) {
@@ -55,11 +57,12 @@ export default async function parse3DTilesSubtree(data: ArrayBuffer): Promise<Su
   }
 
   if ('bufferView' in subtree.childSubtreeAvailability) {
-    subtree.childSubtreeAvailability.explicitBitstream = await getExplicitBitstream(
-      subtree,
-      'childSubtreeAvailability',
-      internalBinaryBuffer
-    );
+    subtree.childSubtreeAvailability.explicitBitstream =
+      await getExplicitBitstream(
+        subtree,
+        'childSubtreeAvailability',
+        internalBinaryBuffer
+      );
   }
 
   return subtree;
@@ -88,7 +91,11 @@ async function getExplicitBitstream(
     return new Uint8Array(data, bufferView.byteOffset, bufferView.byteLength);
   }
   // Return view of bitstream.
-  return new Uint8Array(internalBinaryBuffer, bufferView.byteOffset, bufferView.byteLength);
+  return new Uint8Array(
+    internalBinaryBuffer,
+    bufferView.byteOffset,
+    bufferView.byteLength
+  );
 }
 
 /**

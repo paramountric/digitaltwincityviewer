@@ -1,25 +1,34 @@
 // This file is derived from the Cesium code base under Apache 2 license
 // See LICENSE.md and https://github.com/AnalyticalGraphicsInc/cesium/blob/master/LICENSE.md
 
-import {DracoLoader} from '@loaders.gl/draco';
-import {GL} from '@loaders.gl/math';
-import {Vector3} from '@math.gl/core';
+import { DracoLoader } from '@loaders.gl/draco';
+import { GL } from '@loaders.gl/math';
+import { Vector3 } from '@math.gl/core';
 
-import Tile3DFeatureTable from '../classes/tile-3d-feature-table';
-import Tile3DBatchTable from '../classes/tile-3d-batch-table';
-import {parse3DTileHeaderSync} from './helpers/parse-3d-tile-header';
-import {parse3DTileTablesHeaderSync, parse3DTileTablesSync} from './helpers/parse-3d-tile-tables';
-import {normalize3DTileColorAttribute} from './helpers/normalize-3d-tile-colors';
-import {normalize3DTileNormalAttribute} from './helpers/normalize-3d-tile-normals';
-import {normalize3DTilePositionAttribute} from './helpers/normalize-3d-tile-positions';
+import Tile3DFeatureTable from '../classes/tile-3d-feature-table.js';
+import Tile3DBatchTable from '../classes/tile-3d-batch-table.js';
+import { parse3DTileHeaderSync } from './helpers/parse-3d-tile-header.js';
+import {
+  parse3DTileTablesHeaderSync,
+  parse3DTileTablesSync,
+} from './helpers/parse-3d-tile-tables.js';
+import { normalize3DTileColorAttribute } from './helpers/normalize-3d-tile-colors.js';
+import { normalize3DTileNormalAttribute } from './helpers/normalize-3d-tile-normals.js';
+import { normalize3DTilePositionAttribute } from './helpers/normalize-3d-tile-positions.js';
 
-export async function parsePointCloud3DTile(tile, arrayBuffer, byteOffset, options, context) {
+export async function parsePointCloud3DTile(
+  tile,
+  arrayBuffer,
+  byteOffset,
+  options,
+  context
+) {
   byteOffset = parse3DTileHeaderSync(tile, arrayBuffer, byteOffset);
   byteOffset = parse3DTileTablesHeaderSync(tile, arrayBuffer, byteOffset);
   byteOffset = parse3DTileTablesSync(tile, arrayBuffer, byteOffset, options);
   initializeTile(tile);
 
-  const {featureTable, batchTable} = parsePointCloudTables(tile);
+  const { featureTable, batchTable } = parsePointCloudTables(tile);
 
   await parseDraco(tile, featureTable, batchTable, options, context);
 
@@ -36,7 +45,7 @@ function initializeTile(tile) {
     positions: null,
     colors: null,
     normals: null,
-    batchIds: null
+    batchIds: null,
   };
   tile.isQuantized = false;
   tile.isTranslucent = false;
@@ -45,7 +54,10 @@ function initializeTile(tile) {
 }
 
 function parsePointCloudTables(tile) {
-  const featureTable = new Tile3DFeatureTable(tile.featureTableJson, tile.featureTableBinary);
+  const featureTable = new Tile3DFeatureTable(
+    tile.featureTableJson,
+    tile.featureTableBinary
+  );
 
   const pointsLength = featureTable.getGlobalProperty('POINTS_LENGTH');
   if (!Number.isFinite(pointsLength)) {
@@ -61,15 +73,23 @@ function parsePointCloudTables(tile) {
 
   const batchTable = parseBatchIds(tile, featureTable);
 
-  return {featureTable, batchTable};
+  return { featureTable, batchTable };
 }
 
 function parsePositions(tile, featureTable, options) {
   if (!tile.attributes.positions) {
     if (featureTable.hasProperty('POSITION')) {
-      tile.attributes.positions = featureTable.getPropertyArray('POSITION', GL.FLOAT, 3);
+      tile.attributes.positions = featureTable.getPropertyArray(
+        'POSITION',
+        GL.FLOAT,
+        3
+      );
     } else if (featureTable.hasProperty('POSITION_QUANTIZED')) {
-      const positions = featureTable.getPropertyArray('POSITION_QUANTIZED', GL.UNSIGNED_SHORT, 3);
+      const positions = featureTable.getPropertyArray(
+        'POSITION_QUANTIZED',
+        GL.UNSIGNED_SHORT,
+        3
+      );
 
       tile.isQuantized = true;
       tile.quantizedRange = (1 << 16) - 1;
@@ -80,7 +100,9 @@ function parsePositions(tile, featureTable, options) {
         3
       );
       if (!tile.quantizedVolumeScale) {
-        throw new Error('QUANTIZED_VOLUME_SCALE must be defined for quantized positions.');
+        throw new Error(
+          'QUANTIZED_VOLUME_SCALE must be defined for quantized positions.'
+        );
       }
 
       tile.quantizedVolumeOffset = featureTable.getGlobalProperty(
@@ -89,10 +111,16 @@ function parsePositions(tile, featureTable, options) {
         3
       );
       if (!tile.quantizedVolumeOffset) {
-        throw new Error('QUANTIZED_VOLUME_OFFSET must be defined for quantized positions.');
+        throw new Error(
+          'QUANTIZED_VOLUME_OFFSET must be defined for quantized positions.'
+        );
       }
 
-      tile.attributes.positions = normalize3DTilePositionAttribute(tile, positions, options);
+      tile.attributes.positions = normalize3DTilePositionAttribute(
+        tile,
+        positions,
+        options
+      );
     }
   }
 
@@ -114,11 +142,19 @@ function parseColors(tile, featureTable, batchTable) {
       tile.isRGB565 = true;
     }
 
-    tile.attributes.colors = normalize3DTileColorAttribute(tile, colors, batchTable);
+    tile.attributes.colors = normalize3DTileColorAttribute(
+      tile,
+      colors,
+      batchTable
+    );
   }
 
   if (featureTable.hasProperty('CONSTANT_RGBA')) {
-    tile.constantRGBA = featureTable.getGlobalProperty('CONSTANT_RGBA', GL.UNSIGNED_BYTE, 4);
+    tile.constantRGBA = featureTable.getGlobalProperty(
+      'CONSTANT_RGBA',
+      GL.UNSIGNED_BYTE,
+      4
+    );
   }
 }
 
@@ -128,7 +164,11 @@ function parseNormals(tile, featureTable) {
     if (featureTable.hasProperty('NORMAL')) {
       normals = featureTable.getPropertyArray('NORMAL', GL.FLOAT, 3);
     } else if (featureTable.hasProperty('NORMAL_OCT16P')) {
-      normals = featureTable.getPropertyArray('NORMAL_OCT16P', GL.UNSIGNED_BYTE, 2);
+      normals = featureTable.getPropertyArray(
+        'NORMAL_OCT16P',
+        GL.UNSIGNED_BYTE,
+        2
+      );
       tile.isOctEncoded16P = true;
     }
 
@@ -139,15 +179,25 @@ function parseNormals(tile, featureTable) {
 function parseBatchIds(tile, featureTable) {
   let batchTable: Tile3DBatchTable | null = null;
   if (!tile.batchIds && featureTable.hasProperty('BATCH_ID')) {
-    tile.batchIds = featureTable.getPropertyArray('BATCH_ID', GL.UNSIGNED_SHORT, 1);
+    tile.batchIds = featureTable.getPropertyArray(
+      'BATCH_ID',
+      GL.UNSIGNED_SHORT,
+      1
+    );
 
     if (tile.batchIds) {
       const batchFeatureLength = featureTable.getGlobalProperty('BATCH_LENGTH');
       if (!batchFeatureLength) {
-        throw new Error('Global property: BATCH_LENGTH must be defined when BATCH_ID is defined.');
+        throw new Error(
+          'Global property: BATCH_LENGTH must be defined when BATCH_ID is defined.'
+        );
       }
-      const {batchTableJson, batchTableBinary} = tile;
-      batchTable = new Tile3DBatchTable(batchTableJson, batchTableBinary, batchFeatureLength);
+      const { batchTableJson, batchTableBinary } = tile;
+      batchTable = new Tile3DBatchTable(
+        batchTableJson,
+        batchTableBinary,
+        batchFeatureLength
+      );
     }
   }
   return batchTable;
@@ -166,16 +216,27 @@ async function parseDraco(tile, featureTable, batchTable, options, context) {
     dracoBatchTableProperties = batchTableDraco.properties;
   }
 
-  const featureTableDraco = featureTable.getExtension('3DTILES_draco_point_compression');
+  const featureTableDraco = featureTable.getExtension(
+    '3DTILES_draco_point_compression'
+  );
   if (featureTableDraco) {
     dracoFeatureTableProperties = featureTableDraco.properties;
     const dracoByteOffset = featureTableDraco.byteOffset;
     const dracoByteLength = featureTableDraco.byteLength;
-    if (!dracoFeatureTableProperties || !Number.isFinite(dracoByteOffset) || !dracoByteLength) {
-      throw new Error('Draco properties, byteOffset, and byteLength must be defined');
+    if (
+      !dracoFeatureTableProperties ||
+      !Number.isFinite(dracoByteOffset) ||
+      !dracoByteLength
+    ) {
+      throw new Error(
+        'Draco properties, byteOffset, and byteLength must be defined'
+      );
     }
 
-    dracoBuffer = tile.featureTableBinary.slice(dracoByteOffset, dracoByteOffset + dracoByteLength);
+    dracoBuffer = tile.featureTableBinary.slice(
+      dracoByteOffset,
+      dracoByteOffset + dracoByteLength
+    );
 
     tile.hasPositions = Number.isFinite(dracoFeatureTableProperties.POSITION);
     tile.hasColors =
@@ -192,10 +253,13 @@ async function parseDraco(tile, featureTable, batchTable, options, context) {
 
   const dracoData = {
     buffer: dracoBuffer,
-    properties: {...dracoFeatureTableProperties, ...dracoBatchTableProperties},
+    properties: {
+      ...dracoFeatureTableProperties,
+      ...dracoBatchTableProperties,
+    },
     featureTableProperties: dracoFeatureTableProperties,
     batchTableProperties: dracoBatchTableProperties,
-    dequantizeInShader: false
+    dequantizeInShader: false,
   };
 
   return await loadDraco(tile, dracoData, options, context);
@@ -203,13 +267,13 @@ async function parseDraco(tile, featureTable, batchTable, options, context) {
 
 // eslint-disable-next-line complexity, max-statements
 export async function loadDraco(tile, dracoData, options, context) {
-  const {parse} = context;
+  const { parse } = context;
   const dracoOptions = {
     ...options,
     draco: {
       ...options.draco,
-      extraAttributes: dracoData.batchTableProperties || {}
-    }
+      extraAttributes: dracoData.batchTableProperties || {},
+    },
   };
 
   // The entire tileset might be included, too expensive to serialize
@@ -217,12 +281,17 @@ export async function loadDraco(tile, dracoData, options, context) {
 
   const data = await parse(dracoData.buffer, DracoLoader, dracoOptions);
 
-  const decodedPositions = data.attributes.POSITION && data.attributes.POSITION.value;
-  const decodedColors = data.attributes.COLOR_0 && data.attributes.COLOR_0.value;
+  const decodedPositions =
+    data.attributes.POSITION && data.attributes.POSITION.value;
+  const decodedColors =
+    data.attributes.COLOR_0 && data.attributes.COLOR_0.value;
   const decodedNormals = data.attributes.NORMAL && data.attributes.NORMAL.value;
-  const decodedBatchIds = data.attributes.BATCH_ID && data.attributes.BATCH_ID.value;
-  const isQuantizedDraco = decodedPositions && data.attributes.POSITION.value.quantization;
-  const isOctEncodedDraco = decodedNormals && data.attributes.NORMAL.value.quantization;
+  const decodedBatchIds =
+    data.attributes.BATCH_ID && data.attributes.BATCH_ID.value;
+  const isQuantizedDraco =
+    decodedPositions && data.attributes.POSITION.value.quantization;
+  const isOctEncodedDraco =
+    decodedNormals && data.attributes.NORMAL.value.quantization;
   if (isQuantizedDraco) {
     // Draco quantization range == quantized volume scale - size in meters of the quantized volume
     // Internal quantized range is the range of values of the quantized data, e.g. 255 for 8-bit, 1023 for 10-bit, etc
@@ -234,7 +303,8 @@ export async function loadDraco(tile, dracoData, options, context) {
     tile.isQuantizedDraco = true;
   }
   if (isOctEncodedDraco) {
-    tile.octEncodedRange = (1 << data.NORMAL.data.quantization.quantizationBits) - 1.0;
+    tile.octEncodedRange =
+      (1 << data.NORMAL.data.quantization.quantizationBits) - 1.0;
     tile.isOctEncodedDraco = true;
   }
 
@@ -242,8 +312,12 @@ export async function loadDraco(tile, dracoData, options, context) {
   const batchTableAttributes = {};
   if (dracoData.batchTableProperties) {
     for (const attributeName of Object.keys(dracoData.batchTableProperties)) {
-      if (data.attributes[attributeName] && data.attributes[attributeName].value) {
-        batchTableAttributes[attributeName.toLowerCase()] = data.attributes[attributeName].value;
+      if (
+        data.attributes[attributeName] &&
+        data.attributes[attributeName].value
+      ) {
+        batchTableAttributes[attributeName.toLowerCase()] =
+          data.attributes[attributeName].value;
       }
     }
   }
@@ -253,7 +327,7 @@ export async function loadDraco(tile, dracoData, options, context) {
     colors: normalize3DTileColorAttribute(tile, decodedColors, undefined),
     normals: decodedNormals,
     batchIds: decodedBatchIds,
-    ...batchTableAttributes
+    ...batchTableAttributes,
   };
 }
 

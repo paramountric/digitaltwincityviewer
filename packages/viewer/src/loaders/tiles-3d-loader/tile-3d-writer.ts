@@ -1,6 +1,6 @@
-import type {Writer} from '@loaders.gl/loader-utils';
-import {VERSION} from './lib/utils/version';
-import encode3DTile from './lib/encoders/encode-3d-tile';
+import type { Writer } from '@loaders.gl/loader-utils';
+import { VERSION } from './lib/utils/version.js';
+import encode3DTile from './lib/encoders/encode-3d-tile.js';
 
 /**
  * Exporter for 3D Tiles
@@ -15,8 +15,8 @@ export const Tile3DWriter: Writer = {
   encodeSync,
   binary: true,
   options: {
-    ['3d-tiles']: {}
-  }
+    ['3d-tiles']: {},
+  },
 };
 
 function encodeSync(tile, options) {
