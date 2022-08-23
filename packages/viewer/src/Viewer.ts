@@ -8,7 +8,7 @@ import {
   _shallowEqualObjects,
 } from '@deck.gl/json';
 import { Feature } from 'geojson';
-import { LayerSpecification, Map, MapOptions } from 'maplibre-gl';
+import maplibreGl from 'maplibre-gl';
 import { makeObservable, observable, action } from 'mobx';
 import { tileToQuadkey } from '@mapbox/tilebelt';
 import { LayerStore, UpdateLayerProps } from './store/LayerStore.js';
@@ -44,7 +44,7 @@ const maplibreOptions = {
   minZoom: 10,
   pitch: 60,
   attributionControl: false,
-} as MapOptions;
+} as maplibregl.MapOptions;
 
 // internalProps = not to be set from parent component
 const internalProps = {
@@ -86,7 +86,7 @@ class Viewer {
   jsonConverter: JSONConverter;
   viewStore: ViewStore;
   layerStore: LayerStore;
-  maplibreMap?: Map;
+  maplibreMap?: maplibregl.Map;
   selectedObject: Feature | null = null;
   selectedGraphObject: Feature | null = null;
   hoveredObject: Feature | null = null;
@@ -313,7 +313,7 @@ class Viewer {
       props.container = container;
     }
 
-    this.maplibreMap = new Map(maplibreOptions);
+    this.maplibreMap = new maplibreGl.Map(maplibreOptions);
 
     this.maplibreMap.on('load', () => {
       // how to fix this TS issue now again.. of course it's not undefined in here
@@ -331,7 +331,7 @@ class Viewer {
         new MaplibreWrapper({
           id: 'viewer',
           deck: this.deck,
-        }) as LayerSpecification
+        }) as maplibregl.LayerSpecification
       );
 
       this.maplibreMap.on('move', () => {
