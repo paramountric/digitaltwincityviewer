@@ -1,7 +1,6 @@
 import {useRouter} from 'next/router';
 import {useState} from 'react';
-import Header from '../components/Header';
-import InputLabel from '../components/InputLabel';
+import InputLabel from '../components/input-label';
 import {useSignIn} from '../hooks/use-signin';
 import {useUserInfo} from '../hooks/use-userinfo';
 
@@ -27,7 +26,6 @@ function SignInPage() {
 
   return (
     <>
-      <Header title="sign in" />
       <form onSubmit={handleSubmit}>
         <InputLabel label="Email">
           <input

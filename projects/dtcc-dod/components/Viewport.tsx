@@ -132,7 +132,7 @@ const Viewport: React.FC<ViewerProps> = () => {
 
     // todo: decide how to set the current city
     const cityLocation = [13.0109, 55.5791];
-    const cityCenter = toWebmercator(...cityLocation);
+    const cityCenter = toWebmercator(cityLocation[0], cityLocation[1]);
     const city = getCity(cityCenter[0], cityCenter[1]);
     viewer.setCity(city);
 
