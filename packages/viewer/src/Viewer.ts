@@ -16,7 +16,7 @@ import { ViewStore } from './store/ViewStore.js';
 import MaplibreWrapper from './utils/MaplibreWrapper.js';
 import { toLngLat } from './utils/projection.js';
 import { getCity, City } from './utils/getCity.js';
-import JSON_CONVERTER_CONFIGURATION from './config/converter-config';
+import JSON_CONVERTER_CONFIGURATION from './config/converter-config.js';
 
 const maplibreStyle = {
   id: 'digitaltwincityviewer',
