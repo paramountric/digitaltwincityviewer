@@ -1,7 +1,7 @@
 // Copyright (C) 2022 Andreas Rudenå
 // Licensed under the MIT License
 
-import { Deck, MapViewState, MapView } from '@deck.gl/core';
+import { Deck, DeckProps, MapViewState, MapView } from '@deck.gl/core';
 import {
   JSONConverter,
   JSONConfiguration,
@@ -55,9 +55,9 @@ const internalProps = {
     depth: true,
   },
   layers: [],
-  onWebGLInitialized: (): void => null,
-  onViewStateChange: ({ viewState }) => viewState,
-  layerFilter: ({ viewport, layer }) => true,
+  onWebGLInitialized: null,
+  onViewStateChange: null,
+  layerFilter: null,
 };
 
 // There is a performance problem for extruded polygons that does not appear in the maplibre rendering settings
@@ -65,8 +65,10 @@ const internalProps = {
 // This is NOT ideal since the bundle size increase dramatically
 // todo: remove maplibre
 // ! note: the fast iterations have created three tracks on how the viewState works, however the code is kept in the repo for all of them -> if below is true, part of the other code is not used...
+// ! second note: the recent developments goes towards using Deck, thus using the existing state of Deck would be advantageous (instead of managing state in this component)
 const useMaplibre = false;
 
+// todo: refactor this -> now the Deck props are used directly which means that this is getting more and more a wrapper around Deck
 type ViewerProps = {
   longitude?: number;
   latitude?: number;
@@ -74,9 +76,12 @@ type ViewerProps = {
   container?: HTMLElement | string;
   bearing?: number;
   pitch?: number;
+  width?: number;
+  height?: number;
+  onLoad?: () => void;
 };
 class Viewer {
-  gl: WebGL2RenderingContext;
+  gl: WebGL2RenderingContext | null = null;
   deck: Deck;
   jsonConverter: JSONConverter;
   viewStore: ViewStore;
@@ -86,8 +91,8 @@ class Viewer {
   selectedGraphObject: Feature | null = null;
   hoveredObject: Feature | null = null;
   hoveredGraphObject: Feature | null = null;
-  currentCity: City;
-  constructor(props: ViewerProps) {
+  currentCity: City | null = null;
+  constructor(props: DeckProps) {
     this.jsonConverter = new JSONConverter({
       configuration: new JSONConfiguration(JSON_CONVERTER_CONFIGURATION),
     });
@@ -219,7 +224,7 @@ class Viewer {
   // (it means that the viewer camera is 0,0 at city center at start which is a epsg3857 coordinate from getCity function, and here moved to the area of interest with an offset)
   setCenter(webmercatorCenter) {
     const lngLatCenter = toLngLat(webmercatorCenter[0], webmercatorCenter[1]);
-    if (useMaplibre) {
+    if (useMaplibre && this.maplibreMap) {
       this.maplibreMap.setCenter(lngLatCenter);
     } else {
       this.viewStore.setCenter(lngLatCenter);
@@ -311,6 +316,10 @@ class Viewer {
     this.maplibreMap = new Map(maplibreOptions);
 
     this.maplibreMap.on('load', () => {
+      // how to fix this TS issue now again.. of course it's not undefined in here
+      if (!this.maplibreMap) {
+        return;
+      }
       const gl = this.maplibreMap.painter.context.gl;
       this.deck = new Deck(
         Object.assign(props, {
@@ -326,6 +335,10 @@ class Viewer {
       );
 
       this.maplibreMap.on('move', () => {
+        // how to fix this TS issue now again.. of course it's not undefined in here
+        if (!this.maplibreMap) {
+          return;
+        }
         const { lng, lat } = this.maplibreMap.getCenter();
         // this.deck.setProps({
         //   viewState: {
@@ -356,4 +369,5 @@ class Viewer {
   }
 }
 
+// todo: refactor this -> now the Deck props are used directly which means that this is getting more and more a wrapper around Deck
 export { Viewer, ViewerProps };

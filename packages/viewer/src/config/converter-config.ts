@@ -1,4 +1,4 @@
-import { COORDINATE_SYSTEM, GL, MapView } from '@deck.gl/core';
+import { COORDINATE_SYSTEM, MapView } from '@deck.gl/core';
 import { ScatterplotLayer, LineLayer, GeoJsonLayer } from '@deck.gl/layers';
 import { QuadkeyLayer } from '@deck.gl/geo-layers';
 import { scaleLinear } from 'd3-scale';
@@ -64,7 +64,6 @@ export default {
   },
   enumerations: {
     COORDINATE_SYSTEM,
-    GL,
   },
   constants: {
     Tiles3DLoader: Tiles3DLoader as any,

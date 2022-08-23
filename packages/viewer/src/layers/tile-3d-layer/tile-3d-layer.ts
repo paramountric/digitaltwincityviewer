@@ -20,12 +20,13 @@ import {
   DefaultProps,
 } from '@deck.gl/core';
 import { PointCloudLayer } from '@deck.gl/layers';
-import { ScenegraphLayer, MeshLayer } from '@deck.gl/mesh-layers';
+import { ScenegraphLayer } from '@deck.gl/mesh-layers';
 
 import { load } from '@loaders.gl/core';
 import { MeshAttributes } from '@loaders.gl/schema';
 import { Tileset3D, Tile3D, TILE_TYPE } from '../../loaders/tiles';
 import { Tiles3DLoader } from '../../loaders/tiles-3d-loader/tiles-3d-loader';
+import MeshLayer from './mesh-layer/mesh-layer';
 
 const SINGLE_DATA = [0];
 
