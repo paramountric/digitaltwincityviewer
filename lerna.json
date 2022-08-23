@@ -1,18 +1,12 @@
 {
-  "packages": [
-    "packages/*",
-    "projects/*",
-    "services/*"
-  ],
-  "npmClient": "npm",
+  "packages": ["packages/*", "projects/*", "services/*"],
+  "useNx": false,
+  "version": "independent",
   "command": {
     "publish": {
-      "ignoreChanges": [
-        "**/*.md"
-      ],
-      "message": "chore(release): publish"
-    },
-    "bootstrap": {}
-  },
-  "version": "1.0.5"
+      "ignoreChanges": ["**/*.md"],
+      "message": "chore(release): publish",
+      "registry": "https://npm.pkg.github.com/paramountric"
+    }
+  }
 }
