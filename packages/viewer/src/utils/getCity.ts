@@ -4,7 +4,7 @@ import RBush from 'rbush';
 import Queue from 'tinyqueue';
 
 // https://simplemaps.com/data/se-cities
-import cities from './se.json';
+import cities from './se.js';
 
 // The viewer will have a reference city deferred from layer data
 export type City = {
