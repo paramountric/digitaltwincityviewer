@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/cityjson",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "description": "CityJSON parser for Digital Twin City Viewer project",
   "keywords": [
