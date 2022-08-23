@@ -1,7 +1,7 @@
 import type {NextPage} from 'next';
 import Link from 'next/link';
 import Header from '../components/header';
-import Viewport from '../components/viewport';
+import Viewer from '../components/viewer';
 import {useUserInfo} from '../hooks/use-userinfo';
 
 const ViewerPage: NextPage = () => {
@@ -18,7 +18,7 @@ const ViewerPage: NextPage = () => {
         </div>
 
         {userInfo ? (
-          <Viewport />
+          <Viewer />
         ) : (
           <button>
             <Link href="/api/auth/signin">
