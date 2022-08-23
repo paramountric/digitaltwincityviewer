@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/indicators",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "This package contains settings for common indicators, such as ranges, colors, units, etc",
   "main": "./dist/index.js",
   "types": "./dist/types.d.ts",

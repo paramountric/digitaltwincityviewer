@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.1](https://github.com/paramountric/digitaltwincityviewer/compare/@dtcv/cfd-vertical@1.1.0...@dtcv/cfd-vertical@1.1.1) (2022-08-23)
+
+**Note:** Version bump only for package @dtcv/cfd-vertical
+
+
+
+
+
 # 1.1.0 (2022-08-23)
 
 
