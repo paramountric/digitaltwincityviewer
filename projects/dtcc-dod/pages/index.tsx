@@ -1,10 +1,13 @@
 import type {NextPage} from 'next';
 import {useRef, useState, useEffect, useCallback} from 'react';
-import Header from '../components/Header';
-import Viewport from '../components/Viewport';
+import Header from '../components/header';
+import Viewport from '../components/viewport';
+import {useUserInfo} from '../hooks/use-userinfo';
 
 const ViewerPage: NextPage = () => {
-  const [isLoading, setLoading] = useState(false);
+  const userInfo = useUserInfo();
+
+  console.log(userInfo);
 
   return (
     <div>
@@ -14,7 +17,7 @@ const ViewerPage: NextPage = () => {
           <Header title="Design och Data" />
         </div>
 
-        <Viewport />
+        {/*<Viewport />*/}
       </main>
     </div>
   );

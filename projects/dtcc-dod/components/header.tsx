@@ -10,7 +10,6 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({title}) => {
   const userInfo = useUserInfo();
   const signOut = useSignOut();
-  console.log(userInfo);
   return (
     <>
       <Head>

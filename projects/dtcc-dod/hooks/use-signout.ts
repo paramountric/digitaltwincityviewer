@@ -5,7 +5,7 @@ const {USERINFO_QUERY_KEY, IS_DEV} = constants;
 
 export const useSignOut = async () => {
   const queryClient = useQueryClient();
-  const signOutUrl = '/api/signout';
+  const signOutUrl = '/auth/api/signout';
 
   const mutation = useMutation(async () => {
     const signOutRes = await fetch(signOutUrl);
