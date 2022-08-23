@@ -1,7 +1,6 @@
 // This code is derived from Deck.gl. Copyright MIT, 2020 Urban Computing Foundation
 // Here Maplibre is used.
 import { Deck, WebMercatorViewport, MapView, Layer } from '@deck.gl/core';
-import { Map } from 'maplibre-gl';
 
 function getDeckInstance({ map, gl, deck }) {
   // Only create one deck instance per context
@@ -217,7 +216,7 @@ function updateLayers(deck) {
     return;
   }
 
-  const layers = [];
+  const layers: Layer[] = [];
   let layerIndex = 0;
   deck.props.userData.maplibreLayers.forEach(deckLayer => {
     const LayerType = deckLayer.props.type;
@@ -231,7 +230,7 @@ export default class MaplibreWrapper {
   id: string;
   type: string;
   renderingMode: string;
-  map: Map;
+  map: maplibregl.Map | null;
   deck: Deck;
   props: any;
   /* eslint-disable no-this-before-super */
