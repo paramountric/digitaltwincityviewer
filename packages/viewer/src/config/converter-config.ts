@@ -1,11 +1,13 @@
 import { COORDINATE_SYSTEM, GL, MapView } from '@deck.gl/core';
 import { ScatterplotLayer, LineLayer, GeoJsonLayer } from '@deck.gl/layers';
-import { Tile3DLayer, QuadkeyLayer } from '@deck.gl/geo-layers';
+import { QuadkeyLayer } from '@deck.gl/geo-layers';
 import { scaleLinear } from 'd3-scale';
 import { mat4, vec3 } from 'gl-matrix';
 import { registerLoaders } from '@loaders.gl/core';
 import { DracoWorkerLoader } from '@loaders.gl/draco';
-import { Tiles3DLoader, CesiumIonLoader } from '@loaders.gl/3d-tiles';
+import { CesiumIonLoader } from '@loaders.gl/3d-tiles';
+import Tile3DLayer from '../layers/tile-3d-layer/tile-3d-layer';
+import { Tiles3DLoader } from '../loaders/tiles-3d-loader/tiles-3d-loader';
 
 // Note: deck already registers JSONLoader...
 registerLoaders([DracoWorkerLoader]);
@@ -35,6 +37,16 @@ function getTranslateMatrix({ translate }) {
   );
 }
 
+function onTilesetLoad(tileset) {
+  console.log('tileset loaded');
+  console.log(tileset);
+}
+
+function onTileLoad(tile) {
+  console.log('tile load');
+  console.log(tile);
+}
+
 export default {
   classes: {
     ScatterplotLayer,
@@ -48,6 +60,7 @@ export default {
     getLinearScale,
     getGridMatrix,
     getTranslateMatrix,
+    onTilesetLoad,
   },
   enumerations: {
     COORDINATE_SYSTEM,
@@ -56,5 +69,7 @@ export default {
   constants: {
     Tiles3DLoader: Tiles3DLoader as any,
     CesiumIonLoader: CesiumIonLoader as any,
+    onTilesetLoad,
+    onTileLoad,
   },
 };
