@@ -1,10 +1,10 @@
-import {FrameState} from '../helpers/frame-state';
-import I3SPendingTilesRegister from './i3s-pending-tiles-register';
+import { FrameState } from '../helpers/frame-state.js';
+import I3SPendingTilesRegister from './i3s-pending-tiles-register.js';
 
 const STATUS = {
   REQUESTED: 'REQUESTED',
   COMPLETED: 'COMPLETED',
-  ERROR: 'ERROR'
+  ERROR: 'ERROR',
 };
 
 // A helper class to manage tile metadata fetching
@@ -27,27 +27,33 @@ export default class I3STileManager {
     if (!this._statusMap[key]) {
       const {
         frameNumber,
-        viewport: {id}
+        viewport: { id },
       } = frameState;
-      this._statusMap[key] = {request, callback, key, frameState, status: STATUS.REQUESTED};
+      this._statusMap[key] = {
+        request,
+        callback,
+        key,
+        frameState,
+        status: STATUS.REQUESTED,
+      };
       // Register pending request for the frameNumber
       this.pendingTilesRegister.register(id, frameNumber);
       request()
-        .then((data) => {
+        .then(data => {
           this._statusMap[key].status = STATUS.COMPLETED;
           const {
             frameNumber: actualFrameNumber,
-            viewport: {id}
+            viewport: { id },
           } = this._statusMap[key].frameState;
           // Deregister pending request for the frameNumber
           this.pendingTilesRegister.deregister(id, actualFrameNumber);
           this._statusMap[key].callback(data, frameState);
         })
-        .catch((error) => {
+        .catch(error => {
           this._statusMap[key].status = STATUS.ERROR;
           const {
             frameNumber: actualFrameNumber,
-            viewport: {id}
+            viewport: { id },
           } = this._statusMap[key].frameState;
           // Deregister pending request for the frameNumber
           this.pendingTilesRegister.deregister(id, actualFrameNumber);
@@ -66,14 +72,14 @@ export default class I3STileManager {
       // Deregister pending request for the old frameNumber
       const {
         frameNumber,
-        viewport: {id}
+        viewport: { id },
       } = this._statusMap[key].frameState;
       this.pendingTilesRegister.deregister(id, frameNumber);
 
       // Register pending request for the new frameNumber
       const {
         frameNumber: newFrameNumber,
-        viewport: {id: newViewportId}
+        viewport: { id: newViewportId },
       } = frameState;
       this.pendingTilesRegister.register(newViewportId, newFrameNumber);
       this._statusMap[key].frameState = frameState;

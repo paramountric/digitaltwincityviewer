@@ -1,7 +1,7 @@
 // This file is derived from the Cesium code base under Apache 2 license
 // See LICENSE.md and https://github.com/AnalyticalGraphicsInc/cesium/blob/master/LICENSE.md
 
-import DoublyLinkedList from '../utils/doubly-linked-list';
+import DoublyLinkedList from '../utils/doubly-linked-list.js';
 
 function defined(x) {
   return x !== undefined && x !== null;

@@ -10,8 +10,8 @@ import type {
 } from '@deck.gl/core';
 import { SimpleMeshLayer, SimpleMeshLayerProps } from '@deck.gl/mesh-layers';
 
-import vs from './mesh-layer-vertex.glsl';
-import fs from './mesh-layer-fragment.glsl';
+import vs from './mesh-layer-vertex.glsl.js';
+import fs from './mesh-layer-fragment.glsl.js';
 
 export type Mesh = {
   attributes: MeshAttributes;

@@ -1,10 +1,10 @@
-import {load} from '@loaders.gl/core';
-import TilesetTraverser from './tileset-traverser';
+import { load } from '@loaders.gl/core';
+import TilesetTraverser from './tileset-traverser.js';
 
-import {getLodStatus} from '../helpers/i3s-lod';
-import TileHeader from '../tile-3d';
-import I3STileManager from './i3s-tile-manager';
-import {FrameState} from '../helpers/frame-state';
+import { getLodStatus } from '../helpers/i3s-lod.js';
+import TileHeader from '../tile-3d.js';
+import I3STileManager from './i3s-tile-manager.js';
+import { FrameState } from '../helpers/frame-state.js';
 
 export default class I3STilesetTraverser extends TilesetTraverser {
   private _tileManager: I3STileManager;
@@ -15,7 +15,10 @@ export default class I3STilesetTraverser extends TilesetTraverser {
    * following-up callbacks.
    */
   protected traversalFinished(frameState: FrameState): boolean {
-    return !this._tileManager.hasPendingTiles(frameState.viewport.id, this._frameNumber || 0);
+    return !this._tileManager.hasPendingTiles(
+      frameState.viewport.id,
+      this._frameNumber || 0
+    );
   }
 
   constructor(options) {
@@ -37,19 +40,20 @@ export default class I3STilesetTraverser extends TilesetTraverser {
     for (const child of children) {
       const extendedId = `${child.id}-${frameState.viewport.id}`;
       // if child tile is not fetched
-      const childTile = childTiles && childTiles.find((t) => t.id === extendedId);
+      const childTile = childTiles && childTiles.find(t => t.id === extendedId);
       if (!childTile) {
         let request = () => this._loadTile(child.id, tileset);
         const cachedRequest = this._tileManager.find(extendedId);
         if (!cachedRequest) {
           // eslint-disable-next-line max-depth
           if (tileset.tileset.nodePages) {
-            request = () => tileset.tileset.nodePagesTile.formTileFromNodePages(child.id);
+            request = () =>
+              tileset.tileset.nodePagesTile.formTileFromNodePages(child.id);
           }
           this._tileManager.add(
             request,
             extendedId,
-            (header) => this._onTileLoad(header, tile, extendedId),
+            header => this._onTileLoad(header, tile, extendedId),
             frameState
           );
         } else {
@@ -65,7 +69,7 @@ export default class I3STilesetTraverser extends TilesetTraverser {
   }
 
   async _loadTile(nodeId, tileset) {
-    const {loader} = tileset;
+    const { loader } = tileset;
     const nodeUrl = tileset.getTileUrl(`${tileset.url}/nodes/${nodeId}`);
     // load metadata
     const options = {
@@ -73,8 +77,8 @@ export default class I3STilesetTraverser extends TilesetTraverser {
       i3s: {
         ...tileset.loadOptions.i3s,
         isTileHeader: true,
-        loadContent: false
-      }
+        loadContent: false,
+      },
     };
 
     return await load(nodeUrl, loader, options);

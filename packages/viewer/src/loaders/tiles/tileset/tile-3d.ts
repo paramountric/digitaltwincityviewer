@@ -8,17 +8,17 @@ import {
   TILE_REFINEMENT,
   TILE_CONTENT_STATE,
   TILESET_TYPE,
-} from '../constants';
+} from '../constants.js';
 
-import { FrameState } from './helpers/frame-state';
-import { createBoundingVolume } from './helpers/bounding-volume';
-import { getTiles3DScreenSpaceError } from './helpers/tiles-3d-lod';
-import { getProjectedRadius } from './helpers/i3s-lod';
-import { get3dTilesOptions } from './helpers/3d-tiles-options';
-import TilesetTraverser from './traversers/tileset-traverser';
+import { FrameState } from './helpers/frame-state.js';
+import { createBoundingVolume } from './helpers/bounding-volume.js';
+import { getTiles3DScreenSpaceError } from './helpers/tiles-3d-lod.js';
+import { getProjectedRadius } from './helpers/i3s-lod.js';
+import { get3dTilesOptions } from './helpers/3d-tiles-options.js';
+import TilesetTraverser from './traversers/tileset-traverser.js';
 
 // Note: circular dependency
-import type Tileset3D from './tileset-3d';
+import type Tileset3D from './tileset-3d.js';
 
 const scratchVector = new Vector3();
 

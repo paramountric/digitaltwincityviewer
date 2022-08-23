@@ -1,13 +1,13 @@
-import ManagedArray from '../../utils/managed-array';
-import {TILE_REFINEMENT} from '../../constants';
-import {FrameState} from '../helpers/frame-state';
+import ManagedArray from '../../utils/managed-array.js';
+import { TILE_REFINEMENT } from '../../constants.js';
+import { FrameState } from '../helpers/frame-state.js';
 
 export type TilesetTraverserProps = {
   loadSiblings?: boolean;
   skipLevelOfDetail?: boolean;
   maximumScreenSpaceError?: number;
   onTraversalEnd?: (frameState) => any;
-  viewportTraversersMap?: {[key: string]: any};
+  viewportTraversersMap?: { [key: string]: any };
   basePath?: string;
 };
 
@@ -17,7 +17,7 @@ export type Props = {
   updateTransforms: boolean;
   maximumScreenSpaceError: number;
   onTraversalEnd: (frameState) => any;
-  viewportTraversersMap: {[key: string]: any};
+  viewportTraversersMap: { [key: string]: any };
   basePath: string;
 };
 
@@ -26,9 +26,11 @@ export const DEFAULT_PROPS: Props = {
   skipLevelOfDetail: false,
   maximumScreenSpaceError: 2,
   updateTransforms: true,
-  onTraversalEnd: () => {},
+  onTraversalEnd: () => {
+    //
+  },
   viewportTraversersMap: {},
-  basePath: ''
+  basePath: '',
 };
 
 export default class TilesetTraverser {
@@ -51,7 +53,7 @@ export default class TilesetTraverser {
 
   // TODO nested props
   constructor(options: TilesetTraverserProps) {
-    this.options = {...DEFAULT_PROPS, ...options};
+    this.options = { ...DEFAULT_PROPS, ...options };
     // TRAVERSAL
     // temporary storage to hold the traversed tiles during a traversal
     this._traversalStack = new ManagedArray();
@@ -75,7 +77,7 @@ export default class TilesetTraverser {
   // tiles should be visible
   traverse(root, frameState, options) {
     this.root = root; // for root screen space error
-    this.options = {...this.options, ...options};
+    this.options = { ...this.options, ...options };
 
     // reset result
     this.reset();
@@ -122,7 +124,9 @@ export default class TilesetTraverser {
           tile,
           frameState,
           stack,
-          tile.hasRenderContent ? tile._selectionDepth + 1 : tile._selectionDepth
+          tile.hasRenderContent
+            ? tile._selectionDepth + 1
+            : tile._selectionDepth
         );
       }
 
@@ -164,7 +168,10 @@ export default class TilesetTraverser {
     }
 
     const newTime = new Date().getTime();
-    if (this.traversalFinished(frameState) || newTime - this.lastUpdate > this.updateDebounceTime) {
+    if (
+      this.traversalFinished(frameState) ||
+      newTime - this.lastUpdate > this.updateDebounceTime
+    ) {
       this.lastUpdate = newTime;
       this.options.onTraversalEnd(frameState);
     }
@@ -180,7 +187,7 @@ export default class TilesetTraverser {
 
   /* eslint-disable complexity, max-statements */
   updateAndPushChildren(tile, frameState, stack, depth) {
-    const {loadSiblings, skipLevelOfDetail} = this.options;
+    const { loadSiblings, skipLevelOfDetail } = this.options;
 
     const children = tile.children;
 
@@ -190,7 +197,9 @@ export default class TilesetTraverser {
     // For traditional replacement refinement only refine if all children are loaded.
     // Empty tiles are exempt since it looks better if children stream in as they are loaded to fill the empty space.
     const checkRefines =
-      tile.refine === TILE_REFINEMENT.REPLACE && tile.hasRenderContent && !skipLevelOfDetail;
+      tile.refine === TILE_REFINEMENT.REPLACE &&
+      tile.hasRenderContent &&
+      !skipLevelOfDetail;
 
     let hasVisibleChild = false;
     let refines = true;
@@ -265,7 +274,12 @@ export default class TilesetTraverser {
   // tile should be visible
   // tile should have children
   // tile LoD (level of detail) is not sufficient under current viewport
-  canTraverse(tile, frameState, useParentMetric = false, ignoreVisibility = false) {
+  canTraverse(
+    tile,
+    frameState,
+    useParentMetric = false,
+    ignoreVisibility = false
+  ) {
     if (!tile.hasChildren) {
       return false;
     }
@@ -357,7 +371,9 @@ export default class TilesetTraverser {
       this.touchTile(tile, frameState);
 
       // Only traverse if the tile is empty - traversal stop at descendants with content
-      const traverse = !tile.hasRenderContent && this.canTraverse(tile, frameState, false, true);
+      const traverse =
+        !tile.hasRenderContent &&
+        this.canTraverse(tile, frameState, false, true);
 
       if (traverse) {
         const children = tile.children;

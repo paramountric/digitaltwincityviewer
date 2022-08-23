@@ -1,7 +1,7 @@
-import {Matrix4, Vector3} from '@math.gl/core';
-import {Ellipsoid} from '@math.gl/geospatial';
-import Tile3D from '../tile-3d';
-import {FrameState} from './frame-state';
+import { Matrix4, Vector3 } from '@math.gl/core';
+import { Ellipsoid } from '@math.gl/geospatial';
+import Tile3D from '../tile-3d.js';
+import { FrameState } from './frame-state.js';
 
 const cameraPositionCartesian = new Vector3();
 const toEye = new Vector3();
@@ -20,7 +20,10 @@ const cartesianToEnuMatrix = new Matrix4();
  * @param frameState 
  * @returns 
  */
-export function getLodStatus(tile: Tile3D, frameState: FrameState): 'DIG' | 'OUT' | 'DRAW' {
+export function getLodStatus(
+  tile: Tile3D,
+  frameState: FrameState
+): 'DIG' | 'OUT' | 'DRAW' {
   if (tile.lodMetricValue === 0 || isNaN(tile.lodMetricValue)) {
     return 'DIG';
   }
@@ -43,39 +46,57 @@ export function getLodStatus(tile: Tile3D, frameState: FrameState): 'DIG' | 'OUT
  * @returns
  */
 // eslint-disable-next-line max-statements
-export function getProjectedRadius(tile: Tile3D, frameState: FrameState): number {
-  const {topDownViewport: viewport} = frameState;
+export function getProjectedRadius(
+  tile: Tile3D,
+  frameState: FrameState
+): number {
+  const { topDownViewport: viewport } = frameState;
   const mbsLat = tile.header.mbs[1];
   const mbsLon = tile.header.mbs[0];
   const mbsZ = tile.header.mbs[2];
   const mbsR = tile.header.mbs[3];
   const mbsCenterCartesian = [...tile.boundingVolume.center];
-  const cameraPositionCartographic = viewport.unprojectPosition(viewport.cameraPosition);
-  Ellipsoid.WGS84.cartographicToCartesian(cameraPositionCartographic, cameraPositionCartesian);
+  const cameraPositionCartographic = viewport.unprojectPosition(
+    viewport.cameraPosition
+  );
+  Ellipsoid.WGS84.cartographicToCartesian(
+    cameraPositionCartographic,
+    cameraPositionCartesian
+  );
 
   // ---------------------------
   // Calculate mbs border vertex
   // ---------------------------
   toEye.copy(cameraPositionCartesian).subtract(mbsCenterCartesian).normalize();
   // Add extra vector to form plane
-  Ellipsoid.WGS84.eastNorthUpToFixedFrame(mbsCenterCartesian, enuToCartesianMatrix);
+  Ellipsoid.WGS84.eastNorthUpToFixedFrame(
+    mbsCenterCartesian,
+    enuToCartesianMatrix
+  );
   cartesianToEnuMatrix.copy(enuToCartesianMatrix).invert();
-  cameraPositionEnu.copy(cameraPositionCartesian).transform(cartesianToEnuMatrix);
+  cameraPositionEnu
+    .copy(cameraPositionCartesian)
+    .transform(cartesianToEnuMatrix);
   // Mean Proportionals in Right Triangles - Altitude rule
   // https://mathbitsnotebook.com/Geometry/RightTriangles/RTmeanRight.html
   const projection = Math.sqrt(
-    cameraPositionEnu[0] * cameraPositionEnu[0] + cameraPositionEnu[1] * cameraPositionEnu[1]
+    cameraPositionEnu[0] * cameraPositionEnu[0] +
+      cameraPositionEnu[1] * cameraPositionEnu[1]
   );
   const extraZ = (projection * projection) / cameraPositionEnu[2];
   extraVertexEnu.copy([cameraPositionEnu[0], cameraPositionEnu[1], extraZ]);
   const extraVertexCartesian = extraVertexEnu.transform(enuToCartesianMatrix);
-  const extraVectorCartesian = extraVertexCartesian.subtract(mbsCenterCartesian).normalize();
+  const extraVectorCartesian = extraVertexCartesian
+    .subtract(mbsCenterCartesian)
+    .normalize();
   // We need radius vector orthogonal to toEye vector
-  const radiusVector = toEye.cross(extraVectorCartesian).normalize().scale(mbsR);
+  const radiusVector = toEye
+    .cross(extraVectorCartesian)
+    .normalize()
+    .scale(mbsR);
   const sphereMbsBorderVertexCartesian = radiusVector.add(mbsCenterCartesian);
-  const sphereMbsBorderVertexCartographic = Ellipsoid.WGS84.cartesianToCartographic(
-    sphereMbsBorderVertexCartesian
-  );
+  const sphereMbsBorderVertexCartographic =
+    Ellipsoid.WGS84.cartesianToCartographic(sphereMbsBorderVertexCartesian);
   // ---------------------------
 
   // Project center vertex and border vertex and calculate projected radius of MBS

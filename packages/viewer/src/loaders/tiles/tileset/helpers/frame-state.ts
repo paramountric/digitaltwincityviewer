@@ -1,8 +1,8 @@
-import {Tile3D} from '@loaders.gl/tiles';
-import {Vector3} from '@math.gl/core';
-import {CullingVolume, Plane} from '@math.gl/culling';
-import {Ellipsoid} from '@math.gl/geospatial';
-import {Viewport} from '../../types';
+import { Tile3D } from '@loaders.gl/tiles';
+import { Vector3 } from '@math.gl/core';
+import { CullingVolume, Plane } from '@math.gl/culling';
+import { Ellipsoid } from '@math.gl/geospatial';
+import { Viewport } from '../../types.js';
 
 export type FrameState = {
   camera: {
@@ -26,22 +26,29 @@ const cullingVolume = new CullingVolume([
   new Plane(),
   new Plane(),
   new Plane(),
-  new Plane()
+  new Plane(),
 ]);
 
 // Extracts a frame state appropriate for tile culling from a deck.gl viewport
 // TODO - this could likely be generalized and merged back into deck.gl for other culling scenarios
-export function getFrameState(viewport: Viewport, frameNumber: number): FrameState {
+export function getFrameState(
+  viewport: Viewport,
+  frameNumber: number
+): FrameState {
   // Traverse and and request. Update _selectedTiles so that we know what to render.
-  const {cameraDirection, cameraUp, height} = viewport;
-  const {metersPerUnit} = viewport.distanceScales;
+  const { cameraDirection, cameraUp, height } = viewport;
+  const { metersPerUnit } = viewport.distanceScales;
 
   // TODO - Ellipsoid.eastNorthUpToFixedFrame() breaks on raw array, create a Vector.
   // TODO - Ellipsoid.eastNorthUpToFixedFrame() takes a cartesian, is that intuitive?
   const viewportCenterCartesian = worldToCartesian(viewport, viewport.center);
-  const enuToFixedTransform = Ellipsoid.WGS84.eastNorthUpToFixedFrame(viewportCenterCartesian);
+  const enuToFixedTransform = Ellipsoid.WGS84.eastNorthUpToFixedFrame(
+    viewportCenterCartesian
+  );
 
-  const cameraPositionCartographic = viewport.unprojectPosition(viewport.cameraPosition);
+  const cameraPositionCartographic = viewport.unprojectPosition(
+    viewport.cameraPosition
+  );
   const cameraPositionCartesian = Ellipsoid.WGS84.cartographicToCartesian(
     cameraPositionCartographic,
     new Vector3()
@@ -50,17 +57,21 @@ export function getFrameState(viewport: Viewport, frameNumber: number): FrameSta
   // These should still be normalized as the transform has scale 1 (goes from meters to meters)
   const cameraDirectionCartesian = new Vector3(
     // @ts-ignore
-    enuToFixedTransform.transformAsVector(new Vector3(cameraDirection).scale(metersPerUnit))
+    enuToFixedTransform.transformAsVector(
+      new Vector3(cameraDirection).scale(metersPerUnit)
+    )
   ).normalize();
   const cameraUpCartesian = new Vector3(
     // @ts-ignore
-    enuToFixedTransform.transformAsVector(new Vector3(cameraUp).scale(metersPerUnit))
+    enuToFixedTransform.transformAsVector(
+      new Vector3(cameraUp).scale(metersPerUnit)
+    )
   ).normalize();
 
   commonSpacePlanesToWGS84(viewport);
 
   const ViewportClass = viewport.constructor;
-  const {longitude, latitude, width, bearing, zoom} = viewport;
+  const { longitude, latitude, width, bearing, zoom } = viewport;
   // @ts-ignore
   const topDownViewport = new ViewportClass({
     longitude,
@@ -69,7 +80,7 @@ export function getFrameState(viewport: Viewport, frameNumber: number): FrameSta
     width,
     bearing,
     zoom,
-    pitch: 0
+    pitch: 0,
   });
 
   // TODO: make a file/class for frameState and document what needs to be attached to this so that traversal can function
@@ -77,14 +88,14 @@ export function getFrameState(viewport: Viewport, frameNumber: number): FrameSta
     camera: {
       position: cameraPositionCartesian,
       direction: cameraDirectionCartesian,
-      up: cameraUpCartesian
+      up: cameraUpCartesian,
     },
     viewport,
     topDownViewport,
     height,
     cullingVolume,
     frameNumber, // TODO: This can be the same between updates, what number is unique for between updates?
-    sseDenominator: 1.15 // Assumes fovy = 60 degrees
+    sseDenominator: 1.15, // Assumes fovy = 60 degrees
   };
 }
 
@@ -107,7 +118,8 @@ export function limitSelectedTiles(
   }
   // Accumulate distances in couples array: [tileIndex: number, distanceToViewport: number]
   const tuples: [number, number][] = [];
-  const {longitude: viewportLongitude, latitude: viewportLatitude} = frameState.viewport;
+  const { longitude: viewportLongitude, latitude: viewportLatitude } =
+    frameState.viewport;
   for (const [index, tile] of tiles.entries()) {
     const [longitude, latitude] = tile.header.mbs;
     const deltaLon = Math.abs(viewportLongitude - longitude);
@@ -133,9 +145,16 @@ function commonSpacePlanesToWGS84(viewport) {
   const frustumPlanes = viewport.getFrustumPlanes();
 
   // Get the near/far plane centers
-  const nearCenterCommon = closestPointOnPlane(frustumPlanes.near, viewport.cameraPosition);
+  const nearCenterCommon = closestPointOnPlane(
+    frustumPlanes.near,
+    viewport.cameraPosition
+  );
   const nearCenterCartesian = worldToCartesian(viewport, nearCenterCommon);
-  const cameraCartesian = worldToCartesian(viewport, viewport.cameraPosition, scratchPosition);
+  const cameraCartesian = worldToCartesian(
+    viewport,
+    viewport.cameraPosition,
+    scratchPosition
+  );
 
   let i = 0;
   cullingVolume.planes[i++].fromPointNormal(
@@ -148,7 +167,11 @@ function commonSpacePlanesToWGS84(viewport) {
       continue;
     }
     const plane = frustumPlanes[dir];
-    const posCommon = closestPointOnPlane(plane, nearCenterCommon, scratchPosition);
+    const posCommon = closestPointOnPlane(
+      plane,
+      nearCenterCommon,
+      scratchPosition
+    );
     const cartesianPos = worldToCartesian(viewport, posCommon, scratchPosition);
 
     cullingVolume.planes[i++].fromPointNormal(
@@ -160,7 +183,7 @@ function commonSpacePlanesToWGS84(viewport) {
 }
 
 function closestPointOnPlane(
-  plane: {distance: number; normal: Vector3},
+  plane: { distance: number; normal: Vector3 },
   refPoint: [number, number, number] | Vector3,
   out: Vector3 = new Vector3()
 ): Vector3 {

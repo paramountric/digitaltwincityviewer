@@ -1,7 +1,7 @@
-import {Vector3} from '@math.gl/core';
-import {BoundingSphere, OrientedBoundingBox} from '@math.gl/culling';
-import {Ellipsoid} from '@math.gl/geospatial';
-import {BoundingRectangle} from '../../types';
+import { Vector3 } from '@math.gl/core';
+import { BoundingSphere, OrientedBoundingBox } from '@math.gl/culling';
+import { Ellipsoid } from '@math.gl/geospatial';
+import { BoundingRectangle } from '../../types.js';
 
 const WGS84_RADIUS_X = 6378137.0;
 const WGS84_RADIUS_Y = 6378137.0;
@@ -21,19 +21,19 @@ export function getZoomFromBoundingVolume(
 ) {
   if (boundingVolume instanceof OrientedBoundingBox) {
     // OrientedBoundingBox
-    const {halfAxes} = boundingVolume;
+    const { halfAxes } = boundingVolume;
     const obbSize = getObbSize(halfAxes);
     // Use WGS84_RADIUS_Z to allign with BoundingSphere algorithm
     // Add the tile elevation value for correct zooming to elevated tiles
     return Math.log2(WGS84_RADIUS_Z / (obbSize + cartorgraphicCenter[2]));
   } else if (boundingVolume instanceof BoundingSphere) {
     // BoundingSphere
-    const {radius} = boundingVolume;
+    const { radius } = boundingVolume;
     // Add the tile elevation value for correct zooming to elevated tiles
     return Math.log2(WGS84_RADIUS_Z / (radius + cartorgraphicCenter[2]));
   } else if (boundingVolume.width && boundingVolume.height) {
     // BoundingRectangle
-    const {width, height} = boundingVolume;
+    const { width, height } = boundingVolume;
     const zoomX = Math.log2(WGS84_RADIUS_X / width);
     const zoomY = Math.log2(WGS84_RADIUS_Y / height);
 
@@ -100,7 +100,7 @@ export function getZoomFromExtent(
 ) {
   const [xmin, ymin, xmax, ymax] = extent;
   return getZoomFromFullExtent(
-    {xmin, xmax, ymin, ymax, zmin: 0, zmax: 0},
+    { xmin, xmax, ymin, ymax, zmin: 0, zmax: 0 },
     cartorgraphicCenter,
     cartesianCenter
   );
