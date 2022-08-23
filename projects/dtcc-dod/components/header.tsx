@@ -13,7 +13,7 @@ const Header: React.FC<HeaderProps> = ({title}) => {
   return (
     <>
       <Head>
-        <title>DoD - {title}</title>
+        <title>DoD - Design och Data</title>
         <meta
           name="description"
           content="DoD is a project about built environment design process interoperability in digital twins"

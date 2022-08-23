@@ -17,7 +17,7 @@ const ViewerPage: NextPage = () => {
           <Header title="Design och Data" />
         </div>
 
-        {/*<Viewport />*/}
+        <Viewport />
       </main>
     </div>
   );
