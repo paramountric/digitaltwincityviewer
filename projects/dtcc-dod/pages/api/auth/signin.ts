@@ -1,12 +1,12 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
 //import cookie from 'cookie';
 
-const {SPECKLE_SERVER_URL, APP_ID} = process.env;
+const {SPECKLE_SERVER_URL, SPECKLE_APP_ID} = process.env;
 const challenge = 'fixmelater';
 
 async function handleLogin(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
-    const redirectUri = `${SPECKLE_SERVER_URL}/authn/verify/${APP_ID}/${challenge}`;
+    const redirectUri = `${SPECKLE_SERVER_URL}/authn/verify/${SPECKLE_APP_ID}/${challenge}`;
     res.redirect(redirectUri);
     return;
   }

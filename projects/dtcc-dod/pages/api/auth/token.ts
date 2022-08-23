@@ -1,7 +1,7 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
 import cookie from 'cookie';
 
-const {SPECKLE_SERVER_URL, APP_ID, APP_SECRET} = process.env;
+const {SPECKLE_SERVER_URL, SPECKLE_APP_ID, SPECKLE_APP_SECRET} = process.env;
 const challenge = '123qweasd';
 
 async function handleToken(req: NextApiRequest, res: NextApiResponse) {
@@ -11,8 +11,8 @@ async function handleToken(req: NextApiRequest, res: NextApiResponse) {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
-      appId: APP_ID,
-      appSecret: APP_SECRET,
+      appId: SPECKLE_APP_ID,
+      appSecret: SPECKLE_APP_SECRET,
       accessCode,
       challenge,
     }),
