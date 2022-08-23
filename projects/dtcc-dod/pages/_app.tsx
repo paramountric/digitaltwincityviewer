@@ -7,7 +7,7 @@ const queryClient = new QueryClient();
 function DoDApp({Component, pageProps}: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <Component {...pageProps} />;
+      <Component {...pageProps} />
     </QueryClientProvider>
   );
 }
