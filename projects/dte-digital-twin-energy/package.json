@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/digital-twin-energy",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "private": true,
   "description": "Digital Twin Energy is project conducted by Chalmers and Göteborg Energi 2021-2023",
   "main": "index.js",
@@ -29,7 +29,7 @@
     "@adobe/lit-mobx": "^2.0.0",
     "@dtcv/citygml": "^1.0.6",
     "@dtcv/citymodel": "^1.0.6",
-    "@dtcv/viewer": "^1.1.4",
+    "@dtcv/viewer": "^1.1.5",
     "@spectrum-web-components/accordion": "*",
     "@spectrum-web-components/action-bar": "*",
     "@spectrum-web-components/action-button": "*",
