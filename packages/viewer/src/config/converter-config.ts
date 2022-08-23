@@ -6,8 +6,8 @@ import { mat4, vec3 } from 'gl-matrix';
 import { registerLoaders } from '@loaders.gl/core';
 import { DracoWorkerLoader } from '@loaders.gl/draco';
 import { CesiumIonLoader } from '@loaders.gl/3d-tiles';
-import Tile3DLayer from '../layers/tile-3d-layer/tile-3d-layer';
-import { Tiles3DLoader } from '../loaders/tiles-3d-loader/tiles-3d-loader';
+import Tile3DLayer from '../layers/tile-3d-layer/tile-3d-layer.js';
+import { Tiles3DLoader } from '../loaders/tiles-3d-loader/tiles-3d-loader.js';
 
 // Note: deck already registers JSONLoader...
 registerLoaders([DracoWorkerLoader]);

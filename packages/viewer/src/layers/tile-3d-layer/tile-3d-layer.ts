@@ -25,8 +25,8 @@ import { ScenegraphLayer } from '@deck.gl/mesh-layers';
 import { load } from '@loaders.gl/core';
 import { MeshAttributes } from '@loaders.gl/schema';
 import { Tileset3D, Tile3D, TILE_TYPE } from '../../loaders/tiles';
-import { Tiles3DLoader } from '../../loaders/tiles-3d-loader/tiles-3d-loader';
-import MeshLayer from './mesh-layer/mesh-layer';
+import { Tiles3DLoader } from '../../loaders/tiles-3d-loader/tiles-3d-loader.js';
+import MeshLayer from './mesh-layer/mesh-layer.js';
 
 const SINGLE_DATA = [0];
 
