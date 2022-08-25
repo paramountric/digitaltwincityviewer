@@ -1,6 +1,7 @@
 import type {NextPage} from 'next';
 import Head from 'next/head';
 import Viewport from '../components/viewport';
+import Login from '../components/login';
 import {useUserInfo} from '../hooks/userinfo';
 
 const StartPage: NextPage = () => {
@@ -20,13 +21,7 @@ const StartPage: NextPage = () => {
           </Head>
         </div>
 
-        {userInfo ? (
-          <Viewport />
-        ) : (
-          <button>
-            <p>Todo: create a login form directly on the start page</p>
-          </button>
-        )}
+        {userInfo ? <Viewport /> : <Login />}
       </main>
     </div>
   );
