@@ -9,11 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.157.0",
     "@dtcv/citymodel": "^1.0.6",
     "@dtcv/viewer": "^1.1.10",
+    "cookie": "^0.5.0",
     "d3-axis": "^3.0.0",
     "d3-scale": "^4.0.2",
     "d3-selection": "^3.0.0",
+    "jsonwebtoken": "^8.5.1",
     "next": "12.2.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
