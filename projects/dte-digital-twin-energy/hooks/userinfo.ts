@@ -14,15 +14,12 @@ export function useUserInfo() {
         const res = await fetch(userUrl);
         return await res.json();
       } catch (err) {
-        return {
-          email: 'andreas@paramountric.com',
-          name: 'Andreas',
-        };
+        return undefined;
       }
     },
     {
       cacheTime: Infinity,
-      staleTime: 60000,
+      staleTime: 30000,
     }
   );
   return query.data as UserInfo;
