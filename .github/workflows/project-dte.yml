@@ -1,4 +1,4 @@
-name: project-dtcc-dte
+name: project-dte-digital-twin-energy
 
 env:
   ENV_REPO: pmtric-platform-env
@@ -9,14 +9,14 @@ on:
     branches:
       - 'main'
     paths: 
-      - 'projects/dtcc-dte/**'
+      - 'projects/dte-digital-twin-energy/**'
 
 jobs:
   docker-build:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: projects/dtcc-dte
+        working-directory: projects/dte-digital-twin-energy
     steps:
       - name: Checkout
         uses: actions/checkout@v3
