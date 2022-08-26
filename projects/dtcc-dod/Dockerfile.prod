@@ -4,12 +4,12 @@ FROM node:16-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-ARG CR_PAT
-ENV CR_PAT=$CR_PAT
+# ARG CR_PAT
+# ENV CR_PAT=$CR_PAT
 
-RUN echo registry=https://registry.npmjs.org/ >> ~/.npmrc
-RUN echo @paramountric:registry=https://npm.pkg.github.com/ >> ~/.npmrc
-RUN echo //npm.pkg.github.com/:_authToken=$CR_PAT >> ~/.npmrc
+# RUN echo registry=https://registry.npmjs.org/ >> ~/.npmrc
+# RUN echo @paramountric:registry=https://npm.pkg.github.com/ >> ~/.npmrc
+# RUN echo //npm.pkg.github.com/:_authToken=$CR_PAT >> ~/.npmrc
 
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
@@ -52,7 +52,7 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # You only need to copy next.config.js if you are NOT using the default configuration
-#COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
@@ -75,4 +75,4 @@ EXPOSE 3000
 
 ENV PORT 3000
 
-CMD ["node_modules/.bin/next", "start"]
+CMD ["node", "server.js"]
