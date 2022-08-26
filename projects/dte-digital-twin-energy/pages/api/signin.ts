@@ -2,7 +2,7 @@ import type {NextApiRequest, NextApiResponse} from 'next';
 import cookie from 'cookie';
 import jwt from 'jsonwebtoken';
 
-const {DEMO_EMAIL, DEMO_PASSWORD, JWT_SECRET} = process.env;
+const {DEMO_EMAIL, DEMO_PASSWORD, JWT_SECRET = ''} = process.env;
 
 if (!DEMO_EMAIL || !DEMO_PASSWORD || !JWT_SECRET) {
   console.error('Remember to add auth env vars!');
