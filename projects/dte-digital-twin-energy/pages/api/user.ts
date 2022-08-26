@@ -1,7 +1,7 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
 import jwt from 'jsonwebtoken';
 
-const {JWT_SECRET} = process.env;
+const {JWT_SECRET = ''} = process.env;
 
 if (!JWT_SECRET) {
   console.error('Remember to add user env vars!');
@@ -22,7 +22,8 @@ export default async function handleGetUser(
     return;
   }
   try {
-    const {userName, userId} = jwt.verify(token, JWT_SECRET);
+    const jwtPayload = jwt.verify(token, JWT_SECRET) as any;
+    const {userName, userId} = jwtPayload;
     if (!userName || !userId) {
       throw new Error('Configuration error. The user info cannot be falsy');
     }
