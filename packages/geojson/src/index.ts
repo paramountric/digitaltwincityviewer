@@ -5,7 +5,7 @@ import {
   validateBuildingProperties,
 } from './buildings.js';
 import { toEntities } from './entities.js';
-import { toGltf, ToGltfInput } from './to-gltf.js';
+import { toGltf, ToGltfInput } from './to-3d-tiles.js';
 import { getModelMatrix, getBounds, getLayerPosition } from './bounds.js';
 
 export {
