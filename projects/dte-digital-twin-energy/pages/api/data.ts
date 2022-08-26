@@ -1,5 +1,6 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
 import {S3Client, GetObjectCommand} from '@aws-sdk/client-s3';
+import testData from './osm-gbg-center.json';
 
 const {
   S3_ACCESS_KEY,
@@ -43,9 +44,7 @@ export default async function handleGetUser(
 
   try {
     const data = await client.send(command);
-    const json = data.Body;
-    console.log(json);
-    res.json(json);
+    res.json(testData);
   } catch (err) {
     console.log(err);
     res.status(500).end();
