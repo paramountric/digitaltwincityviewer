@@ -5,7 +5,8 @@ import {
   validateBuildingProperties,
 } from './buildings.js';
 import { toEntities } from './entities.js';
-import { getModelMatrix, getBounds, getLayerPosition } from './getBounds.js';
+import { toGltf, ToGltfInput } from './to-gltf.js';
+import { getModelMatrix, getBounds, getLayerPosition } from './bounds.js';
 
 export {
   Feature,
@@ -17,4 +18,6 @@ export {
   coordinatesToMeters,
   coordinatesToMeterOffsets,
   toEntities,
+  toGltf,
+  ToGltfInput,
 };
