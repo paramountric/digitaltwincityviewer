@@ -13,7 +13,7 @@ if (!DEMO_EMAIL || !DEMO_PASSWORD || !JWT_SECRET) {
 const USER_NAME = 'Demo';
 const USER_ID = 'demo';
 
-async function handleLogin(req: NextApiRequest, res: NextApiResponse) {
+async function handleSignIn(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     res.status(405).end();
     return;
@@ -44,4 +44,4 @@ async function handleLogin(req: NextApiRequest, res: NextApiResponse) {
     .json(user);
 }
 
-export default handleLogin;
+export default handleSignIn;
