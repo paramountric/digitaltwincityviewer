@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import {useSignOut} from '../hooks/use-signout';
-import {useUserInfo} from '../hooks/use-userinfo';
+import {useSignOut} from '../hooks/signout';
+import {useUserInfo} from '../hooks/userinfo';
 
 interface HeaderProps {
   title?: string;
@@ -26,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({title}) => {
           <>
             <li>{userInfo.name}</li>
             <li>
-              <button onClick={() => signOut}>Sign Out</button>
+              <button onClick={signOut}>Sign Out</button>
             </li>
           </>
         ) : (

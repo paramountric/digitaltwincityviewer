@@ -5,7 +5,7 @@ import {
   getLayerPosition,
   coordinatesToMeterOffsets,
 } from '@dtcv/geojson';
-import {useUserInfo} from '../hooks/use-userinfo';
+import {useUserInfo} from '../hooks/userinfo';
 
 type ViewerProps = {};
 
@@ -120,6 +120,7 @@ const Viewport: React.FC<ViewerProps> = () => {
               // data: 'http://localhost:9000/files/3dtiles/1.0/Samples/TilesetWithRequestVolume/tileset.json',
               // data: 'http://localhost:9000/files/3dtiles/1.0/Samples/TilesetWithTreeBillboards/tileset.json',
               data: 'http://localhost:9000/files/3dtiles/1.1/Batched/BatchedColors/tileset.json',
+              //data: 'http://localhost:9000/files/3dtiles/1.1/SparseImplicitQuadtree/tileset.json',
               // data: 'http://localhost:9000/files/3dtiles/1.0/Hierarchy/BatchTableHierarchy/tileset.json',
             },
           ],

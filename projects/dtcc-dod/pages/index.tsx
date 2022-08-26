@@ -2,7 +2,7 @@ import type {NextPage} from 'next';
 import Link from 'next/link';
 import Header from '../components/header';
 import Viewer from '../components/viewer';
-import {useUserInfo} from '../hooks/use-userinfo';
+import {useUserInfo} from '../hooks/userinfo';
 
 const ViewerPage: NextPage = () => {
   const userInfo = useUserInfo();

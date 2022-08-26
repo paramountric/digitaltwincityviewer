@@ -1,8 +1,8 @@
 import {useRouter} from 'next/router';
 import {useState} from 'react';
 import InputLabel from '../components/input-label';
-import {useSignIn} from '../hooks/use-signin';
-import {useUserInfo} from '../hooks/use-userinfo';
+import {useSignIn} from '../hooks/signin';
+import {useUserInfo} from '../hooks/userinfo';
 
 function SignInPage() {
   const router = useRouter();
