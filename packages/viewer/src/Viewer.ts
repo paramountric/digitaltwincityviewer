@@ -17,6 +17,7 @@ import MaplibreWrapper from './utils/MaplibreWrapper.js';
 import { toLngLat } from './utils/projection.js';
 import { getCity, City } from './utils/getCity.js';
 import JSON_CONVERTER_CONFIGURATION from './config/converter-config.js';
+import Tile3DLayer from './layers/tile-3d-layer/tile-3d-layer.js';
 
 const maplibreStyle = {
   id: 'digitaltwincityviewer',
@@ -106,6 +107,8 @@ class Viewer {
     } else {
       resolvedProps.onWebGLInitialized = this.onWebGLInitialized.bind(this);
       resolvedProps.onViewStateChange = this.onViewStateChange.bind(this);
+      resolvedProps.onTilesetLoad = this.onTilesetLoad.bind(this);
+      resolvedProps.onTileLoad = this.onTileLoad.bind(this);
       resolvedProps.layerFilter = this.layerFilter.bind(this);
       this.deck = new Deck(resolvedProps);
     }
@@ -115,6 +118,14 @@ class Viewer {
       selectedObject: observable,
       setSelectedObject: action,
     });
+  }
+
+  onTilesetLoad(tileset) {
+    console.log(tileset);
+  }
+
+  onTileLoad(tile) {
+    console.log(tile);
   }
 
   get zoom() {
@@ -133,11 +144,16 @@ class Viewer {
 
   getVisibleObjects(
     layerIds: string[],
-    x: number,
-    y: number,
-    width: number,
-    height: number
+    x?: number,
+    y?: number,
+    width?: number,
+    height?: number
   ) {
+    console.log(this.deck);
+
+    if (!this.deck || !this.deck.viewManager) {
+      return;
+    }
     const viewport = this.deck.viewManager.getViewport('mapview');
     const {
       x: defaultX,
@@ -278,9 +294,19 @@ class Viewer {
     }
 
     const props = this.jsonConverter.convert(json);
+    // todo: need to customize jsonConverter for callbacks
+    // , {
+    //   onTileLoad: this.onTileLoad,
+    //   onTilesetLoad: this.onTilesetLoad,
+    // });
+    // const tile3dLayers = props.layers.filter(l => l instanceof Tile3DLayer);
+    // tile3dLayers.forEach(l => {
+    //   console.log(l);
+    //   l.props.onTilesetLoad = this.onTilesetLoad.bind(this);
+    //   l.props.onTileLoad = this.onTileLoad.bind(this);
+    // });
 
     console.log(json);
-
     console.log(props);
     this.deck.setProps(props);
   }
