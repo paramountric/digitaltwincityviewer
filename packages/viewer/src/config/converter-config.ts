@@ -36,17 +36,6 @@ function getTranslateMatrix({ translate }) {
     vec3.fromValues(translate[0] || 0, translate[1] || 0, translate[2] || 0)
   );
 }
-
-function onTilesetLoad(tileset) {
-  console.log('tileset loaded');
-  console.log(tileset);
-}
-
-function onTileLoad(tile) {
-  console.log('tile load');
-  console.log(tile);
-}
-
 export default {
   classes: {
     ScatterplotLayer,
@@ -60,7 +49,6 @@ export default {
     getLinearScale,
     getGridMatrix,
     getTranslateMatrix,
-    onTilesetLoad,
   },
   enumerations: {
     COORDINATE_SYSTEM,
@@ -68,7 +56,5 @@ export default {
   constants: {
     Tiles3DLoader: Tiles3DLoader as any,
     CesiumIonLoader: CesiumIonLoader as any,
-    onTilesetLoad,
-    onTileLoad,
   },
 };
