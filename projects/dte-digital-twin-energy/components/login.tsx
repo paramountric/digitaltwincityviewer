@@ -8,10 +8,7 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const valid = await signIn({email, password});
-    // if (valid) {
-    //   router.push('/');
-    // }
+    signIn({email, password});
   };
 
   return (
