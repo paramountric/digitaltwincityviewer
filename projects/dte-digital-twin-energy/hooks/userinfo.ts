@@ -1,8 +1,8 @@
 import {useQuery} from 'react-query';
 
 interface UserInfo {
-  name: string;
-  email: string;
+  userName: string;
+  userEmail: string;
 }
 
 export function useUserInfo() {
