@@ -1,4 +1,5 @@
 // https://github.com/visgl/deck.gl/blob/master/modules/geo-layers/src/tile-3d-layer/tile-3d-layer.ts
+// from deck.gl under MIT licence
 // modified version, look out for official suppport for 3d tiles next
 import GL from '@luma.gl/constants';
 import { Geometry } from '@luma.gl/core';
@@ -218,7 +219,6 @@ export default class Tile3DLayer<
     const { loadOptions = {} } = this.props;
 
     // TODO: deprecate `loader` in v9.0
-    // @ts-ignore
     let loader = this.props.loader || this.props.loaders;
     if (Array.isArray(loader)) {
       loader = loader[0];
@@ -245,6 +245,8 @@ export default class Tile3DLayer<
         onTileError: this.props.onTileError,
         ...options,
       });
+
+      console.log(tileset3d);
 
       this.setState({
         tileset3d,

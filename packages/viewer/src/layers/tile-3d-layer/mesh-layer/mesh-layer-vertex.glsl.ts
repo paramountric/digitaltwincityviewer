@@ -1,3 +1,7 @@
+// from deck.gl under MIT licence
+// modified version, look out for official suppport for 3d tiles next
+// https://github.com/visgl/deck.gl/tree/master/modules/geo-layers/src/mesh-layer
+
 export default `#version 300 es
 #define SHADER_NAME simple-mesh-layer-vs
 
