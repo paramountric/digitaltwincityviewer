@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.2](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.1...dte-digital-twin-energy@0.2.2) (2022-08-27)
+
+
+### Bug Fixes
+
+* typing needs string ([819844c](https://github.com/paramountric/digitaltwincityviewer/commit/819844c4720869138be58b2be3760879c23c6d17))
+
+
+
+
+
 ## [0.2.1](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.0...dte-digital-twin-energy@0.2.1) (2022-08-26)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/geojson",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "type": "module",
   "description": "GeoJSON help functions for Digital Twin City Viewer",
   "keywords": [
