@@ -1,3 +1,7 @@
+// This file is derived from the loaders.gl code base under MIT license
+// loaders.gl has derived code as follows: https://github.com/visgl/loaders.gl/blob/master/LICENSE
+// See README.md at https://github.com/visgl/loaders.gl
+
 // LOADERS
 export { Tiles3DLoader } from './tiles-3d-loader.js';
 export { CesiumIonLoader } from './cesium-ion-loader.js';

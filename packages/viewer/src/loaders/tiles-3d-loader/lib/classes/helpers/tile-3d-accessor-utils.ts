@@ -1,5 +1,9 @@
-import {GLType} from '@loaders.gl/math'; // '@math.gl/geometry';
-import {assert} from '@loaders.gl/loader-utils';
+// This file is derived from the loaders.gl code base under MIT license
+// loaders.gl has derived code as follows: https://github.com/visgl/loaders.gl/blob/master/LICENSE
+// See README.md at https://github.com/visgl/loaders.gl
+
+import { GLType } from '@loaders.gl/math'; // '@math.gl/geometry';
+import { assert } from '@loaders.gl/loader-utils';
 
 const COMPONENTS_PER_ATTRIBUTE = {
   SCALAR: 1,
@@ -8,7 +12,7 @@ const COMPONENTS_PER_ATTRIBUTE = {
   VEC4: 4,
   MAT2: 4,
   MAT3: 9,
-  MAT4: 16
+  MAT4: 16,
 };
 
 // TODO - could just return typed array views...
@@ -91,25 +95,38 @@ const PACKER = {
     values[16 * i + 13] = x[13];
     values[16 * i + 14] = x[14];
     values[16 * i + 15] = x[15];
-  }
+  },
 };
 
-export function createTypedArrayFromAccessor(tile3DAccessor, buffer, byteOffset, length) {
-  const {componentType} = tile3DAccessor;
+export function createTypedArrayFromAccessor(
+  tile3DAccessor,
+  buffer,
+  byteOffset,
+  length
+) {
+  const { componentType } = tile3DAccessor;
   assert(tile3DAccessor.componentType);
-  const type = typeof componentType === 'string' ? GLType.fromName(componentType) : componentType;
+  const type =
+    typeof componentType === 'string'
+      ? GLType.fromName(componentType)
+      : componentType;
   const size = COMPONENTS_PER_ATTRIBUTE[tile3DAccessor.type];
   const unpacker = UNPACKER[tile3DAccessor.type];
   const packer = PACKER[tile3DAccessor.type];
 
   byteOffset += tile3DAccessor.byteOffset;
-  const values = GLType.createTypedArray(type, buffer, byteOffset, size * length);
+  const values = GLType.createTypedArray(
+    type,
+    buffer,
+    byteOffset,
+    size * length
+  );
 
   return {
     values,
     type,
     size,
     unpacker,
-    packer
+    packer,
   };
 }

@@ -1,4 +1,8 @@
-import {GLTFLoader} from '@loaders.gl/gltf';
+// This file is derived from the loaders.gl code base under MIT license
+// loaders.gl has derived code as follows: https://github.com/visgl/loaders.gl/blob/master/LICENSE
+// See README.md at https://github.com/visgl/loaders.gl
+
+import { GLTFLoader } from '@loaders.gl/gltf';
 
 export async function parseGltf3DTile(tile, arrayBuffer, options, context) {
   // Set flags
@@ -11,6 +15,6 @@ export async function parseGltf3DTile(tile, arrayBuffer, options, context) {
       ? options['3d-tiles'].assetGltfUpAxis
       : 'Y';
 
-  const {parse} = context;
+  const { parse } = context;
   tile.gltf = await parse(arrayBuffer, GLTFLoader, options, context);
 }

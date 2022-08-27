@@ -1,3 +1,7 @@
+// This file is derived from the loaders.gl code base under MIT license
+// loaders.gl has derived code as follows: https://github.com/visgl/loaders.gl/blob/master/LICENSE
+// See README.md at https://github.com/visgl/loaders.gl
+
 import type { LoaderWithParser } from '@loaders.gl/loader-utils';
 import parse3DTilesSubtree from './lib/parsers/helpers/parse-3d-tile-subtree.js';
 import { VERSION } from './lib/utils/version.js';

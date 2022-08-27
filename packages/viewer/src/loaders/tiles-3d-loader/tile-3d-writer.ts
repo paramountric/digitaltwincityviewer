@@ -1,3 +1,7 @@
+// This file is derived from the loaders.gl code base under MIT license
+// loaders.gl has derived code as follows: https://github.com/visgl/loaders.gl/blob/master/LICENSE
+// See README.md at https://github.com/visgl/loaders.gl
+
 import type { Writer } from '@loaders.gl/loader-utils';
 import { VERSION } from './lib/utils/version.js';
 import encode3DTile from './lib/encoders/encode-3d-tile.js';

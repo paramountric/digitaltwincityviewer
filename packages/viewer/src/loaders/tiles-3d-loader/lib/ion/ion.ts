@@ -1,7 +1,11 @@
+// This file is derived from the loaders.gl code base under MIT license
+// loaders.gl has derived code as follows: https://github.com/visgl/loaders.gl/blob/master/LICENSE
+// See README.md at https://github.com/visgl/loaders.gl
+
 // Minimal support to load tilsets from the Cesium ION services
 
-import {fetchFile} from '@loaders.gl/core';
-import {assert} from '@loaders.gl/loader-utils';
+import { fetchFile } from '@loaders.gl/core';
+import { assert } from '@loaders.gl/loader-utils';
 
 const CESIUM_ION_URL = 'https://api.cesium.com/v1/assets';
 
@@ -19,12 +23,12 @@ export async function getIonTilesetMetadata(accessToken, assetId) {
 
   // Step 2: Query metdatadata for this asset.
   const ionAssetMetadata = await getIonAssetMetadata(accessToken, assetId);
-  const {type, url} = ionAssetMetadata;
+  const { type, url } = ionAssetMetadata;
   assert(type === '3DTILES' && url);
 
   // Prepare a headers object for fetch
   ionAssetMetadata.headers = {
-    Authorization: `Bearer ${ionAssetMetadata.accessToken}`
+    Authorization: `Bearer ${ionAssetMetadata.accessToken}`,
   };
   return ionAssetMetadata;
 }
@@ -33,8 +37,8 @@ export async function getIonTilesetMetadata(accessToken, assetId) {
 export async function getIonAssets(accessToken) {
   assert(accessToken);
   const url = CESIUM_ION_URL;
-  const headers = {Authorization: `Bearer ${accessToken}`};
-  const response = await fetchFile(url, {fetch: {headers}});
+  const headers = { Authorization: `Bearer ${accessToken}` };
+  const response = await fetchFile(url, { fetch: { headers } });
   if (!response.ok) {
     throw new Error(response.statusText);
   }
@@ -44,12 +48,12 @@ export async function getIonAssets(accessToken) {
 // Return metadata for a specific asset associated with token
 export async function getIonAssetMetadata(accessToken, assetId) {
   assert(accessToken, assetId);
-  const headers = {Authorization: `Bearer ${accessToken}`};
+  const headers = { Authorization: `Bearer ${accessToken}` };
 
   const url = `${CESIUM_ION_URL}/${assetId}`;
   // https://cesium.com/docs/rest-api/#operation/getAsset
   // Retrieves metadata information about a specific asset.
-  let response = await fetchFile(`${url}`, {fetch: {headers}});
+  let response = await fetchFile(`${url}`, { fetch: { headers } });
   if (!response.ok) {
     throw new Error(response.statusText);
   }
@@ -57,7 +61,7 @@ export async function getIonAssetMetadata(accessToken, assetId) {
 
   // https://cesium.com/docs/rest-api/#operation/getAssetEndpoint
   // Retrieves information and credentials that allow you to access the tiled asset data for visualization and analysis.
-  response = await fetchFile(`${url}/endpoint`, {fetch: {headers}});
+  response = await fetchFile(`${url}/endpoint`, { fetch: { headers } });
   if (!response.ok) {
     throw new Error(response.statusText);
   }
@@ -66,7 +70,7 @@ export async function getIonAssetMetadata(accessToken, assetId) {
   // extract dataset description
   metadata = {
     ...metadata,
-    ...tilesetInfo
+    ...tilesetInfo,
   };
 
   return metadata;

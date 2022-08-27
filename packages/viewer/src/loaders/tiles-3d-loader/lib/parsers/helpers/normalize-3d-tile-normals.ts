@@ -1,5 +1,9 @@
-import {Vector3} from '@math.gl/core';
-import {GL, octDecode} from '@loaders.gl/math';
+// This file is derived from the loaders.gl code base under MIT license
+// loaders.gl has derived code as follows: https://github.com/visgl/loaders.gl/blob/master/LICENSE
+// See README.md at https://github.com/visgl/loaders.gl
+
+import { Vector3 } from '@math.gl/core';
+import { GL, octDecode } from '@loaders.gl/math';
 
 const scratchNormal = new Vector3();
 
@@ -19,13 +23,13 @@ export function normalize3DTileNormalAttribute(tile, normals) {
     return {
       type: GL.FLOAT,
       size: 2,
-      value: decodedArray
+      value: decodedArray,
     };
   }
 
   return {
     type: GL.FLOAT,
     size: 2,
-    value: normals
+    value: normals,
   };
 }

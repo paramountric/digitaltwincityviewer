@@ -1,5 +1,9 @@
-import {Vector3} from '@math.gl/core';
-import {GL} from '@loaders.gl/math';
+// This file is derived from the loaders.gl code base under MIT license
+// loaders.gl has derived code as follows: https://github.com/visgl/loaders.gl/blob/master/LICENSE
+// See README.md at https://github.com/visgl/loaders.gl
+
+import { Vector3 } from '@math.gl/core';
+import { GL } from '@loaders.gl/math';
 
 // Prepare attribute for positions
 export function normalize3DTilePositionAttribute(tile, positions, options) {
@@ -22,7 +26,7 @@ export function normalize3DTilePositionAttribute(tile, positions, options) {
     type: GL.UNSIGNED_SHORT,
     value: positions,
     size: 3,
-    normalized: true
+    normalized: true,
   };
 }
 
