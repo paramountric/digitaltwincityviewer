@@ -37,7 +37,7 @@ async function handleToken(req: NextApiRequest, res: NextApiResponse) {
 
     console.log(tokenData);
 
-    // todo: obviously not a good idea
+    // todo: obviously not a good idea, put the refresh on session instead
     const token = jwt.sign(tokenData, JWT_SECRET, {expiresIn: '24h'});
 
     res
