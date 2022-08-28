@@ -1,6 +1,7 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
 import {S3Client, GetObjectCommand} from '@aws-sdk/client-s3';
 import {Readable} from 'stream';
+import jwt from 'jsonwebtoken';
 import {parseCityModel} from '@dtcv/citymodel';
 
 const {
@@ -10,6 +11,7 @@ const {
   S3_REGION,
   S3_BUCKET,
   S3_OBJECT_KEY,
+  JWT_SECRET = '',
 } = process.env;
 
 if (
@@ -73,6 +75,26 @@ export default async function handleGetData(
   if (req.method !== 'GET') {
     res.status(405).end();
     return;
+  }
+
+  const {token} = req.cookies;
+  if (!token) {
+    res
+      .status(401)
+      .json({
+        message: 'This data is protected from public access. Please login.',
+      });
+    return;
+  }
+
+  try {
+    jwt.verify(token, JWT_SECRET) as any;
+  } catch (err) {
+    res
+      .status(401)
+      .json({
+        message: 'This data is protected from public access. Please login.',
+      });
   }
 
   const command = new GetObjectCommand({Bucket: S3_BUCKET, Key: S3_OBJECT_KEY});
