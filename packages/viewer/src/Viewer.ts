@@ -58,9 +58,9 @@ const internalProps = {
     depth: true,
   },
   layers: [],
-  onWebGLInitialized: null,
-  onViewStateChange: null,
-  layerFilter: null,
+  // onWebGLInitialized: null,
+  // onViewStateChange: null,
+  // layerFilter: null,
 };
 
 // There is a performance problem for extruded polygons that does not appear in the maplibre rendering settings
@@ -69,7 +69,7 @@ const internalProps = {
 // todo: remove maplibre
 // ! note: the fast iterations have created three tracks on how the viewState works, however the code is kept in the repo for all of them -> if below is true, part of the other code is not used...
 // ! second note: the recent developments goes towards using Deck, thus using the existing state of Deck would be advantageous (instead of managing state in this component)
-const useMaplibre = false;
+// const useMaplibre = true; // this is now sent in as second param in constructor
 
 // todo: refactor this -> now the Deck props are used directly which means that this is getting more and more a wrapper around Deck
 type ViewerProps = {
@@ -95,7 +95,11 @@ class Viewer {
   hoveredObject: Feature | null = null;
   hoveredGraphObject: Feature | null = null;
   currentCity: City | null = null;
-  constructor(props: DeckProps) {
+  useMaplibre = false;
+  constructor(props: DeckProps, useMaplibre = false) {
+    if (useMaplibre) {
+      this.useMaplibre = useMaplibre;
+    }
     this.jsonConverter = new JSONConverter({
       configuration: new JSONConfiguration(JSON_CONVERTER_CONFIGURATION),
     });
@@ -109,8 +113,6 @@ class Viewer {
     } else {
       resolvedProps.onWebGLInitialized = this.onWebGLInitialized.bind(this);
       resolvedProps.onViewStateChange = this.onViewStateChange.bind(this);
-      resolvedProps.onTilesetLoad = this.onTilesetLoad.bind(this);
-      resolvedProps.onTileLoad = this.onTileLoad.bind(this);
       resolvedProps.layerFilter = this.layerFilter.bind(this);
       this.deck = new Deck(resolvedProps);
     }
@@ -199,7 +201,7 @@ class Viewer {
   };
 
   getProps() {
-    if (useMaplibre) {
+    if (this.useMaplibre) {
       return {
         layers: this.layerStore.getLayersInstances(),
       };
@@ -242,7 +244,7 @@ class Viewer {
   // (it means that the viewer camera is 0,0 at city center at start which is a epsg3857 coordinate from getCity function, and here moved to the area of interest with an offset)
   setCenter(webmercatorCenter) {
     const lngLatCenter = toLngLat(webmercatorCenter[0], webmercatorCenter[1]);
-    if (useMaplibre && this.maplibreMap) {
+    if (this.useMaplibre && this.maplibreMap) {
       this.maplibreMap.setCenter(lngLatCenter);
     } else {
       this.viewStore.setCenter(lngLatCenter);
@@ -299,9 +301,14 @@ class Viewer {
     const props = this.jsonConverter.convert(json);
     // todo: need to customize jsonConverter for callbacks
 
-    console.log(json);
-    console.log(props);
-    this.deck.setProps(props);
+    if (this.useMaplibre) {
+      console.log('set layer deta', props.layers);
+      this.deck.setProps({
+        layers: props.layers,
+      });
+    } else {
+      this.deck.setProps(props);
+    }
   }
 
   getQuadkey(x: number, y: number, z: number) {
@@ -309,11 +316,12 @@ class Viewer {
   }
 
   render() {
-    if (!this.deck) {
-      return;
-    }
-    const props = this.getProps();
-    this.deck.setProps(props);
+    // todo: refactor out the extra state management
+    // if (!this.deck) {
+    //   return;
+    // }
+    // const props = this.getProps();
+    // this.deck.setProps(props);
   }
 
   private maplibre(props) {
@@ -346,6 +354,8 @@ class Viewer {
         })
       );
 
+      console.log('set deck');
+
       this.maplibreMap.addLayer(
         new MaplibreWrapper({
           id: 'viewer',
@@ -354,6 +364,7 @@ class Viewer {
       );
 
       this.maplibreMap.on('move', () => {
+        console.log('move');
         // how to fix this TS issue now again.. of course it's not undefined in here
         if (!this.maplibreMap) {
           return;
