@@ -1,7 +1,7 @@
 // Copyright (C) 2022 Andreas Rudenå
 // Licensed under the MIT License
 
-import earcut from 'earcut';
+//import earcut from 'earcut';
 
 export type Point = [number, number];
 export type Polygon = Point[];
@@ -35,12 +35,12 @@ export function isClockwise(polygon: Polygon) {
 //   }
 // }
 
-export function triangulate(mp: MultiPolygon) {
-  const { vertices, holes, dimensions } = earcut.flatten(mp);
-  const indices = earcut(vertices, holes, dimensions);
-  return {
-    vertices,
-    indices,
-    holes,
-  };
-}
+// export function triangulate(mp: MultiPolygon) {
+//   const { vertices, holes, dimensions } = earcut.flatten(mp);
+//   const indices = earcut(vertices, holes, dimensions);
+//   return {
+//     vertices,
+//     indices,
+//     holes,
+//   };
+// }
