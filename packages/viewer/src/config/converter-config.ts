@@ -1,5 +1,14 @@
+// This code is derived from deck.gl under MIT license:
+// https://github.com/visgl/deck.gl/tree/master/examples/playground/src
+
 import { COORDINATE_SYSTEM, MapView } from '@deck.gl/core';
-import { ScatterplotLayer, LineLayer, GeoJsonLayer } from '@deck.gl/layers';
+import {
+  ScatterplotLayer,
+  LineLayer,
+  GeoJsonLayer,
+  SolidPolygonLayer,
+} from '@deck.gl/layers';
+import GL from '@luma.gl/constants';
 import { QuadkeyLayer } from '@deck.gl/geo-layers';
 import { scaleLinear } from 'd3-scale';
 import { mat4, vec3 } from 'gl-matrix';
@@ -11,6 +20,31 @@ import { Tiles3DLoader } from '../loaders/tiles-3d-loader/tiles-3d-loader.js';
 
 // Note: deck already registers JSONLoader...
 registerLoaders([DracoWorkerLoader]);
+
+function isFunctionObject(value) {
+  return typeof value === 'object' && '@@function' in value;
+}
+
+export function addUpdateTriggersForAccessors(json) {
+  if (!json || !json.layers) return;
+
+  for (const layer of json.layers) {
+    const updateTriggers = {};
+    for (const [key, value] of Object.entries(layer)) {
+      if (
+        (key.startsWith('get') && typeof value === 'string') ||
+        isFunctionObject(value)
+      ) {
+        // it's an accessor and it's a string
+        // we add the value of the accesor to update trigger to refresh when it changes
+        updateTriggers[key] = value;
+      }
+    }
+    if (Object.keys(updateTriggers).length) {
+      layer.updateTriggers = updateTriggers;
+    }
+  }
+}
 
 function getLinearScale({ domain }) {
   return scaleLinear().domain(domain);
@@ -44,6 +78,7 @@ export default {
     GeoJsonLayer,
     Tile3DLayer,
     QuadkeyLayer,
+    SolidPolygonLayer,
   },
   functions: {
     getLinearScale,
@@ -52,6 +87,7 @@ export default {
   },
   enumerations: {
     COORDINATE_SYSTEM,
+    GL,
   },
   constants: {
     Tiles3DLoader: Tiles3DLoader as any,

@@ -16,7 +16,9 @@ import { ViewStore } from './store/ViewStore.js';
 import MaplibreWrapper from './utils/MaplibreWrapper.js';
 import { toLngLat } from './utils/projection.js';
 import { getCity, City } from './utils/getCity.js';
-import JSON_CONVERTER_CONFIGURATION from './config/converter-config.js';
+import JSON_CONVERTER_CONFIGURATION, {
+  addUpdateTriggersForAccessors,
+} from './config/converter-config.js';
 import Tile3DLayer from './layers/tile-3d-layer/tile-3d-layer.js';
 
 const maplibreStyle = {
@@ -293,18 +295,9 @@ class Viewer {
       return;
     }
 
+    addUpdateTriggersForAccessors(json);
     const props = this.jsonConverter.convert(json);
     // todo: need to customize jsonConverter for callbacks
-    // , {
-    //   onTileLoad: this.onTileLoad,
-    //   onTilesetLoad: this.onTilesetLoad,
-    // });
-    // const tile3dLayers = props.layers.filter(l => l instanceof Tile3DLayer);
-    // tile3dLayers.forEach(l => {
-    //   console.log(l);
-    //   l.props.onTilesetLoad = this.onTilesetLoad.bind(this);
-    //   l.props.onTileLoad = this.onTileLoad.bind(this);
-    // });
 
     console.log(json);
     console.log(props);
