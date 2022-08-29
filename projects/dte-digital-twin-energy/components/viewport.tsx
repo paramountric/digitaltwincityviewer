@@ -4,7 +4,7 @@ import {useViewer} from '../hooks/viewer';
 type ViewportProps = {};
 
 const Viewport: React.FC<ViewportProps> = () => {
-  const canvasRef = useRef<HTMLElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
   const {initViewer} = useViewer();
 
   useEffect(() => {
