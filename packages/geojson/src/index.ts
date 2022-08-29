@@ -1,4 +1,4 @@
-import { Feature } from 'geojson';
+import { Feature, FeatureCollection } from 'geojson';
 import { coordinatesToMeters, coordinatesToMeterOffsets } from './project.js';
 import {
   buildingsFromPolygons,
@@ -10,6 +10,7 @@ import { getModelMatrix, getBounds, getLayerPosition } from './bounds.js';
 
 export {
   Feature,
+  FeatureCollection,
   buildingsFromPolygons,
   validateBuildingProperties,
   getLayerPosition,
