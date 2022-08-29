@@ -1,6 +1,6 @@
 {
   "name": "dtcc-dod",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@dtcv/geojson": "^1.0.13",
-    "@dtcv/viewer": "^1.1.17",
+    "@dtcv/geojson": "^1.0.14",
+    "@dtcv/viewer": "^1.1.18",
     "@types/cookie": "^0.5.1",
     "@types/jsonwebtoken": "^8.5.9",
     "cookie": "^0.5.0",

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.18](https://github.com/paramountric/digitaltwincityviewer/compare/@dtcv/viewer@1.1.17...@dtcv/viewer@1.1.18) (2022-08-29)
+
+
+### Bug Fixes
+
+* types ([aaca60a](https://github.com/paramountric/digitaltwincityviewer/commit/aaca60a20d7ae70509efc8005acbbb492da9912b))
+
+
+
+
+
 ## [1.1.17](https://github.com/paramountric/digitaltwincityviewer/compare/@dtcv/viewer@1.1.16...@dtcv/viewer@1.1.17) (2022-08-29)
 
 
