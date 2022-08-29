@@ -237,6 +237,7 @@ export default class Tile3DLayer<
       Object.assign(options, preloadOptions);
     }
     try {
+      console.log('loader', loader);
       const tilesetJson = await load(tilesetUrl, loader, options.loadOptions);
 
       const tileset3d = new Tileset3D(tilesetJson, {
@@ -263,6 +264,7 @@ export default class Tile3DLayer<
 
   private _onTileLoad(tileHeader: Tile3D): void {
     const { lastUpdatedViewports } = this.state;
+    console.log('on tile load');
     console.log(tileHeader);
     this.props.onTileLoad(tileHeader);
     this._updateTileset(lastUpdatedViewports);
