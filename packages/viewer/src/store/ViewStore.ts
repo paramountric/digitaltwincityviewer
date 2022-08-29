@@ -1,6 +1,6 @@
 import { Deck, MapViewState, MapView } from '@deck.gl/core';
 import { action, makeObservable, observable, computed, toJS } from 'mobx';
-import { Viewer, ViewerProps } from '../Viewer';
+import { Viewer } from '../Viewer';
 
 const defaultViewStateProps = {
   // currently the EPSG:3857 is used instead of EPSG 4326
@@ -95,8 +95,8 @@ export class ViewStore {
       latitude: webmercatorCenter[1],
     });
   }
-  setViewState({ longitude, latitude, zoom, bearing, pitch }: ViewerProps) {
-    const newViewState: ViewerProps = {};
+  setViewState({ longitude, latitude, zoom, bearing, pitch }: MapViewState) {
+    const newViewState: MapViewState = {};
     if (longitude || longitude === 0) {
       newViewState.longitude = longitude;
     }
@@ -115,7 +115,7 @@ export class ViewStore {
     // console.log('new', newViewState);
     this.viewState = Object.assign({}, this.viewState, newViewState);
   }
-  setGraphState({ longitude, latitude, zoom, bearing, pitch }: ViewerProps) {
+  setGraphState({ longitude, latitude, zoom, bearing, pitch }: MapViewState) {
     const existingState = this.getGraphState();
     const newState = Object.assign({}, existingState, {
       longitude: longitude || existingState.longitude,
