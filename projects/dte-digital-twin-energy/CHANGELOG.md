@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.5](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.4...dte-digital-twin-energy@0.2.5) (2022-08-29)
+
+
+### Bug Fixes
+
+* var name class due to swc, disable for now, downgrade dtcv dependencies temporarily ([8facaaf](https://github.com/paramountric/digitaltwincityviewer/commit/8facaaf2ac0a65c3e20890aa6009b924a03aad16))
+
+
+
+
+
 ## [0.2.4](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.3...dte-digital-twin-energy@0.2.4) (2022-08-28)
 
 **Note:** Version bump only for package dte-digital-twin-energy
