@@ -21,38 +21,9 @@ import JSON_CONVERTER_CONFIGURATION, {
 } from './config/converter-config.js';
 import Tile3DLayer from './layers/tile-3d-layer/tile-3d-layer.js';
 
-const maplibreStyle = {
-  id: 'digitaltwincityviewer',
-  layers: [
-    {
-      id: 'background',
-      type: 'background',
-      paint: {
-        'background-color': 'rgba(255, 255, 255, 1)',
-      },
-    },
-  ],
-  sources: {},
-  version: 8,
-};
-
-const maplibreOptions = {
-  container: 'canvas',
-  accessToken: 'wtf',
-  renderWorldCopies: false,
-  antialias: true,
-  style: maplibreStyle,
-  center: [0, 0],
-  zoom: 14, // starting zoom
-  minZoom: 10,
-  pitch: 60,
-  attributionControl: false,
-} as maplibregl.MapOptions;
-
 // internalProps = not to be set from parent component
 const internalProps = {
   debug: false,
-  container: null,
   glOptions: {
     antialias: true,
     depth: true,
@@ -72,17 +43,18 @@ const internalProps = {
 // const useMaplibre = true; // this is now sent in as second param in constructor
 
 // todo: refactor this -> now the Deck props are used directly which means that this is getting more and more a wrapper around Deck
-type ViewerProps = {
-  longitude?: number;
-  latitude?: number;
-  zoom?: number;
-  container?: HTMLElement | string;
-  bearing?: number;
-  pitch?: number;
-  width?: number;
-  height?: number;
-  onLoad?: () => void;
-};
+// type ViewerProps = {
+//   longitude?: number;
+//   latitude?: number;
+//   zoom?: number;
+//   canvas?: HTMLCanvasElement;
+//   container?: HTMLElement | string; // maplibre
+//   bearing?: number;
+//   pitch?: number;
+//   width?: number;
+//   height?: number;
+//   onLoad?: () => void;
+// };
 class Viewer {
   gl: WebGL2RenderingContext | null = null;
   deck: Deck;
@@ -96,10 +68,7 @@ class Viewer {
   hoveredGraphObject: Feature | null = null;
   currentCity: City | null = null;
   useMaplibre = false;
-  constructor(props: DeckProps, useMaplibre = false) {
-    if (useMaplibre) {
-      this.useMaplibre = useMaplibre;
-    }
+  constructor(props: DeckProps, maplibreOptions?: maplibregl.MapOptions) {
     this.jsonConverter = new JSONConverter({
       configuration: new JSONConfiguration(JSON_CONVERTER_CONFIGURATION),
     });
@@ -108,8 +77,9 @@ class Viewer {
 
     const resolvedProps = Object.assign({}, internalProps, props);
 
-    if (useMaplibre) {
-      this.maplibre(resolvedProps);
+    if (maplibreOptions) {
+      this.useMaplibre = true;
+      this.maplibre(Object.assign({}, resolvedProps, maplibreOptions));
     } else {
       resolvedProps.onWebGLInitialized = this.onWebGLInitialized.bind(this);
       resolvedProps.onViewStateChange = this.onViewStateChange.bind(this);
@@ -124,13 +94,13 @@ class Viewer {
     });
   }
 
-  onTilesetLoad(tileset) {
-    console.log(tileset);
-  }
+  // onTilesetLoad(tileset) {
+  //   console.log(tileset);
+  // }
 
-  onTileLoad(tile) {
-    console.log(tile);
-  }
+  // onTileLoad(tile) {
+  //   console.log(tile);
+  // }
 
   get zoom() {
     return this.viewStore.zoom;
@@ -158,7 +128,9 @@ class Viewer {
     if (!this.deck || !this.deck.viewManager) {
       return;
     }
-    const viewport = this.deck.viewManager.getViewport('mapview');
+    const viewport =
+      this.deck.viewManager.getViewport('mapview') ||
+      this.deck.viewManager.getViewport('default-view');
     const {
       x: defaultX,
       y: defaultY,
@@ -317,14 +289,39 @@ class Viewer {
 
   render() {
     // todo: refactor out the extra state management
-    // if (!this.deck) {
-    //   return;
-    // }
-    // const props = this.getProps();
-    // this.deck.setProps(props);
+    if (!this.deck) {
+      return;
+    }
+    const props = this.getProps();
+    this.deck.setProps(props);
   }
 
   private maplibre(props) {
+    const maplibreOptions = {
+      container: 'canvas',
+      accessToken: 'wtf',
+      renderWorldCopies: false,
+      antialias: true,
+      style: {
+        id: 'digitaltwincityviewer',
+        layers: [
+          {
+            id: 'background',
+            type: 'background',
+            paint: {
+              'background-color': 'rgba(255, 255, 255, 1)',
+            },
+          },
+        ],
+        sources: {},
+        version: 8,
+      },
+      center: [0, 0],
+      zoom: 14, // starting zoom
+      minZoom: 10,
+      pitch: 60,
+      attributionControl: false,
+    } as maplibregl.MapOptions;
     if (props.container) {
       maplibreOptions.container = props.container;
     } else {
@@ -364,12 +361,13 @@ class Viewer {
       );
 
       this.maplibreMap.on('move', () => {
-        console.log('move');
-        // how to fix this TS issue now again.. of course it's not undefined in here
-        if (!this.maplibreMap) {
-          return;
+        if (this.deck.props.onDrag) {
+          const { lng, lat } = this.maplibreMap.getCenter();
+          this.deck.props.onDrag({
+            longitude: lng,
+            latitude: lat,
+          });
         }
-        const { lng, lat } = this.maplibreMap.getCenter();
         // this.deck.setProps({
         //   viewState: {
         //     longitude: lng,
@@ -379,19 +377,26 @@ class Viewer {
         //     pitch: this.maplibreMap.getPitch(),
         //   },
         // });
-        this.viewStore.setViewState({
-          longitude: lng,
-          latitude: lat,
-          zoom: this.maplibreMap.getZoom(),
-          // bearing: this.maplibreMap.getBearing(),
-          // pitch: this.maplibreMap.getPitch(),
-        });
+        // this.viewStore.setViewState({
+        //   longitude: lng,
+        //   latitude: lat,
+        //   zoom: this.maplibreMap.getZoom(),
+        //   // bearing: this.maplibreMap.getBearing(),
+        //   // pitch: this.maplibreMap.getPitch(),
+        // });
         // Prevent deck from redrawing - repaint is driven by maplibre's render loop
         this.deck.needsRedraw({ clearRedrawFlags: true });
       });
 
       this.maplibreMap.on('moveend', () => {
-        this.viewStore.setViewStateEnd();
+        if (this.deck.props.onDragEnd) {
+          const { lng, lat } = this.maplibreMap.getCenter();
+          this.deck.props.onDragEnd({
+            longitude: lng,
+            latitude: lat,
+          });
+        }
+        //this.viewStore.setViewStateEnd();
       });
 
       this.render();
@@ -400,4 +405,4 @@ class Viewer {
 }
 
 // todo: refactor this -> now the Deck props are used directly which means that this is getting more and more a wrapper around Deck
-export { Viewer, ViewerProps };
+export { Viewer }; // ViewerProps };
