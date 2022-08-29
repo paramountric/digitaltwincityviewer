@@ -25,7 +25,7 @@ const StartPage: NextPage = () => {
             <link rel="icon" href="/favicon.ico" />
           </Head>
           <div className="shadow-sm border-b top-0 sticky z-50 bg-white">
-            <div className="flex items-center justify-between mx-4 max-w-6xl">
+            <div className="flex items-center justify-between mx-4">
               <div className="flex items-center">
                 <div className="h-12 w-32 mt-3">
                   <Image src={logo} alt="logo of DTCC" />

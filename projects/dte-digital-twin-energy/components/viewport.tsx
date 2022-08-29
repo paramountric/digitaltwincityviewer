@@ -4,7 +4,7 @@ import {useViewer} from '../hooks/viewer';
 type ViewportProps = {};
 
 const Viewport: React.FC<ViewportProps> = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLElement>(null);
   const {initViewer} = useViewer();
 
   useEffect(() => {
@@ -14,11 +14,11 @@ const Viewport: React.FC<ViewportProps> = () => {
   }, [initViewer]);
 
   return (
-    <canvas
-      id="canvas"
+    <div
+      id="viewport"
       style={{background: '#eee', width: '100%', height: '400px'}}
       ref={canvasRef}
-    ></canvas>
+    ></div>
   );
 };
 
