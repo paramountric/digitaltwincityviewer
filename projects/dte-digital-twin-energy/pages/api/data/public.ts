@@ -1,5 +1,21 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
+import {
+  getLayerPosition,
+  coordinatesToMeters,
+  Feature,
+  FeatureCollection,
+} from '@dtcv/geojson';
 import testData from './osm-gbg-center.json';
+
+type ViewerData = {
+  buildings: Feature[];
+  modelMatrix: number[];
+  center: number[];
+};
+
+const {features} = testData as FeatureCollection;
+coordinatesToMeters(features);
+const {center, modelMatrix} = getLayerPosition(features);
 
 export default async function handleGetData(
   req: NextApiRequest,
@@ -11,7 +27,11 @@ export default async function handleGetData(
   }
 
   try {
-    res.status(200).json(testData);
+    res.status(200).json({
+      buildings: features,
+      modelMatrix: Array.from(modelMatrix),
+      center,
+    } as ViewerData);
   } catch (err) {
     console.log(err);
     res.status(500).end();
