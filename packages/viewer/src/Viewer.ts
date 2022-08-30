@@ -297,6 +297,7 @@ class Viewer {
   }
 
   private maplibre(props) {
+    console.log('props maplibre', props);
     const maplibreOptions = {
       container: 'canvas',
       accessToken: 'wtf',
@@ -316,10 +317,10 @@ class Viewer {
         sources: {},
         version: 8,
       },
-      center: [0, 0],
-      zoom: 14, // starting zoom
-      minZoom: 10,
-      pitch: 60,
+      center: [props.longitude || 0, props.latitude || 0],
+      zoom: props.zoom || 14, // starting zoom
+      minZoom: props.minZoom || 10,
+      pitch: props.pitch || 60,
       attributionControl: false,
     } as maplibregl.MapOptions;
     if (props.container) {
