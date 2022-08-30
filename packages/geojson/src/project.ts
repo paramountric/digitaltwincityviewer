@@ -87,6 +87,7 @@ export function coordinatesToMeterOffsets(
   return coordinatesToMeters(features, center[0], center[1]);
 }
 
+// NOTE: this changes feature geometry by reference, be careful
 export function coordinatesToMeters(
   features: Feature[],
   meterOffsetX = 0,
