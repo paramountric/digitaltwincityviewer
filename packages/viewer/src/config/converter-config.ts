@@ -9,7 +9,7 @@ import {
   SolidPolygonLayer,
 } from '@deck.gl/layers';
 import GL from '@luma.gl/constants';
-import { QuadkeyLayer } from '@deck.gl/geo-layers';
+import { QuadkeyLayer, MVTLayer } from '@deck.gl/geo-layers';
 import { scaleLinear } from 'd3-scale';
 import { mat4, vec3 } from 'gl-matrix';
 import { registerLoaders } from '@loaders.gl/core';
@@ -78,6 +78,7 @@ export default {
     GeoJsonLayer,
     Tile3DLayer,
     QuadkeyLayer,
+    MVTLayer,
     SolidPolygonLayer,
   },
   functions: {
