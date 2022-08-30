@@ -9,7 +9,7 @@ import { vec3, mat4 } from 'gl-matrix';
 
 function getMultiPolygonBounds(multiPolygon: Position[][][], min, max) {
   for (const polygon of multiPolygon) {
-    this.getPolygonBounds(polygon, min, max);
+    getPolygonBounds(polygon, min, max);
   }
 }
 
