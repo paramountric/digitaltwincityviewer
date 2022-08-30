@@ -93,7 +93,6 @@ export function coordinatesToMeters(
   meterOffsetX = 0,
   meterOffsetY = 0
 ) {
-  console.log(meterOffsetX, meterOffsetY);
   for (const feature of features) {
     if (feature.geometry.type === 'Point') {
       projectCoordinateInline(
