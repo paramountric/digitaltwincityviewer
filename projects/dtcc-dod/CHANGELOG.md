@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.27](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.26...dtcc-dod@1.0.27) (2022-08-30)
+
+**Note:** Version bump only for package dtcc-dod
+
+
+
+
+
 ## [1.0.26](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.25...dtcc-dod@1.0.26) (2022-08-29)
 
 **Note:** Version bump only for package dtcc-dod
