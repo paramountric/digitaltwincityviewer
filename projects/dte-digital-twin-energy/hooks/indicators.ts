@@ -26,7 +26,7 @@ const propertyKeyOptions: PropertyKeyOption[] = [
   },
 ];
 
-export const useIndictors = () => {
+export const useIndicators = () => {
   const [propertyKey, setPropertyKey] = useState<string>(
     propertyKeyOptions[0].key
   );
@@ -86,22 +86,9 @@ export const useIndictors = () => {
     },
     selectedYear,
     setSelectedYear,
+    yearOptions,
     showTimelinePerM2,
     setShowTimelinePerM2,
     getTimelineData,
   };
 };
-
-// function updateBuildingColors() {
-//   if (!this.selectedPropertyKey || !this.selectedYear) {
-//     return;
-//   }
-//   console.log(this.selectedPropertyKey, this.selectedYear);
-//   this.viewer.setLayerStyle('buildings-layer-polygons-lod-1', {
-//     color: {
-//       sufficient: 150,
-//       excellent: 60,
-//       propertyKey: `${this.selectedPropertyKey}${this.selectedYear}M2`,
-//     },
-//   });
-// }

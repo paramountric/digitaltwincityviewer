@@ -1,6 +1,7 @@
 import {useRef, useState, useEffect} from 'react';
 import {useViewer} from '../hooks/viewer';
 import Legend from './legend';
+import ActionPanel from './action-panel';
 
 type ViewportProps = {};
 

@@ -1,10 +1,10 @@
-import {useIndictors} from '../hooks/indicators';
+import {useIndicators} from '../hooks/indicators';
 import {getColorFromScale, getScaleRanges} from '../lib/colorScales';
 
 type LegendProps = {};
 
 const Legend: React.FC<LegendProps> = () => {
-  const {getPropertyLabel, getPropertyUnit, propertyKey} = useIndictors();
+  const {getPropertyLabel, getPropertyUnit, propertyKey} = useIndicators();
   // complete mess, but how to style css dynamically in lit element WITHOUT changing the previous set values (in a list) <- it did not work to apply it in-line is style attribute
   // todo: at least iterate through a range to create the colorbox classes
   // static styles = css`
