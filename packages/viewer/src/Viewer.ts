@@ -20,6 +20,7 @@ import JSON_CONVERTER_CONFIGURATION, {
   addUpdateTriggersForAccessors,
 } from './config/converter-config.js';
 import Tile3DLayer from './layers/tile-3d-layer/tile-3d-layer.js';
+import { generateColor } from './utils/colors.js';
 
 // internalProps = not to be set from parent component
 const internalProps = {
@@ -32,6 +33,10 @@ const internalProps = {
   // onWebGLInitialized: null,
   // onViewStateChange: null,
   // layerFilter: null,
+};
+
+type ViewerProps = DeckProps & {
+  onSelectObject?: () => Feature | null;
 };
 
 // There is a performance problem for extruded polygons that does not appear in the maplibre rendering settings
@@ -68,7 +73,8 @@ class Viewer {
   hoveredGraphObject: Feature | null = null;
   currentCity: City | null = null;
   useMaplibre = false;
-  constructor(props: DeckProps, maplibreOptions?: maplibregl.MapOptions) {
+  props: ViewerProps;
+  constructor(props: ViewerProps, maplibreOptions?: maplibregl.MapOptions) {
     this.jsonConverter = new JSONConverter({
       configuration: new JSONConfiguration(JSON_CONVERTER_CONFIGURATION),
     });
@@ -76,6 +82,7 @@ class Viewer {
     this.layerStore = new LayerStore(this);
 
     const resolvedProps = Object.assign({}, internalProps, props);
+    this.props = resolvedProps;
 
     if (maplibreOptions) {
       this.useMaplibre = true;
@@ -88,10 +95,10 @@ class Viewer {
     }
     //this.viewStore.setViewState(props);
 
-    makeObservable(this, {
-      selectedObject: observable,
-      setSelectedObject: action,
-    });
+    // makeObservable(this, {
+    //   selectedObject: observable,
+    //   setSelectedObject: action,
+    // });
   }
 
   // onTilesetLoad(tileset) {
@@ -123,8 +130,6 @@ class Viewer {
     width?: number,
     height?: number
   ) {
-    console.log(this.deck);
-
     if (!this.deck || !this.deck.viewManager) {
       return;
     }
@@ -187,6 +192,9 @@ class Viewer {
 
   setSelectedObject(object) {
     this.selectedObject = object;
+    if (this.props.onSelectObject) {
+      this.props.onSelectObject(object);
+    }
   }
 
   setSelectedGraphObject(object) {
@@ -234,6 +242,48 @@ class Viewer {
     this.layerStore.setLayerStyle(layerId, style);
   }
 
+  // setLayerStyle(layerId: string, style) {
+  //   const layer = this.deck.getLayerById(layerId);
+  //   if (!layer) {
+  //     return;
+  //   }
+  //   this.applyLayerStyle(layer, )
+  // }
+
+  // // todo: move out to styling utils
+  // applyLayerStyle(layer: LayerSetting) {
+  //   const features = layer.props.data;
+  //   const colorStyle = layer.layerStyle?.color;
+  //   if (colorStyle) {
+  //     for (const feature of features) {
+  //       this.setColor(feature, colorStyle);
+  //     }
+  //   }
+  // }
+  // todo: move out to styling utils
+  // setColor(layerId, colorStyle) {
+  //   const layer = this.deck.getLayerById(layerId);
+  //   if (!layer) {
+  //     return;
+  //   }
+  //   const features = layer.props.data;
+  //   for (const feature of features) {
+  //     if (
+  //       feature.properties &&
+  //       colorStyle.propertyKey &&
+  //       colorStyle.sufficient &&
+  //       colorStyle.excellent
+  //     ) {
+  //       const color = generateColor(
+  //         feature.properties[colorStyle.propertyKey],
+  //         colorStyle.sufficient,
+  //         colorStyle.excellent
+  //       );
+  //       feature.properties.color = color;
+  //     }
+  //   }
+  // }
+
   setActiveView(viewId: 'graph' | 'map') {
     this.viewStore.setActiveView(viewId);
   }
@@ -264,6 +314,16 @@ class Viewer {
     this.layerStore.unload();
   }
 
+  setProps(props: ViewerProps) {
+    if (this.useMaplibre) {
+      this.deck.setProps({
+        layers: props.layers,
+      });
+    } else {
+      this.deck.setProps(props);
+    }
+  }
+
   setJson(json) {
     if (!this.deck) {
       return;
@@ -273,8 +333,28 @@ class Viewer {
     const props = this.jsonConverter.convert(json);
     // todo: need to customize jsonConverter for callbacks
 
+    // for (const layer of props.layers) {
+    //   console.log(layer);
+    //   if (layer.props.isClickable) {
+    //layer.props = { ...layer.props }; //Object.assign({}, layer.props);
+    // , {
+    //   onClick: d => {
+    //     if (d.object) {
+    //       this.setSelectedObject(d.object);
+    //       return;
+    //     }
+    //     const object = d.layer.props.data[0]?.objects[d.index];
+    //     if (!object) {
+    //       console.warn('clicked object could not be found', d);
+    //       return;
+    //     }
+    //     this.setSelectedObject(object);
+    //   },
+    // });
+    //   }
+    // }
+
     if (this.useMaplibre) {
-      console.log('set layer deta', props.layers);
       this.deck.setProps({
         layers: props.layers,
       });
@@ -352,8 +432,6 @@ class Viewer {
         })
       );
 
-      console.log('set deck');
-
       this.maplibreMap.addLayer(
         new MaplibreWrapper({
           id: 'viewer',
@@ -405,5 +483,4 @@ class Viewer {
   }
 }
 
-// todo: refactor this -> now the Deck props are used directly which means that this is getting more and more a wrapper around Deck
-export { Viewer }; // ViewerProps };
+export { Viewer, ViewerProps };
