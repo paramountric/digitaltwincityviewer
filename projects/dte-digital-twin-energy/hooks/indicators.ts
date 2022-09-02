@@ -27,8 +27,10 @@ const propertyKeyOptions: PropertyKeyOption[] = [
 ];
 
 export const useIndictors = () => {
-  const [propertyKey, setPropertyKey] = useState(propertyKeyOptions[0].key);
-  const [selectedYear, setSelectedYear] = useState(yearOptions[0]);
+  const [propertyKey, setPropertyKey] = useState<string>(
+    propertyKeyOptions[0].key
+  );
+  const [selectedYear, setSelectedYear] = useState<string>(yearOptions[0]);
   const [showTimelinePerM2, setShowTimelinePerM2] = useState(false);
 
   function getTimelineData(features: Feature[]) {
@@ -70,6 +72,18 @@ export const useIndictors = () => {
   return {
     propertyKey,
     setPropertyKey,
+    propertyKeyOptions,
+    getPropertyLabel: (selectKey?: string): string => {
+      const key = selectKey || propertyKey;
+      return (
+        propertyKeyOptions.find(option => option.key === key)?.label ||
+        'Select indicator'
+      );
+    },
+    getPropertyUnit: (selectKey?: string): string => {
+      const key = selectKey || propertyKey;
+      return propertyKeyOptions.find(option => option.key === key)?.unit || '';
+    },
     selectedYear,
     setSelectedYear,
     showTimelinePerM2,

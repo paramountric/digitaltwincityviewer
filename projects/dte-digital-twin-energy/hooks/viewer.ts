@@ -142,6 +142,7 @@ export const useViewer = (): {
           extruded: true,
           wireframe: true,
           pickable: true,
+          isClickable: true,
           coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
           getPolygon: '@@=geometry.coordinates',
           getFillColor: '@@=properties.color || [255, 255, 255, 255]',

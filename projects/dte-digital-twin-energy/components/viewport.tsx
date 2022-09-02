@@ -1,5 +1,6 @@
 import {useRef, useState, useEffect} from 'react';
 import {useViewer} from '../hooks/viewer';
+import Legend from './legend';
 
 type ViewportProps = {};
 
@@ -14,11 +15,14 @@ const Viewport: React.FC<ViewportProps> = () => {
   }, [initViewer]);
 
   return (
-    <div
-      id="viewport"
-      style={{background: '#eee', width: '100%', height: '400px'}}
-      ref={canvasRef}
-    ></div>
+    <>
+      <div
+        id="viewport"
+        style={{background: '#eee', width: '100%', height: '400px'}}
+        ref={canvasRef}
+      ></div>
+      <Legend></Legend>
+    </>
   );
 };
 
