@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.16](https://github.com/paramountric/digitaltwincityviewer/compare/@dtcv/geojson@1.0.15...@dtcv/geojson@1.0.16) (2022-08-30)
+
+
+### Bug Fixes
+
+* remove ref to this ([989b403](https://github.com/paramountric/digitaltwincityviewer/commit/989b403e88da1c8431d19a42c8b1803afff6718f))
+
+
+
+
+
 ## [1.0.15](https://github.com/paramountric/digitaltwincityviewer/compare/@dtcv/geojson@1.0.14...@dtcv/geojson@1.0.15) (2022-08-29)
 
 **Note:** Version bump only for package @dtcv/geojson
