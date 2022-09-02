@@ -7,11 +7,14 @@ import Login from '../components/login';
 import {useUserInfo} from '../hooks/userinfo';
 import {useSignOut} from '../hooks/signout';
 import React from 'react';
+import {useProtectedData} from '../hooks/data';
 
 const StartPage: NextPage = () => {
   const userInfo = useUserInfo();
   const signOut = useSignOut();
+  const protectedData = useProtectedData();
   console.log(userInfo);
+  console.log(protectedData);
   return (
     <div>
       <main>
@@ -51,6 +54,7 @@ const StartPage: NextPage = () => {
                 ) : null}
               </div>
             </div>
+            {protectedData.isLoading ? <div>Loading...</div> : null}
           </div>
         </React.StrictMode>
 

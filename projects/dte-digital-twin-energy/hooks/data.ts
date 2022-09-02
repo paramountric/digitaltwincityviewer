@@ -6,7 +6,11 @@ type ViewerData = {
   buildings: Feature[];
 };
 
-export const useProtectedData = (): ViewerData => {
+export const useProtectedData = (): {
+  data: ViewerData;
+  refetch: () => any;
+  isLoading: boolean;
+} => {
   const dataUrl = '/api/data/protected';
   const query = useQuery(
     'protected-data',
@@ -19,11 +23,15 @@ export const useProtectedData = (): ViewerData => {
       }
     },
     {
-      cacheTime: Infinity,
-      staleTime: Infinity,
+      refetchOnWindowFocus: false,
+      enabled: false,
     }
   );
-  return query.data as ViewerData;
+  return {
+    data: query.data as ViewerData,
+    refetch: query.refetch,
+    isLoading: query.isLoading,
+  };
 };
 
 export const usePublicData = (): ViewerData => {

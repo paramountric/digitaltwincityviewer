@@ -3,6 +3,7 @@ import {Viewer} from '@dtcv/viewer';
 import {usePublicData, useProtectedData} from './data';
 import {useIndictors} from './indicators';
 import {Feature} from '@dtcv/geojson';
+import {useUserInfo} from './userinfo';
 
 const maplibreOptions = {};
 
@@ -13,8 +14,9 @@ export const useViewer = (): {
   viewerLoading: boolean;
 } => {
   const [viewer, setViewer] = useState<Viewer | null>(null);
-  const publicData = usePublicData();
-  const protectedData = useProtectedData();
+  //const publicData = usePublicData();
+  const {data, refetch} = useProtectedData();
+  const userInfo = useUserInfo();
   const {propertyKey, selectedYear, getTimelineData} = useIndictors();
 
   const updateTimeline = () => {
@@ -28,6 +30,10 @@ export const useViewer = (): {
     const timelineData = getTimelineData(visibleObjects);
     console.log(timelineData);
   };
+
+  useEffect(() => {
+    refetch();
+  }, [userInfo]);
 
   useEffect(() => {
     if (viewer) {
@@ -123,13 +129,13 @@ export const useViewer = (): {
       //   });
       // }
 
-      if (protectedData) {
+      if (data?.buildings) {
         json.layers.push({
           id: 'bsm-data',
           '@@type': 'SolidPolygonLayer',
           //'@@type': 'GeoJsonLayer',
-          data: protectedData.buildings,
-          modelMatrix: protectedData.modelMatrix,
+          data: data.buildings,
+          modelMatrix: data.modelMatrix,
           opacity: 1,
           autoHighlight: true,
           highlightColor: [100, 150, 250, 255],
@@ -232,7 +238,7 @@ export const useViewer = (): {
       //     ],
       //   });
     }
-  }, [viewer, protectedData]); //[publicData, protectedData, viewer]);
+  }, [viewer, data]); //[publicData, protectedData, viewer]);
 
   return {
     initViewer: ref => {
