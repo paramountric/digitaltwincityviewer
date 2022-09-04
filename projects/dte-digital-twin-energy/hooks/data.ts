@@ -1,3 +1,4 @@
+import {useState, useEffect} from 'react';
 import {useQuery} from 'react-query';
 import {Feature} from '@dtcv/geojson';
 
@@ -6,17 +7,32 @@ type ViewerData = {
   buildings: Feature[];
 };
 
-export const useProtectedData = (): {
-  data: ViewerData;
-  refetch: () => any;
-  isLoading: boolean;
-} => {
-  const dataUrl = '/api/data/protected';
+type ScenarioOption = {
+  key: string;
+  label: string;
+  url: string;
+};
+
+const scenarioKeyOptions: ScenarioOption[] = [
+  {key: 'finalEnergy', label: 'Final energy', url: '/api/data/protected'},
+];
+
+function getScenarioUrl(scenarioKey: string): string {
+  return (
+    scenarioKeyOptions.find(option => option.key === scenarioKey)?.url ||
+    scenarioKeyOptions[0].url
+  );
+}
+
+export const useProtectedData = () => {
+  const [scenarioKey, setScenarioKey] = useState<string>(
+    scenarioKeyOptions[0].key
+  );
   const query = useQuery(
     'protected-data',
     async () => {
       try {
-        const res = await fetch(dataUrl);
+        const res = await fetch(getScenarioUrl(scenarioKey));
         return await res.json();
       } catch (err) {
         return undefined;
@@ -28,6 +44,19 @@ export const useProtectedData = (): {
     }
   );
   return {
+    scenarioKey,
+    setScenarioKey: (key: string) => {
+      setScenarioKey(key);
+      // refetch?
+    },
+    getScenarioLabel: (selectKey?: string): string => {
+      const key = selectKey || scenarioKey;
+      return (
+        scenarioKeyOptions.find(option => option.key === key)?.label ||
+        'Select scenario'
+      );
+    },
+    scenarioKeyOptions,
     data: query.data as ViewerData,
     refetch: query.refetch,
     isLoading: query.isLoading,
