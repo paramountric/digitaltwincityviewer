@@ -17,6 +17,7 @@ const Viewport: React.FC<ViewportProps> = () => {
 
   return (
     <>
+      <ActionPanel></ActionPanel>
       <div
         id="viewport"
         style={{background: '#eee', width: '100%', height: '400px'}}
