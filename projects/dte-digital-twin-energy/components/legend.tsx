@@ -1,5 +1,10 @@
+import {Fragment} from 'react';
 import {useIndicators} from '../hooks/indicators';
 import {getColorFromScale, getScaleRanges} from '../lib/colorScales';
+
+function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(' ');
+}
 
 type LegendProps = {};
 
@@ -64,31 +69,29 @@ const Legend: React.FC<LegendProps> = () => {
   console.log(scaleRanges);
 
   return (
-    <div className="absolute p-1 right-2 bottom-2 bg-white opacity-90">
-      <table>
-        <thead>
-          <tr>
-            <td colSpan={3} className="col-span-2 p-3 font-medium">
-              <span className="pr-2">{getPropertyLabel()}</span>
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          {scaleRanges.map((range, i) => {
-            return (
-              <tr key={i}>
-                <td className={`bg-energy-${i + 1} w-7`}></td>
-                <td className="text-xs px-2">
-                  {range[1] === '>'
-                    ? `${range[1]} ${range[0]}`
-                    : `${range[0]} - ${range[1]}`}
-                </td>
-                <td className="text-xs">{getPropertyUnit()}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className="absolute p-1 right-2 bottom-2 bg-white grid grid-cols-4 rounded-md border border-gray-300">
+      <div className="col-span-2">{getPropertyLabel()}</div>
+      <div className="col-span-2 text-xs pt-1 px-1 italic">
+        {getPropertyUnit()}
+      </div>
+      {scaleRanges.map((range, i) => {
+        return (
+          <Fragment key={i}>
+            <div
+              className={classNames(
+                `bg-energy${i + 1}`,
+                'w-8 rounded-sm m-1 col-span-1'
+              )}
+              key={`c-${i}`}
+            ></div>
+            <div className="text-xs px-2 col-span-3" key={`r-${i}`}>
+              {range[1] === '>'
+                ? `${range[1]} ${range[0]}`
+                : `${range[0]} - ${range[1]}`}
+            </div>
+          </Fragment>
+        );
+      })}
     </div>
   );
 };
