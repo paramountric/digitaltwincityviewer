@@ -4,6 +4,7 @@ import {usePublicData, useProtectedData} from './data';
 import {useIndicators} from './indicators';
 import {Feature} from '@dtcv/geojson';
 import {useUserInfo} from './userinfo';
+import {useSelectedFeature} from './selected-feature';
 
 const maplibreOptions = {};
 
@@ -17,6 +18,7 @@ export const useViewer = (): {
   const {data, refetch} = useProtectedData();
   const userInfo = useUserInfo();
   const {propertyKey, selectedYear, getTimelineData} = useIndicators();
+  const {actions} = useSelectedFeature();
 
   const updateTimeline = () => {
     console.log('test', viewer, propertyKey, selectedYear);
@@ -39,6 +41,16 @@ export const useViewer = (): {
           '@@type': 'SolidPolygonLayer',
           //'@@type': 'GeoJsonLayer',
           data: data.buildings,
+          onClick: (d: any) => {
+            if (d.object) {
+              if (!d.object.id) {
+                d.object.id = d.object.properties.uuid;
+              }
+              console.log('set feature', d.object);
+              actions.setFeatureId(d.object.id);
+              return;
+            }
+          },
           modelMatrix: data.modelMatrix,
           opacity: 1,
           autoHighlight: true,
@@ -111,7 +123,6 @@ export const useViewer = (): {
   return {
     initViewer: ref => {
       if (viewer) {
-        console.log('viewer is set');
         return;
       }
       ref.style.width = '100%'; //window.innerWidth;

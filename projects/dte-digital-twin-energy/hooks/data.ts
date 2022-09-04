@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useState} from 'react';
 import {useQuery} from 'react-query';
 import {Feature} from '@dtcv/geojson';
 
@@ -14,7 +14,9 @@ type ScenarioOption = {
 };
 
 const scenarioKeyOptions: ScenarioOption[] = [
-  {key: 'finalEnergy', label: 'Final energy', url: '/api/data/protected'},
+  {key: '2020', label: 'Current', url: '/api/data/protected'},
+  {key: '2035', label: '2035', url: '/api/data/protected'},
+  {key: '2055', label: '2055', url: '/api/data/protected'},
 ];
 
 function getScenarioUrl(scenarioKey: string): string {
@@ -58,6 +60,14 @@ export const useProtectedData = () => {
     },
     scenarioKeyOptions,
     data: query.data as ViewerData,
+    getFeature: (id: string) => {
+      if (!query.data) {
+        return undefined;
+      }
+      return query.data.buildings.find(
+        (b: any) => b.id === id || b.properties?.uuid === id
+      );
+    },
     refetch: query.refetch,
     isLoading: query.isLoading,
   };
