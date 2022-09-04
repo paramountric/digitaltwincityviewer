@@ -12,8 +12,6 @@ const Header: React.FC<HeaderProps> = () => {
   const userInfo = useUserInfo();
   const signOut = useSignOut();
   const protectedData = useProtectedData();
-  console.log(userInfo);
-  console.log(protectedData);
   return (
     <div className="absolute w-full z-50 overflow-hidden">
       <Head>
