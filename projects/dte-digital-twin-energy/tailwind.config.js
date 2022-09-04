@@ -4,19 +4,27 @@ module.exports = {
     './pages/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
   ],
+  safelist: [
+    'bg-energy1',
+    'bg-energy2',
+    'bg-energy3',
+    'bg-energy4',
+    'bg-energy5',
+    'bg-energy6',
+    'bg-energy7',
+  ],
   theme: {
     extend: {
-      backgroundColor: {
-        energy: {
-          1: '#009640',
-          2: '#50AF31',
-          3: '#C7D301',
-          4: '#FFED00',
-          5: '#FBB900',
-          6: '#EC6707',
-          7: '#E30613',
-        },
-      },
+      backgroundColor: theme => ({
+        ...theme('colors'),
+        energy1: '#009640',
+        energy2: '#50AF31',
+        energy3: '#C7D301',
+        energy4: '#FFED00',
+        energy5: '#FBB900',
+        energy6: '#EC6707',
+        energy7: '#E30613',
+      }),
     },
   },
   plugins: [],
