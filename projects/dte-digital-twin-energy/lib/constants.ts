@@ -1,5 +1,7 @@
 // all properties in the attribute object will be shown, labels are taken from here
-const propertyLabels = {
+const propertyLabels: {
+  [key: string]: string;
+} = {
   deliveredEnergy: 'Delivered energy',
   deliveredEnergy2020: 'Delivered energy 2020',
   deliveredEnergy2030: 'Delivered energy 2030',
@@ -23,7 +25,9 @@ const propertyLabels = {
 };
 
 // these are the units, but could be done with enum instead
-const units = {
+const units: {
+  [key: string]: string;
+} = {
   deliveredEnergy: 'kWh',
   deliveredEnergy2020: 'kWh',
   deliveredEnergy2030: 'kWh',

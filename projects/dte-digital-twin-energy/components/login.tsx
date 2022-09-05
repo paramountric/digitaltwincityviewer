@@ -19,7 +19,7 @@ const Login: React.FC = () => {
           <label>
             <span className="text-gray-600">Email</span>
             <input
-              className="w-full p-2 border border-gray-400 rounded-sm"
+              className="w-full p-2 border border-gray-400 rounded-md"
               type="email"
               required
               value={email}
@@ -29,7 +29,7 @@ const Login: React.FC = () => {
           <label>
             <span className="text-gray-600">Password</span>
             <input
-              className="w-full p-2 border border-gray-400 rounded-sm"
+              className="w-full p-2 border border-gray-400 rounded-md"
               type="password"
               required
               value={password}
