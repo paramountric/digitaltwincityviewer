@@ -1,5 +1,6 @@
 import {Feature} from '@dtcv/geojson';
-import {useState} from 'react';
+import {useState, useEffect, useMemo} from 'react';
+import {Observable} from '../lib/Observable';
 
 export type SelectablePropertyKey =
   | 'finalEnergy'
@@ -11,6 +12,12 @@ export type PropertyKeyOption = {
   key: SelectablePropertyKey;
   label: string;
   unit: string;
+};
+
+type IndicatorStore = {
+  propertyKey: string;
+  selectedYear: string;
+  showTimelinePerM2: boolean;
 };
 
 const yearOptions = ['2020', '2030', '2050'];
@@ -26,69 +33,45 @@ const propertyKeyOptions: PropertyKeyOption[] = [
   },
 ];
 
-export const useIndicators = () => {
-  const [propertyKey, setPropertyKey] = useState<string>(
-    propertyKeyOptions[0].key
-  );
-  const [selectedYear, setSelectedYear] = useState<string>(yearOptions[0]);
-  const [showTimelinePerM2, setShowTimelinePerM2] = useState(false);
+const indicatorStore = new Observable<IndicatorStore>({
+  propertyKey: propertyKeyOptions[0].key,
+  selectedYear: yearOptions[0],
+  showTimelinePerM2: false,
+});
 
-  function getTimelineData(features: Feature[]) {
-    const timeResolution = 12;
-    if (!features || features.length === 0) {
-      return {
-        total: Array(timeResolution).fill(0),
-        perM2: Array(timeResolution).fill(0),
-      };
-    }
-    const combinedKey = `${propertyKey}${selectedYear}`;
-    const monthlyPropertyKey = `monthly${combinedKey
-      .charAt(0)
-      .toUpperCase()}${combinedKey.slice(1)}`;
-    const sum = features.reduce(
-      (acc, feature: Feature) => {
-        if (!feature || !feature.properties) {
-          return acc;
-        }
-        for (let i = 0; i < timeResolution; i++) {
-          const propertyValue = feature.properties[monthlyPropertyKey][i] || 0;
-          const floorArea = feature.properties?.heatedFloorArea || 0;
-          acc[monthlyPropertyKey][i] += propertyValue;
-          acc.floorArea[i] += floorArea;
-        }
-        return acc;
-      },
-      {
-        [monthlyPropertyKey]: Array(timeResolution).fill(0),
-        floorArea: Array(timeResolution).fill(0),
-      }
-    );
+export const useIndicators = () => {
+  const [indicatorState, setIndicatorState] = useState(indicatorStore.get());
+
+  useEffect(() => {
+    return indicatorStore.subscribe(setIndicatorState);
+  }, []);
+
+  const actions = useMemo(() => {
     return {
-      total: sum[monthlyPropertyKey],
-      perM2: sum[monthlyPropertyKey].map((val, i) => val / sum.floorArea[i]),
+      setPropertyKey: (propertyKey: string) =>
+        indicatorStore.set({...indicatorState, propertyKey}),
+      setSelectedYear: (selectedYear: string) =>
+        indicatorStore.set({...indicatorState, selectedYear}),
+      setShowTimelinePerM2: (showTimelinePerM2: boolean) =>
+        indicatorStore.set({...indicatorState, showTimelinePerM2}),
     };
-  }
+  }, [indicatorState]);
 
   return {
-    propertyKey,
-    setPropertyKey,
+    state: indicatorState,
+    actions,
     propertyKeyOptions,
+    yearOptions,
     getPropertyLabel: (selectKey?: string): string => {
-      const key = selectKey || propertyKey;
+      const key = selectKey || indicatorState.propertyKey;
       return (
         propertyKeyOptions.find(option => option.key === key)?.label ||
         'Select indicator'
       );
     },
     getPropertyUnit: (selectKey?: string): string => {
-      const key = selectKey || propertyKey;
+      const key = selectKey || indicatorState.propertyKey;
       return propertyKeyOptions.find(option => option.key === key)?.unit || '';
     },
-    selectedYear,
-    setSelectedYear,
-    yearOptions,
-    showTimelinePerM2,
-    setShowTimelinePerM2,
-    getTimelineData,
   };
 };

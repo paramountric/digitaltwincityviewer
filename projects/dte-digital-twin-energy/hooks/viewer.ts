@@ -12,23 +12,24 @@ export const useViewer = (): {
   initViewer: (ref: HTMLElement) => void;
   viewer: Viewer | null;
   viewerLoading: boolean;
+  getVisibleObjects: () => Feature[];
 } => {
   const [viewer, setViewer] = useState<Viewer | null>(null);
   //const publicData = usePublicData();
   const {data, refetch} = useProtectedData();
   const userInfo = useUserInfo();
-  const {propertyKey, selectedYear, getTimelineData} = useIndicators();
+  const {state: indicatorState} = useIndicators();
   const {actions} = useSelectedFeature();
 
-  const updateTimeline = () => {
-    console.log('test', viewer, propertyKey, selectedYear);
-    if (!viewer || !propertyKey || !selectedYear) {
-      return;
-    }
-    const visibleObjects = viewer.getVisibleObjects(['bsm-layer']);
-    const timelineData = getTimelineData(visibleObjects);
-    console.log(timelineData);
-  };
+  // const updateTimeline = () => {
+  //   console.log('test', viewer, propertyKey, selectedYear);
+  //   if (!viewer || !propertyKey || !selectedYear) {
+  //     return;
+  //   }
+  //   const visibleObjects = ;
+  //   const timelineData = getTimelineData(visibleObjects);
+  //   console.log(timelineData);
+  // };
 
   const render = () => {
     if (!viewer || !data || !data.buildings) {
@@ -89,7 +90,7 @@ export const useViewer = (): {
   }, [viewer, data]);
 
   useEffect(() => {
-    console.log('selected keys', propertyKey, selectedYear);
+    const {propertyKey, selectedYear} = indicatorState;
     if (!viewer || !data || !data.buildings || !propertyKey || !selectedYear) {
       return;
     }
@@ -114,7 +115,7 @@ export const useViewer = (): {
       }
     }
     render();
-  }, [propertyKey, selectedYear]);
+  }, [indicatorState, viewer, data]);
 
   useEffect(() => {
     refetch();
@@ -147,6 +148,7 @@ export const useViewer = (): {
     },
     viewer,
     viewerLoading: false,
+    getVisibleObjects: viewer ? viewer.getVisibleObjects(['bsm-layer']) : [],
   };
 };
 

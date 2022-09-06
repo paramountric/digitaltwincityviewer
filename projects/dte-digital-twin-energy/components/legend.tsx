@@ -9,36 +9,40 @@ function classNames(...classes: string[]) {
 type LegendProps = {};
 
 const Legend: React.FC<LegendProps> = () => {
-  const {getPropertyLabel, getPropertyUnit, propertyKey} = useIndicators();
+  const {
+    getPropertyLabel,
+    getPropertyUnit,
+    state: indicatorState,
+  } = useIndicators();
 
-  const selectedProperty = propertyKey;
+  const selectedProperty = indicatorState.propertyKey;
   const isGhg = selectedProperty === 'ghgEmissions';
   const scaleKey = isGhg ? 'buildingGhg' : 'energyDeclaration';
 
   const scaleRanges = getScaleRanges(scaleKey);
 
   return (
-    <div className="absolute p-1 right-2 bottom-2 bg-white grid grid-cols-4 rounded-md border border-gray-300">
-      <div className="col-span-2">{getPropertyLabel()}</div>
-      <div className="col-span-2 text-xs pt-1 px-1 italic">
-        {getPropertyUnit()}
+    <div className="absolute w-36 px-2 pt-1 pb-2 right-2 bottom-2 bg-white rounded-md border border-gray-300">
+      <div className="text-s w-full text-center">{getPropertyLabel()}</div>
+      <div className="text-xs w-full text-center mb-3">
+        ({getPropertyUnit()})
       </div>
       {scaleRanges.map((range, i) => {
         return (
-          <Fragment key={i}>
+          <div className="flex text-xs px-2" key={`r-${i}`}>
             <div
               className={classNames(
                 `bg-energy${i + 1}`,
-                'w-8 rounded-sm m-1 col-span-1'
+                'w-8 rounded-sm m-1 p-1 col-span-1'
               )}
               key={`c-${i}`}
             ></div>
-            <div className="text-xs px-2 col-span-3" key={`r-${i}`}>
+            <span>
               {range[1] === '>'
                 ? `${range[1]} ${range[0]}`
                 : `${range[0]} - ${range[1]}`}
-            </div>
-          </Fragment>
+            </span>
+          </div>
         );
       })}
     </div>

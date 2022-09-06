@@ -4,6 +4,7 @@ import {useSelectedFeature} from '../hooks/selected-feature';
 import Legend from './legend';
 import ActionPanel from './action-panel';
 import RightMenu from './right-menu';
+import BottomPanel from './bottom-panel';
 
 type ViewportProps = {};
 
@@ -11,8 +12,6 @@ const Viewport: React.FC<ViewportProps> = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const {initViewer} = useViewer();
   const {state: selectedFeatureId} = useSelectedFeature();
-
-  console.log(selectedFeatureId);
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -32,6 +31,7 @@ const Viewport: React.FC<ViewportProps> = () => {
         <RightMenu selectedFeatureId={selectedFeatureId}></RightMenu>
       )}
       <Legend></Legend>
+      <BottomPanel></BottomPanel>
     </>
   );
 };

@@ -1,15 +1,13 @@
 import {useIndicators} from '../hooks/indicators';
 import {useProtectedData} from '../hooks/data';
 import ActionPanelMenu from './action-panel-menu';
+import {propertyLabels} from '../lib/constants';
 
 type ActionPanelProps = {};
 const ActionPanel: React.FC<ActionPanelProps> = () => {
   const {
-    selectedYear,
-    setSelectedYear,
-    propertyKey,
-    setPropertyKey,
-    getPropertyLabel,
+    state: indicatorState,
+    actions: indicatorActions,
     propertyKeyOptions,
     yearOptions,
   } = useIndicators();
@@ -18,17 +16,20 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
   return (
     <div className="absolute flex justify-center w-full top-16 z-20">
       <ActionPanelMenu
-        name="Indicators"
-        selectedKey={propertyKey}
+        onSelect={indicatorActions.setPropertyKey}
+        name={`Energy indicator: ${propertyLabels[indicatorState.propertyKey]}`}
+        selectedKey={indicatorState.propertyKey}
         options={propertyKeyOptions}
       ></ActionPanelMenu>
       <ActionPanelMenu
-        name="Year"
-        selectedKey={selectedYear}
-        options={yearOptions.map(year => ({key: year, label: year}))}
+        onSelect={indicatorActions.setSelectedYear}
+        name={`Year: ${indicatorState.selectedYear}`}
+        selectedKey={indicatorState.selectedYear}
+        options={yearOptions.map((year: string) => ({key: year, label: year}))}
       ></ActionPanelMenu>
       <ActionPanelMenu
-        name="Scenario"
+        onSelect={setScenarioKey}
+        name={`Basemap: ${scenarioKey}`}
         selectedKey={scenarioKey}
         options={scenarioKeyOptions}
       ></ActionPanelMenu>

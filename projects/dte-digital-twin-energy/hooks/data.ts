@@ -13,6 +13,11 @@ type ScenarioOption = {
   url: string;
 };
 
+type TimelineData = {
+  total: number[];
+  perM2: number[];
+};
+
 const scenarioKeyOptions: ScenarioOption[] = [
   {key: '2020', label: 'Current', url: '/api/data/protected'},
   {key: '2035', label: '2035', url: '/api/data/protected'},
@@ -30,6 +35,7 @@ export const useProtectedData = () => {
   const [scenarioKey, setScenarioKey] = useState<string>(
     scenarioKeyOptions[0].key
   );
+  const [timelineData, setTimelineData] = useState<TimelineData | null>(null);
   const query = useQuery(
     'protected-data',
     async () => {
@@ -45,6 +51,52 @@ export const useProtectedData = () => {
       enabled: false,
     }
   );
+
+  function updateTimelineData(
+    propertyKey: string,
+    selectedYear: string,
+    features?: Feature[]
+  ) {
+    const timeResolution = 12;
+    if (!query.data?.buildings && !features) {
+      setTimelineData(null);
+    }
+    try {
+      const timelineFeatures = features || query.data.buildings;
+      const combinedKey = `${propertyKey}${selectedYear}`;
+      const monthlyPropertyKey = `monthly${combinedKey
+        .charAt(0)
+        .toUpperCase()}${combinedKey.slice(1)}`;
+      const sum = timelineFeatures.reduce(
+        (acc: any, feature: Feature) => {
+          if (!feature || !feature.properties) {
+            return acc;
+          }
+          for (let i = 0; i < timeResolution; i++) {
+            const propertyValue =
+              feature.properties[monthlyPropertyKey][i] || 0;
+            const floorArea = feature.properties?.heatedFloorArea || 0;
+            acc[monthlyPropertyKey][i] += propertyValue;
+            acc.floorArea[i] += floorArea;
+          }
+          return acc;
+        },
+        {
+          [monthlyPropertyKey]: Array(timeResolution).fill(0),
+          floorArea: Array(timeResolution).fill(0),
+        }
+      );
+      setTimelineData({
+        total: sum[monthlyPropertyKey],
+        perM2: sum[monthlyPropertyKey].map(
+          (val: number, i: number) => val / sum.floorArea[i]
+        ),
+      });
+    } catch (e) {
+      setTimelineData(null);
+    }
+  }
+
   return {
     scenarioKey,
     setScenarioKey: (key: string) => {
@@ -60,6 +112,8 @@ export const useProtectedData = () => {
     },
     scenarioKeyOptions,
     data: query.data as ViewerData,
+    timelineData,
+    updateTimelineData,
     getFeature: (id: string) => {
       if (!query.data) {
         return undefined;
