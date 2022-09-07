@@ -6,6 +6,7 @@ export type SelectablePropertyKey =
   | 'finalEnergy'
   | 'heatDemand'
   | 'primaryEnergy'
+  | 'deliveredEnergy'
   | 'ghgEmissions';
 
 export type PropertyKeyOption = {
@@ -22,10 +23,12 @@ type IndicatorStore = {
 
 const yearOptions = ['2020', '2030', '2050'];
 
+// todo: use the constant file
 const propertyKeyOptions: PropertyKeyOption[] = [
   {key: 'finalEnergy', label: 'Final energy', unit: 'kWh/m²'},
   {key: 'heatDemand', label: 'Heat demand', unit: 'kWh/m²'},
   {key: 'primaryEnergy', label: 'Primary energy', unit: 'kWh/m²'},
+  {key: 'deliveredEnergy', label: 'Delivered energy', unit: 'kWh/m²'},
   {
     key: 'ghgEmissions',
     label: 'Greenhouse gas emissions',

@@ -1,6 +1,7 @@
-import {useState} from 'react';
+import {useState, useEffect, useMemo} from 'react';
 import {useQuery} from 'react-query';
 import {Feature} from '@dtcv/geojson';
+import {Observable} from '../lib/Observable';
 
 type ViewerData = {
   modelMatrix: number[];
@@ -18,6 +19,11 @@ type TimelineData = {
   perM2: number[];
 };
 
+type DataStore = {
+  scenarioKey: string;
+  timelineData: TimelineData | null;
+};
+
 const scenarioKeyOptions: ScenarioOption[] = [
   {key: '2020', label: 'Current', url: '/api/data/protected'},
   {key: '2035', label: '2035', url: '/api/data/protected'},
@@ -31,16 +37,32 @@ function getScenarioUrl(scenarioKey: string): string {
   );
 }
 
+const dataStore = new Observable<DataStore>({
+  scenarioKey: scenarioKeyOptions[0].key,
+  timelineData: null,
+});
+
 export const useProtectedData = () => {
-  const [scenarioKey, setScenarioKey] = useState<string>(
-    scenarioKeyOptions[0].key
-  );
-  const [timelineData, setTimelineData] = useState<TimelineData | null>(null);
+  const [dataState, setDataState] = useState(dataStore.get());
+
+  useEffect(() => {
+    return dataStore.subscribe(setDataState);
+  }, []);
+
+  const actions = useMemo(() => {
+    return {
+      setScenarioKey: (scenarioKey: string) =>
+        dataStore.set({...dataState, scenarioKey}),
+      setTimelineData: (timelineData: TimelineData | null) =>
+        dataStore.set({...dataState, timelineData}),
+    };
+  }, [dataState]);
+
   const query = useQuery(
     'protected-data',
     async () => {
       try {
-        const res = await fetch(getScenarioUrl(scenarioKey));
+        const res = await fetch(getScenarioUrl(dataState.scenarioKey));
         return await res.json();
       } catch (err) {
         return undefined;
@@ -52,6 +74,7 @@ export const useProtectedData = () => {
     }
   );
 
+  // helper function to aggregate timeline data for bottom panel
   function updateTimelineData(
     propertyKey: string,
     selectedYear: string,
@@ -59,10 +82,15 @@ export const useProtectedData = () => {
   ) {
     const timeResolution = 12;
     if (!query.data?.buildings && !features) {
-      setTimelineData(null);
+      actions.setTimelineData(null);
+      return;
     }
     try {
       const timelineFeatures = features || query.data.buildings;
+      if (timelineFeatures.length === 0) {
+        actions.setTimelineData(null);
+        return;
+      }
       const combinedKey = `${propertyKey}${selectedYear}`;
       const monthlyPropertyKey = `monthly${combinedKey
         .charAt(0)
@@ -86,33 +114,39 @@ export const useProtectedData = () => {
           floorArea: Array(timeResolution).fill(0),
         }
       );
-      setTimelineData({
-        total: sum[monthlyPropertyKey],
-        perM2: sum[monthlyPropertyKey].map(
-          (val: number, i: number) => val / sum.floorArea[i]
+      actions.setTimelineData({
+        total: sum[monthlyPropertyKey].map(
+          (val: number, i: number) =>
+            monthlyPropertyKey === 'ghgEmissions' ? val : val / 1000 // to MWh
+        ),
+        perM2: sum[monthlyPropertyKey].map((val: number, i: number) =>
+          monthlyPropertyKey === 'ghgEmissions' ? val : val / sum.floorArea[i]
         ),
       });
     } catch (e) {
-      setTimelineData(null);
+      actions.setTimelineData(null);
+      return;
     }
   }
 
   return {
-    scenarioKey,
-    setScenarioKey: (key: string) => {
-      setScenarioKey(key);
-      // refetch?
-    },
+    data: query.data as ViewerData,
+
+    state: dataState,
+    actions,
+    // scenarioKey,
+    // setScenarioKey: (key: string) => {
+    //   setScenarioKey(key);
+    //   // refetch?
+    // },
     getScenarioLabel: (selectKey?: string): string => {
-      const key = selectKey || scenarioKey;
+      const key = selectKey || dataState.scenarioKey;
       return (
         scenarioKeyOptions.find(option => option.key === key)?.label ||
         'Select scenario'
       );
     },
     scenarioKeyOptions,
-    data: query.data as ViewerData,
-    timelineData,
     updateTimelineData,
     getFeature: (id: string) => {
       if (!query.data) {

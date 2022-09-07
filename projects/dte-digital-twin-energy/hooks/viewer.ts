@@ -12,11 +12,13 @@ export const useViewer = (): {
   initViewer: (ref: HTMLElement) => void;
   viewer: Viewer | null;
   viewerLoading: boolean;
-  getVisibleObjects: () => Feature[];
+  getVisibleFeatures: () => Feature[];
 } => {
   const [viewer, setViewer] = useState<Viewer | null>(null);
+  const [extent, setExtent] = useState<number[]>([]);
+
   //const publicData = usePublicData();
-  const {data, refetch} = useProtectedData();
+  const {data, refetch, updateTimelineData} = useProtectedData();
   const userInfo = useUserInfo();
   const {state: indicatorState} = useIndicators();
   const {actions} = useSelectedFeature();
@@ -87,7 +89,7 @@ export const useViewer = (): {
 
   useEffect(() => {
     render();
-  }, [viewer, data]);
+  }, [viewer]);
 
   useEffect(() => {
     const {propertyKey, selectedYear} = indicatorState;
@@ -114,12 +116,23 @@ export const useViewer = (): {
         feature.properties.color = color;
       }
     }
+    // this should trigger the bottom panel initially (with all data)
+    updateTimelineData(propertyKey, selectedYear);
     render();
   }, [indicatorState, viewer, data]);
 
   useEffect(() => {
     refetch();
   }, [userInfo]);
+
+  useEffect(() => {
+    if (viewer) {
+      const result = viewer.getVisibleObjects(['bsm-layer']);
+      const features = result.map((r: any) => r.object).filter(Boolean);
+      const {propertyKey, selectedYear} = indicatorState;
+      updateTimelineData(propertyKey, selectedYear, features);
+    }
+  }, [extent]);
 
   return {
     initViewer: ref => {
@@ -135,12 +148,10 @@ export const useViewer = (): {
       setViewer(
         new Viewer(
           {
-            //canvas: ref,
             container: ref,
-            // longitude: 11.9746,
-            // latitude: 57.7089,
-            // width: '100%',
-            // height: '100%',
+            onDragEnd: ({longitude, latitude, zoom}: any) => {
+              setExtent([longitude, latitude, zoom]);
+            },
           },
           maplibreOptions
         )
@@ -148,7 +159,13 @@ export const useViewer = (): {
     },
     viewer,
     viewerLoading: false,
-    getVisibleObjects: viewer ? viewer.getVisibleObjects(['bsm-layer']) : [],
+    getVisibleFeatures: () => {
+      if (viewer) {
+        const result = viewer.getVisibleObjects(['bsm-layer']);
+        console.log(result);
+      }
+      return [];
+    },
   };
 };
 

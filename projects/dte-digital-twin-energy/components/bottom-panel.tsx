@@ -5,14 +5,14 @@ import {axisBottom, axisLeft} from 'd3-axis';
 import {useViewer} from '../hooks/viewer';
 import {useProtectedData} from '../hooks/data';
 import {useIndicators} from '../hooks/indicators';
-import {propertyLabels} from '../lib/constants';
+import {propertyLabels, units} from '../lib/constants';
 
 function renderChart(
   el: HTMLDivElement | null,
   elWidth: number,
   elHeight: number,
   timelineValues: number[],
-  label: string
+  key: string
 ) {
   if (!el) {
     return;
@@ -28,8 +28,8 @@ function renderChart(
   const width = elWidth - margin.left - margin.right;
   const height = elHeight - margin.top - margin.bottom;
 
-  console.log(elHeight);
-  console.log(elWidth);
+  const unit = units[`${key}Timeline`];
+  const label = propertyLabels[key];
 
   const months = [
     'Jan',
@@ -87,10 +87,22 @@ function renderChart(
     .attr('x', width / 2)
     .attr('y', height + margin.bottom - 10)
     .attr('text-anchor', 'middle')
-    .style('font-size', '14px')
+    .style('font-size', '12px')
+    .style('fill', '#777')
     .text(label);
 
-  svg.append('g').call(axisLeft(y));
+  svg.append('g').call(axisLeft(y).ticks(4));
+  // text label for the y axis
+  svg
+    .append('text')
+    .attr('transform', 'rotate(-90)')
+    .attr('y', 30 - margin.left)
+    .attr('x', 0 - height / 2)
+    .attr('dy', '1em')
+    .style('text-anchor', 'middle')
+    .style('font-size', '12px')
+    .style('fill', '#777')
+    .text(unit);
 }
 
 type BottomPanelProps = {};
@@ -98,8 +110,12 @@ type BottomPanelProps = {};
 const BottomPanel: React.FC<BottomPanelProps> = props => {
   const chartRef = useRef<HTMLDivElement>(null);
   const {state: indicatorState} = useIndicators();
-  const {updateTimelineData, timelineData, data, isLoading} =
-    useProtectedData();
+  const {
+    updateTimelineData,
+    state: dataState,
+    data,
+    isLoading,
+  } = useProtectedData();
   const [width, setWidth] = useState<number>(0);
   const [height, setHeight] = useState<number>(0);
 
@@ -109,26 +125,22 @@ const BottomPanel: React.FC<BottomPanelProps> = props => {
   };
 
   useLayoutEffect(() => {
+    console.log('timeline update');
+    console.log(dataState.timelineData);
     getSize();
-    if (chartRef.current && timelineData && width && height) {
+    if (chartRef.current && dataState.timelineData && width && height) {
       const {showTimelinePerM2, propertyKey, selectedYear} = indicatorState;
       const timelineDataKey = showTimelinePerM2 ? 'perM2' : 'total';
-      const timelineValues = timelineData[timelineDataKey];
-      renderChart(
-        chartRef.current,
-        width,
-        height,
-        timelineValues,
-        `${propertyLabels[propertyKey]}`
-      );
+      const timelineValues = dataState.timelineData[timelineDataKey];
+      renderChart(chartRef.current, width, height, timelineValues, propertyKey);
     }
-  }, [timelineData, width, height]);
+  }, [dataState.timelineData, width, height]);
 
-  useEffect(() => {
-    getSize();
-    const {propertyKey, selectedYear} = indicatorState;
-    updateTimelineData(propertyKey, selectedYear);
-  }, [data, indicatorState]);
+  // useEffect(() => {
+  //   getSize();
+  //   const {propertyKey, selectedYear} = indicatorState;
+  //   updateTimelineData(propertyKey, selectedYear);
+  // }, [data]);
 
   useEffect(() => {
     window.addEventListener('resize', getSize);
@@ -136,12 +148,14 @@ const BottomPanel: React.FC<BottomPanelProps> = props => {
   }, []);
 
   return (
-    timelineData && (
+    dataState.timelineData && (
       <div className="absolute left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-md border border-gray-300 bottom-2 w-1/2 h-44">
         {isLoading ? (
           <div>Loading...</div>
-        ) : (
+        ) : dataState.timelineData ? (
           <div className="h-44" ref={chartRef}></div>
+        ) : (
+          <div>No buildings found</div>
         )}
       </div>
     )

@@ -19,16 +19,20 @@ function formatValue(properties: any, propertyKey: string) {
   return val;
 }
 
+// kwh/m2 or total ghg/m2
 function getIndicatorYears(properties: any, key: string) {
-  const y2020 = properties[`${key}2020M2`] || 0;
-  const y2030 = properties[`${key}2030M2`] || 0;
-  const y2050 = properties[`${key}2050M2`] || 0;
-  return [y2020, y2030, y2050];
+  return ['2020', '2030', '2050'].map(year => {
+    // in case of not m2 - remove M2 from the end (need to update color scale as well)
+    const keyAddM2 =
+      key === 'ghgEmissions' ? `${key}${year}M2` : `${key}${year}M2`;
+    return properties[keyAddM2] || 0;
+  });
 }
 
 function applyChart(el: HTMLDivElement, properties: any, key: string) {
   const isGhg = key === 'ghgEmissions';
   const scaleKey = isGhg ? 'buildingGhg' : 'energyDeclaration';
+  const unit = units[`${key}M2`];
   select(el).selectAll('svg').remove();
   const timelineValues = getIndicatorYears(properties, key);
   const max = Math.max(...timelineValues);
@@ -36,10 +40,10 @@ function applyChart(el: HTMLDivElement, properties: any, key: string) {
     return;
   }
   const years: string[] = ['2020', '2030', '2050'];
-  const yearProperties = years.map(year => `${key}${year}`);
+  //const yearProperties = years.map(year => `${key}${year}`);
 
-  const margin = {top: 20, right: 0, bottom: 20, left: 0};
-  const width = 250;
+  const margin = {top: 20, right: 0, bottom: 20, left: 60};
+  const width = 250 - margin.left - margin.right;
   const height = 80 - margin.top - margin.bottom;
   const x = scaleBand().domain(years).range([0, width]).padding(0.6);
   const y = scaleLinear().domain([0, max]).range([height, 0]);
@@ -84,7 +88,19 @@ function applyChart(el: HTMLDivElement, properties: any, key: string) {
     .attr('transform', 'translate(0,' + height + ')')
     .call(axisBottom(x));
 
-  svg.append('g').call(axisLeft(y));
+  svg.append('g').call(axisLeft(y).ticks(2));
+
+  // text label for the y axis
+  svg
+    .append('text')
+    .attr('transform', 'rotate(-90)')
+    .attr('y', 0 - margin.left)
+    .attr('x', 0 - height / 2)
+    .attr('dy', '1em')
+    .style('text-anchor', 'middle')
+    .style('font-size', '10px')
+    .style('fill', '#999')
+    .text(unit);
 }
 
 const BuildingFeatureEnergyDisplay: React.FC<
@@ -143,7 +159,7 @@ const BuildingFeatureEnergyDisplay: React.FC<
         <>
           <Disclosure.Button
             onClick={() => setTrigger(trigger + 1)}
-            className="flex w-full justify-between rounded-md py-2 text-left text-sm font-medium hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75"
+            className="flex w-full justify-between rounded-md py-2 text-left text-sm text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75"
           >
             <span>Energy</span>
             <ChevronUpIcon
@@ -164,29 +180,3 @@ const BuildingFeatureEnergyDisplay: React.FC<
 };
 
 export default BuildingFeatureEnergyDisplay;
-
-// // Given a certain building, show energy charts for that building
-// const BuildingFeatureEnergyDisplay: React.FC<DisplayProps> = () => {
-//   return (
-//     <div>
-//       <div id={`indicator-display-${key}`}></div>
-//       <table className="mb-1">
-//         <tbody>
-//           {properties.map(key => {
-//             const val = formatValue(properties, key);
-//             return (
-//               <tr key={key}>
-//                 <td>{propertyLabels[key] || 'fixme'}:</td>
-//                 <td>
-//                   ${val || '-'} ${units[key] || ''}
-//                 </td>
-//               </tr>
-//             );
-//           })}
-//         </tbody>
-//       </table>
-//     </div>
-//   );
-// };
-
-// export default BuildingFeatureEnergyDisplay;

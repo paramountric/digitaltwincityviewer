@@ -11,7 +11,11 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
     propertyKeyOptions,
     yearOptions,
   } = useIndicators();
-  const {scenarioKey, setScenarioKey, scenarioKeyOptions} = useProtectedData();
+  const {
+    state: dataState,
+    actions: dataActions,
+    scenarioKeyOptions,
+  } = useProtectedData();
 
   return (
     <div className="absolute flex justify-center w-full top-16 z-20">
@@ -28,9 +32,9 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
         options={yearOptions.map((year: string) => ({key: year, label: year}))}
       ></ActionPanelMenu>
       <ActionPanelMenu
-        onSelect={setScenarioKey}
-        name={`Basemap: ${scenarioKey}`}
-        selectedKey={scenarioKey}
+        onSelect={dataActions.setScenarioKey}
+        name={`Basemap: ${dataState.scenarioKey}`}
+        selectedKey={dataState.scenarioKey}
         options={scenarioKeyOptions}
       ></ActionPanelMenu>
     </div>

@@ -62,13 +62,13 @@ const BuildingFeatureGeneralDisplay: React.FC<
     <Disclosure>
       {({open}) => (
         <>
-          <Disclosure.Button className="flex w-full justify-between rounded-md py-2 text-left text-sm font-medium hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75">
+          <Disclosure.Button className="flex w-full justify-between rounded-md py-2 text-left text-sm text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75">
             <span>General</span>
             <ChevronUpIcon
               className={`${open ? 'rotate-180 transform' : ''} h-5 w-5`}
             />
           </Disclosure.Button>
-          <Disclosure.Panel className="p-2 text-sm text-gray-500">
+          <Disclosure.Panel className="p-2 text-xs text-gray-500">
             <div className="grid grid-cols-5">
               {propertySelection.map((item: any, i: number) => {
                 const val = formatValue(
