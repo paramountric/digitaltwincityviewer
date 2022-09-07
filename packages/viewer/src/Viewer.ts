@@ -37,6 +37,11 @@ const internalProps = {
 
 type ViewerProps = DeckProps & {
   onSelectObject?: () => Feature | null;
+  onDragEnd?: () => {
+    longitude: number;
+    latitude: number;
+    zoom: number;
+  };
 };
 
 // There is a performance problem for extruded polygons that does not appear in the maplibre rendering settings
@@ -377,7 +382,6 @@ class Viewer {
   }
 
   private maplibre(props) {
-    console.log('props maplibre', props);
     const maplibreOptions = {
       container: 'canvas',
       accessToken: 'wtf',
@@ -470,9 +474,12 @@ class Viewer {
       this.maplibreMap.on('moveend', () => {
         if (this.deck.props.onDragEnd) {
           const { lng, lat } = this.maplibreMap.getCenter();
+          const viewport = this.deck.viewManager.getViewport('mapview');
+          const { zoom } = viewport;
           this.deck.props.onDragEnd({
             longitude: lng,
             latitude: lat,
+            zoom,
           });
         }
         //this.viewStore.setViewStateEnd();
