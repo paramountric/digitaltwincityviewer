@@ -1,4 +1,5 @@
 // The viewer will have a mandatory reference city id baked into the project app
+//
 export type City = {
   id: string;
   // for now this is webmercator
