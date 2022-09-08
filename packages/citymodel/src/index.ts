@@ -346,7 +346,7 @@ function parseSurfaceField(fileData) {
 function parseCityModel(
   fileData,
   crs: string,
-  type?: string,
+  type?: string | null | undefined, // protobuf connected, but not used in legacy -> when sending in json citymodel
   cityXY?: number[]
 ) {
   const result: {
