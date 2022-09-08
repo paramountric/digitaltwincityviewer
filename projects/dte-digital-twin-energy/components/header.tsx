@@ -4,14 +4,12 @@ import React from 'react';
 import logo from '../public/dtcc-logo.png';
 import {useUserInfo} from '../hooks/userinfo';
 import {useSignOut} from '../hooks/signout';
-import {useProtectedData} from '../hooks/data';
 
 type HeaderProps = {};
 
 const Header: React.FC<HeaderProps> = () => {
   const userInfo = useUserInfo();
   const signOut = useSignOut();
-  const protectedData = useProtectedData();
   return (
     <div className="absolute w-full z-50 overflow-hidden">
       <Head>
@@ -47,7 +45,6 @@ const Header: React.FC<HeaderProps> = () => {
           ) : null}
         </div>
       </div>
-      {protectedData.isLoading ? <div>Loading...</div> : null}
     </div>
   );
 };

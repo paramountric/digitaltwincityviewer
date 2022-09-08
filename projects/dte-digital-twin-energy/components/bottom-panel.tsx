@@ -149,7 +149,9 @@ const BottomPanel: React.FC<BottomPanelProps> = props => {
     dataState.timelineData && (
       <div className="absolute left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-md border border-gray-300 bottom-2 w-1/2 h-44">
         {isLoading ? (
-          <div>Loading...</div>
+          <div className="relative flex justify-center items-center">
+            <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mt-16"></div>
+          </div>
         ) : dataState.timelineData ? (
           <div className="h-44" ref={chartRef}></div>
         ) : (
