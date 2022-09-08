@@ -125,8 +125,6 @@ const BottomPanel: React.FC<BottomPanelProps> = props => {
   };
 
   useLayoutEffect(() => {
-    console.log('timeline update');
-    console.log(dataState.timelineData);
     getSize();
     if (chartRef.current && dataState.timelineData && width && height) {
       const {showTimelinePerM2, propertyKey, selectedYear} = indicatorState;
