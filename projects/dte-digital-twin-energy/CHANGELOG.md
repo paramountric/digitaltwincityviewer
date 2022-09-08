@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.16](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.15...dte-digital-twin-energy@0.2.16) (2022-09-08)
+
+**Note:** Version bump only for package dte-digital-twin-energy
+
+
+
+
+
 ## [0.2.15](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.14...dte-digital-twin-energy@0.2.15) (2022-09-08)
 
 **Note:** Version bump only for package dte-digital-twin-energy
