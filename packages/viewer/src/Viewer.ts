@@ -11,11 +11,11 @@ import { Feature } from 'geojson';
 import maplibreGl from 'maplibre-gl';
 import { makeObservable, observable, action } from 'mobx';
 import { tileToQuadkey } from '@mapbox/tilebelt';
+import { City } from '@dtcv/cities';
 import { LayerStore, UpdateLayerProps } from './store/LayerStore.js';
 import { ViewStore } from './store/ViewStore.js';
 import MaplibreWrapper from './utils/MaplibreWrapper.js';
 import { toLngLat } from './utils/projection.js';
-import { getCity, City } from './utils/getCity.js';
 import JSON_CONVERTER_CONFIGURATION, {
   addUpdateTriggersForAccessors,
 } from './config/converter-config.js';

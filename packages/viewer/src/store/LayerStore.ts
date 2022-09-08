@@ -8,8 +8,8 @@ import { TripsLayer } from '@deck.gl/geo-layers';
 import GL from '@luma.gl/constants';
 import { Geometry } from '@luma.gl/engine';
 import { mat4 } from 'gl-matrix';
+import { findCity } from '@dtcv/cities';
 import { Viewer } from '../Viewer.js';
-import { getCity } from '../utils/getCity.js';
 import GroundSurfaceLayer from '../layers/ground-surface-layer/GroundSurfaceLayer.js';
 import BuildingSurfaceLayer from '../layers/building-surface-layer/BuildingSurfaceLayer.js';
 import GraphLayer from '../layers/graph-layer/GraphLayer.js';
@@ -659,7 +659,7 @@ export class LayerStore {
     if (props.center) {
       // todo: figure out a way to set the current city and center the data that is loaded
       if (!this.viewer.currentCity) {
-        this.viewer.currentCity = getCity(props.center[0], props.center[1]);
+        this.viewer.currentCity = findCity(props.center[0], props.center[1]);
         console.log(this.viewer.currentCity);
       }
       const currentCity = this.viewer.currentCity;
