@@ -1,6 +1,6 @@
 {
   "name": "dte-digital-twin-energy",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.157.0",
-    "@dtcv/cities": "^1.0.9",
-    "@dtcv/citymodel": "^1.0.8",
-    "@dtcv/geojson": "^1.0.18",
-    "@dtcv/viewer": "^1.1.22",
+    "@dtcv/cities": "^1.0.10",
+    "@dtcv/citymodel": "^1.0.10",
+    "@dtcv/geojson": "^1.0.19",
+    "@dtcv/viewer": "^1.1.23",
     "@headlessui/react": "^1.6.6",
     "@heroicons/react": "^2.0.10",
     "@types/cookie": "^0.5.1",
