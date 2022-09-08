@@ -19,6 +19,7 @@ export const useViewer = (): {
 
   //const publicData = usePublicData();
   const {data, refetch, updateTimelineData} = useProtectedData();
+  const {data: publicData, refetch: refetchPublicData} = usePublicData();
   const userInfo = useUserInfo();
   const {state: indicatorState} = useIndicators();
   const {actions} = useSelectedFeature();
@@ -37,7 +38,7 @@ export const useViewer = (): {
     if (!viewer || !data || !data.buildings) {
       return;
     }
-    viewer.setJson({
+    const json = {
       layers: [
         {
           id: 'bsm-layer',
@@ -54,7 +55,7 @@ export const useViewer = (): {
               return;
             }
           },
-          modelMatrix: data.modelMatrix,
+          //modelMatrix: data.modelMatrix,
           opacity: 1,
           autoHighlight: true,
           highlightColor: [100, 150, 250, 255],
@@ -84,7 +85,47 @@ export const useViewer = (): {
           },
         },
       ],
-    });
+    };
+    if (publicData) {
+      json.layers.push({
+        id: 'context-layer',
+        //'@@type': 'SolidPolygonLayer',
+        '@@type': 'GeoJsonLayer',
+        data: publicData.buildings,
+        onClick: (d: any) => {
+          //
+        },
+        //modelMatrix: [],
+        opacity: 1,
+        autoHighlight: false,
+        highlightColor: [100, 150, 250, 255],
+        extruded: false,
+        wireframe: false,
+        pickable: false,
+        isClickable: false,
+        coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
+        getPolygon: '@@=geometry.coordinates',
+        getFillColor: '@@=properties.color || [255, 255, 255, 255]',
+        getLineColor: [100, 100, 100],
+        getElevation: '@@=properties.height || 0',
+        useDevicePixels: true,
+        parameters: {
+          depthMask: true,
+          depthTest: true,
+          blend: true,
+          blendFunc: [
+            '@@#GL.SRC_ALPHA',
+            '@@#GL.ONE_MINUS_SRC_ALPHA',
+            '@@#GL.ONE',
+            '@@#GL.ONE_MINUS_SRC_ALPHA',
+          ],
+          polygonOffsetFill: true,
+          depthFunc: '@@#GL.LEQUAL',
+          blendEquation: '@@#GL.FUNC_ADD',
+        },
+      });
+    }
+    viewer.setJson(json);
   };
 
   useEffect(() => {
@@ -101,6 +142,8 @@ export const useViewer = (): {
       excellent: 60,
       propertyKey: `${propertyKey}${selectedYear}M2`,
     };
+    console.log(data);
+
     for (const feature of data.buildings) {
       if (
         feature.properties &&
@@ -122,7 +165,12 @@ export const useViewer = (): {
   }, [indicatorState, viewer, data]);
 
   useEffect(() => {
+    render();
+  }, [publicData]);
+
+  useEffect(() => {
     refetch();
+    refetchPublicData();
   }, [userInfo]);
 
   useEffect(() => {

@@ -131,7 +131,6 @@ export const useProtectedData = () => {
 
   return {
     data: query.data as ViewerData,
-
     state: dataState,
     actions,
     // scenarioKey,
@@ -161,7 +160,7 @@ export const useProtectedData = () => {
   };
 };
 
-export const usePublicData = (): ViewerData => {
+export const usePublicData = () => {
   const dataUrl = '/api/data/public';
   const query = useQuery(
     'public-data',
@@ -174,9 +173,13 @@ export const usePublicData = (): ViewerData => {
       }
     },
     {
-      cacheTime: Infinity,
-      staleTime: Infinity,
+      refetchOnWindowFocus: false,
+      enabled: false,
     }
   );
-  return query.data as ViewerData;
+  return {
+    data: query.data as ViewerData,
+    refetch: query.refetch,
+    isLoading: query.isLoading,
+  };
 };
