@@ -1,0 +1,54 @@
+{
+  "name": "@dtcv/cities",
+  "version": "1.0.9",
+  "description": "City metadata and utility functions",
+  "main": "./dist/index.js",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "Cities",
+    "DTCC"
+  ],
+  "author": "andreasrudena <andreas@rudena.se>",
+  "homepage": "https://digitaltwincityviewer.com",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paramountric/digitaltwincityviewer.git"
+  },
+  "scripts": {
+    "prepublish": "rimraf dist",
+    "prepublishOnly": "tsc --project tsconfig.prod.json",
+    "tsc": "tsc",
+    "watch": "tsc --watch",
+    "lint": "eslint --ext .ts,.js src",
+    "format": "prettier --ignore-path .eslintignore --write \"src/**/*.+(js|ts|json)\"",
+    "test": "jest"
+  },
+  "bugs": {
+    "url": "https://github.com/paramountric/digitaltwincityviewer/issues"
+  },
+  "dependencies": {
+    "@math.gl/web-mercator": "^3.6.3",
+    "gl-matrix": "^3.4.3",
+    "proj4": "^2.8.0",
+    "rbush": "^3.0.1",
+    "tinyqueue": "^2.0.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^28.1.4",
+    "@typescript-eslint/eslint-plugin": "^5.11.0",
+    "@typescript-eslint/parser": "^5.11.0",
+    "eslint": "^8.9.0",
+    "eslint-config-prettier": "^8.3.0",
+    "jest": "^28.1.2",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^28.0.5",
+    "typescript": "^4.5.5"
+  }
+}
