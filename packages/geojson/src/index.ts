@@ -7,7 +7,7 @@ import {
 import { toEntities } from './entities.js';
 import { toGltf, ToGltfInput } from './to-3d-tiles.js';
 import { getModelMatrix, getBounds, getLayerPosition } from './bounds.js';
-import { convert } from './convert';
+import { convert } from './convert.js';
 
 export {
   Feature,
