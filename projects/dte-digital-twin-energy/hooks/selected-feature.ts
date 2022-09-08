@@ -4,7 +4,9 @@ import {Observable} from '../lib/Observable';
 const featureIdStore = new Observable<string | null>(null);
 
 const useSelectedFeature = () => {
-  const [featureId, setFeatureId] = useState(featureIdStore.get());
+  const [featureId, setFeatureId] = useState<string | null>(
+    featureIdStore.get()
+  );
 
   useEffect(() => {
     return featureIdStore.subscribe(setFeatureId);
@@ -12,7 +14,7 @@ const useSelectedFeature = () => {
 
   const actions = useMemo(() => {
     return {
-      setFeatureId: (id: string) => featureIdStore.set(id),
+      setFeatureId: (id: string | null) => featureIdStore.set(id),
     };
   }, []);
 
