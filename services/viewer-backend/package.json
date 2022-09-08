@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/viewer-backend",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Viewer backend is used for dynamic data updates and off-loading of data in layers",
   "main": "index.js",
   "type": "module",
@@ -19,7 +19,7 @@
   "author": "andreasrudena <andreas@rudena.se>",
   "license": "MIT",
   "dependencies": {
-    "@dtcv/citymodel": "^1.0.11",
+    "@dtcv/citymodel": "^1.0.12",
     "mqtt": "^4.3.7",
     "node-cache": "^5.1.2",
     "node-fetch": "^2.6.7",
