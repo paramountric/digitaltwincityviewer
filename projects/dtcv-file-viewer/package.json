@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/file-viewer",
-  "version": "1.0.31",
+  "version": "1.0.32",
   "private": true,
   "description": "A general viewer for checking different supported data formats through file upload",
   "main": "index.js",
@@ -29,8 +29,8 @@
     "@adobe/lit-mobx": "^2.0.0",
     "@dtcv/citygml": "^1.0.7",
     "@dtcv/cityjson": "^1.0.6",
-    "@dtcv/citymodel": "^1.0.11",
-    "@dtcv/viewer": "^1.1.24",
+    "@dtcv/citymodel": "^1.0.12",
+    "@dtcv/viewer": "^1.1.25",
     "@spectrum-web-components/accordion": "^0.6.9",
     "@spectrum-web-components/button": "^0.17.3",
     "@spectrum-web-components/dialog": "^0.10.3",
