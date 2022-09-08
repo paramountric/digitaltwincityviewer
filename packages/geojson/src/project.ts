@@ -73,21 +73,22 @@ function projectCoordinateInline(
   meterOffsetY = 0
 ) {
   const meters = toWebmercator(lngLat[0], lngLat[1]);
-  lngLat[0] = meters[0] - meterOffsetX;
-  lngLat[1] = meters[1] - meterOffsetY;
+  lngLat[0] = meters[0] + meterOffsetX;
+  lngLat[1] = meters[1] + meterOffsetY;
 }
 
 export function coordinatesToMeterOffsets(
   features: Feature[],
-  lng: number,
-  lat: number
+  c1: number,
+  c2: number,
+  isLngLat = true
 ) {
-  const center = toWebmercator(lng, lat);
-  console.log(center);
-  return coordinatesToMeters(features, center[0], center[1]);
+  const offsetCoord = isLngLat ? toWebmercator(c1, c2) : [c1, c2];
+  return coordinatesToMeters(features, offsetCoord[0], offsetCoord[1]);
 }
 
 // NOTE: this changes feature geometry by reference, be careful
+// ! only if the geojson is in EPSG:4326, if other crs needed use convert package (this was already working code so it's kept here for now)
 export function coordinatesToMeters(
   features: Feature[],
   meterOffsetX = 0,
