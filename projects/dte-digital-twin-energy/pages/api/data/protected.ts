@@ -3,6 +3,12 @@ import {S3Client, GetObjectCommand} from '@aws-sdk/client-s3';
 import {Readable} from 'stream';
 import jwt from 'jsonwebtoken';
 import {parseCityModel} from '@dtcv/citymodel';
+import {cities} from '@dtcv/cities';
+
+const gothenburg = cities.find((c: any) => c.id === 'gothenburg');
+if (!gothenburg || !gothenburg.x) {
+  throw new Error('City must be selected on app level');
+}
 
 const {
   S3_ACCESS_KEY,
@@ -79,22 +85,18 @@ export default async function handleGetData(
 
   const {token} = req.cookies;
   if (!token) {
-    res
-      .status(401)
-      .json({
-        message: 'This data is protected from public access. Please login.',
-      });
+    res.status(401).json({
+      message: 'This data is protected from public access. Please login.',
+    });
     return;
   }
 
   try {
     jwt.verify(token, JWT_SECRET) as any;
   } catch (err) {
-    res
-      .status(401)
-      .json({
-        message: 'This data is protected from public access. Please login.',
-      });
+    res.status(401).json({
+      message: 'This data is protected from public access. Please login.',
+    });
   }
 
   const command = new GetObjectCommand({Bucket: S3_BUCKET, Key: S3_OBJECT_KEY});
@@ -104,7 +106,10 @@ export default async function handleGetData(
     const stream = response.Body as Readable;
     const buf = await streamToBuffer(stream);
     const json = JSON.parse(buf.toString('utf-8'));
-    const {buildings} = parseCityModel(json);
+    const {buildings} = parseCityModel(json, 'EPSG:3006', null, [
+      gothenburg.x,
+      gothenburg.y,
+    ]);
     const {data, modelMatrix} = buildings;
     preprocessBuildings(data);
     res.status(200).json({buildings: data, modelMatrix});

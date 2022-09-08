@@ -1,21 +1,14 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
-import {
-  getLayerPosition,
-  coordinatesToMeters,
-  Feature,
-  FeatureCollection,
-} from '@dtcv/geojson';
+import {convert} from '@dtcv/geojson';
+import {cities} from '@dtcv/cities';
 import testData from './osm-gbg-center.json';
 
-type ViewerData = {
-  buildings: Feature[];
-  modelMatrix: number[];
-  center: number[];
-};
+const gothenburg = cities.find((c: any) => c.id === 'gothenburg');
+if (!gothenburg || !gothenburg.x) {
+  throw new Error('City must be selected on app level');
+}
 
-const {features} = testData as FeatureCollection;
-coordinatesToMeters(features);
-const {center, modelMatrix} = getLayerPosition(features);
+const converted = convert(testData, 'EPSG:4326', [gothenburg.x, gothenburg.y]);
 
 export default async function handleGetData(
   req: NextApiRequest,
@@ -26,14 +19,5 @@ export default async function handleGetData(
     return;
   }
 
-  try {
-    res.status(200).json({
-      buildings: features,
-      modelMatrix: Array.from(modelMatrix),
-      center,
-    } as ViewerData);
-  } catch (err) {
-    console.log(err);
-    res.status(500).end();
-  }
+  res.status(200).json(converted);
 }
