@@ -5,8 +5,17 @@ import {useIndicators} from './indicators';
 import {Feature} from '@dtcv/geojson';
 import {useUserInfo} from './userinfo';
 import {useSelectedFeature} from './selected-feature';
+import {cities} from '@dtcv/cities';
 
-const maplibreOptions = {};
+const gothenburg = cities.find((c: any) => c.id === 'gothenburg');
+if (!gothenburg || !gothenburg.x) {
+  throw new Error('City must be selected on app level');
+}
+
+const maplibreOptions = {
+  longitude: gothenburg.lng,
+  latitude: 57.7927,
+};
 
 export const useViewer = (): {
   initViewer: (ref: HTMLElement) => void;
@@ -50,7 +59,6 @@ export const useViewer = (): {
               if (!d.object.id) {
                 d.object.id = d.object.properties.uuid;
               }
-              console.log('set feature', d.object);
               actions.setFeatureId(d.object.id);
               return;
             }
@@ -64,6 +72,7 @@ export const useViewer = (): {
           pickable: true,
           isClickable: true,
           coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
+          coordinateOrigin: [gothenburg.lng, gothenburg.lat],
           getPolygon: '@@=geometry.coordinates',
           getFillColor: '@@=properties.color || [255, 255, 255, 255]',
           getLineColor: [100, 100, 100],
@@ -104,6 +113,7 @@ export const useViewer = (): {
         pickable: false,
         isClickable: false,
         coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
+        coordinateOrigin: [gothenburg.lng, gothenburg.lat],
         getPolygon: '@@=geometry.coordinates',
         getFillColor: '@@=properties.color || [255, 255, 255, 255]',
         getLineColor: [100, 100, 100],
