@@ -5,7 +5,7 @@ import RBush from 'rbush';
 import Queue from 'tinyqueue';
 
 // https://simplemaps.com/data/se-cities
-import cityList from './city-list.js';
+import cityList from './cities.js';
 import { City } from './city.js';
 
 // The knn was copied here due to propblems on the tinyqueue dependency
