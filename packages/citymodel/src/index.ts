@@ -1,15 +1,6 @@
 import { vec3, mat4 } from 'gl-matrix';
-import proj4 from 'proj4';
 import { generateColor } from '@dtcv/indicators';
-
-proj4.defs(
-  'EPSG:3008',
-  '+proj=tmerc +lat_0=0 +lon_0=13.5 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-);
-proj4.defs(
-  'EPSG:3006',
-  '+proj=utm +zone=33 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-);
+import { convert } from '@dtcv/convert';
 
 function parseGround(fileData) {
   const groundSurface = fileData.GroundSurface || fileData.groundSurface;
@@ -85,24 +76,20 @@ function parseGround(fileData) {
   };
 }
 
-function transformCoordinate(x, y, transform) {
-  if (!transform) {
-    return [x, y];
-  }
-  const s = transform.scale || [1, 1, 1];
-  const t = transform.translate || [0, 0, 0];
-  return [x * s[0] + t[0], y * s[1] + t[1]];
-}
+// function transformCoordinate(x, y, transform) {
+//   if (!transform) {
+//     return [x, y];
+//   }
+//   const s = transform.scale || [1, 1, 1];
+//   const t = transform.translate || [0, 0, 0];
+//   return [x * s[0] + t[0], y * s[1] + t[1]];
+// }
 
-function projectCoordinate(x, y, fromProj = 'EPSG:3006') {
-  return proj4(fromProj, 'EPSG:3857', [x, y]);
-}
-
-function projectExtent(extent, fromProj?) {
-  const projectedExtentMin = projectCoordinate(extent[0], extent[1], fromProj);
-  const projectedExtentMax = projectCoordinate(extent[3], extent[4], fromProj);
-  return [...projectedExtentMin, extent[2], ...projectedExtentMax, extent[5]];
-}
+// function projectExtent(extent, fromProj?) {
+//   const projectedExtentMin = projectCoordinate(extent[0], extent[1], fromProj);
+//   const projectedExtentMax = projectCoordinate(extent[3], extent[4], fromProj);
+//   return [...projectedExtentMin, extent[2], ...projectedExtentMax, extent[5]];
+// }
 
 function getModelMatrix(bounds) {
   const min = bounds[0];
@@ -143,8 +130,9 @@ function getLayerPosition(extent) {
 }
 
 // Only for lod 1 so far
-function parseBuildings(fileData) {
+function parseBuildings(fileData, crs: string, cityXY: number[]) {
   const buildings = fileData.Buildings || fileData.buildings;
+  // todo: the crs is discussed to be added to CityModel files, so add that when it comes in new examples
   const origin = fileData.Origin || fileData.origin || { x: 0, y: 0 };
   if (!buildings) {
     return null;
@@ -170,6 +158,9 @@ function parseBuildings(fileData) {
     for (let j = 0; j < polygon.length; j++) {
       const { x, y } = polygon[j];
       const projected = [x, y];
+      if (cityXY) {
+        convert(x, y, crs, cityXY, projected);
+      }
       // const transformed = transformCoordinate(x, y, {
       //   translate: [origin.x, origin.y],
       // });
@@ -350,14 +341,19 @@ function parseSurfaceField(fileData) {
 //   }
 // }
 
-function parseCityModel(fileData, type?) {
+function parseCityModel(
+  fileData,
+  crs: string,
+  type?: string,
+  cityXY?: number[]
+) {
   const result: {
     buildings?: any;
     ground?: any;
     surfaceField?: any;
   } = {};
   if (type === 'CityModel') {
-    const buildings = parseBuildings(fileData);
+    const buildings = parseBuildings(fileData, crs, cityXY);
     if (buildings) {
       result.buildings = buildings;
     }
@@ -373,7 +369,7 @@ function parseCityModel(fileData, type?) {
     }
   } else {
     // legacy
-    const buildings = parseBuildings(fileData);
+    const buildings = parseBuildings(fileData, crs, cityXY);
     if (buildings) {
       result.buildings = buildings;
     }
