@@ -106,10 +106,11 @@ export default async function handleGetData(
     const stream = response.Body as Readable;
     const buf = await streamToBuffer(stream);
     const json = JSON.parse(buf.toString('utf-8'));
-    const {buildings} = parseCityModel(json, 'EPSG:3006', null, [
-      gothenburg.x,
-      gothenburg.y,
-    ]);
+    const {x, y} = gothenburg || {};
+    const {buildings} = parseCityModel(json, 'EPSG:3006', undefined, [
+      x || 0,
+      y || 0,
+    ]); // should not be zero, typescript
     const {data, modelMatrix} = buildings;
     preprocessBuildings(data);
     res.status(200).json({buildings: data, modelMatrix});
