@@ -1,6 +1,6 @@
 import { vec3, mat4 } from 'gl-matrix';
 // import { generateColor } from '@dtcv/indicators';
-// import { convert } from '@dtcv/convert';
+import { convert } from '@dtcv/convert';
 
 function parseGround(fileData) {
   const groundSurface = fileData.GroundSurface || fileData.groundSurface;
@@ -159,7 +159,7 @@ function parseBuildings(fileData, crs: string, cityXY: number[]) {
       const { x, y } = polygon[j];
       const projected = [x, y];
       if (cityXY) {
-        //convert(x, y, crs, cityXY, projected);
+        convert(x, y, crs, cityXY, projected);
       }
       // const transformed = transformCoordinate(x, y, {
       //   translate: [origin.x, origin.y],
