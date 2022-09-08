@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/trecim-citygml-viewer",
-  "version": "1.0.28",
+  "version": "1.0.29",
   "private": true,
   "description": "3CIM is a research project using CityGML with an ADE to support Swedish urban planning process",
   "main": "index.js",
@@ -30,8 +30,8 @@
     "@dtcv/citygml": "^1.0.7",
     "@dtcv/cityjson": "^1.0.6",
     "@dtcv/citymodel": "^1.0.9",
-    "@dtcv/geojson": "^1.0.17",
-    "@dtcv/viewer": "^1.1.21",
+    "@dtcv/geojson": "^1.0.18",
+    "@dtcv/viewer": "^1.1.22",
     "@spectrum-web-components/accordion": "^0.6.9",
     "@spectrum-web-components/button": "^0.17.3",
     "@spectrum-web-components/dialog": "^0.10.3",
