@@ -1,5 +1,5 @@
 import { Feature, FeatureCollection } from 'geojson';
-import { coordinatesToMeters, coordinatesToMeterOffsets } from './project.js';
+import { coordinatesToMeters } from './project.js';
 import {
   buildingsFromPolygons,
   validateBuildingProperties,
@@ -19,7 +19,6 @@ export {
   getModelMatrix,
   getBounds,
   coordinatesToMeters,
-  coordinatesToMeterOffsets,
   toEntities,
   toGltf,
   ToGltfInput,
