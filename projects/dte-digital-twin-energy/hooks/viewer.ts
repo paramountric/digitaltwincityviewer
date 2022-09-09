@@ -1,6 +1,6 @@
 import {useState, useEffect, useCallback} from 'react';
-import {Viewer, generateColor} from '@dtcv/viewer';
-import {usePublicData, useProtectedData} from './data';
+import {Viewer, generateColor, JsonProps} from '@dtcv/viewer';
+import {useContextData, useProtectedData} from './data';
 import {useIndicators} from './indicators';
 import {Feature} from '@dtcv/geojson';
 import {useUserInfo} from './userinfo';
@@ -26,9 +26,8 @@ export const useViewer = (): {
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [extent, setExtent] = useState<number[]>([]);
 
-  //const publicData = usePublicData();
   const {data, refetch, updateTimelineData} = useProtectedData();
-  const {data: publicData, refetch: refetchPublicData} = usePublicData();
+  const {data: contextData, refetch: refetchContextData} = useContextData();
   const userInfo = useUserInfo();
   const {state: indicatorState} = useIndicators();
   const {actions} = useSelectedFeature();
@@ -47,7 +46,7 @@ export const useViewer = (): {
     if (!viewer || !data || !data.buildings) {
       return;
     }
-    const json = {
+    const json: JsonProps = {
       layers: [
         {
           id: 'bsm-layer',
@@ -95,12 +94,13 @@ export const useViewer = (): {
         },
       ],
     };
-    if (publicData) {
+    if (contextData) {
+      console.log(contextData);
       json.layers.push({
         id: 'context-layer',
         //'@@type': 'SolidPolygonLayer',
         '@@type': 'GeoJsonLayer',
-        data: publicData.buildings,
+        data: contextData,
         onClick: (d: any) => {
           //
         },
@@ -115,10 +115,17 @@ export const useViewer = (): {
         coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
         coordinateOrigin: [gothenburg.lng, gothenburg.lat],
         getPolygon: '@@=geometry.coordinates',
-        getFillColor: '@@=properties.color || [255, 255, 255, 255]',
-        getLineColor: [100, 100, 100],
+        getFillColor: '@@=properties.color || [100, 150, 250, 30]',
+        getLineColor: [100, 150, 250, 60],
         getElevation: '@@=properties.height || 0',
         useDevicePixels: true,
+        stroked: true,
+        filled: true,
+        pointType: 'circle',
+        lineWidthScale: 1,
+        lineWidthMinPixels: 1,
+        getPointRadius: 1,
+        getLineWidth: 1,
         parameters: {
           depthMask: true,
           depthTest: true,
@@ -176,11 +183,11 @@ export const useViewer = (): {
 
   useEffect(() => {
     render();
-  }, [publicData]);
+  }, [contextData]);
 
   useEffect(() => {
     refetch();
-    refetchPublicData();
+    refetchContextData();
   }, [userInfo]);
 
   useEffect(() => {

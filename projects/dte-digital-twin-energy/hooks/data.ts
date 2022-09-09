@@ -160,6 +160,30 @@ export const useProtectedData = () => {
   };
 };
 
+export const useContextData = () => {
+  const dataUrl = '/api/data/context';
+  const query = useQuery(
+    'context-data',
+    async () => {
+      try {
+        const res = await fetch(dataUrl);
+        return await res.json();
+      } catch (err) {
+        return undefined;
+      }
+    },
+    {
+      refetchOnWindowFocus: false,
+      enabled: false,
+    }
+  );
+  return {
+    data: query.data as ViewerData,
+    refetch: query.refetch,
+    isLoading: query.isLoading,
+  };
+};
+
 export const usePublicData = () => {
   const dataUrl = '/api/data/public';
   const query = useQuery(
