@@ -1,7 +1,7 @@
 // This code is derived from deck.gl under MIT license:
 // https://github.com/visgl/deck.gl/tree/master/examples/playground/src
 
-import { COORDINATE_SYSTEM, MapView } from '@deck.gl/core';
+import { COORDINATE_SYSTEM, MapView, LayerProps } from '@deck.gl/core';
 import {
   ScatterplotLayer,
   LineLayer,
@@ -17,6 +17,11 @@ import { DracoWorkerLoader } from '@loaders.gl/draco';
 import { CesiumIonLoader } from '@loaders.gl/3d-tiles';
 import Tile3DLayer from '../layers/tile-3d-layer/tile-3d-layer.js';
 import { Tiles3DLoader } from '../loaders/tiles-3d-loader/tiles-3d-loader.js';
+
+export type JsonProps = {
+  layers?: LayerProps[];
+  // todo: add the rest of props
+};
 
 // Note: deck already registers JSONLoader...
 registerLoaders([DracoWorkerLoader]);
@@ -70,6 +75,7 @@ function getTranslateMatrix({ translate }) {
     vec3.fromValues(translate[0] || 0, translate[1] || 0, translate[2] || 0)
   );
 }
+
 export default {
   classes: {
     ScatterplotLayer,

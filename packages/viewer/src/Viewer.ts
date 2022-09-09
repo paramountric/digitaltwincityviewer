@@ -1,7 +1,7 @@
 // Copyright (C) 2022 Andreas Rudenå
 // Licensed under the MIT License
 
-import { Deck, DeckProps, MapViewState, MapView } from '@deck.gl/core';
+import { Deck, DeckProps } from '@deck.gl/core';
 import {
   JSONConverter,
   JSONConfiguration,
@@ -18,6 +18,7 @@ import MaplibreWrapper from './utils/MaplibreWrapper.js';
 import { toLngLat } from './utils/projection.js';
 import JSON_CONVERTER_CONFIGURATION, {
   addUpdateTriggersForAccessors,
+  JsonProps,
 } from './config/converter-config.js';
 import Tile3DLayer from './layers/tile-3d-layer/tile-3d-layer.js';
 import { generateColor } from './utils/colors.js';
@@ -329,7 +330,7 @@ class Viewer {
     }
   }
 
-  setJson(json) {
+  setJson(json: JsonProps) {
     if (!this.deck) {
       return;
     }
