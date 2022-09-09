@@ -84,7 +84,7 @@ export default async function handleGetData(
     const buf = await streamToBuffer(stream);
     const json = JSON.parse(buf.toString('utf-8'));
     const {x, y} = gothenburg || {};
-    convert(json, 'EPSG:3006', [x, y]);
+    convert(json, 'EPSG:3006', [x || 0, y || 0]);
     res.status(200).json(json);
   } catch (err) {
     console.log(err);

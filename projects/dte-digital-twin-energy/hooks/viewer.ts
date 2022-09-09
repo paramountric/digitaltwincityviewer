@@ -46,7 +46,7 @@ export const useViewer = (): {
     if (!viewer || !data || !data.buildings) {
       return;
     }
-    const json: JsonProps = {
+    const jsonData: JsonProps = {
       layers: [
         {
           id: 'bsm-layer',
@@ -94,9 +94,8 @@ export const useViewer = (): {
         },
       ],
     };
-    if (contextData) {
-      console.log(contextData);
-      json.layers.push({
+    if (contextData && jsonData && jsonData.layers) {
+      jsonData.layers.push({
         id: 'context-layer',
         //'@@type': 'SolidPolygonLayer',
         '@@type': 'GeoJsonLayer',
@@ -142,7 +141,7 @@ export const useViewer = (): {
         },
       });
     }
-    viewer.setJson(json);
+    viewer.setJson(jsonData);
   };
 
   useEffect(() => {
