@@ -55,7 +55,7 @@ const CrsList = {
 const convert = (
   x: number, // x or longitude to project/convert
   y: number, // y or latitude to project/convert
-  crs: string,
+  crs: string, // from crs
   cityXY?: number[], // this should probably be mandatory, but if omitted the function can be used as pure projection function
   out?: number[] // optional for using reference on coord, send in [x, y] reference here for mutation
 ) => {
@@ -80,9 +80,10 @@ const convert = (
     );
     result[0] = translated[0];
     result[1] = translated[1];
-    if (Math.abs(result[0]) > 4096) {
+    if (Math.abs(result[0]) > 100000) {
+      const cityXYDebug = cityXY || [];
       throw new Error(
-        `The meter offset is too large, check that coordinates and city center matches and that city x,y are given in web mercator`
+        `The meter offset is too large, check that coordinates and city center matches and that city x,y are given in web mercator. IN: [${x}, ${y}], OUT: [${result[0]}, ${result[1]}, CITY: [${cityXYDebug[0]}, ${cityXYDebug[1]}]`
       );
     }
   }
