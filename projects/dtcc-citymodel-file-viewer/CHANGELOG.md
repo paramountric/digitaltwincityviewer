@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.36](https://github.com/paramountric/digitaltwincityviewer/compare/@dtcv/citymodel-file-viewer@1.0.35...@dtcv/citymodel-file-viewer@1.0.36) (2022-09-09)
+
+**Note:** Version bump only for package @dtcv/citymodel-file-viewer
+
+
+
+
+
 ## [1.0.35](https://github.com/paramountric/digitaltwincityviewer/compare/@dtcv/citymodel-file-viewer@1.0.34...@dtcv/citymodel-file-viewer@1.0.35) (2022-09-08)
 
 **Note:** Version bump only for package @dtcv/citymodel-file-viewer

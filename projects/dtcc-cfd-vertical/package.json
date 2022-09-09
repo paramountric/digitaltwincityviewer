@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/cfd-vertical",
-  "version": "1.1.28",
+  "version": "1.1.29",
   "private": true,
   "description": "A code sprint project that connects to the DTCC Platform and wind simulation",
   "main": "index.js",
@@ -30,8 +30,8 @@
   "dependencies": {
     "@adobe/lit-mobx": "^2.0.0",
     "@dtcv/cityjson": "^1.0.6",
-    "@dtcv/citymodel": "^1.0.15",
-    "@dtcv/viewer": "^1.1.28",
+    "@dtcv/citymodel": "^1.0.16",
+    "@dtcv/viewer": "^1.1.29",
     "@spectrum-web-components/accordion": "^0.6.9",
     "@spectrum-web-components/badge": "^0.1.1",
     "@spectrum-web-components/button": "^0.17.3",
