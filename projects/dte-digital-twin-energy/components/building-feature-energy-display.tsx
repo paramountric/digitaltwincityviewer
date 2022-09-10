@@ -59,7 +59,7 @@ function applyChart(el: HTMLDivElement, properties: any, key: string) {
     .data(timelineValues)
     .enter()
     .append('rect')
-    .attr('fill', d => getColorFromScale(d, scaleKey))
+    .attr('fill', d => getColorFromScale(d, scaleKey, true))
     .attr('stroke', '#aaa')
     .attr('stroke-width', '0.5px')
     .attr('class', 'bar')

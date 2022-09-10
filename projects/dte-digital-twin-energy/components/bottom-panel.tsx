@@ -3,7 +3,7 @@ import {select, selectAll} from 'd3-selection';
 import {scaleBand, scaleLinear} from 'd3-scale';
 import {axisBottom, axisLeft} from 'd3-axis';
 import {useViewer} from '../hooks/viewer';
-import {useProtectedData} from '../hooks/data';
+import {useClimateScenarioData} from '../hooks/data';
 import {useIndicators} from '../hooks/indicators';
 import {propertyLabels, units} from '../lib/constants';
 
@@ -50,7 +50,8 @@ function renderChart(
 
   var colorScale = scaleLinear()
     .domain([min, max])
-    .range(['#eff3ff', '#2171b5'] as Iterable<number>);
+    .range(['#eee', '#ccc'] as Iterable<number>);
+  // .range(['#eff3ff', '#2171b5'] as Iterable<number>);
 
   const svg = select(el)
     .append('svg')
@@ -110,12 +111,7 @@ type BottomPanelProps = {};
 const BottomPanel: React.FC<BottomPanelProps> = props => {
   const chartRef = useRef<HTMLDivElement>(null);
   const {state: indicatorState} = useIndicators();
-  const {
-    updateTimelineData,
-    state: dataState,
-    data,
-    isLoading,
-  } = useProtectedData();
+  const {state: dataState, isLoading} = useClimateScenarioData();
   const [width, setWidth] = useState<number>(0);
   const [height, setHeight] = useState<number>(0);
 
@@ -133,12 +129,6 @@ const BottomPanel: React.FC<BottomPanelProps> = props => {
       renderChart(chartRef.current, width, height, timelineValues, propertyKey);
     }
   }, [dataState.timelineData, width, height]);
-
-  // useEffect(() => {
-  //   getSize();
-  //   const {propertyKey, selectedYear} = indicatorState;
-  //   updateTimelineData(propertyKey, selectedYear);
-  // }, [data]);
 
   useEffect(() => {
     window.addEventListener('resize', getSize);

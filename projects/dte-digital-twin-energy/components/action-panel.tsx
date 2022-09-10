@@ -1,5 +1,5 @@
 import {useIndicators} from '../hooks/indicators';
-import {useProtectedData} from '../hooks/data';
+import {useBaseMapData} from '../hooks/data';
 import ActionPanelMenu from './action-panel-menu';
 import {propertyLabels} from '../lib/constants';
 
@@ -12,10 +12,10 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
     yearOptions,
   } = useIndicators();
   const {
-    state: dataState,
-    actions: dataActions,
-    scenarioKeyOptions,
-  } = useProtectedData();
+    baseMapKeyOptions,
+    actions: baseMapActions,
+    state: baseMapState,
+  } = useBaseMapData();
 
   return (
     <div className="absolute flex justify-center w-full top-16 z-20">
@@ -27,15 +27,15 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
       ></ActionPanelMenu>
       <ActionPanelMenu
         onSelect={indicatorActions.setSelectedYear}
-        name={`Year: ${indicatorState.selectedYear}`}
+        name={`Climate: ${indicatorState.selectedYear}`}
         selectedKey={indicatorState.selectedYear}
         options={yearOptions.map((year: string) => ({key: year, label: year}))}
       ></ActionPanelMenu>
       <ActionPanelMenu
-        onSelect={dataActions.setScenarioKey}
-        name={`Basemap: ${dataState.scenarioKey}`}
-        selectedKey={dataState.scenarioKey}
-        options={scenarioKeyOptions}
+        onSelect={baseMapActions.setBaseMapKey}
+        name={`Basemap: ${baseMapState.baseMapKey}`}
+        selectedKey={baseMapState.baseMapKey}
+        options={baseMapKeyOptions}
       ></ActionPanelMenu>
     </div>
   );

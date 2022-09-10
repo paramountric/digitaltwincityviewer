@@ -1,7 +1,7 @@
 import {XMarkIcon} from '@heroicons/react/20/solid';
 import BuildingFeatureGeneralDisplay from './building-feature-general-display';
 import BuildingFeatureEnergyDisplay from './building-feature-energy-display';
-import {useProtectedData} from '../hooks/data';
+import {useClimateScenarioData} from '../hooks/data';
 import {useSelectedFeature} from '../hooks/selected-feature';
 
 type RightMenuProps = {
@@ -9,7 +9,7 @@ type RightMenuProps = {
 };
 
 const RightMenu: React.FC<RightMenuProps> = ({selectedFeatureId}) => {
-  const {getFeature} = useProtectedData();
+  const {getFeature} = useClimateScenarioData();
   const {actions} = useSelectedFeature();
 
   const feature = getFeature(selectedFeatureId);

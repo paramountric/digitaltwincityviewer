@@ -32,7 +32,7 @@ const Legend: React.FC<LegendProps> = () => {
           <div className="flex text-xs px-2" key={`r-${i}`}>
             <div
               className={classNames(
-                `bg-energy${i + 1}`,
+                `bg-energy${scaleRanges.length - i}`,
                 'w-8 rounded-sm m-1 p-1 col-span-1'
               )}
               key={`c-${i}`}
