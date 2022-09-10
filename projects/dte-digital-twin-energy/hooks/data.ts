@@ -8,7 +8,7 @@ type ViewerData = {
   buildings: Feature[];
 };
 
-type ScenarioOption = {
+export type BaseMapOption = {
   key: string;
   label: string;
   url: string;
@@ -20,29 +20,32 @@ type TimelineData = {
 };
 
 type DataStore = {
-  scenarioKey: string;
+  baseMapKey: string;
   timelineData: TimelineData | null;
 };
 
-const scenarioKeyOptions: ScenarioOption[] = [
-  {key: '2020', label: 'Current', url: '/api/data/protected'},
-  {key: '2035', label: '2035', url: '/api/data/protected'},
-  {key: '2055', label: '2055', url: '/api/data/protected'},
+const baseMapKeyOptions: BaseMapOption[] = [
+  // the first option will not load any file, but when selected it should remove the second file
+  // the list is to prepare for loading a file for each option and have more than two options
+  // (however as for now the 2020 data (buildings) is in the indicator file)
+  {key: '2020', label: '2020', url: '/api/data/empty'},
+  {key: '2050', label: '2050', url: '/api/data/context2050'},
 ];
 
-function getScenarioUrl(scenarioKey: string): string {
+function getBaseMapUrl(baseMapKey: string): string {
   return (
-    scenarioKeyOptions.find(option => option.key === scenarioKey)?.url ||
-    scenarioKeyOptions[0].url
+    baseMapKeyOptions.find(option => option.key === baseMapKey)?.url ||
+    baseMapKeyOptions[0].url
   );
 }
 
 const dataStore = new Observable<DataStore>({
-  scenarioKey: scenarioKeyOptions[0].key,
+  baseMapKey: baseMapKeyOptions[0].key,
   timelineData: null,
 });
 
-export const useProtectedData = () => {
+// this initially load an empty geojson, if baseMapKey is set to 2050 it will load the complementary future context
+export const useBaseMapData = () => {
   const [dataState, setDataState] = useState(dataStore.get());
 
   useEffect(() => {
@@ -51,18 +54,70 @@ export const useProtectedData = () => {
 
   const actions = useMemo(() => {
     return {
-      setScenarioKey: (scenarioKey: string) =>
-        dataStore.set({...dataState, scenarioKey}),
+      setBaseMapKey: (baseMapKey: string) =>
+        dataStore.set({...dataState, baseMapKey}),
+    };
+  }, [dataState]);
+
+  // this is a complementary file to load 2050 addition for buildings
+  const query = useQuery(
+    'context2050-data',
+    async () => {
+      try {
+        const res = await fetch(getBaseMapUrl(dataState.baseMapKey));
+        return await res.json();
+      } catch (err) {
+        return undefined;
+      }
+    },
+    {
+      refetchOnWindowFocus: false,
+      enabled: false,
+    }
+  );
+
+  useEffect(() => {
+    query.refetch();
+  }, [dataState.baseMapKey]);
+
+  return {
+    data: query.data as ViewerData,
+    state: dataState,
+    actions,
+    getScenarioLabel: (selectKey?: string): string => {
+      const key = selectKey || dataState.baseMapKey;
+      return (
+        baseMapKeyOptions.find(option => option.key === key)?.label ||
+        'Select scenario'
+      );
+    },
+    baseMapKeyOptions,
+    refetch: query.refetch,
+    isLoading: query.isLoading,
+  };
+};
+
+// climate scenario data, one file loaded at start
+export const useClimateScenarioData = () => {
+  const dataUrl = '/api/data/scenario';
+  const [dataState, setDataState] = useState(dataStore.get());
+
+  useEffect(() => {
+    return dataStore.subscribe(setDataState);
+  }, []);
+
+  const actions = useMemo(() => {
+    return {
       setTimelineData: (timelineData: TimelineData | null) =>
         dataStore.set({...dataState, timelineData}),
     };
   }, [dataState]);
 
   const query = useQuery(
-    'protected-data',
+    'bsm-results',
     async () => {
       try {
-        const res = await fetch(getScenarioUrl(dataState.scenarioKey));
+        const res = await fetch(dataUrl);
         return await res.json();
       } catch (err) {
         return undefined;
@@ -133,19 +188,6 @@ export const useProtectedData = () => {
     data: query.data as ViewerData,
     state: dataState,
     actions,
-    // scenarioKey,
-    // setScenarioKey: (key: string) => {
-    //   setScenarioKey(key);
-    //   // refetch?
-    // },
-    getScenarioLabel: (selectKey?: string): string => {
-      const key = selectKey || dataState.scenarioKey;
-      return (
-        scenarioKeyOptions.find(option => option.key === key)?.label ||
-        'Select scenario'
-      );
-    },
-    scenarioKeyOptions,
     updateTimelineData,
     getFeature: (id: string) => {
       if (!query.data) {
@@ -160,6 +202,7 @@ export const useProtectedData = () => {
   };
 };
 
+// context data (surroundings) - protected
 export const useContextData = () => {
   const dataUrl = '/api/data/context';
   const query = useQuery(
@@ -184,6 +227,7 @@ export const useContextData = () => {
   };
 };
 
+// open street map
 export const usePublicData = () => {
   const dataUrl = '/api/data/public';
   const query = useQuery(
