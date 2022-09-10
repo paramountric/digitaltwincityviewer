@@ -17,13 +17,13 @@ module.exports = {
     extend: {
       backgroundColor: theme => ({
         ...theme('colors'),
-        energy1: '#009640',
-        energy2: '#50AF31',
-        energy3: '#C7D301',
-        energy4: '#FFED00',
-        energy5: '#FBB900',
-        energy6: '#EC6707',
-        energy7: '#E30613',
+        energy1: 'rgb(var(--color-energy-1) / <alpha-value>)', //'#009640', // note, these out commented codes are previous used codes for the swedish energy scale
+        energy2: 'rgb(var(--color-energy-2) / <alpha-value>)', //'#50AF31',
+        energy3: 'rgb(var(--color-energy-3) / <alpha-value>)', //'#C7D301',
+        energy4: 'rgb(var(--color-energy-4) / <alpha-value>)', //'#FFED00',
+        energy5: 'rgb(var(--color-energy-5) / <alpha-value>)', //'#FBB900',
+        energy6: 'rgb(var(--color-energy-6) / <alpha-value>)', //'#EC6707',
+        energy7: 'rgb(var(--color-energy-7) / <alpha-value>)', //'#E30613',
       }),
     },
   },

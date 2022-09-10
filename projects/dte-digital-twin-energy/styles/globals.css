@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --color-energy-1: 171 213 40;
+    --color-energy-2: 98 181 38;
+    --color-energy-3: 244 246 42;
+    --color-energy-4: 244 161 108;
+    --color-energy-5: 240 72 177;
+    --color-energy-6: 88 0 237;
+    --color-energy-7: 164 36 207;
+  }
+}
+
 .loader {
   border-top-color: #3498db;
   -webkit-animation: spinner 1.5s linear infinite;
