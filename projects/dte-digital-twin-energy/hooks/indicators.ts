@@ -1,4 +1,3 @@
-import {Feature} from '@dtcv/geojson';
 import {useState, useEffect, useMemo} from 'react';
 import {Observable} from '../lib/Observable';
 
@@ -21,7 +20,7 @@ type IndicatorStore = {
   showTimelinePerM2: boolean;
 };
 
-const yearOptions = ['2020', '2030', '2050'];
+const yearOptions = ['2020', '2050 (2.5)', '2050 (4.5)', '2050 (8.5)'];
 
 // todo: use the constant file
 const propertyKeyOptions: PropertyKeyOption[] = [

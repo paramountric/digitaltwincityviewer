@@ -1,11 +1,12 @@
 import {useState, useEffect, useCallback} from 'react';
-import {Viewer, generateColor, JsonProps} from '@dtcv/viewer';
-import {useContextData, useProtectedData} from './data';
+import {Viewer, JsonProps} from '@dtcv/viewer';
+import {cities} from '@dtcv/cities';
+import {useContextData, useClimateScenarioData, useBaseMapData} from './data';
 import {useIndicators} from './indicators';
 import {Feature} from '@dtcv/geojson';
 import {useUserInfo} from './userinfo';
 import {useSelectedFeature} from './selected-feature';
-import {cities} from '@dtcv/cities';
+import {getColorFromScale} from '../lib/colorScales';
 
 const gothenburg = cities.find((c: any) => c.id === 'gothenburg');
 if (!gothenburg || !gothenburg.x) {
@@ -26,7 +27,13 @@ export const useViewer = (): {
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [extent, setExtent] = useState<number[]>([]);
 
-  const {data, refetch, updateTimelineData} = useProtectedData();
+  const {
+    data: climateScenarioData,
+    refetch: refetchClimateScenarioData,
+    updateTimelineData,
+  } = useClimateScenarioData();
+  const {data: baseMapData, refetch: refetchBaseMapData} =
+    useClimateScenarioData();
   const {data: contextData, refetch: refetchContextData} = useContextData();
   const userInfo = useUserInfo();
   const {state: indicatorState} = useIndicators();
@@ -43,7 +50,7 @@ export const useViewer = (): {
   // };
 
   const render = () => {
-    if (!viewer || !data || !data.buildings) {
+    if (!viewer || !climateScenarioData || !climateScenarioData.buildings) {
       return;
     }
     const jsonData: JsonProps = {
@@ -52,7 +59,7 @@ export const useViewer = (): {
           id: 'bsm-layer',
           '@@type': 'SolidPolygonLayer',
           //'@@type': 'GeoJsonLayer',
-          data: data.buildings,
+          data: climateScenarioData.buildings,
           onClick: (d: any) => {
             if (d.object) {
               if (!d.object.id) {
@@ -150,42 +157,62 @@ export const useViewer = (): {
 
   useEffect(() => {
     const {propertyKey, selectedYear} = indicatorState;
-    if (!viewer || !data || !data.buildings || !propertyKey || !selectedYear) {
+    if (
+      !viewer ||
+      !climateScenarioData ||
+      !climateScenarioData.buildings ||
+      !propertyKey ||
+      !selectedYear
+    ) {
       return;
     }
-    const colorStyle = {
-      sufficient: 150,
-      excellent: 60,
-      propertyKey: `${propertyKey}${selectedYear}M2`,
-    };
-    console.log(data);
-
-    for (const feature of data.buildings) {
-      if (
-        feature.properties &&
-        colorStyle.propertyKey &&
-        colorStyle.sufficient &&
-        colorStyle.excellent
-      ) {
-        const color = generateColor(
-          feature.properties[colorStyle.propertyKey],
-          colorStyle.sufficient,
-          colorStyle.excellent
-        );
-        feature.properties.color = color;
+    for (const feature of climateScenarioData.buildings) {
+      if (!feature.properties) {
+        continue;
+      }
+      const key = `${propertyKey}${selectedYear}M2`;
+      const val = feature.properties[key];
+      if (val) {
+        const scale =
+          propertyKey === 'ghgEmissions' ? 'buildingGhg' : 'energyDeclaration';
+        feature.properties.color = getColorFromScale(val, scale);
       }
     }
+    // old code for gradient color scale between green and red using generateColor from viewer module
+    // const colorStyle = {
+    //   sufficient: 150,
+    //   excellent: 60,
+    //   propertyKey: `${propertyKey}${selectedYear}M2`,
+    // };
+    // console.log(climateScenarioData);
+
+    // for (const feature of climateScenarioData.buildings) {
+    //   if (
+    //     feature.properties &&
+    //     colorStyle.propertyKey &&
+    //     colorStyle.sufficient &&
+    //     colorStyle.excellent
+    //   ) {
+    //     const color = generateColor(
+    //       feature.properties[colorStyle.propertyKey],
+    //       colorStyle.sufficient,
+    //       colorStyle.excellent
+    //     );
+    //     feature.properties.color = color;
+    //   }
+    // }
     // this should trigger the bottom panel initially (with all data)
     updateTimelineData(propertyKey, selectedYear);
     render();
-  }, [indicatorState, viewer, data]);
+  }, [indicatorState, viewer, climateScenarioData]);
 
   useEffect(() => {
     render();
-  }, [contextData]);
+  }, [contextData, baseMapData]);
 
   useEffect(() => {
-    refetch();
+    refetchClimateScenarioData();
+    refetchBaseMapData();
     refetchContextData();
   }, [userInfo]);
 
@@ -225,8 +252,7 @@ export const useViewer = (): {
     viewerLoading: false,
     getVisibleFeatures: () => {
       if (viewer) {
-        const result = viewer.getVisibleObjects(['bsm-layer']);
-        console.log(result);
+        return viewer.getVisibleObjects(['bsm-layer']);
       }
       return [];
     },
