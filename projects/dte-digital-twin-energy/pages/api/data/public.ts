@@ -1,17 +1,17 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
 import {convert, FeatureCollection} from '@dtcv/geojson';
 import {cities} from '@dtcv/cities';
-import testData from './osm-gbg-center.json';
 
 const gothenburg = cities.find((c: any) => c.id === 'gothenburg');
 if (!gothenburg || !gothenburg.x) {
   throw new Error('City must be selected on app level');
 }
 
-const converted = convert(testData as FeatureCollection, 'EPSG:4326', [
-  gothenburg.x,
-  gothenburg.y,
-]);
+// testData was removed for protected context, code kept for reference
+// const converted = convert(testData as FeatureCollection, 'EPSG:4326', [
+//   gothenburg.x,
+//   gothenburg.y,
+// ]);
 
 export default async function handleGetData(
   req: NextApiRequest,
@@ -22,5 +22,8 @@ export default async function handleGetData(
     return;
   }
 
-  res.status(200).json(converted);
+  res.status(200).json({
+    type: 'FeatureCollection',
+    features: [],
+  } as FeatureCollection);
 }
