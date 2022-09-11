@@ -120,7 +120,6 @@ const BuildingFeatureEnergyDisplay: React.FC<
   const primaryEnergyRef = useRef<HTMLDivElement>(null);
   const [trigger, setTrigger] = useState(-1);
   useLayoutEffect(() => {
-    console.log(deliveredEnergyRef);
     if (deliveredEnergyRef.current) {
       applyChart(
         deliveredEnergyRef.current,
