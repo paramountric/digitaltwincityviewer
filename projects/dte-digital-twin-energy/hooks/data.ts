@@ -29,7 +29,7 @@ const baseMapKeyOptions: BaseMapOption[] = [
   // the list is to prepare for loading a file for each option and have more than two options
   // (however as for now the 2020 data (buildings) is in the indicator file)
   {key: '2020', label: '2020', url: '/api/data/empty'},
-  {key: '2050', label: '2050', url: '/api/data/context2050'},
+  {key: '2050', label: '2050', url: '/api/data/basemap2050'},
 ];
 
 function getBaseMapUrl(baseMapKey: string): string {
@@ -43,59 +43,6 @@ const dataStore = new Observable<DataStore>({
   baseMapKey: baseMapKeyOptions[0].key,
   timelineData: null,
 });
-
-// this initially load an empty geojson, if baseMapKey is set to 2050 it will load the complementary future context
-export const useBaseMapData = () => {
-  const [dataState, setDataState] = useState(dataStore.get());
-
-  useEffect(() => {
-    return dataStore.subscribe(setDataState);
-  }, []);
-
-  const actions = useMemo(() => {
-    return {
-      setBaseMapKey: (baseMapKey: string) =>
-        dataStore.set({...dataState, baseMapKey}),
-    };
-  }, [dataState]);
-
-  // this is a complementary file to load 2050 addition for buildings
-  const query = useQuery(
-    'context2050-data',
-    async () => {
-      try {
-        const res = await fetch(getBaseMapUrl(dataState.baseMapKey));
-        return await res.json();
-      } catch (err) {
-        return undefined;
-      }
-    },
-    {
-      refetchOnWindowFocus: false,
-      enabled: false,
-    }
-  );
-
-  useEffect(() => {
-    query.refetch();
-  }, [dataState.baseMapKey]);
-
-  return {
-    data: query.data as ViewerData,
-    state: dataState,
-    actions,
-    getScenarioLabel: (selectKey?: string): string => {
-      const key = selectKey || dataState.baseMapKey;
-      return (
-        baseMapKeyOptions.find(option => option.key === key)?.label ||
-        'Select scenario'
-      );
-    },
-    baseMapKeyOptions,
-    refetch: query.refetch,
-    isLoading: query.isLoading,
-  };
-};
 
 // climate scenario data, one file loaded at start
 export const useClimateScenarioData = () => {
@@ -227,7 +174,60 @@ export const useContextData = () => {
   };
 };
 
-// open street map
+// this initially load an empty geojson, if baseMapKey is set to 2050 it will load the complementary future context
+export const useBaseMapData = () => {
+  const [dataState, setDataState] = useState(dataStore.get());
+
+  useEffect(() => {
+    return dataStore.subscribe(setDataState);
+  }, []);
+
+  const actions = useMemo(() => {
+    return {
+      setBaseMapKey: (baseMapKey: string) =>
+        dataStore.set({...dataState, baseMapKey}),
+    };
+  }, [dataState]);
+
+  // this is a complementary file to load 2050 addition for buildings
+  const query = useQuery(
+    'baseMap2050Data',
+    async () => {
+      try {
+        const res = await fetch(getBaseMapUrl(dataState.baseMapKey));
+        return await res.json();
+      } catch (err) {
+        return undefined;
+      }
+    },
+    {
+      refetchOnWindowFocus: false,
+      enabled: false,
+    }
+  );
+
+  useEffect(() => {
+    query.refetch();
+  }, [dataState.baseMapKey]);
+
+  return {
+    data: query.data as ViewerData,
+    state: dataState,
+    actions,
+    getScenarioLabel: (selectKey?: string): string => {
+      const key = selectKey || dataState.baseMapKey;
+      return (
+        baseMapKeyOptions.find(option => option.key === key)?.label ||
+        'Select scenario'
+      );
+    },
+    baseMapKeyOptions,
+    refetch: query.refetch,
+    isLoading: query.isLoading,
+  };
+};
+
+// open street map (not used currently)
 export const usePublicData = () => {
   const dataUrl = '/api/data/public';
   const query = useQuery(

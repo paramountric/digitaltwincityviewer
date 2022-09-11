@@ -32,9 +32,8 @@ export const useViewer = (): {
     refetch: refetchClimateScenarioData,
     updateTimelineData,
   } = useClimateScenarioData();
-  const {data: baseMapData, refetch: refetchBaseMapData} =
-    useClimateScenarioData();
   const {data: contextData, refetch: refetchContextData} = useContextData();
+  const {data: baseMapData, refetch: refetchBaseMapData} = useBaseMapData();
   const userInfo = useUserInfo();
   const {state: indicatorState} = useIndicators();
   const {actions} = useSelectedFeature();
@@ -121,8 +120,45 @@ export const useViewer = (): {
         coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
         coordinateOrigin: [gothenburg.lng, gothenburg.lat],
         getPolygon: '@@=geometry.coordinates',
-        getFillColor: '@@=properties.color || [100, 150, 250, 30]',
-        getLineColor: [100, 150, 250, 60],
+        //getFillColor: '@@=properties.color || [100, 150, 250, 30]',
+        getFillColor: (feature: Feature) => {
+          const defaultFillColor = [200, 200, 200, 255];
+          if (!feature.properties) {
+            return defaultFillColor;
+          }
+          const fillColor = feature.properties?.fillColor;
+          if (fillColor) {
+            // todo: have to check the color coding
+            //return fillColor;
+          }
+          // hacky checks for properties in project data
+          if (feature.properties.DETALJTYP === 'VATTEN') {
+            return [100, 150, 250, 30];
+          } else if (feature.properties.SW_MEMBER) {
+            return [220, 220, 220, 255];
+          } else if (feature.geometry.type === 'Point') {
+            return [50, 100, 50, 55];
+          }
+        },
+        getLineColor: (feature: Feature) => {
+          const defaultFillColor = [200, 200, 200, 255];
+          if (!feature.properties) {
+            return defaultFillColor;
+          }
+          const fillColor = feature.properties?.fillColor;
+          if (fillColor) {
+            // todo: have to check the color coding
+            //return fillColor;
+          }
+          // hacky checks for properties in project data
+          if (feature.properties.DETALJTYP === 'VATTEN') {
+            return [100, 150, 250, 100];
+          } else if (feature.properties.SW_MEMBER) {
+            return [190, 190, 190, 255];
+          } else if (feature.geometry.type === 'Point') {
+            return [50, 100, 50, 90];
+          }
+        },
         getElevation: '@@=properties.height || 0',
         useDevicePixels: true,
         stroked: true,
@@ -130,8 +166,54 @@ export const useViewer = (): {
         pointType: 'circle',
         lineWidthScale: 1,
         lineWidthMinPixels: 1,
-        getPointRadius: 1,
+        getPointRadius: 7,
         getLineWidth: 1,
+        parameters: {
+          depthMask: true,
+          depthTest: true,
+          blend: true,
+          blendFunc: [
+            '@@#GL.SRC_ALPHA',
+            '@@#GL.ONE_MINUS_SRC_ALPHA',
+            '@@#GL.ONE',
+            '@@#GL.ONE_MINUS_SRC_ALPHA',
+          ],
+          polygonOffsetFill: true,
+          depthFunc: '@@#GL.LEQUAL',
+          blendEquation: '@@#GL.FUNC_ADD',
+        },
+      });
+    }
+    if (baseMapData && jsonData && jsonData.layers) {
+      jsonData.layers.push({
+        id: 'baseMap-layer',
+        //'@@type': 'SolidPolygonLayer',
+        '@@type': 'GeoJsonLayer',
+        data: baseMapData,
+        // onClick: (d: any) => {
+        //   if (d.object) {
+        //     if (!d.object.id) {
+        //       d.object.id = d.object.properties.uuid;
+        //     }
+        //     actions.setFeatureId(d.object.id);
+        //     return;
+        //   }
+        // },
+        //modelMatrix: data.modelMatrix,
+        opacity: 0.9,
+        autoHighlight: false,
+        highlightColor: [100, 150, 250, 255],
+        extruded: true,
+        wireframe: true,
+        pickable: false,
+        isClickable: false,
+        coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
+        coordinateOrigin: [gothenburg.lng, gothenburg.lat],
+        getPolygon: '@@=geometry.coordinates',
+        getFillColor: '@@=properties.color || [255, 255, 255, 255]',
+        getLineColor: [100, 100, 100],
+        getElevation: '@@=properties.height || 10',
+        useDevicePixels: true,
         parameters: {
           depthMask: true,
           depthTest: true,
