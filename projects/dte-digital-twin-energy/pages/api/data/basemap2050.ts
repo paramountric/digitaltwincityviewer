@@ -16,7 +16,7 @@ const {
   S3_ENDPOINT,
   S3_REGION,
   S3_BUCKET,
-  S3_OBJECT_KEY_CONTEXT2050,
+  S3_OBJECT_KEY_BASEMAP_2050,
   JWT_SECRET = '',
 } = process.env;
 
@@ -75,7 +75,7 @@ export default async function handleGetData(
 
   const command = new GetObjectCommand({
     Bucket: S3_BUCKET,
-    Key: S3_OBJECT_KEY_CONTEXT2050,
+    Key: S3_OBJECT_KEY_BASEMAP_2050,
   });
 
   try {
