@@ -1,6 +1,6 @@
 import {useState, useEffect, useMemo} from 'react';
 import {useQuery} from 'react-query';
-import {Feature} from '@dtcv/geojson';
+import {Feature, FeatureCollection} from '@dtcv/geojson';
 import {Observable} from '../lib/Observable';
 
 type ViewerData = {
@@ -168,7 +168,7 @@ export const useContextData = () => {
     }
   );
   return {
-    data: query.data as ViewerData,
+    data: query.data as FeatureCollection,
     refetch: query.refetch,
     isLoading: query.isLoading,
   };
@@ -191,7 +191,7 @@ export const useBaseMapData = () => {
 
   // this is a complementary file to load 2050 addition for buildings
   const query = useQuery(
-    'baseMap2050Data',
+    'basemap-2050-data',
     async () => {
       try {
         const res = await fetch(getBaseMapUrl(dataState.baseMapKey));
@@ -211,7 +211,7 @@ export const useBaseMapData = () => {
   }, [dataState.baseMapKey]);
 
   return {
-    data: query.data as ViewerData,
+    data: query.data as FeatureCollection,
     state: dataState,
     actions,
     getScenarioLabel: (selectKey?: string): string => {
@@ -224,6 +224,7 @@ export const useBaseMapData = () => {
     baseMapKeyOptions,
     refetch: query.refetch,
     isLoading: query.isLoading,
+    isFetching: query.isFetching,
   };
 };
 

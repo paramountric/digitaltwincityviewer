@@ -49,57 +49,22 @@ export const useViewer = (): {
   // };
 
   const render = () => {
-    if (!viewer || !climateScenarioData || !climateScenarioData.buildings) {
+    if (!viewer) {
       return;
     }
     const jsonData: JsonProps = {
-      layers: [
-        {
-          id: 'bsm-layer',
-          '@@type': 'SolidPolygonLayer',
-          //'@@type': 'GeoJsonLayer',
-          data: climateScenarioData.buildings,
-          onClick: (d: any) => {
-            if (d.object) {
-              if (!d.object.id) {
-                d.object.id = d.object.properties.uuid;
-              }
-              actions.setFeatureId(d.object.id);
-              return;
-            }
-          },
-          //modelMatrix: data.modelMatrix,
-          opacity: 1,
-          autoHighlight: true,
-          highlightColor: [100, 150, 250, 255],
-          extruded: true,
-          wireframe: true,
-          pickable: true,
-          isClickable: true,
-          coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
-          coordinateOrigin: [gothenburg.lng, gothenburg.lat],
-          getPolygon: '@@=geometry.coordinates',
-          getFillColor: '@@=properties.color || [255, 255, 255, 255]',
-          getLineColor: [100, 100, 100],
-          getElevation: '@@=properties.height || 0',
-          useDevicePixels: true,
-          parameters: {
-            depthMask: true,
-            depthTest: true,
-            blend: true,
-            blendFunc: [
-              '@@#GL.SRC_ALPHA',
-              '@@#GL.ONE_MINUS_SRC_ALPHA',
-              '@@#GL.ONE',
-              '@@#GL.ONE_MINUS_SRC_ALPHA',
-            ],
-            polygonOffsetFill: true,
-            depthFunc: '@@#GL.LEQUAL',
-            blendEquation: '@@#GL.FUNC_ADD',
-          },
-        },
-      ],
+      layers: [],
     };
+    const isBaseMap2050 = baseMapData?.features?.length > 0;
+
+    const features = contextData?.features || [];
+    const pointFeatures = features.filter(f => f.geometry.type === 'Point');
+
+    for (const pointFeature of pointFeatures) {
+      // @ts-ignore
+      pointFeature.geometry.coordinates[2] = 0;
+    }
+
     if (contextData && jsonData && jsonData.layers) {
       jsonData.layers.push({
         id: 'context-layer',
@@ -133,7 +98,7 @@ export const useViewer = (): {
           }
           // hacky checks for properties in project data
           if (feature.properties.DETALJTYP === 'VATTEN') {
-            return [100, 150, 250, 30];
+            return [100, 150, 250, 105];
           } else if (feature.properties.SW_MEMBER) {
             return [220, 220, 220, 255];
           } else if (feature.geometry.type === 'Point') {
@@ -152,14 +117,14 @@ export const useViewer = (): {
           }
           // hacky checks for properties in project data
           if (feature.properties.DETALJTYP === 'VATTEN') {
-            return [100, 150, 250, 100];
+            return [100, 150, 250, 50];
           } else if (feature.properties.SW_MEMBER) {
             return [190, 190, 190, 255];
           } else if (feature.geometry.type === 'Point') {
-            return [50, 100, 50, 90];
+            return [50, 100, 50, 50];
           }
         },
-        getElevation: '@@=properties.height || 0',
+        getElevation: 0, //'@@=properties.height || 0',
         useDevicePixels: true,
         stroked: true,
         filled: true,
@@ -183,7 +148,76 @@ export const useViewer = (): {
           blendEquation: '@@#GL.FUNC_ADD',
         },
       });
+    } else {
+      jsonData.layers.push({
+        id: 'context-layer',
+        //'@@type': 'SolidPolygonLayer',
+        '@@type': 'GeoJsonLayer',
+        data: {},
+        parameters: {
+          depthMask: true,
+          depthTest: true,
+          blend: true,
+          blendFunc: [
+            '@@#GL.SRC_ALPHA',
+            '@@#GL.ONE_MINUS_SRC_ALPHA',
+            '@@#GL.ONE',
+            '@@#GL.ONE_MINUS_SRC_ALPHA',
+          ],
+          polygonOffsetFill: true,
+          depthFunc: '@@#GL.LEQUAL',
+          blendEquation: '@@#GL.FUNC_ADD',
+        },
+      });
     }
+
+    if (!isBaseMap2050 && climateScenarioData && jsonData && jsonData.layers) {
+      jsonData.layers.push({
+        id: 'bsm-layer',
+        '@@type': 'SolidPolygonLayer',
+        //'@@type': 'GeoJsonLayer',
+        data: climateScenarioData.buildings,
+        onClick: (d: any) => {
+          if (d.object) {
+            if (!d.object.id) {
+              d.object.id = d.object.properties.uuid;
+            }
+            actions.setFeatureId(d.object.id);
+            return;
+          }
+        },
+        //modelMatrix: data.modelMatrix,
+        opacity: 1,
+        autoHighlight: true,
+        highlightColor: [100, 150, 250, 255],
+        extruded: true,
+        wireframe: true,
+        pickable: true,
+        isClickable: true,
+        coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
+        coordinateOrigin: [gothenburg.lng, gothenburg.lat],
+        getPolygon: '@@=geometry.coordinates',
+        getFillColor: '@@=properties.color || [255, 255, 255, 255]',
+        getLineColor: [100, 100, 100],
+        getElevation: '@@=properties.height || 0',
+        useDevicePixels: true,
+        parameters: {
+          depthMask: true,
+          depthTest: true,
+          blend: true,
+          blendFunc: [
+            '@@#GL.SRC_ALPHA',
+            '@@#GL.ONE_MINUS_SRC_ALPHA',
+            '@@#GL.ONE',
+            '@@#GL.ONE_MINUS_SRC_ALPHA',
+          ],
+          polygonOffsetFill: true,
+          depthFunc: '@@#GL.LEQUAL',
+          blendEquation: '@@#GL.FUNC_ADD',
+        },
+      });
+    }
+
     if (baseMapData && jsonData && jsonData.layers) {
       jsonData.layers.push({
         id: 'baseMap-layer',
@@ -204,15 +238,15 @@ export const useViewer = (): {
         autoHighlight: false,
         highlightColor: [100, 150, 250, 255],
         extruded: true,
-        wireframe: true,
+        wireframe: false,
         pickable: false,
         isClickable: false,
         coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
         coordinateOrigin: [gothenburg.lng, gothenburg.lat],
         getPolygon: '@@=geometry.coordinates',
         getFillColor: '@@=properties.color || [255, 255, 255, 255]',
-        getLineColor: [100, 100, 100],
-        getElevation: '@@=properties.height || 10',
+        getLineColor: [100, 100, 100, 255],
+        getElevation: '@@=properties.height || 20',
         useDevicePixels: true,
         parameters: {
           depthMask: true,

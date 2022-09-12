@@ -100,17 +100,21 @@ export default async function handleGetData(
   }
 
   const command = new GetObjectCommand({Bucket: S3_BUCKET, Key: S3_OBJECT_KEY});
-
+  const setZCoordinateToZero = true;
+  console.log('set');
   try {
     const response = await client.send(command);
     const stream = response.Body as Readable;
     const buf = await streamToBuffer(stream);
     const json = JSON.parse(buf.toString('utf-8'));
     const {x, y} = gothenburg || {};
-    const {buildings} = parseCityModel(json, 'EPSG:3006', undefined, [
-      x || 0,
-      y || 0,
-    ]); // should not be zero, typescript
+    const {buildings} = parseCityModel(
+      json,
+      'EPSG:3006',
+      undefined,
+      [x || 0, y || 0],
+      setZCoordinateToZero
+    ); // should not be zero, typescript
     const {data, modelMatrix} = buildings;
     preprocessBuildings(data);
     res.status(200).json({buildings: data, modelMatrix});
