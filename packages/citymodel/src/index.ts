@@ -130,7 +130,13 @@ function getLayerPosition(extent) {
 }
 
 // Only for lod 1 so far
-function parseBuildings(fileData, crs: string, cityXY: number[]) {
+function parseBuildings(
+  fileData,
+  crs: string,
+  cityXY: number[],
+  setZCoordinateToZero = false
+) {
+  console.log('set z: ', setZCoordinateToZero);
   const buildings = fileData.Buildings || fileData.buildings;
   // todo: the crs is discussed to be added to CityModel files, so add that when it comes in new examples
   const origin = fileData.Origin || fileData.origin || { x: 0, y: 0 };
@@ -180,7 +186,9 @@ function parseBuildings(fileData, crs: string, cityXY: number[]) {
       coordinates.push([
         projected[0],
         projected[1],
-        building.GroundHeight || building.groundHeight,
+        setZCoordinateToZero
+          ? 0
+          : building.GroundHeight || building.groundHeight,
       ]);
     }
     if (coordinates[0]) {
@@ -347,15 +355,22 @@ function parseCityModel(
   fileData,
   crs: string,
   type?: string | null | undefined, // protobuf connected, but not used in legacy -> when sending in json citymodel
-  cityXY?: number[]
+  cityXY?: number[],
+  setZCoordinateToZero = false
 ) {
+  console.log(setZCoordinateToZero);
   const result: {
     buildings?: any;
     ground?: any;
     surfaceField?: any;
   } = {};
   if (type === 'CityModel') {
-    const buildings = parseBuildings(fileData, crs, cityXY);
+    const buildings = parseBuildings(
+      fileData,
+      crs,
+      cityXY,
+      setZCoordinateToZero
+    );
     if (buildings) {
       result.buildings = buildings;
     }
@@ -371,7 +386,12 @@ function parseCityModel(
     }
   } else {
     // legacy
-    const buildings = parseBuildings(fileData, crs, cityXY);
+    const buildings = parseBuildings(
+      fileData,
+      crs,
+      cityXY,
+      setZCoordinateToZero
+    );
     if (buildings) {
       result.buildings = buildings;
     }
