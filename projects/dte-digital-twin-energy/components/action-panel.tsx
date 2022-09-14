@@ -3,6 +3,14 @@ import {useBaseMapData} from '../hooks/data';
 import ActionPanelMenu from './action-panel-menu';
 import {propertyLabels} from '../lib/constants';
 
+const yearLabels: {
+  [key: string]: string;
+} = {
+  '2020': '2020',
+  '2050_4_5': '2050 (4.5)',
+  '2050_8_5': '2050 (8.5)',
+};
+
 type ActionPanelProps = {};
 const ActionPanel: React.FC<ActionPanelProps> = () => {
   const {
@@ -27,9 +35,9 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
       ></ActionPanelMenu>
       <ActionPanelMenu
         onSelect={indicatorActions.setSelectedYear}
-        name={`Climate: ${indicatorState.selectedYear}`}
+        name={`Climate: ${yearLabels[indicatorState.selectedYear]}`}
         selectedKey={indicatorState.selectedYear}
-        options={yearOptions.map((year: string) => ({key: year, label: year}))}
+        options={yearOptions}
       ></ActionPanelMenu>
       <ActionPanelMenu
         onSelect={baseMapActions.setBaseMapKey}

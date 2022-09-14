@@ -6,9 +6,11 @@ import {scaleBand, scaleLinear} from 'd3-scale';
 import {axisBottom, axisLeft} from 'd3-axis';
 import {getColorFromScale} from '../lib/colorScales';
 import {propertyLabels, units, rounding} from '../lib/constants';
+import {IndicatorStore} from '../hooks/indicators';
 
 type BuildingFeatureEnergyDisplayProps = {
   feature: any;
+  indicatorState: IndicatorStore;
 };
 
 function formatValue(properties: any, propertyKey: string) {
@@ -20,8 +22,16 @@ function formatValue(properties: any, propertyKey: string) {
 }
 
 // kwh/m2 or total ghg/m2
-function getIndicatorYears(properties: any, key: string) {
-  return ['2020', '2030', '2050'].map(year => {
+function getIndicatorYears(
+  properties: any,
+  key: string,
+  scenarioPostfix: string
+) {
+  return [
+    `2020${scenarioPostfix}`,
+    `2030${scenarioPostfix}`,
+    `2050${scenarioPostfix}`,
+  ].map(year => {
     // in case of not m2 - remove M2 from the end (need to update color scale as well)
     const keyAddM2 =
       key === 'ghgEmissions' ? `${key}${year}M2` : `${key}${year}M2`;
@@ -29,16 +39,32 @@ function getIndicatorYears(properties: any, key: string) {
   });
 }
 
-function applyChart(el: HTMLDivElement, properties: any, key: string) {
+function applyChart(
+  el: HTMLDivElement,
+  properties: any,
+  key: string,
+  selectedYear: string
+) {
+  const scenarioPostfix =
+    selectedYear === '2050_4_5'
+      ? '_4_5'
+      : selectedYear === '2050_8_5'
+      ? '_8_5'
+      : '';
   const isGhg = key === 'ghgEmissions';
   const scaleKey = isGhg ? 'buildingGhg' : 'energyDeclaration';
   const unit = units[`${key}M2`];
   select(el).selectAll('svg').remove();
-  const timelineValues = getIndicatorYears(properties, key);
+  const timelineValues = getIndicatorYears(properties, key, scenarioPostfix);
   const max = Math.max(...timelineValues);
   if (max === 0) {
     return;
   }
+  // const years: string[] = [
+  //   `2020${scenarioPostfix}`,
+  //   `2030${scenarioPostfix}`,
+  //   `2050${scenarioPostfix}`,
+  // ];
   const years: string[] = ['2020', '2030', '2050'];
   //const yearProperties = years.map(year => `${key}${year}`);
 
@@ -124,31 +150,40 @@ const BuildingFeatureEnergyDisplay: React.FC<
       applyChart(
         deliveredEnergyRef.current,
         props.feature.properties,
-        'deliveredEnergy'
+        'deliveredEnergy',
+        props.indicatorState.selectedYear
       );
     }
     if (finalEnergyRef.current) {
       applyChart(
         finalEnergyRef.current,
         props.feature.properties,
-        'finalEnergy'
+        'finalEnergy',
+        props.indicatorState.selectedYear
       );
     }
     if (ghgEmissionsRef.current) {
       applyChart(
         ghgEmissionsRef.current,
         props.feature.properties,
-        'ghgEmissions'
+        'ghgEmissions',
+        props.indicatorState.selectedYear
       );
     }
     if (heatDemandRef.current) {
-      applyChart(heatDemandRef.current, props.feature.properties, 'heatDemand');
+      applyChart(
+        heatDemandRef.current,
+        props.feature.properties,
+        'heatDemand',
+        props.indicatorState.selectedYear
+      );
     }
     if (primaryEnergyRef.current) {
       applyChart(
         primaryEnergyRef.current,
         props.feature.properties,
-        'primaryEnergy'
+        'primaryEnergy',
+        props.indicatorState.selectedYear
       );
     }
   }, [props.feature.properties, trigger]);

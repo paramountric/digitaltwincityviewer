@@ -3,6 +3,7 @@ import BuildingFeatureGeneralDisplay from './building-feature-general-display';
 import BuildingFeatureEnergyDisplay from './building-feature-energy-display';
 import {useClimateScenarioData} from '../hooks/data';
 import {useSelectedFeature} from '../hooks/selected-feature';
+import {useIndicators} from '../hooks/indicators';
 
 type RightMenuProps = {
   selectedFeatureId: string;
@@ -11,6 +12,7 @@ type RightMenuProps = {
 const RightMenu: React.FC<RightMenuProps> = ({selectedFeatureId}) => {
   const {getFeature} = useClimateScenarioData();
   const {actions} = useSelectedFeature();
+  const {state: indicatorState} = useIndicators();
 
   const feature = getFeature(selectedFeatureId);
 
@@ -32,6 +34,7 @@ const RightMenu: React.FC<RightMenuProps> = ({selectedFeatureId}) => {
       ></BuildingFeatureGeneralDisplay>
       <BuildingFeatureEnergyDisplay
         feature={feature}
+        indicatorState={indicatorState}
       ></BuildingFeatureEnergyDisplay>
     </div>
   );

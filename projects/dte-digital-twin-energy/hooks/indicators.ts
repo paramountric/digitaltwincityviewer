@@ -14,13 +14,21 @@ export type PropertyKeyOption = {
   unit: string;
 };
 
-type IndicatorStore = {
+export type IndicatorStore = {
   propertyKey: string;
   selectedYear: string;
   showTimelinePerM2: boolean;
 };
 
-const yearOptions = ['2020', '2050 (2.5)', '2050 (4.5)', '2050 (8.5)'];
+const yearOptions = [
+  {
+    key: '2020',
+    label: '2020',
+  },
+  //{key: '_2_5', label: '2050 (2.5)'},
+  {key: '2050_4_5', label: '2050 (4.5)'},
+  {key: '2050_8_5', label: '2050 (8.5)'},
+];
 
 // todo: use the constant file
 const propertyKeyOptions: PropertyKeyOption[] = [
@@ -37,7 +45,7 @@ const propertyKeyOptions: PropertyKeyOption[] = [
 
 const indicatorStore = new Observable<IndicatorStore>({
   propertyKey: propertyKeyOptions[0].key,
-  selectedYear: yearOptions[0],
+  selectedYear: yearOptions[0].key,
   showTimelinePerM2: false,
 });
 

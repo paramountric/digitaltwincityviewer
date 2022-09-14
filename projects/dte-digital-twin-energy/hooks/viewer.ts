@@ -148,27 +148,27 @@ export const useViewer = (): {
           blendEquation: '@@#GL.FUNC_ADD',
         },
       });
-    } else {
-      jsonData.layers.push({
-        id: 'context-layer',
-        //'@@type': 'SolidPolygonLayer',
-        '@@type': 'GeoJsonLayer',
-        data: {},
-        parameters: {
-          depthMask: true,
-          depthTest: true,
-          blend: true,
-          blendFunc: [
-            '@@#GL.SRC_ALPHA',
-            '@@#GL.ONE_MINUS_SRC_ALPHA',
-            '@@#GL.ONE',
-            '@@#GL.ONE_MINUS_SRC_ALPHA',
-          ],
-          polygonOffsetFill: true,
-          depthFunc: '@@#GL.LEQUAL',
-          blendEquation: '@@#GL.FUNC_ADD',
-        },
-      });
+    } else if (jsonData && jsonData.layers) {
+      // jsonData.layers.push({
+      //   id: 'context-layer',
+      //   //'@@type': 'SolidPolygonLayer',
+      //   '@@type': 'GeoJsonLayer',
+      //   data: {},
+      //   parameters: {
+      //     depthMask: true,
+      //     depthTest: true,
+      //     blend: true,
+      //     blendFunc: [
+      //       '@@#GL.SRC_ALPHA',
+      //       '@@#GL.ONE_MINUS_SRC_ALPHA',
+      //       '@@#GL.ONE',
+      //       '@@#GL.ONE_MINUS_SRC_ALPHA',
+      //     ],
+      //     polygonOffsetFill: true,
+      //     depthFunc: '@@#GL.LEQUAL',
+      //     blendEquation: '@@#GL.FUNC_ADD',
+      //   },
+      // });
     }
 
     if (!isBaseMap2050 && climateScenarioData && jsonData && jsonData.layers) {
