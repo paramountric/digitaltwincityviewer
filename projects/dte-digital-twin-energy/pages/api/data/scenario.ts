@@ -221,7 +221,6 @@ export default async function handleGetData(
     const stream = response.Body as Readable;
     const buf = await streamToBuffer(stream);
     const json = JSON.parse(buf.toString('utf-8'));
-    console.log(json);
     for (const feature of json) {
       const featureEnergyData = energyDataTyped[feature.properties.uuid];
       const properties = Object.assign(
