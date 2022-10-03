@@ -11,6 +11,10 @@ import './LeftMenu';
 import './RightMenu';
 import './LayerDialog';
 
+const { MAPBOX_TOKEN } = process.env;
+
+console.log(MAPBOX_TOKEN);
+
 @customElement('dtcc-app')
 class App extends MobxLitElement {
   @state()

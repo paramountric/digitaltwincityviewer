@@ -19,6 +19,7 @@ const websocketUrl =
 // todo: create one LayerStatus and one Layer type
 type Layer = {
   id?: string;
+  basemapString?: string;
   name: string;
   isLoading?: boolean;
   isVisible?: boolean;
@@ -30,6 +31,7 @@ type Layer = {
 };
 export class Store {
   public isLoading = false;
+  public isProcessingTask = false;
   public showUiComponents: {
     [uiComponentKey: string]: boolean;
   };
@@ -48,6 +50,7 @@ export class Store {
     };
     makeObservable(this, {
       isLoading: observable,
+      isProcessingTask: observable,
       showUiComponents: observable,
       layers: observable,
       setIsLoading: action,
@@ -60,6 +63,10 @@ export class Store {
 
   public setIsLoading(isLoading: boolean) {
     this.isLoading = isLoading;
+  }
+
+  public setIsProcessingTask(isProcessingTask: boolean) {
+    this.isProcessingTask = isProcessingTask;
   }
 
   public showUiComponent(key: string, show: boolean) {
@@ -77,6 +84,14 @@ export class Store {
 
   public addLayer(layer: Layer) {
     this.layers.push(layer);
+  }
+
+  public removeLayer(layer: Layer) {
+    // const foundLayer = this.layers.find(l => l.id === layer.id);
+    // if (foundLayer) {
+    //   const idx = this.layers.indexOf(foundLayer);
+    // }
+    this.layers = this.layers.filter(l => l.id === layer.id);
   }
 
   public updateLayer(layerData: Layer) {
@@ -123,24 +138,35 @@ export class Store {
     //   'buildings'
     // );
 
-    this.addLayer({
-      id: 'buildings-layer-polygons-lod-1',
-      name: 'Buildings',
-      isLoading: true,
-      isVisible: true,
-    });
-    this.addLayer({
-      id: 'ground-layer-surface-mesh',
-      name: 'Ground surface',
-      isVisible: true,
-      isLoading: true,
-    });
-    this.addLayer({
-      id: 'ground-layer-result-mesh',
-      name: 'Velocity magnitude surface',
-      isLoading: true,
-      isVisible: true,
-    });
+    // this.addLayer({
+    //   id: 'vectortiles-basemap',
+    //   name: 'Basemap',
+    //   isLoading: false,
+    //   isVisible: true,
+    //   // try the mapbox basemap this time
+    //   basemapString: `https://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v7/{z}/{x}/{y}.vector.pbf?access_token=${}`,
+    // });
+
+    // these three are the latest:
+    // this.addLayer({
+    //   id: 'buildings-layer-polygons-lod-1',
+    //   name: 'Buildings',
+    //   isLoading: true,
+    //   isVisible: true,
+    // });
+    // this.addLayer({
+    //   id: 'ground-layer-surface-mesh',
+    //   name: 'Ground surface',
+    //   isVisible: true,
+    //   isLoading: true,
+    // });
+    // this.addLayer({
+    //   id: 'ground-layer-result-mesh',
+    //   name: 'Velocity magnitude surface',
+    //   isLoading: true,
+    //   isVisible: true,
+    // });
+
     // this.addLayer({
     //   id: 'ground-layer-result-mesh-2',
     //   name: 'Pressure surface',
@@ -157,23 +183,24 @@ export class Store {
     // const data = await test.arrayBuffer();
     // console.log(data);
 
-    await this.getCachedLayer(
-      'http://localhost:4000/cache?http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/CityModel',
-      'buildings-layer-polygons-lod-1',
-      'buildings'
-    );
+    // these three are the latest:
+    // await this.getCachedLayer(
+    //   'http://localhost:4000/cache?http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/CityModel',
+    //   'buildings-layer-polygons-lod-1',
+    //   'buildings'
+    // );
 
-    await this.getCachedLayer(
-      'http://localhost:4000/cache?http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/GroundSurface',
-      'ground-layer-surface-mesh',
-      'ground'
-    );
+    // await this.getCachedLayer(
+    //   'http://localhost:4000/cache?http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/GroundSurface',
+    //   'ground-layer-surface-mesh',
+    //   'ground'
+    // );
 
-    await this.getCachedLayer(
-      'http://localhost:4000/cache?http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/VelocityMagnitudeSurface',
-      'ground-layer-result-mesh',
-      'surfaceField'
-    );
+    // await this.getCachedLayer(
+    //   'http://localhost:4000/cache?http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/VelocityMagnitudeSurface',
+    //   'ground-layer-result-mesh',
+    //   'surfaceField'
+    // );
 
     // await this.getCachedLayer(
     //   'http://localhost:4000/cache?http://localhost:9000/files/HelsingborgOceanen/PressureSurface.pb',
@@ -217,20 +244,24 @@ export class Store {
   }
 
   async getCachedLayer(url, layerId, key) {
-    const res = await fetch(url);
-    const data = await res.json();
-    console.log(data);
-    this.viewer.updateLayer({
-      layerId,
-      props: {
-        data: data[key].data,
-        modelMatrix: data[key].modelMatrix,
-        //center: parsed[key].center,
-      },
-      state: {
-        url,
-      },
-    });
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      console.log(data);
+      this.viewer.updateLayer({
+        layerId,
+        props: {
+          data: data[key].data,
+          modelMatrix: data[key].modelMatrix,
+          //center: parsed[key].center,
+        },
+        state: {
+          url,
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   // This is a debug functino for messing with colors, to be removed
@@ -278,22 +309,22 @@ export class Store {
   // }
 
   async loadTestData(url, layerId, key) {
-    const res = await fetch(url);
-    if (res.status !== 200) {
-      return console.warn('response status: ', res.status);
-    }
-    const parsed = parseCityModel(await res.json());
-    this.viewer.updateLayer({
-      layerId,
-      props: {
-        data: parsed[key].data,
-        modelMatrix: parsed[key].modelMatrix,
-        //center: parsed[key].center,
-      },
-      state: {
-        url,
-      },
-    });
+    // const res = await fetch(url);
+    // if (res.status !== 200) {
+    //   return console.warn('response status: ', res.status);
+    // }
+    // const parsed = parseCityModel(await res.json());
+    // this.viewer.updateLayer({
+    //   layerId,
+    //   props: {
+    //     data: parsed[key].data,
+    //     modelMatrix: parsed[key].modelMatrix,
+    //     //center: parsed[key].center,
+    //   },
+    //   state: {
+    //     url,
+    //   },
+    // });
   }
 
   // async loadLayerData(url, layerId, viewState) {
@@ -417,6 +448,57 @@ export class Store {
     }, 200);
   }
 
+  async generateCityModel() {
+    this.setIsProcessingTask(true);
+    // city model has two layers
+    if (!this.layers.find(l => l.id === 'buildings-layer-polygons-lod-1')) {
+      this.addLayer({
+        id: 'buildings-layer-polygons-lod-1',
+        name: 'Buildings',
+        isLoading: true,
+        isVisible: true,
+      });
+      this.addLayer({
+        id: 'ground-layer-surface-mesh',
+        name: 'Ground surface',
+        isVisible: true,
+        isLoading: true,
+      });
+    }
+
+    const sequence = [
+      {
+        task: 'Generating city model',
+        progress: ['Initialize task', 'Generating mesh'],
+      },
+    ];
+    const status = 'Initialize task';
+    this.progressList.push({
+      name: 'Buildings',
+      task: 'Generating city model',
+      status: `${new Date().toLocaleString('se-SE', {
+        timeZone: 'UTC',
+      })} ${status}`,
+      statusCode: null,
+    });
+
+    this.updateLayer({
+      name: 'Buildings',
+      id: 'buildings-layer-polygons-lod-1',
+      task: 'Generating city model',
+      status,
+      progress: 0,
+    });
+
+    // const taskRequest = await fetch(
+    //   'http://compute.dtcc.chalmers.se:8000/api/',
+    //   {
+    //     mode: 'cors',
+    //   }
+    // );
+    // const data = await taskRequest.arrayBuffer();
+  }
+
   selectArea() {
     console.log('select area');
     this.updateLayer({ name: 'Buildings', isLoading: true });
@@ -449,6 +531,32 @@ export class Store {
     ];
     this.simulateLayerLoadingProgress(sequence);
   }
+
+  cancelCurrentTask() {
+    this.setIsProcessingTask(false);
+    const layer1 = this.layers.find(
+      l => l.id === 'buildings-layer-polygons-lod-1'
+    );
+    if (layer1) {
+      this.removeLayer(layer1);
+    }
+    const layer2 = this.layers.find(l => l.id === 'ground-layer-surface-mesh');
+    if (layer2) {
+      this.removeLayer(layer2);
+    }
+    this.progressList.forEach(p => {
+      p.isLoading = false;
+    });
+    this.progressList.push({
+      name: 'Buildings',
+      task: '',
+      status: `${new Date().toLocaleString('se-SE', {
+        timeZone: 'UTC',
+      })} Task was cancelled`,
+      statusCode: null,
+    });
+  }
+
   simulate() {
     this.updateLayer({ name: 'Simulation result', isLoading: true });
   }

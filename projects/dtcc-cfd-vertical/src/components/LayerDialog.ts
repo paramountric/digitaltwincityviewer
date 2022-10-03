@@ -68,9 +68,13 @@ class LayerPanel extends MobxLitElement {
     this.store.setActiveLayer(layerName);
   }
 
-  selectArea() {
-    console.log('sel');
-    this.store.selectArea();
+  generateCityModel() {
+    this.store.generateCityModel();
+  }
+
+  cancelTask() {
+    // cancel the task
+    this.store.cancelCurrentTask();
   }
 
   simulate() {
@@ -102,23 +106,25 @@ class LayerPanel extends MobxLitElement {
     const { status, task, progress } =
       this.store.layers.find(l => l.name === 'Buildings') || {};
 
-    const statusBar = task
-      ? html`<sp-progress-bar
-          size="l"
-          label=${status}
-          progress=${progress}
-        ></sp-progress-bar>`
-      : null;
+    const statusBar =
+      this.store.isProcessingTask && task
+        ? html`<sp-progress-bar
+            size="l"
+            label=${status}
+            progress=${progress}
+          ></sp-progress-bar>`
+        : null;
 
-    const progressHeader = task
-      ? html`<sp-menu-item
-          >${task}<kbd slot="value"
-            ><sp-progress-circle
-              indeterminate
-              size="s"
-            ></sp-progress-circle></kbd
-        ></sp-menu-item>`
-      : null;
+    const progressHeader =
+      this.store.isProcessingTask && task
+        ? html`<sp-menu-item
+            >${task}<kbd slot="value"
+              ><sp-progress-circle
+                indeterminate
+                size="s"
+              ></sp-progress-circle></kbd
+          ></sp-menu-item>`
+        : null;
 
     const getStatusVariant = statusCode => {
       if (statusCode === 1) {
@@ -141,7 +147,19 @@ class LayerPanel extends MobxLitElement {
         )
       : null;
 
-    console.log(status, task, progress);
+    console.log(this.store.isProcessingTask, status, task, progress);
+
+    const triggerButton = this.store.isProcessingTask
+      ? html`<sp-button quiet variant="secondary" @click=${this.cancelTask}>
+          Cancel task
+        </sp-button>`
+      : html`<sp-button
+          quiet
+          variant="secondary"
+          @click=${this.generateCityModel}
+        >
+          Generate city model
+        </sp-button>`;
 
     return html`<sp-dialog-wrapper
         ?open=${this.store.showUiComponents.layerDialog}
@@ -156,10 +174,10 @@ class LayerPanel extends MobxLitElement {
       >
         <sp-icons-medium></sp-icons-medium>
         <sp-tabs
-          selected=${this.store.activeLayerDialogTab || 'layers'}
+          selected=${this.store.activeLayerDialogTab || 'area'}
           size="l"
         >
-          <sp-tab label="Select area" value="select-area"
+          <sp-tab label="Area" value="area"
             ><sp-icon-rect-select slot="icon"></sp-icon-rect-select
           ></sp-tab>
           <sp-tab label="Layers" value="layers"
@@ -172,11 +190,9 @@ class LayerPanel extends MobxLitElement {
           <sp-tab label="Settings" value="settings"
             ><sp-icon-settings slot="icon"></sp-icon-settings
           ></sp-tab>
-          <sp-tab-panel style="flex-direction: column" value="select-area">
-            <div style="width: 250px">
-              <sp-button quiet variant="secondary" @click=${this.selectArea}>
-                Run task
-              </sp-button>
+          <sp-tab-panel style="flex-direction: column" value="area">
+            <div style="margin-top:25px", width: 250px">
+            ${triggerButton}
             </div>
             <div style="margin: auto">
               <div id="progress-header">${progressHeader}</div>
