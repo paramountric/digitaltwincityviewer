@@ -32,6 +32,7 @@ type Layer = {
 export class Store {
   public isLoading = false;
   public isProcessingTask = false;
+  private currentPoller: ReturnType<typeof setInterval> | null;
   public showUiComponents: {
     [uiComponentKey: string]: boolean;
   };
@@ -48,15 +49,18 @@ export class Store {
       leftMenu: true,
       layerDialog: false,
     };
+    this.currentPoller = null;
     makeObservable(this, {
       isLoading: observable,
       isProcessingTask: observable,
       showUiComponents: observable,
       layers: observable,
       setIsLoading: action,
+      setIsProcessingTask: action,
       addLayer: action,
       showUiComponent: action,
       updateLayer: action,
+      removeLayer: action,
     });
     this.init();
   }
@@ -94,6 +98,14 @@ export class Store {
     this.layers = this.layers.filter(l => l.id === layer.id);
   }
 
+  public async getTasks() {
+    const taskRequest = await fetch(
+      'http://compute.dtcc.chalmers.se:8090/tasks/'
+    );
+    const data = await taskRequest.json();
+    console.log(data);
+  }
+
   public updateLayer(layerData: Layer) {
     const layer = this.layers.find(l => l.name === layerData.name);
     if (!layer) {
@@ -127,6 +139,7 @@ export class Store {
 
   async init() {
     await this.connectToWebsocket();
+    this.getTasks();
     // await this.loadTestData(
     //   'http://localhost:9000/files/HelsingborgOceanen/GroundSurface.json',
     //   'ground-layer-surface-mesh',
@@ -490,13 +503,34 @@ export class Store {
       progress: 0,
     });
 
-    // const taskRequest = await fetch(
-    //   'http://compute.dtcc.chalmers.se:8000/api/',
-    //   {
-    //     mode: 'cors',
-    //   }
-    // );
-    // const data = await taskRequest.arrayBuffer();
+    try {
+      const taskRequest = await fetch(
+        'http://compute.dtcc.chalmers.se:8090/tasks/run_sample_python_process/start',
+        {
+          mode: 'cors',
+          method: 'post',
+        }
+      );
+      const data = await taskRequest.json();
+      console.log('returned', data);
+      this.currentPoller = setInterval(async () => {
+        try {
+          const progressResponse = await fetch(
+            'http://compute.dtcc.chalmers.se:8090/logs'
+            //`http://compute.dtcc.chalmers.se:8090/api/task/${taskName}/logs`
+          );
+          const progress = await progressResponse.json();
+          console.log(progress);
+        } catch (err) {
+          if (this.currentPoller) {
+            clearTimeout(this.currentPoller);
+          }
+          console.log(err);
+        }
+      }, 2000);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   selectArea() {
@@ -555,6 +589,9 @@ export class Store {
       })} Task was cancelled`,
       statusCode: null,
     });
+    if (this.currentPoller) {
+      clearTimeout(this.currentPoller);
+    }
   }
 
   simulate() {
