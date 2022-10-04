@@ -29,6 +29,8 @@ class LeftMenu extends MobxLitElement {
 
   openLayerDialog(layerName) {
     this.store.showUiComponent('layerDialog', true);
+    // this is only for the code sprint and will load the state of the test task to show in dialog
+    this.store.loadTaskProgress();
     if (layerName) {
       this.store.setActiveLayer(layerName);
     }

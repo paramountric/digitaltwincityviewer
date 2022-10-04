@@ -8,6 +8,14 @@ import {
 import { parseCityModel } from '@dtcv/citymodel';
 // import { module as noise } from './noise';
 
+// ! DISCLAIMER: this file is super messy, part of code sprint, and should be refactored
+
+// we can only run this task atm
+const taskName = 'run_iboflow_on_builder';
+
+// see this for logging format
+// https://rocketry.readthedocs.io/en/stable/handbooks/logging.html
+
 const env = process.env.NODE_ENV;
 const websocketUrl =
   env === 'production'
@@ -16,18 +24,24 @@ const websocketUrl =
     ? 'ws://localhost:4000'
     : 'wss://pmtric-local.com/dtcv/ws';
 
-// todo: create one LayerStatus and one Layer type
 type Layer = {
   id?: string;
   basemapString?: string;
   name: string;
   isLoading?: boolean;
   isVisible?: boolean;
-  // for loading
+  // for loading, not sure about this
   task?: string; // main task
   status?: string; // status text
   progress?: number; // percentage
-  statusCode?: number; // some codes for success, failed, etc
+  statusCode?: number; // some codes for success, failed, etc for color
+};
+
+export type Log = {
+  task: string; // task name
+  datetime: string; // Date.toIsoString
+  message: string; // used as message in log
+  statusCode: number; // green, gray or red
 };
 export class Store {
   public isLoading = false;
@@ -36,10 +50,11 @@ export class Store {
   public showUiComponents: {
     [uiComponentKey: string]: boolean;
   };
-  public progressList: Layer[] = []; // fill this with numbers corresponding to loaded status messages, just for prototyping the loading function
-  public progressHistoryList: Layer[][] = []; // add previous progress lists in this list
+  public progressList: Log[] = []; // fill this with numbers corresponding to loaded status messages, just for prototyping the loading function
+  //public progressHistoryList: Layer[][] = []; // add previous progress lists in this list
   public activeLayer: string | null;
   public activeLayerDialogTab: string | null;
+  public notificationMessage: string | null;
   public viewer: Viewer;
   private socket: WebSocket;
   public layers: Layer[] = [];
@@ -48,19 +63,26 @@ export class Store {
     this.showUiComponents = {
       leftMenu: true,
       layerDialog: false,
+      notificationDialog: false,
     };
+    this.notificationMessage = null;
     this.currentPoller = null;
     makeObservable(this, {
       isLoading: observable,
       isProcessingTask: observable,
       showUiComponents: observable,
+      notificationMessage: observable,
+      progressList: observable,
       layers: observable,
       setIsLoading: action,
-      setIsProcessingTask: action,
       addLayer: action,
       showUiComponent: action,
       updateLayer: action,
-      removeLayer: action,
+      removeLayers: action,
+      addLog: action,
+      setNotificationMessage: action,
+      clearProgressMessages: action,
+      setIsProcessingTask: action,
     });
     this.init();
   }
@@ -69,12 +91,16 @@ export class Store {
     this.isLoading = isLoading;
   }
 
+  public showUiComponent(key: string, show: boolean) {
+    this.showUiComponents[key] = show;
+  }
+
   public setIsProcessingTask(isProcessingTask: boolean) {
     this.isProcessingTask = isProcessingTask;
   }
 
-  public showUiComponent(key: string, show: boolean) {
-    this.showUiComponents[key] = show;
+  public setNotificationMessage(message: string | null) {
+    this.notificationMessage = message;
   }
 
   public reset() {
@@ -90,20 +116,22 @@ export class Store {
     this.layers.push(layer);
   }
 
-  public removeLayer(layer: Layer) {
-    // const foundLayer = this.layers.find(l => l.id === layer.id);
-    // if (foundLayer) {
-    //   const idx = this.layers.indexOf(foundLayer);
-    // }
-    this.layers = this.layers.filter(l => l.id === layer.id);
+  public removeLayers() {
+    this.layers = [];
   }
 
   public async getTasks() {
-    const taskRequest = await fetch(
-      'http://compute.dtcc.chalmers.se:8090/tasks/'
-    );
-    const data = await taskRequest.json();
-    console.log(data);
+    try {
+      const taskRequest = await fetch(
+        'http://compute.dtcc.chalmers.se:8090/tasks/'
+      );
+      const data = await taskRequest.json();
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+      this.showUiComponent('notificationDialog', true);
+      this.setNotificationMessage('Server seems to be offline');
+    }
   }
 
   public updateLayer(layerData: Layer) {
@@ -321,6 +349,51 @@ export class Store {
   //   });
   // }
 
+  addLog(message: string, datetime: string, statusCode: number) {
+    this.progressList.push({
+      task: taskName,
+      message,
+      datetime,
+      statusCode,
+    });
+  }
+
+  clearProgressMessages() {
+    this.progressList = [];
+  }
+
+  // init the list by checking the current state of the task
+  async loadTaskProgress() {
+    this.clearProgressMessages();
+    this.addLog('Checking task progress', new Date().toISOString(), 0);
+    try {
+      const taskStatusRequest = await fetch(
+        `http://compute.dtcc.chalmers.se:8090/tasks/${taskName}`,
+        {
+          mode: 'cors',
+        }
+      );
+      const taskStatus = await taskStatusRequest.json();
+      if (taskStatus.status) {
+        this.addLog(taskStatus.status, new Date().toISOString(), 0);
+        const taskLogsRequest = await fetch(
+          `http://compute.dtcc.chalmers.se:8090/task/${taskName}/logs`,
+          {
+            mode: 'cors',
+          }
+        );
+        const existingLogs = await taskLogsRequest.json();
+        console.log('logs', existingLogs);
+        // todo: put the logs into the progress list
+      } else {
+        this.addLog('No task is running', new Date().toISOString(), 1);
+      }
+    } catch (err) {
+      console.log(err);
+      this.addLog('Failed to check task status', new Date().toISOString(), -1);
+    }
+  }
+
   async loadTestData(url, layerId, key) {
     // const res = await fetch(url);
     // if (res.status !== 200) {
@@ -398,71 +471,72 @@ export class Store {
     });
   }
 
-  simulateLayerLoadingProgress(sequence, i = 0, percentage = 0) {
-    if (percentage) {
-      this.updateLayer({
-        name: 'Buildings',
-        progress: percentage,
-      });
-    } else {
-      const { task, status } = sequence.reduce(
-        (acc, s) => {
-          if (acc.task) {
-            return acc;
-          }
-          for (const p of s.progress) {
-            if (acc.count === i) {
-              acc.task = s.task;
-              acc.status = p;
-            }
-            acc.count++;
-          }
-          return acc;
-        },
-        { task: '', status: '', count: 0 }
-      );
-      if (!status) {
-        this.updateLayer({
-          name: 'Buildings',
-          task: '',
-          status: 'Finished',
-          progress: 0,
-        });
-        this.progressHistoryList.push([...this.progressList]);
-        this.progressList = [];
-        return;
-      }
-      this.updateLayer({
-        name: 'Buildings',
-        task,
-        status,
-      });
-      const previousProgressItem =
-        this.progressList[this.progressList.length - 1];
-      if (previousProgressItem) {
-        previousProgressItem.statusCode = Math.random() > 0.9 ? -1 : 1;
-        previousProgressItem.status = `${
-          previousProgressItem.status
-        } (${Math.ceil(Math.random() * 10).toFixed()}s)`;
-      }
-      this.progressList.push({
-        name: 'Buildings',
-        task,
-        status: `${new Date().toLocaleString('se-SE', {
-          timeZone: 'UTC',
-        })} ${status}`,
-        statusCode: null,
-      });
-      i++;
-    }
-    setTimeout(() => {
-      percentage += 20;
-      this.simulateLayerLoadingProgress(sequence, i, percentage % 120);
-    }, 200);
-  }
+  // simulateLayerLoadingProgress(sequence, i = 0, percentage = 0) {
+  //   if (percentage) {
+  //     this.updateLayer({
+  //       name: 'Buildings',
+  //       progress: percentage,
+  //     });
+  //   } else {
+  //     const { task, status } = sequence.reduce(
+  //       (acc, s) => {
+  //         if (acc.task) {
+  //           return acc;
+  //         }
+  //         for (const p of s.progress) {
+  //           if (acc.count === i) {
+  //             acc.task = s.task;
+  //             acc.status = p;
+  //           }
+  //           acc.count++;
+  //         }
+  //         return acc;
+  //       },
+  //       { task: '', status: '', count: 0 }
+  //     );
+  //     if (!status) {
+  //       this.updateLayer({
+  //         name: 'Buildings',
+  //         task: '',
+  //         status: 'Finished',
+  //         progress: 0,
+  //       });
+  //       //this.progressHistoryList.push([...this.progressList]);
+  //       this.progressList = [];
+  //       return;
+  //     }
+  //     this.updateLayer({
+  //       name: 'Buildings',
+  //       task,
+  //       status,
+  //     });
+  //     const previousProgressItem =
+  //       this.progressList[this.progressList.length - 1];
+  //     if (previousProgressItem) {
+  //       previousProgressItem.statusCode = Math.random() > 0.9 ? -1 : 1;
+  //       previousProgressItem.status = `${
+  //         previousProgressItem.status
+  //       } (${Math.ceil(Math.random() * 10).toFixed()}s)`;
+  //     }
+  //     this.progressList.push({
+  //       name: 'Buildings',
+  //       task,
+  //       status: `${new Date().toLocaleString('se-SE', {
+  //         timeZone: 'UTC',
+  //       })} ${status}`,
+  //       statusCode: null,
+  //     });
+  //     i++;
+  //   }
+  //   setTimeout(() => {
+  //     percentage += 20;
+  //     this.simulateLayerLoadingProgress(sequence, i, percentage % 120);
+  //   }, 200);
+  // }
 
   async generateCityModel() {
     this.setIsProcessingTask(true);
+    this.clearProgressMessages();
     // city model has two layers
     if (!this.layers.find(l => l.id === 'buildings-layer-polygons-lod-1')) {
       this.addLayer({
@@ -479,116 +553,123 @@ export class Store {
       });
     }
 
-    const sequence = [
-      {
-        task: 'Generating city model',
-        progress: ['Initialize task', 'Generating mesh'],
-      },
-    ];
-    const status = 'Initialize task';
-    this.progressList.push({
-      name: 'Buildings',
-      task: 'Generating city model',
-      status: `${new Date().toLocaleString('se-SE', {
-        timeZone: 'UTC',
-      })} ${status}`,
-      statusCode: null,
-    });
+    this.addLog('Initialize task', new Date().toISOString(), 0);
 
-    this.updateLayer({
-      name: 'Buildings',
-      id: 'buildings-layer-polygons-lod-1',
-      task: 'Generating city model',
-      status,
-      progress: 0,
-    });
+    // this.progressList.push({
+    //   name: 'Buildings',
+    //   task: 'Generating city model',
+    //   status: `${new Date().toLocaleString('se-SE', {
+    //     timeZone: 'UTC',
+    //   })} ${status}`,
+    //   statusCode: null,
+    // });
+
+    // this.updateLayer({
+    //   name: 'Buildings',
+    //   id: 'buildings-layer-polygons-lod-1',
+    //   task: 'Generating city model',
+    //   status,
+    //   progress: 0,
+    // });
 
     try {
       const taskRequest = await fetch(
-        'http://compute.dtcc.chalmers.se:8090/tasks/run_sample_python_process/start',
+        `http://compute.dtcc.chalmers.se:8090/tasks/${taskName}/start`,
         {
           mode: 'cors',
           method: 'post',
         }
       );
       const data = await taskRequest.json();
-      console.log('returned', data);
+      console.log('data returns null and should return a task id', data);
       this.currentPoller = setInterval(async () => {
         try {
           const progressResponse = await fetch(
-            'http://compute.dtcc.chalmers.se:8090/logs'
-            //`http://compute.dtcc.chalmers.se:8090/api/task/${taskName}/logs`
+            //'http://compute.dtcc.chalmers.se:8090/logs'
+            `http://compute.dtcc.chalmers.se:8090/tasks/${taskName}/stream-logs`
           );
-          const progress = await progressResponse.json();
-          console.log(progress);
+          const logs = await progressResponse.json();
+          for (const log of logs) {
+            this.addLog(log.message, log.created, 0);
+          }
         } catch (err) {
+          this.addLog(
+            'Server progress returned an error',
+            new Date().toISOString(),
+            -1
+          );
           if (this.currentPoller) {
             clearTimeout(this.currentPoller);
           }
+          this.setIsProcessingTask(false);
           console.log(err);
         }
       }, 2000);
     } catch (err) {
+      this.addLog('Could not start task', new Date().toISOString(), -1);
+      this.setIsProcessingTask(false);
+      this.removeLayers();
       console.log(err);
     }
   }
 
-  selectArea() {
-    console.log('select area');
-    this.updateLayer({ name: 'Buildings', isLoading: true });
-    this.updateLayer({ name: 'Ground surface', isLoading: true });
-    const sequence = [
-      {
-        task: 'Loading input data',
-        progress: ['Loading point cloud', 'Loading shapefile'],
-      },
-      {
-        task: 'Processing geometry',
-        progress: [
-          'Processing point cloud',
-          'Processing polygon data',
-          'Building meshes',
-        ],
-      },
-      {
-        task: 'Preparing surfaces',
-        progress: ['Simplification', 'Serializing'],
-      },
-      {
-        task: 'Preparing city model',
-        progress: ['Extracting polygons', 'Adding buildings'],
-      },
-      {
-        task: 'Finalizing',
-        progress: ['Saving to db', 'loading...'],
-      },
-    ];
-    this.simulateLayerLoadingProgress(sequence);
-  }
+  // selectArea() {
+  //   console.log('select area');
+  //   this.updateLayer({ name: 'Buildings', isLoading: true });
+  //   this.updateLayer({ name: 'Ground surface', isLoading: true });
+  //   const sequence = [
+  //     {
+  //       task: 'Loading input data',
+  //       progress: ['Loading point cloud', 'Loading shapefile'],
+  //     },
+  //     {
+  //       task: 'Processing geometry',
+  //       progress: [
+  //         'Processing point cloud',
+  //         'Processing polygon data',
+  //         'Building meshes',
+  //       ],
+  //     },
+  //     {
+  //       task: 'Preparing surfaces',
+  //       progress: ['Simplification', 'Serializing'],
+  //     },
+  //     {
+  //       task: 'Preparing city model',
+  //       progress: ['Extracting polygons', 'Adding buildings'],
+  //     },
+  //     {
+  //       task: 'Finalizing',
+  //       progress: ['Saving to db', 'loading...'],
+  //     },
+  //   ];
+  //   this.simulateLayerLoadingProgress(sequence);
+  // }
 
   cancelCurrentTask() {
     this.setIsProcessingTask(false);
-    const layer1 = this.layers.find(
-      l => l.id === 'buildings-layer-polygons-lod-1'
-    );
-    if (layer1) {
-      this.removeLayer(layer1);
-    }
-    const layer2 = this.layers.find(l => l.id === 'ground-layer-surface-mesh');
-    if (layer2) {
-      this.removeLayer(layer2);
-    }
-    this.progressList.forEach(p => {
-      p.isLoading = false;
-    });
-    this.progressList.push({
-      name: 'Buildings',
-      task: '',
-      status: `${new Date().toLocaleString('se-SE', {
-        timeZone: 'UTC',
-      })} Task was cancelled`,
-      statusCode: null,
-    });
+    // this should not remove all layers only the relevant ones
+    this.removeLayers();
+    // const layer1 = this.layers.find(
+    //   l => l.id === 'buildings-layer-polygons-lod-1'
+    // );
+    // if (layer1) {
+    //   this.removeLayer(layer1);
+    // }
+    // const layer2 = this.layers.find(l => l.id === 'ground-layer-surface-mesh');
+    // if (layer2) {
+    //   this.removeLayer(layer2);
+    // }
+    // this.progressList.forEach(p => {
+    //   p.isLoading = false;
+    // });
+    this.addLog('Task was cancelled', new Date().toISOString(), -1);
+    // this.progressList.push({
+    //   status: `${new Date().toLocaleString('se-SE', {
+    //     timeZone: 'UTC',
+    //   })} Task was cancelled`,
+    //   statusCode: null,
+    // });
     if (this.currentPoller) {
       clearTimeout(this.currentPoller);
     }

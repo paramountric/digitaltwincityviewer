@@ -10,6 +10,7 @@ import './Header';
 import './LeftMenu';
 import './RightMenu';
 import './LayerDialog';
+import './NotificationDialog';
 
 const { MAPBOX_TOKEN } = process.env;
 
@@ -55,6 +56,7 @@ class App extends MobxLitElement {
       <div id="viewport"></div>
       ${rightMenu}
       <dtcc-layer-dialog .store=${this.store}></dtcc-layer-dialog>
+      <dtcc-notification-dialog .store=${this.store}></dtcc-notification-dialog>
     </sp-theme>`;
   }
 }

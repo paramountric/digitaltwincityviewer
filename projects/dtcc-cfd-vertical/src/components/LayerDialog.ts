@@ -20,7 +20,7 @@ import '@spectrum-web-components/icons-workflow/icons/sp-icon-rect-select.js';
 import '@spectrum-web-components/icons-workflow/icons/sp-icon-add-circle.js';
 import '@spectrum-web-components/icons-workflow/icons/sp-icon-settings.js';
 import '@spectrum-web-components/status-light/sp-status-light.js';
-import { Store } from '../store/Store';
+import { Log, Store } from '../store/Store';
 
 @customElement('dtcc-layer-dialog')
 class LayerPanel extends MobxLitElement {
@@ -47,6 +47,7 @@ class LayerPanel extends MobxLitElement {
       height: 400px;
       font-family: monospace;
       background: #333;
+      overflow: hidden;
     }
   `;
 
@@ -103,8 +104,12 @@ class LayerPanel extends MobxLitElement {
       })}
     </sp-menu>`;
     // for testing the loading functionality
-    const { status, task, progress } =
-      this.store.layers.find(l => l.name === 'Buildings') || {};
+    // const { status, task, progress } =
+    //   this.store.layers.find(l => l.name === 'Buildings') || {};
+
+    const task = 'Task: ';
+    const status = 'This should show the overall progress...';
+    const progress = 10;
 
     const statusBar =
       this.store.isProcessingTask && task
@@ -126,28 +131,30 @@ class LayerPanel extends MobxLitElement {
           ></sp-menu-item>`
         : null;
 
-    const getStatusVariant = statusCode => {
-      if (statusCode === 1) {
+    const getStatusVariant = (log: Log) => {
+      if (log.statusCode === 1) {
         return 'positive';
       }
-      if (statusCode === -1) {
+      if (log.statusCode === -1) {
         return 'negative';
       }
       return 'neutral';
     };
-    const statusList = task
-      ? this.store.progressList.map(
-          p =>
-            html`<sp-status-light
-              style="color:#fff"
-              size="m"
-              variant=${getStatusVariant(p.statusCode)}
-              >${p.status}</sp-status-light
-            >`
-        )
-      : null;
 
-    console.log(this.store.isProcessingTask, status, task, progress);
+    const getDisplayMessage = (log: Log) => {
+      return `${new Date(log.datetime).toLocaleString('se-SE', {
+        timeZone: 'UTC',
+      })} ${log.message}`;
+    };
+    const statusList = this.store.progressList.map(
+      log =>
+        html`<sp-status-light
+          style="color:#fff"
+          size="m"
+          variant=${getStatusVariant(log)}
+          >${getDisplayMessage(log)}</sp-status-light
+        >`
+    );
 
     const triggerButton = this.store.isProcessingTask
       ? html`<sp-button quiet variant="secondary" @click=${this.cancelTask}>
