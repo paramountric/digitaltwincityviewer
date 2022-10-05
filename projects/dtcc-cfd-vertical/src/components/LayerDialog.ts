@@ -47,7 +47,6 @@ class LayerPanel extends MobxLitElement {
       height: 400px;
       font-family: monospace;
       background: #333;
-      overflow: hidden;
     }
   `;
 
@@ -70,7 +69,7 @@ class LayerPanel extends MobxLitElement {
   }
 
   generateCityModel() {
-    this.store.generateCityModel();
+    this.store.generateFakeCityModel();
   }
 
   cancelTask() {
@@ -107,7 +106,7 @@ class LayerPanel extends MobxLitElement {
     // const { status, task, progress } =
     //   this.store.layers.find(l => l.name === 'Buildings') || {};
 
-    const task = 'Task: ';
+    const task = 'Task: Generate city model';
     const status = 'This should show the overall progress...';
     const progress = 10;
 
@@ -116,7 +115,7 @@ class LayerPanel extends MobxLitElement {
         ? html`<sp-progress-bar
             size="l"
             label=${status}
-            progress=${progress}
+            progress=${this.store.overallProgressPercentage}
           ></sp-progress-bar>`
         : null;
 

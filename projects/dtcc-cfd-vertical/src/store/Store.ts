@@ -11,7 +11,7 @@ import { parseCityModel } from '@dtcv/citymodel';
 // ! DISCLAIMER: this file is super messy, part of code sprint, and should be refactored
 
 // we can only run this task atm
-const taskName = 'run_iboflow_on_builder';
+const taskName = 'generateTest';
 
 // see this for logging format
 // https://rocketry.readthedocs.io/en/stable/handbooks/logging.html
@@ -46,6 +46,7 @@ export type Log = {
 export class Store {
   public isLoading = false;
   public isProcessingTask = false;
+  public overallProgressPercentage = 0;
   private currentPoller: ReturnType<typeof setInterval> | null;
   public showUiComponents: {
     [uiComponentKey: string]: boolean;
@@ -58,6 +59,7 @@ export class Store {
   public viewer: Viewer;
   private socket: WebSocket;
   public layers: Layer[] = [];
+  private logReader: ReadableStreamDefaultReader<string> | null = null;
   public constructor(viewer: Viewer) {
     this.viewer = viewer;
     this.showUiComponents = {
@@ -73,6 +75,7 @@ export class Store {
       showUiComponents: observable,
       notificationMessage: observable,
       progressList: observable,
+      overallProgressPercentage: observable,
       layers: observable,
       setIsLoading: action,
       addLayer: action,
@@ -168,6 +171,12 @@ export class Store {
   async init() {
     await this.connectToWebsocket();
     this.getTasks();
+    // this.createTestData(
+    //   'http://localhost:4000/cache?http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/CityModel',
+    //   'buildings-layer-polygons-lod-1',
+    //   'buildings'
+    // );
+
     // await this.loadTestData(
     //   'http://localhost:9000/files/HelsingborgOceanen/GroundSurface.json',
     //   'ground-layer-surface-mesh',
@@ -260,16 +269,16 @@ export class Store {
     //   isLoading: true,
     // });
 
-    setTimeout(() => {
-      this.updateLayer({ name: 'Buildings', isLoading: false });
-      this.updateLayer({ name: 'Ground surface', isLoading: false });
-      this.updateLayer({ name: 'Simulation result', isLoading: false });
-      this.updateLayer({
-        name: 'Velocity magnitude surface',
-        isLoading: false,
-      });
-      this.updateLayer({ name: 'Pressure surface', isLoading: false });
-    }, 1000);
+    // setTimeout(() => {
+    //   this.updateLayer({ name: 'Buildings', isLoading: false });
+    //   this.updateLayer({ name: 'Ground surface', isLoading: false });
+    //   this.updateLayer({ name: 'Simulation result', isLoading: false });
+    //   this.updateLayer({
+    //     name: 'Velocity magnitude surface',
+    //     isLoading: false,
+    //   });
+    //   this.updateLayer({ name: 'Pressure surface', isLoading: false });
+    // }, 1000);
 
     // await this.loadLayerData(
     //   'http://localhost:9000/files/movement/Haga.json',
@@ -287,6 +296,48 @@ export class Store {
   async getCachedLayer(url, layerId, key) {
     try {
       const res = await fetch(url);
+      const data = await res.json();
+      console.log(data);
+      this.viewer.updateLayer({
+        layerId,
+        props: {
+          data: data[key].data,
+          modelMatrix: data[key].modelMatrix,
+          //center: parsed[key].center,
+        },
+        state: {
+          url,
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async loadResult(url, layerId, key) {
+    try {
+      const res = await fetch(`http://localhost:4000/result?${url}`);
+      const data = await res.json();
+      console.log(data);
+      this.viewer.updateLayer({
+        layerId,
+        props: {
+          data: data[key].data,
+          modelMatrix: data[key].modelMatrix,
+          //center: parsed[key].center,
+        },
+        state: {
+          url,
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async createTestData(url, layerId, key) {
+    try {
+      const res = await fetch('http://localhost:4000/test');
       const data = await res.json();
       console.log(data);
       this.viewer.updateLayer({
@@ -375,6 +426,7 @@ export class Store {
       );
       const taskStatus = await taskStatusRequest.json();
       if (taskStatus.status) {
+        console.log('current status', taskStatus);
         this.addLog(taskStatus.status, new Date().toISOString(), 0);
         const taskLogsRequest = await fetch(
           `http://compute.dtcc.chalmers.se:8090/task/${taskName}/logs`,
@@ -383,7 +435,7 @@ export class Store {
           }
         );
         const existingLogs = await taskLogsRequest.json();
-        console.log('logs', existingLogs);
+        console.log('existing logs', existingLogs);
         // todo: put the logs into the progress list
       } else {
         this.addLog('No task is running', new Date().toISOString(), 1);
@@ -534,6 +586,52 @@ export class Store {
   //   }, 200);
   // }
 
+  async generateFakeCityModel() {
+    this.setIsProcessingTask(true);
+    this.clearProgressMessages();
+    // city model has two layers
+    if (!this.layers.find(l => l.id === 'buildings-layer-polygons-lod-1')) {
+      this.addLayer({
+        id: 'buildings-layer-polygons-lod-1',
+        name: 'Buildings',
+        isLoading: true,
+        isVisible: true,
+      });
+      this.addLayer({
+        id: 'ground-layer-surface-mesh',
+        name: 'Ground surface',
+        isVisible: true,
+        isLoading: true,
+      });
+    }
+
+    this.addLog('Initialize task', new Date().toISOString(), 0);
+
+    let count = 5;
+    this.currentPoller = setInterval(async () => {
+      this.addLog('Task in progress', new Date().toISOString(), 0);
+      this.updateLayer({ name: 'Buildings', isLoading: false });
+      this.updateLayer({ name: 'Ground surface', isLoading: false });
+
+      if (count === 0) {
+        this.createTestData(
+          'http://localhost:4000/cache?http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/CityModel',
+          'buildings-layer-polygons-lod-1',
+          'buildings'
+        );
+        this.addLog(
+          'Success generating city model!',
+          new Date().toISOString(),
+          1
+        );
+        clearTimeout(this.currentPoller);
+        this.setIsProcessingTask(false);
+        console.log('success');
+      }
+      count--;
+    }, 1000);
+  }
+
   async generateCityModel() {
     this.setIsProcessingTask(true);
     this.clearProgressMessages();
@@ -555,24 +653,8 @@ export class Store {
 
     this.addLog('Initialize task', new Date().toISOString(), 0);
 
-    // this.progressList.push({
-    //   name: 'Buildings',
-    //   task: 'Generating city model',
-    //   status: `${new Date().toLocaleString('se-SE', {
-    //     timeZone: 'UTC',
-    //   })} ${status}`,
-    //   statusCode: null,
-    // });
-
-    // this.updateLayer({
-    //   name: 'Buildings',
-    //   id: 'buildings-layer-polygons-lod-1',
-    //   task: 'Generating city model',
-    //   status,
-    //   progress: 0,
-    // });
-
     try {
+      console.log('Calling the start task function');
       const taskRequest = await fetch(
         `http://compute.dtcc.chalmers.se:8090/tasks/${taskName}/start`,
         {
@@ -580,17 +662,40 @@ export class Store {
           method: 'post',
         }
       );
-      const data = await taskRequest.json();
-      console.log('data returns null and should return a task id', data);
+      const taskRequestData = await taskRequest.json();
+      console.log(
+        'Data returns null, but should return a task id',
+        taskRequestData
+      );
+
+      console.log('Get the stream');
+      const response = await fetch(
+        `http://compute.dtcc.chalmers.se:8090/tasks/${taskName}/stream-logs`
+      );
+
       this.currentPoller = setInterval(async () => {
         try {
-          const progressResponse = await fetch(
-            //'http://compute.dtcc.chalmers.se:8090/logs'
-            `http://compute.dtcc.chalmers.se:8090/tasks/${taskName}/stream-logs`
+          console.log('try get status log');
+          const taskStatusRequest = await fetch(
+            `http://compute.dtcc.chalmers.se:8090/tasks/${taskName}`,
+            {
+              mode: 'cors',
+            }
           );
-          const logs = await progressResponse.json();
-          for (const log of logs) {
-            this.addLog(log.message, log.created, 0);
+          const taskStatus = await taskStatusRequest.json();
+          console.log('taskStatus', taskStatus);
+          this.addLog('Task in progress', new Date().toISOString(), 0);
+          // for (const log of logs) {
+          //   this.addLog(log.message, log.created, 0);
+          // }
+          // const success = logs.find(l => l.status === 'success');
+          if (taskStatus.status === 'success' && this.currentPoller) {
+            const { url } = taskStatus;
+            this.loadResult(url, 'buildings-layer-polygons-lod-1', 'buildings');
+            clearTimeout(this.currentPoller);
+            this.setIsProcessingTask(false);
+            console.log('success');
+            this.logReader.cancel();
           }
         } catch (err) {
           this.addLog(
@@ -605,6 +710,22 @@ export class Store {
           console.log(err);
         }
       }, 2000);
+
+      console.log('Create the reader');
+      this.logReader = response.body
+        .pipeThrough(new TextDecoderStream())
+        .getReader();
+
+      while (true) {
+        console.log('reading the data');
+        const { value, done } = await this.logReader.read();
+        if (done) {
+          console.log('Done', done);
+          break;
+        }
+        this.addLog(value, new Date().toISOString(), 0);
+        console.log(value);
+      }
     } catch (err) {
       this.addLog('Could not start task', new Date().toISOString(), -1);
       this.setIsProcessingTask(false);

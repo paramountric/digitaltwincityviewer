@@ -18,6 +18,12 @@ console.log(MAPBOX_TOKEN);
 
 @customElement('dtcc-app')
 class App extends MobxLitElement {
+  static styles = css`
+    sp-theme {
+      position: absolute;
+    }
+  `;
+
   @state()
   store: Store;
 
@@ -33,6 +39,7 @@ class App extends MobxLitElement {
       this._viewport.style.height = '100%';
       this._viewport.style.width = '100%';
       this._viewport.style.position = 'absolute';
+      console.log(this._viewport);
       const viewer = new Viewer({
         container: this._viewport,
       });
