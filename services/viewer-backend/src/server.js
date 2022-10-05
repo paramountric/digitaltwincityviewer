@@ -1,11 +1,11 @@
 import http from 'http';
 import fetch from 'node-fetch';
-import WebSocket, { WebSocketServer } from 'ws';
+import WebSocket, {WebSocketServer} from 'ws';
 import NodeCache from 'node-cache';
-import { parseCityModel } from '@dtcv/citymodel';
+import {parseCityModel} from '@dtcv/citymodel';
 
 const cache = new NodeCache();
-export const server = http.createServer((req, res) => {
+export const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Request-Method', '*');
   res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
@@ -20,6 +20,20 @@ export const server = http.createServer((req, res) => {
     res.writeHead(200);
     const cacheData = cache.get(split[1]);
     res.end(JSON.stringify(cacheData));
+    return;
+  }
+  if (split[0] === '/result') {
+    res.writeHead(200);
+    const result = addCodeSprintData(split[1], 'CityModel');
+    res.end(JSON.stringify(result));
+    return;
+  }
+  if (split[0] === '/test') {
+    const data = await addCodeSprintData(
+      'http://localhost:9000/files/HelsingborgOceanen/CityModel.pb',
+      'CityModel'
+    );
+    res.end(JSON.stringify(data));
     return;
   }
   res.statusCode = 404;
@@ -55,6 +69,7 @@ const addCodeSprintData = async (url, type) => {
   const parsed = parseCityModel(decodedJson, type);
   console.log('parsed', parsed);
   cache.set(url, parsed);
+  return parsed;
 };
 
 // this should be removed, only for codesprint data
@@ -69,11 +84,6 @@ const addCodeSprintData = async (url, type) => {
 // addCodeSprintData(
 //   'http://compute.dtcc.chalmers.se:8000/api/GetDataSet/Helsingborg2021/VelocityMagnitudeSurface',
 //   'SurfaceField3D'
-// );
-
-// await addCodeSprintData(
-//   'http://localhost:9000/files/HelsingborgOceanen/CityModel.pb',
-//   'CityModel'
 // );
 
 // await addCodeSprintData(
@@ -169,7 +179,7 @@ server.on('upgrade', async function upgrade(request, socket, head) {
   }
   console.log('handle upgrade');
   wss.handleUpgrade(request, socket, head, function done(ws) {
-    wss.emit('connection', ws, request, { userId });
+    wss.emit('connection', ws, request, {userId});
   });
 });
 
@@ -202,4 +212,4 @@ wss.on('close', function close() {
   clearInterval(interval);
 });
 
-export { wss };
+export {wss};

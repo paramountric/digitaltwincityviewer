@@ -1,26 +1,26 @@
 import mqtt from 'mqtt';
-import { createClient } from 'redis';
+import {createClient} from 'redis';
 import protobuf from 'protobufjs';
-import { server } from './server.js';
+import {server} from './server.js';
 
-const { MQTT_INTERNAL_HOST, MQTT_HUB } = process.env;
+const {MQTT_INTERNAL_HOST, MQTT_HUB} = process.env;
 const WS_PORT = 4000;
 const isDev = process.env.NODE_ENV === 'development';
 const mqttDev = isDev ? MQTT_INTERNAL_HOST : null;
 const mqttUrl = mqttDev || MQTT_HUB || 'https://test.mosquitto.org/'; // 'mqtt://mqtt-broker';
 //const mqttClient = mqtt.connect(mqttUrl);
-const REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+//const REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 
 const run = async () => {
-  const client = createClient({
-    url: REDIS_URL,
-  });
+  // const client = createClient({
+  //   url: REDIS_URL,
+  // });
 
-  client.on('error', err => console.log('Redis Client Error', err));
-  await client.connect();
-  await client.set('key', 'value');
-  const value = await client.get('key');
-  console.log('test redis: ', value);
+  // client.on('error', err => console.log('Redis Client Error', err));
+  // await client.connect();
+  // await client.set('key', 'value');
+  // const value = await client.get('key');
+  // console.log('test redis: ', value);
 
   const protoRoot = await protobuf.load('dtcc.proto');
   server.protoRoot = protoRoot;
