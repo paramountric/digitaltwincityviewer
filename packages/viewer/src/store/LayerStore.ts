@@ -4,7 +4,7 @@
 import { LayerProps, COORDINATE_SYSTEM } from '@deck.gl/core';
 import { SolidPolygonLayer, GeoJsonLayer } from '@deck.gl/layers';
 import { SimpleMeshLayer } from '@deck.gl/mesh-layers';
-import { TripsLayer } from '@deck.gl/geo-layers';
+import { TripsLayer, MVTLayer } from '@deck.gl/geo-layers';
 import GL from '@luma.gl/constants';
 import { Geometry } from '@luma.gl/engine';
 import { mat4 } from 'gl-matrix';
@@ -59,6 +59,24 @@ type ColorStyle = {
 const HIGHLIGHT_COLOR = [100, 150, 250, 255];
 
 const layerGroupCatalog: LayerGroupState[] = [
+  {
+    title: 'Basemap',
+    description:
+      'Adds a vector tile layer given the connection string, use the url field for the service + token',
+    layers: [
+      {
+        type: MVTLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: true,
+        isMeshLayer: false,
+        props: {
+          id: 'vectortiles-basemap',
+        },
+      },
+    ],
+  },
   {
     // The purpose of the "import geojson" layer is to show geojson data and let the user decide what is what according to a type system (schema or linked data)
     // When the features have been typed, another more specific layer can be used (note that the unique keys of layers will make sure that duplicated representations will be avoided)
@@ -362,6 +380,43 @@ const layerGroupCatalog: LayerGroupState[] = [
           getColor: [235, 235, 255],
         },
       },
+      {
+        type: BuildingSurfaceLayer,
+        url: null,
+        isLoaded: false,
+        isLoading: false,
+        isClickable: true,
+        isMeshLayer: true,
+        props: {
+          id: 'buildings-layer-windows-lod-3',
+          autoHighlight: true,
+          highlightColor: HIGHLIGHT_COLOR,
+          data: [],
+          _instanced: false,
+          _useMeshColors: true,
+          wireframe: false,
+          pickable: true,
+          // onHover: e => {
+          //   console.log(e);
+          // },
+          coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+          parameters: {
+            depthMask: true,
+            depthTest: true,
+            blend: true,
+            blendFunc: [
+              GL.SRC_ALPHA,
+              GL.ONE_MINUS_SRC_ALPHA,
+              GL.ONE,
+              GL.ONE_MINUS_SRC_ALPHA,
+            ],
+            polygonOffsetFill: true,
+            depthFunc: GL.LEQUAL,
+            blendEquation: GL.FUNC_ADD,
+          },
+          getColor: [235, 235, 255],
+        },
+      },
     ],
   },
   {
@@ -627,6 +682,9 @@ export class LayerStore {
         // layer.props.onTick = tick => {
         //   console.log(tick);
         // };
+      }
+      if (layer.type === MVTLayer) {
+        layer.props.data = layer.props.url;
       }
       return [...acc, new layer.type(layer.props)];
     }, []);
