@@ -1,15 +1,19 @@
 import '../styles/globals.css';
 import type {AppProps} from 'next/app';
 import {QueryClient, QueryClientProvider} from 'react-query';
+import {ApolloProvider} from '@apollo/client';
+import {useApollo} from '../hooks/apollo';
 
-const queryClient = new QueryClient();
-
-function DoDApp({Component, pageProps}: AppProps) {
+function Dod({Component, pageProps}: AppProps) {
+  const restClient = new QueryClient();
+  const gqlClient = useApollo();
   return (
-    <QueryClientProvider client={queryClient}>
-      <Component {...pageProps} />
+    <QueryClientProvider client={restClient}>
+      <ApolloProvider client={gqlClient}>
+        <Component {...pageProps} />
+      </ApolloProvider>
     </QueryClientProvider>
   );
 }
 
-export default DoDApp;
+export default Dod;

@@ -1,34 +1,25 @@
 import type {NextPage} from 'next';
-import Link from 'next/link';
+import React from 'react';
 import Header from '../components/header';
-import Viewer from '../components/viewer';
-import {useUserInfo} from '../hooks/userinfo';
+import Viewport from '../components/viewport';
+import Login from '../components/login';
+import {useUser} from '../hooks/user';
 
-const ViewerPage: NextPage = () => {
-  const userInfo = useUserInfo();
-
-  console.log(userInfo);
-
+const StartPage: NextPage = () => {
+  const {user} = useUser();
+  console.log(user);
   return (
     <div>
       <main>
         {/* Use a wrapper for the app UI to keep the canvas fixed */}
-        <div className="absolute z-50 overflow-hidden">
-          <Header />
-        </div>
+        <React.StrictMode>
+          <Header></Header>
+        </React.StrictMode>
 
-        {userInfo ? (
-          <Viewer />
-        ) : (
-          <button>
-            <Link href="/api/auth/signin">
-              <a>Sign In</a>
-            </Link>
-          </button>
-        )}
+        {user ? <Viewport /> : <Login />}
       </main>
     </div>
   );
 };
 
-export default ViewerPage;
+export default StartPage;

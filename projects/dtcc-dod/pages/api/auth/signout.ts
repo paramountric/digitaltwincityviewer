@@ -12,7 +12,7 @@ export default function handleSignOut(
     .status(200)
     .setHeader(
       'Set-Cookie',
-      cookie.serialize('spkl', '', {
+      cookie.serialize('dod', '', {
         path: '/api',
         expires: new Date(0),
       })

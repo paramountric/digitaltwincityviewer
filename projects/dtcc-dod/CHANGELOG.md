@@ -3,247 +3,177 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [1.0.37](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.36...dtcc-dod@1.0.37) (2022-09-12)
+## [0.2.19](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.18...dte-digital-twin-energy@0.2.19) (2022-09-12)
 
-**Note:** Version bump only for package dtcc-dod
 
+### Bug Fixes
 
+* typescript ([7075aea](https://github.com/paramountric/digitaltwincityviewer/commit/7075aeaa010054d218615ea1b274666a5fc9ea77))
 
 
 
-## [1.0.36](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.35...dtcc-dod@1.0.36) (2022-09-09)
 
-**Note:** Version bump only for package dtcc-dod
 
+## [0.2.18](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.17...dte-digital-twin-energy@0.2.18) (2022-09-09)
 
+**Note:** Version bump only for package dte-digital-twin-energy
 
 
 
-## [1.0.35](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.34...dtcc-dod@1.0.35) (2022-09-08)
 
-**Note:** Version bump only for package dtcc-dod
 
+## [0.2.17](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.16...dte-digital-twin-energy@0.2.17) (2022-09-08)
 
 
+### Bug Fixes
 
+* typescript error ([13eba1c](https://github.com/paramountric/digitaltwincityviewer/commit/13eba1cc97a2dd17661a931f8227cd95d662963a))
 
-## [1.0.34](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.33...dtcc-dod@1.0.34) (2022-09-08)
 
-**Note:** Version bump only for package dtcc-dod
 
 
 
+## [0.2.16](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.15...dte-digital-twin-energy@0.2.16) (2022-09-08)
 
+**Note:** Version bump only for package dte-digital-twin-energy
 
-## [1.0.33](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.32...dtcc-dod@1.0.33) (2022-09-08)
 
-**Note:** Version bump only for package dtcc-dod
 
 
 
+## [0.2.15](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.14...dte-digital-twin-energy@0.2.15) (2022-09-08)
 
+**Note:** Version bump only for package dte-digital-twin-energy
 
-## [1.0.32](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.31...dtcc-dod@1.0.32) (2022-09-08)
 
-**Note:** Version bump only for package dtcc-dod
 
 
 
+## [0.2.14](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.13...dte-digital-twin-energy@0.2.14) (2022-09-08)
 
+**Note:** Version bump only for package dte-digital-twin-energy
 
-## [1.0.31](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.30...dtcc-dod@1.0.31) (2022-09-08)
 
-**Note:** Version bump only for package dtcc-dod
 
 
 
+## [0.2.13](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.12...dte-digital-twin-energy@0.2.13) (2022-09-08)
 
+**Note:** Version bump only for package dte-digital-twin-energy
 
-## [1.0.30](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.29...dtcc-dod@1.0.30) (2022-09-08)
 
-**Note:** Version bump only for package dtcc-dod
 
 
 
+## [0.2.12](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.11...dte-digital-twin-energy@0.2.12) (2022-09-08)
 
+**Note:** Version bump only for package dte-digital-twin-energy
 
-## [1.0.29](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.28...dtcc-dod@1.0.29) (2022-09-07)
 
-**Note:** Version bump only for package dtcc-dod
 
 
 
+## [0.2.11](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.10...dte-digital-twin-energy@0.2.11) (2022-09-07)
 
+**Note:** Version bump only for package dte-digital-twin-energy
 
-## [1.0.28](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.27...dtcc-dod@1.0.28) (2022-09-02)
 
-**Note:** Version bump only for package dtcc-dod
 
 
 
+## [0.2.10](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.9...dte-digital-twin-energy@0.2.10) (2022-09-02)
 
+**Note:** Version bump only for package dte-digital-twin-energy
 
-## [1.0.27](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.26...dtcc-dod@1.0.27) (2022-08-30)
 
-**Note:** Version bump only for package dtcc-dod
 
 
 
+## [0.2.9](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.8...dte-digital-twin-energy@0.2.9) (2022-08-30)
 
 
-## [1.0.26](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.25...dtcc-dod@1.0.26) (2022-08-29)
+### Bug Fixes
 
-**Note:** Version bump only for package dtcc-dod
+* html type ([2b76d43](https://github.com/paramountric/digitaltwincityviewer/commit/2b76d43ec3181654840b6a08ad3e63883e8aa7c8))
 
 
 
 
 
-## [1.0.25](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.24...dtcc-dod@1.0.25) (2022-08-29)
+## [0.2.8](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.7...dte-digital-twin-energy@0.2.8) (2022-08-29)
 
-**Note:** Version bump only for package dtcc-dod
+**Note:** Version bump only for package dte-digital-twin-energy
 
 
 
 
 
-## [1.0.24](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.23...dtcc-dod@1.0.24) (2022-08-29)
+## [0.2.7](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.6...dte-digital-twin-energy@0.2.7) (2022-08-29)
 
-**Note:** Version bump only for package dtcc-dod
+**Note:** Version bump only for package dte-digital-twin-energy
 
 
 
 
 
-## [1.0.23](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.22...dtcc-dod@1.0.23) (2022-08-29)
+## [0.2.6](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.5...dte-digital-twin-energy@0.2.6) (2022-08-29)
 
-**Note:** Version bump only for package dtcc-dod
+**Note:** Version bump only for package dte-digital-twin-energy
 
 
 
 
 
-## [1.0.22](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.21...dtcc-dod@1.0.22) (2022-08-28)
+## [0.2.5](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.4...dte-digital-twin-energy@0.2.5) (2022-08-29)
 
-**Note:** Version bump only for package dtcc-dod
 
+### Bug Fixes
 
+* var name class due to swc, disable for now, downgrade dtcv dependencies temporarily ([8facaaf](https://github.com/paramountric/digitaltwincityviewer/commit/8facaaf2ac0a65c3e20890aa6009b924a03aad16))
 
 
 
-## [1.0.21](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.20...dtcc-dod@1.0.21) (2022-08-28)
 
-**Note:** Version bump only for package dtcc-dod
 
+## [0.2.4](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.3...dte-digital-twin-energy@0.2.4) (2022-08-28)
 
+**Note:** Version bump only for package dte-digital-twin-energy
 
 
 
-## [1.0.20](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.19...dtcc-dod@1.0.20) (2022-08-27)
 
-**Note:** Version bump only for package dtcc-dod
 
+## [0.2.3](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.2...dte-digital-twin-energy@0.2.3) (2022-08-28)
 
+**Note:** Version bump only for package dte-digital-twin-energy
 
 
 
-## [1.0.19](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.18...dtcc-dod@1.0.19) (2022-08-26)
 
-**Note:** Version bump only for package dtcc-dod
 
+## [0.2.2](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.1...dte-digital-twin-energy@0.2.2) (2022-08-27)
 
 
+### Bug Fixes
 
+* typing needs string ([819844c](https://github.com/paramountric/digitaltwincityviewer/commit/819844c4720869138be58b2be3760879c23c6d17))
 
-## [1.0.18](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.17...dtcc-dod@1.0.18) (2022-08-26)
 
-**Note:** Version bump only for package dtcc-dod
 
 
 
+## [0.2.1](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.0...dte-digital-twin-energy@0.2.1) (2022-08-26)
 
 
-## [1.0.17](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.16...dtcc-dod@1.0.17) (2022-08-23)
+### Bug Fixes
 
-**Note:** Version bump only for package dtcc-dod
+* type props ([8ed4074](https://github.com/paramountric/digitaltwincityviewer/commit/8ed4074302ba37c41e666df28e999ec1f1cd05c7))
 
 
 
 
 
-## [1.0.16](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.15...dtcc-dod@1.0.16) (2022-08-23)
-
-**Note:** Version bump only for package dtcc-dod
-
-
-
-
-
-## [1.0.15](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.14...dtcc-dod@1.0.15) (2022-08-23)
-
-**Note:** Version bump only for package dtcc-dod
-
-
-
-
-
-## [1.0.14](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.13...dtcc-dod@1.0.14) (2022-08-23)
-
-**Note:** Version bump only for package dtcc-dod
-
-
-
-
-
-## [1.0.13](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.12...dtcc-dod@1.0.13) (2022-08-23)
-
-**Note:** Version bump only for package dtcc-dod
-
-
-
-
-
-## [1.0.12](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.11...dtcc-dod@1.0.12) (2022-08-23)
-
-**Note:** Version bump only for package dtcc-dod
-
-
-
-
-
-## [1.0.11](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.10...dtcc-dod@1.0.11) (2022-08-23)
-
-**Note:** Version bump only for package dtcc-dod
-
-
-
-
-
-## [1.0.10](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.9...dtcc-dod@1.0.10) (2022-08-23)
-
-**Note:** Version bump only for package dtcc-dod
-
-
-
-
-
-## [1.0.9](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.8...dtcc-dod@1.0.9) (2022-08-23)
-
-**Note:** Version bump only for package dtcc-dod
-
-
-
-
-
-## [1.0.8](https://github.com/paramountric/digitaltwincityviewer/compare/dtcc-dod@1.0.7...dtcc-dod@1.0.8) (2022-08-23)
-
-**Note:** Version bump only for package dtcc-dod
-
-
-
-
-
-## 1.0.7 (2022-08-23)
+# 0.2.0 (2022-08-26)
 
 
 
@@ -253,20 +183,17 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## 1.0.3 (2022-08-22)
 
-**Note:** Version bump only for package dtcc-dod
+
+### Bug Fixes
+
+* update to new format returned from citymodel parser ([84d9266](https://github.com/paramountric/digitaltwincityviewer/commit/84d92667af91e460038fccd763827990d9b475f6))
+
+
+### Features
+
+* add legends panel for indicator ranges ([a3879cd](https://github.com/paramountric/digitaltwincityviewer/commit/a3879cd4b67f3308fc9eeeee3f38a95a96d0f9f9))
+* add ui for changing indicator and year ([c02b3cb](https://github.com/paramountric/digitaltwincityviewer/commit/c02b3cb1fae7cd426a4f9c40955d0cf74c7853c3))
 
 
 
-
-
-## [1.0.6](https://github.com/paramountric/digitaltwincityviewer/compare/v1.0.5...v1.0.6) (2022-08-23)
-
-**Note:** Version bump only for package dtcc-dod
-
-
-
-
-
-## [1.0.3](https://github.com/paramountric/digitaltwincityviewer/compare/v1.0.2...v1.0.3) (2022-08-22)
-
-**Note:** Version bump only for package dtcc-dod
+## 1.0.1 (2022-06-06)

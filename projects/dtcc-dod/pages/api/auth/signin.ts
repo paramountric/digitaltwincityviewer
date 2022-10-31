@@ -1,8 +1,9 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
-//import cookie from 'cookie';
 
-const {SPECKLE_SERVER_URL, SPECKLE_APP_ID} = process.env;
-const challenge = '123qweasd'; // todo: fix this on the session
+const {SPECKLE_SERVER_URL, SPECKLE_APP_ID, CHALLENGE} = process.env;
+
+// todo: challenge should be generated instead
+const challenge = CHALLENGE;
 
 async function handleLogin(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
