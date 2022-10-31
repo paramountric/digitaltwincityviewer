@@ -1,4 +1,5 @@
 import { buildingsLayerSurfacesLod3Data } from './buildings.js';
+import { buildingsLayerWindowsLod3Data } from './windows.js';
 import {
   transportationLayerTrafficAreaLod2Data,
   transportationLayerAuxiliaryTrafficAreaLod2Data,
@@ -11,6 +12,7 @@ import { CityJSONV111 } from './CityJSONV111.js';
 
 export {
   buildingsLayerSurfacesLod3Data,
+  buildingsLayerWindowsLod3Data,
   transportationLayerAuxiliaryTrafficAreaLod2Data,
   transportationLayerTrafficAreaLod2Data,
   landuseSurfaceLod1Data,
