@@ -1,7 +1,7 @@
 import { MobxLitElement } from '@adobe/lit-mobx';
 import { css, html } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
-import { Viewer, ViewerProps } from '@dtcv/viewer';
+import { Viewer } from '@dtcv/viewer';
 import { Store } from '../store/Store';
 import '@spectrum-web-components/theme/theme-lightest.js';
 import '@spectrum-web-components/theme/scale-medium.js';

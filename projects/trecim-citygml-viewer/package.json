@@ -27,11 +27,12 @@
   },
   "dependencies": {
     "@adobe/lit-mobx": "^2.0.0",
+    "@dtcv/cities": "^1.0.17",
     "@dtcv/citygml": "^1.0.7",
     "@dtcv/cityjson": "^1.0.6",
     "@dtcv/citymodel": "^1.0.17",
     "@dtcv/geojson": "^1.0.26",
-    "@dtcv/viewer": "^1.1.30",
+    "@dtcv/viewer": "^1.1.29",
     "@spectrum-web-components/accordion": "^0.6.9",
     "@spectrum-web-components/button": "^0.17.3",
     "@spectrum-web-components/dialog": "^0.10.3",

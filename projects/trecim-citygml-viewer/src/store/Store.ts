@@ -1,5 +1,5 @@
 import { makeObservable, observable, action } from 'mobx';
-import { Viewer, ViewerProps } from '@dtcv/viewer';
+import { Viewer } from '@dtcv/viewer';
 import { parseCityModel } from '@dtcv/citymodel';
 import {
   parseXsd,
@@ -9,6 +9,7 @@ import {
 } from '@dtcv/citygml';
 import {
   buildingsLayerSurfacesLod3Data,
+  buildingsLayerWindowsLod3Data,
   transportationLayerTrafficAreaLod2Data,
   transportationLayerAuxiliaryTrafficAreaLod2Data,
   landuseSurfaceLod1Data,
@@ -329,70 +330,70 @@ export class Store {
   private async loadProjectFiles() {
     // start by loading the schema for this project -> the 3CIM ADE
     this.setIsLoading(true, 'Loading ADE extension');
-    const extension: any = await this.loadCityModelSchema(
-      'http://localhost:9000/files/citygml/3CIM/3CIM_ade_ver1.xsd'
-    );
-    this.addToContext(extension, DEFAULT_CONTEXT);
-
-    this.setIsLoading(true, 'Loading core schema');
-    const core = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/core.xsd'
-    );
-    this.addToContext(core, 'core');
-
-    this.setIsLoading(true, 'Loading building schema');
-    const building = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/building.xsd'
-    );
-    this.addToContext(building, 'building');
-
-    // this.setIsLoading(true, 'Loading appearance schema');
-    // const appearance = await this.loadCityModelSchema(
-    //   'http://localhost:9000/files/xsd/citygml2/appearance.xsd'
+    // const extension: any = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/citygml/3CIM/3CIM_ade_ver1.xsd'
     // );
-    // this.addToContext(appearance, 'appearance');
+    // this.addToContext(extension, DEFAULT_CONTEXT);
 
-    this.setIsLoading(true, 'Loading bridge schema');
-    const bridge = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/bridge.xsd'
-    );
-    this.addToContext(bridge, 'bridge');
+    // this.setIsLoading(true, 'Loading core schema');
+    // const core = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/core.xsd'
+    // );
+    // this.addToContext(core, 'core');
 
-    this.setIsLoading(true, 'Loading cityFurniture schema');
-    const cityFurniture = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/cityFurniture.xsd'
-    );
-    this.addToContext(cityFurniture, 'cityFurniture');
+    // this.setIsLoading(true, 'Loading building schema');
+    // const building = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/building.xsd'
+    // );
+    // this.addToContext(building, 'building');
 
-    this.setIsLoading(true, 'Loading landUse schema');
-    const landUse = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/landUse.xsd'
-    );
-    this.addToContext(landUse, 'landUse');
+    // // this.setIsLoading(true, 'Loading appearance schema');
+    // // const appearance = await this.loadCityModelSchema(
+    // //   'http://localhost:9000/files/xsd/citygml2/appearance.xsd'
+    // // );
+    // // this.addToContext(appearance, 'appearance');
 
-    this.setIsLoading(true, 'Loading transportation schema');
-    const transportation = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/transportation.xsd'
-    );
-    this.addToContext(transportation, 'transportation');
+    // this.setIsLoading(true, 'Loading bridge schema');
+    // const bridge = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/bridge.xsd'
+    // );
+    // this.addToContext(bridge, 'bridge');
 
-    this.setIsLoading(true, 'Loading tunnel schema');
-    const tunnel = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/tunnel.xsd'
-    );
-    this.addToContext(tunnel, 'tunnel');
+    // this.setIsLoading(true, 'Loading cityFurniture schema');
+    // const cityFurniture = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/cityFurniture.xsd'
+    // );
+    // this.addToContext(cityFurniture, 'cityFurniture');
 
-    this.setIsLoading(true, 'Loading vegetation schema');
-    const vegetation = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/vegetation.xsd'
-    );
-    this.addToContext(vegetation, 'vegetation');
+    // this.setIsLoading(true, 'Loading landUse schema');
+    // const landUse = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/landUse.xsd'
+    // );
+    // this.addToContext(landUse, 'landUse');
 
-    this.setIsLoading(true, 'Loading waterBody schema');
-    const waterBody = await this.loadCityModelSchema(
-      'http://localhost:9000/files/xsd/citygml2/waterBody.xsd'
-    );
-    this.addToContext(waterBody, 'waterBody');
+    // this.setIsLoading(true, 'Loading transportation schema');
+    // const transportation = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/transportation.xsd'
+    // );
+    // this.addToContext(transportation, 'transportation');
+
+    // this.setIsLoading(true, 'Loading tunnel schema');
+    // const tunnel = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/tunnel.xsd'
+    // );
+    // this.addToContext(tunnel, 'tunnel');
+
+    // this.setIsLoading(true, 'Loading vegetation schema');
+    // const vegetation = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/vegetation.xsd'
+    // );
+    // this.addToContext(vegetation, 'vegetation');
+
+    // this.setIsLoading(true, 'Loading waterBody schema');
+    // const waterBody = await this.loadCityModelSchema(
+    //   'http://localhost:9000/files/xsd/citygml2/waterBody.xsd'
+    // );
+    // this.addToContext(waterBody, 'waterBody');
 
     // this.setIsLoading(true, 'Loading xAL schema');
     // const xAL = await this.loadCityModelSchema(
@@ -405,9 +406,19 @@ export class Store {
       'http://localhost:9000/files/citygml/3CIM/testdata_3CIM_ver1_malmo_20220205_XSD.gml'
     );
 
+    await this.loadWindows(
+      'http://localhost:9000/files/trecim/malmo/Malmo-all_v3.4.json'
+    );
+    // await this.loadCityModel(
+    //   'http://localhost:9000/files/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Byggnad.gml'
+    // );
+
     await this.loadContextMap(
       'http://localhost:9000/files/geojson/osm-malmo.json'
     );
+    // await this.loadContextMap(
+    //   'http://localhost:9000/files/geojson/osm-gbg-center.json'
+    // );
   }
 
   public async loadCityModelSchema(url: string): Promise<any> {
@@ -416,6 +427,36 @@ export class Store {
       return console.warn('response status: ', response.status);
     }
     return parseXsd(await response.text());
+  }
+
+  public async loadWindows(url: string) {
+    this.setIsLoading(true, 'Loading windows data');
+    const response = await fetch(url);
+    if (response.status !== 200) {
+      return console.warn('response status: ', response.status);
+    }
+    const windowsData = await response.json();
+    console.log(windowsData);
+    windowsData.vertices = projectVertices(
+      windowsData.vertices,
+      'EPSG:3008' // malmö data
+      //'EPSG:3007' // gbg data
+    );
+    windowsData.metadata.geographicalExtent = projectExtent(
+      windowsData.metadata.geographicalExtent
+    );
+    this.viewer.updateLayer({
+      layerId: 'buildings-layer-windows-lod-3',
+      props: buildingsLayerWindowsLod3Data(windowsData, {
+        addZ: 11,
+        refLat: 55.6,
+      }),
+      state: {
+        url,
+      },
+    });
+    this.viewer.render();
+    this.setIsLoading(false);
   }
 
   public async loadCityModel(url: string) {
@@ -436,6 +477,7 @@ export class Store {
       },
     };
     parseCityGml(await response.text(), options, cityGmlResult => {
+      console.log(cityGmlResult);
       for (const cityObject of Object.values(cityGmlResult.CityObjects)) {
         // @ts-ignore
         cityObject.type =
@@ -444,7 +486,8 @@ export class Store {
       }
       cityGmlResult.vertices = projectVertices(
         cityGmlResult.vertices,
-        'EPSG:3008'
+        'EPSG:3008' // malmö data
+        //'EPSG:3007' // gbg data
       );
       cityGmlResult.metadata.geographicalExtent = projectExtent(
         cityGmlResult.metadata.geographicalExtent
@@ -788,6 +831,9 @@ export class Store {
     const buildingSurfaces = this.getLayerData(
       'buildings-layer-surfaces-lod-3'
     );
+    if (!buildingSurfaces) {
+      return {};
+    }
     const buildings = buildingSurfaces.reduce((acc, surface) => {
       acc[surface.cityObjectId] =
         acc[surface.cityObjectId] ||
