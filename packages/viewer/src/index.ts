@@ -1,4 +1,4 @@
-import { Viewer } from './Viewer.js';
+import { Viewer, ViewerProps } from './Viewer.js';
 import { JsonProps } from './config/converter-config';
 import { UpdateLayerProps } from './store/LayerStore.js';
 import { generateColor } from './utils/colors.js';
@@ -11,4 +11,5 @@ export {
   toLngLat,
   toWebmercator,
   JsonProps,
+  ViewerProps,
 };
