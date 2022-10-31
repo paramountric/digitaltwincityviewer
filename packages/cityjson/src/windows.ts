@@ -95,9 +95,6 @@ function meshFromSolids(
         geometry.semantics.values[boundaryIndex][innerBoundaryIndex];
       const semantics = geometry.semantics.surfaces[semanticSurfaceIndex];
       innerBoundaryIndex++;
-      // if (semantics.type !== 'Window') {
-      //   continue;
-      // }
       const color = getColor(semantics);
 
       // add the object data to the layerProps
