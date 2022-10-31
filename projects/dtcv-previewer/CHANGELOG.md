@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.38](https://github.com/paramountric/digitaltwincityviewer/compare/@dtcv/previewer@1.0.37...@dtcv/previewer@1.0.38) (2022-10-31)
+
+**Note:** Version bump only for package @dtcv/previewer
+
+
+
+
+
 ## [1.0.37](https://github.com/paramountric/digitaltwincityviewer/compare/@dtcv/previewer@1.0.36...@dtcv/previewer@1.0.37) (2022-09-12)
 
 **Note:** Version bump only for package @dtcv/previewer

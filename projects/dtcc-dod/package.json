@@ -1,6 +1,6 @@
 {
-  "name": "dod",
-  "version": "0.2.19",
+  "name": "dtcc-dod",
+  "version": "1.0.38",
   "private": true,
   "scripts": {
     "dev": "next dev",

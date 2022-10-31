@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.20](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.19...dte-digital-twin-energy@0.2.20) (2022-10-31)
+
+
+### Bug Fixes
+
+* loader, buildings z pos, tree z position ([bd71a73](https://github.com/paramountric/digitaltwincityviewer/commit/bd71a73b1ee04ee30f5b48b3cd9b84bb67530060))
+* reverse purple shades ([a35ae2c](https://github.com/paramountric/digitaltwincityviewer/commit/a35ae2c6ae9b25917b67dbbf250bf5604849412f))
+
+
+
+
+
 ## [0.2.19](https://github.com/paramountric/digitaltwincityviewer/compare/dte-digital-twin-energy@0.2.18...dte-digital-twin-energy@0.2.19) (2022-09-12)
 
 
