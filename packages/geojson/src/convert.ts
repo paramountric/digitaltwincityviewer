@@ -33,7 +33,7 @@ function forEachCoordinateInMultiPolygon(multiPolygon: Position[][][], fn) {
 
 const convert = (
   jsonData: FeatureCollection,
-  crs: string,
+  crs: string, // from crs -> to webmercator
   cityXY?: number[]
 ) => {
   // curry it
