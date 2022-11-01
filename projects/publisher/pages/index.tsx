@@ -1,5 +1,6 @@
 import Viewport from '../components/viewport';
 import {DataLoader} from '../lib/DataLoader';
+import Header from '../components/header';
 
 export async function getServerSideProps(context) {
   const dataLoader = new DataLoader();
@@ -15,6 +16,7 @@ export async function getServerSideProps(context) {
 
 const StartPage = props => (
   <div>
+    <Header></Header>
     <Viewport data={props.data}></Viewport>
   </div>
 );
