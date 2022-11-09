@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.19](https://github.com/paramountric/digitaltwincityviewer/compare/@dtcv/cities@1.0.18...@dtcv/cities@1.0.19) (2022-11-09)
+
+**Note:** Version bump only for package @dtcv/cities
+
+
+
+
+
 ## [1.0.18](https://github.com/paramountric/digitaltwincityviewer/compare/@dtcv/cities@1.0.17...@dtcv/cities@1.0.18) (2022-10-31)
 
 **Note:** Version bump only for package @dtcv/cities
