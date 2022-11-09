@@ -57,7 +57,8 @@ const convert = (
   y: number, // y or latitude to project/convert
   crs: string, // from crs
   cityXY?: number[], // webmercator for translating, this should probably be mandatory, but if omitted the function can be used as pure projection function
-  out?: number[] // optional for using reference on coord, send in [x, y] reference here for mutation
+  out?: number[], // optional for using reference on coord, send in [x, y] reference here for mutation
+  setZToZero?: boolean // optional for setting the out coord z to zero (useful for extruded footprint on 2D ground if original data is 3D)
 ) => {
   const supportedCrs = CrsList[crs];
   if (!supportedCrs) {
@@ -80,6 +81,9 @@ const convert = (
     );
     result[0] = translated[0];
     result[1] = translated[1];
+    if (setZToZero) {
+      result[2] = 0;
+    }
     if (Math.abs(result[0]) > 1000000) {
       const cityXYDebug = cityXY || [];
       throw new Error(
