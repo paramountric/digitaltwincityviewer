@@ -1,5 +1,5 @@
 {
-  "packages": ["packages/*", "projects/*", "services/*"],
+  "packages": ["packages/*"],
   "useNx": false,
   "version": "independent",
   "command": {
