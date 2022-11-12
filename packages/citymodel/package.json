@@ -35,7 +35,7 @@
     "url": "https://github.com/paramountric/digitaltwincityviewer/issues"
   },
   "dependencies": {
-    "@dtcv/convert": "^1.1.0",
+    "@dtcv/convert": "^1.2.0",
     "gl-matrix": "^3.4.3",
     "proj4": "^2.8.0"
   },

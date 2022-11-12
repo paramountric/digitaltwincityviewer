@@ -33,7 +33,7 @@
     "url": "https://github.com/paramountric/digitaltwincityviewer/issues"
   },
   "dependencies": {
-    "@dtcv/cityjson": "^1.0.8",
+    "@dtcv/cityjson": "^1.2.0",
     "gl-matrix": "^3.4.3",
     "json-schema-to-typescript": "^10.1.5",
     "saxes": "^6.0.0"
