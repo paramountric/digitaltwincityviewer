@@ -1,3 +1,4 @@
+// https://simplemaps.com/data/world-cities
 const cities = [
   {
     id: 'stockholm',
