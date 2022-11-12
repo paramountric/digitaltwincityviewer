@@ -21,6 +21,7 @@
     "url": "git+https://github.com/paramountric/digitaltwincityviewer.git"
   },
   "scripts": {
+    "build": "tsc",
     "tsc": "tsc",
     "watch": "tsc --watch",
     "lint": "eslint --ext .ts,.js src",

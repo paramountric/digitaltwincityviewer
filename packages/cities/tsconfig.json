@@ -9,7 +9,7 @@
     "target": "es6",
     "allowJs": true,
     "esModuleInterop": true,
-    "moduleResolution": "Node",
+    "moduleResolution": "node",
     "downlevelIteration": true,
     "declaration": true,
     "declarationMap": true
