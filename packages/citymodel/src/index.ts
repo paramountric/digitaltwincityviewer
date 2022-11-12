@@ -1,6 +1,6 @@
 import { vec3, mat4 } from 'gl-matrix';
 // import { generateColor } from '@dtcv/indicators';
-//
+
 import { convert } from '@dtcv/convert';
 
 function parseGround(fileData) {
