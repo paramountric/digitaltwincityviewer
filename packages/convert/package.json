@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "description": "City metadata and utility functions",
   "main": "./dist/index.js",
-  "type": "module",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -23,6 +23,7 @@
     "url": "git+https://github.com/paramountric/digitaltwincityviewer.git"
   },
   "scripts": {
+    "build": "tsc",
     "prepublish": "rimraf dist",
     "prepublishOnly": "tsc --project tsconfig.prod.json",
     "tsc": "tsc",
