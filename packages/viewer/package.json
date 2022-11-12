@@ -16,8 +16,6 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepublish": "rimraf dist",
-    "prepublishOnly": "tsc --project tsconfig.prod.json",
     "tsc": "tsc",
     "watch": "tsc --watch",
     "lint": "eslint --ext .ts,.js src",
