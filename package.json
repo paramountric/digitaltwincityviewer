@@ -5,7 +5,8 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "publish-packages": "turbo run build && changeset version && changeset publish"
   },
   "devDependencies": {
     "turbo": "^1.6.3"
