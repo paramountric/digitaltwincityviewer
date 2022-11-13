@@ -5,16 +5,14 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "noImplicitAny": false,
-    "module": "es6",
+    "module": "ES6",
     "target": "es6",
     "allowJs": true,
+    "esModuleInterop": true,
     "moduleResolution": "node",
     "downlevelIteration": true,
     "declaration": true,
-    "declarationMap": true,
-    "experimentalDecorators": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true
+    "declarationMap": true
   },
   "include": ["src/"],
   "exclude": ["dist", "node_modules"]

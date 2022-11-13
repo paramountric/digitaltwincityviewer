@@ -1,7 +1,9 @@
 // This code is derived from deck.gl under MIT license:
 // https://github.com/visgl/deck.gl/tree/master/examples/playground/src
 
-import { COORDINATE_SYSTEM, MapView, LayerProps } from '@deck.gl/core';
+import { COORDINATE_SYSTEM, MapView } from '@deck.gl/core';
+import type { LayerProps } from '@deck.gl/core';
+import type { ViewProps } from '@deck.gl/core';
 import {
   ScatterplotLayer,
   LineLayer,
@@ -15,11 +17,14 @@ import { mat4, vec3 } from 'gl-matrix';
 import { registerLoaders } from '@loaders.gl/core';
 import { DracoWorkerLoader } from '@loaders.gl/draco';
 import { CesiumIonLoader } from '@loaders.gl/3d-tiles';
-import Tile3DLayer from '../layers/tile-3d-layer/tile-3d-layer.js';
-import { Tiles3DLoader } from '../loaders/tiles-3d-loader/tiles-3d-loader.js';
+import CityModelLayer from '../lib/CityModelLayer';
+import GroundSurfaceLayer from '../lib/GroundSurfaceLayer';
+// import { ViewProps } from '@deck.gl/core/views/view';
+// import { LayerProps } from '@deck.gl/core/lib/layer';
 
 export type JsonProps = {
-  layers?: LayerProps[];
+  views?: ViewProps[];
+  layers?: LayerProps<any>[];
   // todo: add the rest of props
 };
 
@@ -78,11 +83,12 @@ function getTranslateMatrix({ translate }) {
 
 export default {
   classes: {
-    ScatterplotLayer,
     MapView,
+    ScatterplotLayer,
+    CityModelLayer,
+    GroundSurfaceLayer,
     LineLayer,
     GeoJsonLayer,
-    Tile3DLayer,
     QuadkeyLayer,
     MVTLayer,
     SolidPolygonLayer,
@@ -97,7 +103,6 @@ export default {
     GL,
   },
   constants: {
-    Tiles3DLoader: Tiles3DLoader as any,
     CesiumIonLoader: CesiumIonLoader as any,
   },
 };

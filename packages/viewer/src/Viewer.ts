@@ -1,7 +1,7 @@
 // Copyright (C) 2022 Andreas Rudenå
 // Licensed under the MIT License
 
-import { Deck, DeckProps } from '@deck.gl/core';
+import { Deck } from '@deck.gl/core';
 import {
   JSONConverter,
   JSONConfiguration,
@@ -20,8 +20,6 @@ import JSON_CONVERTER_CONFIGURATION, {
   addUpdateTriggersForAccessors,
   JsonProps,
 } from './config/converter-config.js';
-import Tile3DLayer from './layers/tile-3d-layer/tile-3d-layer.js';
-import { generateColor } from './utils/colors.js';
 
 // internalProps = not to be set from parent component
 const internalProps = {
@@ -36,8 +34,8 @@ const internalProps = {
   // layerFilter: null,
 };
 
-type ViewerProps = DeckProps & {
-  onSelectObject?: () => Feature | null;
+type ViewerProps = any & {
+  onSelectObject?: (object: any) => Feature | null;
   onDragEnd?: () => {
     longitude: number;
     latitude: number;
@@ -120,8 +118,8 @@ class Viewer {
   }
 
   set zoom(zoom) {
-    this.viewStore.setViewState({ zoom });
-    this.render();
+    // this.viewStore.setViewState({ zoom });
+    // this.render();
   }
 
   // todo: determine the most convenient way to set the current city, enumeration?
@@ -163,38 +161,31 @@ class Viewer {
   }
 
   onViewStateChange({ viewId, viewState }) {
-    if (viewId === 'graphview') {
-      this.viewStore.setGraphState(viewState);
-    } else {
-      this.viewStore.setViewState(viewState);
-    }
-    this.deck.setProps({
-      views: this.viewStore.getViews(),
-      viewState: this.viewStore.getViewStates(),
-    });
+    // this.viewStore.setViewState(viewState);
+    // this.deck.setProps({
+    //   views: this.viewStore.getViews(),
+    //   viewState: this.viewStore.getViewState(),
+    // });
+    console.log('viewState', viewState);
+    return viewState;
   }
 
   layerFilter = ({ layer, viewport }) => {
-    if (viewport.id === 'mapview' && layer.id !== 'graph-layer') {
-      return true;
-    } else if (viewport.id === 'graphview' && layer.id === 'graph-layer') {
-      return true;
-    }
-    return false;
+    return true;
   };
 
-  getProps() {
-    if (this.useMaplibre) {
-      return {
-        layers: this.layerStore.getLayersInstances(),
-      };
-    }
-    return {
-      layers: this.layerStore.getLayersInstances(),
-      views: this.viewStore.getViews(),
-      viewState: this.viewStore.getViewStates(),
-    };
-  }
+  // getProps() {
+  //   if (this.useMaplibre) {
+  //     return {
+  //       layers: this.layerStore.getLayersInstances(),
+  //     };
+  //   }
+  //   return {
+  //     layers: this.layerStore.getLayersInstances(),
+  //     views: this.viewStore.getViews(),
+  //     viewState: this.viewStore.getViewStates(),
+  //   };
+  // }
 
   setSelectedObject(object) {
     this.selectedObject = object;
@@ -294,27 +285,27 @@ class Viewer {
     this.viewStore.setActiveView(viewId);
   }
 
-  public updateLayer(updateData: UpdateLayerProps) {
-    const { layerId } = updateData;
-    if (updateData.props) {
-      this.setLayerProps(layerId, updateData.props);
-    }
-    if (updateData.state) {
-      // set isLoaded to true by default
-      if (updateData.state.isLoaded !== false) {
-        updateData.state.isLoaded = true;
-      }
-      this.setLayerState(layerId, updateData.state);
-    }
-    if (updateData.style) {
-      this.setLayerStyle(layerId, updateData.style);
-    }
-    if (layerId === 'graph-layer') {
-      this.viewStore.setShowGraphView(true);
-      this.viewStore.setActiveView('graph');
-    }
-    this.render();
-  }
+  // public updateLayer(updateData: UpdateLayerProps) {
+  //   const { layerId } = updateData;
+  //   if (updateData.props) {
+  //     this.setLayerProps(layerId, updateData.props);
+  //   }
+  //   if (updateData.state) {
+  //     // set isLoaded to true by default
+  //     if (updateData.state.isLoaded !== false) {
+  //       updateData.state.isLoaded = true;
+  //     }
+  //     this.setLayerState(layerId, updateData.state);
+  //   }
+  //   if (updateData.style) {
+  //     this.setLayerStyle(layerId, updateData.style);
+  //   }
+  //   if (layerId === 'graph-layer') {
+  //     this.viewStore.setShowGraphView(true);
+  //     this.viewStore.setActiveView('graph');
+  //   }
+  //   this.render();
+  // }
 
   unload() {
     this.layerStore.unload();
@@ -326,7 +317,11 @@ class Viewer {
         layers: props.layers,
       });
     } else {
-      this.deck.setProps(props);
+      const viewProps = {
+        views: props.views || this.viewStore.getViews(),
+        viewState: props.viewState || this.viewStore.getViewState(),
+      };
+      this.deck.setProps({ ...props, ...viewProps });
     }
   }
 
@@ -337,49 +332,14 @@ class Viewer {
 
     addUpdateTriggersForAccessors(json);
     const props = this.jsonConverter.convert(json);
-    // todo: need to customize jsonConverter for callbacks
 
-    // for (const layer of props.layers) {
-    //   console.log(layer);
-    //   if (layer.props.isClickable) {
-    //layer.props = { ...layer.props }; //Object.assign({}, layer.props);
-    // , {
-    //   onClick: d => {
-    //     if (d.object) {
-    //       this.setSelectedObject(d.object);
-    //       return;
-    //     }
-    //     const object = d.layer.props.data[0]?.objects[d.index];
-    //     if (!object) {
-    //       console.warn('clicked object could not be found', d);
-    //       return;
-    //     }
-    //     this.setSelectedObject(object);
-    //   },
-    // });
-    //   }
-    // }
+    console.log('props', props);
 
-    if (this.useMaplibre) {
-      this.deck.setProps({
-        layers: props.layers,
-      });
-    } else {
-      this.deck.setProps(props);
-    }
+    this.setProps(props);
   }
 
   getQuadkey(x: number, y: number, z: number) {
     return tileToQuadkey([x, y, z]);
-  }
-
-  render() {
-    // todo: refactor out the extra state management
-    if (!this.deck) {
-      return;
-    }
-    const props = this.getProps();
-    this.deck.setProps(props);
   }
 
   private maplibre(props) {
@@ -447,10 +407,10 @@ class Viewer {
       this.maplibreMap.on('move', () => {
         if (this.deck.props.onDrag) {
           const { lng, lat } = this.maplibreMap.getCenter();
-          this.deck.props.onDrag({
-            longitude: lng,
-            latitude: lat,
-          });
+          // this.deck.props.onDrag({
+          //   longitude: lng,
+          //   latitude: lat,
+          // });
         }
         // this.deck.setProps({
         //   viewState: {
@@ -477,18 +437,19 @@ class Viewer {
           const { lng, lat } = this.maplibreMap.getCenter();
           const viewport = this.deck.viewManager.getViewport('mapview');
           const { zoom } = viewport;
-          this.deck.props.onDragEnd({
-            longitude: lng,
-            latitude: lat,
-            zoom,
-          });
+          // this.deck.props.onDragEnd({
+          //   longitude: lng,
+          //   latitude: lat,
+          //   zoom,
+          // });
         }
         //this.viewStore.setViewStateEnd();
       });
 
-      this.render();
+      //this.render();
     });
   }
 }
 
-export { Viewer, ViewerProps };
+export { Viewer };
+export type { ViewerProps };

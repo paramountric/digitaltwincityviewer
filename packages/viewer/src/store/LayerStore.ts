@@ -12,7 +12,6 @@ import { findCity } from '@dtcv/cities';
 import { Viewer } from '../Viewer.js';
 import GroundSurfaceLayer from '../layers/ground-surface-layer/GroundSurfaceLayer.js';
 import BuildingSurfaceLayer from '../layers/building-surface-layer/BuildingSurfaceLayer.js';
-import GraphLayer from '../layers/graph-layer/GraphLayer.js';
 import { generateColor } from '../utils/colors.js';
 
 export type UpdateLayerProps = {
@@ -26,7 +25,7 @@ type LayerState = {
   isLoaded?: boolean;
   isLoading?: boolean;
   highlightAll?: boolean;
-  url?: string;
+  url?: string | null;
   layerStyle?: LayerStyle;
 };
 
@@ -560,26 +559,6 @@ const layerGroupCatalog: LayerGroupState[] = [
       },
     ],
   },
-  {
-    title: 'Graph layer',
-    description:
-      'This layer shows a graph visualisation on top of the city model',
-    layers: [
-      {
-        type: GraphLayer,
-        url: null,
-        isLoaded: true, // the data is currently sent in directly from the app
-        isLoading: false,
-        isClickable: true,
-        isMeshLayer: false,
-        props: {
-          id: 'graph-layer',
-          pickable: true,
-          autoHighlight: true,
-        },
-      },
-    ],
-  },
 ];
 
 export class LayerStore {
@@ -678,11 +657,6 @@ export class LayerStore {
         //   }
         // };
       }
-      if (layer.type === GraphLayer) {
-        // layer.props.onTick = tick => {
-        //   console.log(tick);
-        // };
-      }
       if (layer.type === MVTLayer) {
         layer.props.data = layer.props.url;
       }
@@ -703,7 +677,7 @@ export class LayerStore {
       layerStyle,
     });
     this.applyLayerStyle(layer);
-    this.viewer.render();
+    //this.viewer.render();
   }
   setLayerProps(layerId, props: LayerProps) {
     // todo: look into immutability
@@ -770,7 +744,7 @@ export class LayerStore {
     }
   }
   renderLayers() {
-    this.viewer.render();
+    //this.viewer.render();
   }
   setLayerData(layerId, data) {
     this.setLayerProps(layerId, { data });
@@ -802,7 +776,7 @@ export class LayerStore {
         url: null,
       });
     }
-    this.viewer.render();
+    //this.viewer.render();
   }
   // todo: move out to styling utils
   applyLayerStyle(layer: LayerSetting) {
