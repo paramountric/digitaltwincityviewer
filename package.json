@@ -2,10 +2,12 @@
   "name": "root",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "projects/dtcc-citymodel-file-viewer"
   ],
   "scripts": {
     "build": "turbo run build",
+    "dev": "turbo run dev",
     "publish-packages": "turbo run build && changeset version && changeset publish"
   },
   "devDependencies": {

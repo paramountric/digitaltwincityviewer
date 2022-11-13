@@ -23,9 +23,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepublish": "rimraf dist",
-    "prepublishOnly": "tsc --project tsconfig.prod.json",
     "tsc": "tsc",
+    "dev": "tsc --watch",
     "watch": "tsc --watch",
     "lint": "eslint --ext .ts,.js src",
     "format": "prettier --ignore-path .eslintignore --write \"src/**/*.+(js|ts|json)\"",

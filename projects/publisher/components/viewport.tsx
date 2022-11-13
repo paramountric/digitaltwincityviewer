@@ -8,7 +8,7 @@ type ViewportProps = {
 
 const Viewport: React.FC<ViewportProps> = ({data}) => {
   console.log(data);
-  const canvasRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const {viewerActions} = useViewer();
 
   useEffect(() => {
@@ -37,7 +37,7 @@ const Viewport: React.FC<ViewportProps> = ({data}) => {
 
   return (
     <>
-      <div id="viewport" ref={canvasRef}></div>
+      <canvas id="viewport" ref={canvasRef}></canvas>
     </>
   );
 };

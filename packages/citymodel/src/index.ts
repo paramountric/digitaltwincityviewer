@@ -163,13 +163,11 @@ function parseBuildings(
       : footprint;
     for (let j = 0; j < polygon.length; j++) {
       const { x, y } = polygon[j];
-      const projected = [x, y];
+      const projected = [x + origin.x, y + origin.y];
       if (cityXY) {
         convert(x, y, crs, cityXY, projected);
       }
-      // const transformed = transformCoordinate(x, y, {
-      //   translate: [origin.x, origin.y],
-      // });
+
       // const projected = projectCoordinate(transformed[0], transformed[1]);
       if (projected[0] < minX) {
         minX = projected[0];
@@ -358,7 +356,6 @@ function parseCityModel(
   cityXY?: number[],
   setZCoordinateToZero = false
 ) {
-  console.log(setZCoordinateToZero);
   const result: {
     buildings?: any;
     ground?: any;

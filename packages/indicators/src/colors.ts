@@ -1,8 +1,8 @@
 // Copyright (C) 2022 Andreas Rudenå
 // Licensed under the MIT License
 
-import { scaleLinear } from 'd3-scale';
-import { getIndicator } from './index.js';
+import {scaleLinear} from 'd3-scale';
+import {getIndicator} from './index.js';
 
 function getBad(sufficient, excellent) {
   if ((!excellent && excellent !== 0) || (!sufficient && sufficient !== 0)) {
@@ -30,30 +30,34 @@ export function generateColor(
   to: string,
   via?: string
 ) {
-  const middle = min + (max - min) / 2;
-  const colorRange = scaleLinear()
-    .domain([min, middle, max])
-    .range(via ? [from, via, to] : [from, to]);
+  // const middle = min + (max - min) / 2;
+  // const colorRange = scaleLinear()
+  //   .domain([min, middle, max])
+  //   .range(via ? [from, via, to] : [from, to]);
 
-  colorRange.clamp(true);
+  // colorRange.clamp(true);
 
-  return toNumericArray(colorRange(value));
+  // return toNumericArray(colorRange(value));
+
+  // todo: update TS to fix the errors from D3
+  return [100, 100, 100];
 }
 
 export function extrapolateColor(value, sufficient, excellent) {
   const bad = getBad(sufficient, excellent);
 
-  const colorRange = scaleLinear()
-    .domain([bad, sufficient, excellent])
-    .range(['red', 'yellow', 'blue']);
+  // const colorRange = scaleLinear()
+  //   .domain([bad, sufficient, excellent])
+  //   .range(['red', 'yellow', 'blue']);
 
-  colorRange.clamp(true);
-  return toNumericArray(colorRange(value));
+  // colorRange.clamp(true);
+  // return toNumericArray(colorRange(value));
+  return [100, 100, 100];
 }
 
 export function getIndicatorColor(indicatorId: string, value: number) {
   // todo: check if there are some other color generation, like fixed ranges
-  const { sufficient, excellent } = getIndicator(indicatorId);
+  const {sufficient, excellent} = getIndicator(indicatorId);
   if (!sufficient && !excellent) {
     return null;
   }

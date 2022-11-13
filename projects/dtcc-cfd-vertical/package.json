@@ -31,7 +31,7 @@
     "@adobe/lit-mobx": "^2.0.0",
     "@dtcv/cityjson": "^1.0.7",
     "@dtcv/citymodel": "^1.0.18",
-    "@dtcv/viewer": "^1.1.31",
+    "@dtcv/viewer": "^1.1.30",
     "@nebula.gl/layers": "^1.0.3",
     "@spectrum-web-components/accordion": "^0.6.9",
     "@spectrum-web-components/badge": "^0.1.1",

@@ -21,7 +21,7 @@ export const useViewer = () => {
 
   const viewerActions = useMemo(() => {
     return {
-      initViewer: ref =>
+      initViewer: (ref: HTMLCanvasElement) =>
         viewerStore.set({...viewerState, viewer: new Viewer(ref)}),
     };
   }, [viewerState]);

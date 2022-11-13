@@ -3,6 +3,7 @@
   "version": "1.2.0",
   "description": "City metadata and utility functions",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
