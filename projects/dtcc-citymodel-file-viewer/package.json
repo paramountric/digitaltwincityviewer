@@ -27,9 +27,10 @@
   },
   "dependencies": {
     "@adobe/lit-mobx": "^2.0.0",
-    "@dtcv/citygml": "^1.0.8",
-    "@dtcv/citymodel": "^1.0.18",
-    "@dtcv/viewer": "^1.1.31",
+    "@dtcv/cities": "^1.2.0",
+    "@dtcv/citygml": "^1.2.0",
+    "@dtcv/citymodel": "^1.2.0",
+    "@dtcv/viewer": "^1.2.0",
     "@spectrum-web-components/accordion": "^0.6.9",
     "@spectrum-web-components/button": "^0.17.3",
     "@spectrum-web-components/dialog": "^0.10.3",
@@ -42,6 +43,7 @@
     "@spectrum-web-components/theme": "^0.11.0",
     "@spectrum-web-components/top-nav": "^0.5.9",
     "lit": "^2.2.3",
-    "mobx": "^6.5.0"
+    "mobx": "^6.5.0",
+    "protobufjs": "^6.11.3"
   }
 }

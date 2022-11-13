@@ -6,6 +6,15 @@ import { Store } from '../store/Store';
 import '@spectrum-web-components/theme/theme-lightest.js';
 import '@spectrum-web-components/theme/scale-medium.js';
 import '@spectrum-web-components/theme/sp-theme.js';
+import '@spectrum-web-components/link/sp-link.js';
+import '@spectrum-web-components/top-nav/sp-top-nav.js';
+import '@spectrum-web-components/top-nav/sp-top-nav-item.js';
+import '@spectrum-web-components/overlay/overlay-trigger.js';
+import '@spectrum-web-components/dialog/sp-dialog-wrapper.js';
+//import '@spectrum-web-components/button/sp-button.js';
+import '@spectrum-web-components/progress-circle/sp-progress-circle.js';
+import '@spectrum-web-components/accordion/sp-accordion.js';
+import '@spectrum-web-components/accordion/sp-accordion-item.js';
 import './Header';
 import './LeftMenu';
 import './RightMenu';
@@ -27,9 +36,19 @@ class App extends MobxLitElement {
       this._viewport.style.height = '100%';
       this._viewport.style.width = '100%';
       this._viewport.style.position = 'absolute';
-      const viewer = new Viewer({
-        container: this._viewport,
-      });
+      const viewer = new Viewer(
+        {
+          container: this._viewport,
+        },
+        {
+          longitude: 0,
+          latitude: 0,
+          zoom: 14,
+          minZoom: 10,
+          maxZoom: 18,
+          pitch: 60,
+        }
+      );
       this.store = new Store(viewer);
     }
   }

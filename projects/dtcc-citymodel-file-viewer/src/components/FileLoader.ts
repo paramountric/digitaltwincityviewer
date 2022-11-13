@@ -3,12 +3,7 @@ import { css, html, TemplateResult } from 'lit';
 import { observable } from 'mobx';
 import { customElement, property } from 'lit/decorators.js';
 import { Viewer } from '@dtcv/viewer';
-import '@spectrum-web-components/link/sp-link.js';
-import '@spectrum-web-components/top-nav/sp-top-nav-item.js';
-import '@spectrum-web-components/overlay/overlay-trigger.js';
-import '@spectrum-web-components/dialog/sp-dialog-wrapper.js';
-import '@spectrum-web-components/button/sp-button.js';
-import '@spectrum-web-components/progress-circle/sp-progress-circle.js';
+import { cities } from '@dtcv/cities';
 import { Store } from '../store/Store';
 
 interface HTMLInputEvent extends Event {
@@ -19,9 +14,24 @@ interface HTMLInputEvent extends Event {
 class CmfvFileLoader extends MobxLitElement {
   static styles = css``;
   private exampleFiles = [
+    // {
+    //   url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/Helsingborg2021.json',
+    //   fileType: 'json',
+    //   text: 'Helsingborg',
+    // },
     {
-      url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/Helsingborg2021.json',
+      url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/helsingborg-citymodel-june-2022.pb',
+      fileType: 'protobuf',
+      pbType: 'CityModel',
       text: 'Helsingborg',
+      cityId: 'helsingborg',
+    },
+    {
+      url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/helsingborg-groundsurface-june-2022.pb',
+      fileType: 'protobuf',
+      pbType: 'Surface3D',
+      text: 'Helsingborg ground surface',
+      cityId: 'helsingborg',
     },
   ];
 
@@ -44,13 +54,26 @@ class CmfvFileLoader extends MobxLitElement {
 
   async loadExampleFile(e: Event) {
     const fileIndex = (e.target as Element).getAttribute('key');
-    const { url } = this.exampleFiles[fileIndex];
-    this.store.reset();
+    const { url, fileType, pbType, cityId } = this.exampleFiles[fileIndex];
+    const city = cities.find((c: any) => c.id === cityId);
+    if (!city || !city.x) {
+      throw new Error('City must be selected on app level');
+    }
+    console.log('selected city: ', city);
+    this.store.setCity(city);
     this.store.setIsLoading(true);
     const response = await fetch(url);
-    // ! what about non-json based files? Should check the file ending
-    const json = await response.json();
-    this.store.addFileData(json, url);
+    switch (fileType) {
+      case 'protobuf':
+        const pbData = new Uint8Array(await response.arrayBuffer());
+        this.store.addPbData(pbData, pbType, city);
+        break;
+      case 'json':
+        const json = await response.json();
+      //this.store.addFileData(json, url);
+      default:
+        console.warn('example files should be explicit');
+    }
     this.store.setIsLoading(false);
     this.store.render();
     this.close();
@@ -60,8 +83,8 @@ class CmfvFileLoader extends MobxLitElement {
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onload = () => {
-      const json = JSON.parse(reader.result as string);
-      this.store.addFileData(json, file.name);
+      // const json = JSON.parse(reader.result as string);
+      // this.store.addFileData(json, file.name);
     };
     reader.onloadstart = p => {
       this.store.reset();

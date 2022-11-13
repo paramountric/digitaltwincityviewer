@@ -3,8 +3,6 @@ import { css, html, TemplateResult } from 'lit';
 import { observable } from 'mobx';
 import { customElement, property } from 'lit/decorators.js';
 import { Viewer } from '@dtcv/viewer';
-import '@spectrum-web-components/top-nav/sp-top-nav.js';
-import '@spectrum-web-components/top-nav/sp-top-nav-item.js';
 import './FileLoader';
 import { Store } from '../store/Store';
 

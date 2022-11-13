@@ -5,8 +5,8 @@
     "sourceMap": true,
     "noImplicitAny": false,
     "module": "es6",
-    "target": "es6",
-    "allowJs": false,
+    "target": "es2020",
+    "allowJs": true,
     "moduleResolution": "node",
     "downlevelIteration": true,
     "experimentalDecorators": true
