@@ -19,6 +19,7 @@ import { DracoWorkerLoader } from '@loaders.gl/draco';
 import { CesiumIonLoader } from '@loaders.gl/3d-tiles';
 import CityModelLayer from '../lib/CityModelLayer';
 import GroundSurfaceLayer from '../lib/GroundSurfaceLayer';
+import PoiLayer from '../lib/PoiLayer';
 // import { ViewProps } from '@deck.gl/core/views/view';
 // import { LayerProps } from '@deck.gl/core/lib/layer';
 
@@ -87,6 +88,7 @@ export default {
     ScatterplotLayer,
     CityModelLayer,
     GroundSurfaceLayer,
+    PoiLayer,
     LineLayer,
     GeoJsonLayer,
     QuadkeyLayer,
