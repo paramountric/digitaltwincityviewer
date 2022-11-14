@@ -6,15 +6,7 @@ export type CityModelProps<DataT = any> = _CityModelProps &
   CompositeLayerProps<DataT>;
 type _CityModelProps<DataT = any> = {};
 
-const defaultProps = {
-  // node styles
-  getNodeColor: { type: 'accessor', value: [255, 255, 255, 255] },
-  nodeSizeScale: 1,
-
-  // edge styles
-  getEdgeColor: { type: 'accessor', value: [0, 0, 0, 255] },
-  edgeWidthScale: 1,
-};
+const defaultProps = {};
 
 const HIGHLIGHT_COLOR = [100, 150, 250, 255];
 
