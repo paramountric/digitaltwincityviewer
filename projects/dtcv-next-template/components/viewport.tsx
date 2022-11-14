@@ -1,9 +1,7 @@
 import {useRef, useEffect, useMemo} from 'react';
 import {useViewer} from '../hooks/use-viewer';
 
-type ViewportProps = {
-  data: any;
-};
+type ViewportProps = {};
 
 const Viewport: React.FC<ViewportProps> = () => {
   const containerRef = useRef<HTMLDivElement>(null);
