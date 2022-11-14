@@ -29,12 +29,14 @@ const internalProps = {
     depth: true,
   },
   layers: [],
+  useDevicePixels: true,
   // onWebGLInitialized: null,
   // onViewStateChange: null,
   // layerFilter: null,
 };
 
 type ViewerProps = any & {
+  onLoad?: () => void;
   onSelectObject?: (object: any) => Feature | null;
   onDragEnd?: () => {
     longitude: number;
@@ -156,6 +158,7 @@ class Viewer {
   }
 
   onWebGLInitialized(gl) {
+    console.log('initialised');
     this.gl = gl;
     this.layerStore.renderLayers();
   }
@@ -386,9 +389,11 @@ class Viewer {
     this.maplibreMap = new maplibreGl.Map(maplibreOptions);
 
     this.maplibreMap.on('load', () => {
-      // how to fix this TS issue now again.. of course it's not undefined in here
       if (!this.maplibreMap) {
         return;
+      }
+      if (props.onLoad) {
+        props.onLoad();
       }
       const gl = this.maplibreMap.painter.context.gl;
       this.deck = new Deck(
