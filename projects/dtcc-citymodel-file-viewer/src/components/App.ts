@@ -12,9 +12,15 @@ import '@spectrum-web-components/top-nav/sp-top-nav-item.js';
 import '@spectrum-web-components/overlay/overlay-trigger.js';
 import '@spectrum-web-components/dialog/sp-dialog-wrapper.js';
 //import '@spectrum-web-components/button/sp-button.js';
-import '@spectrum-web-components/progress-circle/sp-progress-circle.js';
 import '@spectrum-web-components/accordion/sp-accordion.js';
 import '@spectrum-web-components/accordion/sp-accordion-item.js';
+import '@spectrum-web-components/menu/sp-menu.js';
+import '@spectrum-web-components/menu/sp-menu-item.js';
+import '@spectrum-web-components/icons-workflow/icons/sp-icon-show-one-layer.js';
+import '@spectrum-web-components/icons-workflow/icons/sp-icon-add-circle';
+import '@spectrum-web-components/icons-workflow/icons/sp-icon-visibility';
+import '@spectrum-web-components/icons-workflow/icons/sp-icon-visibility-off';
+import '@spectrum-web-components/progress-circle/sp-progress-circle.js';
 import './Header';
 import './LeftMenu';
 import './RightMenu';
@@ -57,7 +63,7 @@ class App extends MobxLitElement {
     const header = this.store
       ? html`<cmfv-header .store=${this.store}></cmfv-header>`
       : html`<div></div>`;
-    const leftMenu = this.store?.showLeftMenu
+    const leftMenu = this.store?.showUiComponents.leftMenu
       ? html`<cmfv-left-menu .store=${this.store}></cmfv-left-menu>`
       : '';
     const rightMenu = this.store?.viewer?.selectedObject

@@ -4,16 +4,34 @@ import { Viewer, JsonProps } from '@dtcv/viewer';
 import { parseCityModel } from '@dtcv/citymodel';
 import { City } from '@dtcv/cities';
 
+type Layer = {
+  id?: string;
+  basemapString?: string;
+  name: string;
+  isLoading?: boolean;
+  isVisible?: boolean;
+};
+
 export class Store {
   public isLoading = false;
-  public showLeftMenu = false;
+  public showUiComponents: {
+    [uiComponentKey: string]: boolean;
+  };
   public viewer: Viewer;
+  public layers: Layer[] = [];
+  public activeLayer: string | null;
   private protoRoot: any;
   public constructor(viewer: Viewer) {
     this.viewer = viewer;
+    this.showUiComponents = {
+      leftMenu: true,
+      layerDialog: false,
+      notificationDialog: false,
+    };
     makeObservable(this, {
       setIsLoading: action,
       isLoading: observable,
+      layers: observable,
     });
     this.initPb();
   }
@@ -29,6 +47,10 @@ export class Store {
     this.isLoading = isLoading;
   }
 
+  public showUiComponent(key: string, show: boolean) {
+    this.showUiComponents[key] = show;
+  }
+
   public reset() {
     this.viewer.setSelectedObject(null);
     this.viewer.unload();
@@ -39,9 +61,35 @@ export class Store {
     // todo: check if city has changed, and remove layers from state if so
   }
 
-  // public render() {
-  //   this.viewer.render();
-  // }
+  public addLayer(layer: Layer) {
+    this.layers.push(layer);
+  }
+
+  public removeLayers() {
+    this.layers = [];
+  }
+
+  public updateLayer(layerData: Layer) {
+    const layer = this.layers.find(l => l.name === layerData.name);
+    if (!layer) {
+      return;
+    }
+    const { isLoading, isVisible } = layerData;
+    if (isLoading || isLoading === false) {
+      layer.isLoading = isLoading;
+    }
+    if (isVisible || isVisible === false) {
+      layer.isVisible = isVisible;
+      this.viewer.setLayerProps(layer.id, {
+        visible: isVisible,
+      });
+      //this.viewer.render();
+    }
+  }
+
+  public setActiveLayer(layerName: string) {
+    this.activeLayer = layerName;
+  }
 
   addPbData(pbData: Uint8Array, pbType: string, city: City) {
     // const data = await addCodeSprintData(
