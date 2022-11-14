@@ -9,10 +9,8 @@ import {
 } from '@deck.gl/json';
 import { Feature } from 'geojson';
 import maplibreGl from 'maplibre-gl';
-import { makeObservable, observable, action } from 'mobx';
 import { tileToQuadkey } from '@mapbox/tilebelt';
 import { City } from '@dtcv/cities';
-import { LayerStore, UpdateLayerProps } from './store/LayerStore.js';
 import { ViewStore } from './store/ViewStore.js';
 import MaplibreWrapper from './utils/MaplibreWrapper.js';
 import { toLngLat } from './utils/projection.js';
@@ -49,29 +47,11 @@ type ViewerProps = any & {
 // While figuring this out, maplibre is used to control the gl context and interaction
 // This is NOT ideal since the bundle size increase dramatically
 // todo: remove maplibre
-// ! note: the fast iterations have created three tracks on how the viewState works, however the code is kept in the repo for all of them -> if below is true, part of the other code is not used...
-// ! second note: the recent developments goes towards using Deck, thus using the existing state of Deck would be advantageous (instead of managing state in this component)
-// const useMaplibre = true; // this is now sent in as second param in constructor
-
-// todo: refactor this -> now the Deck props are used directly which means that this is getting more and more a wrapper around Deck
-// type ViewerProps = {
-//   longitude?: number;
-//   latitude?: number;
-//   zoom?: number;
-//   canvas?: HTMLCanvasElement;
-//   container?: HTMLElement | string; // maplibre
-//   bearing?: number;
-//   pitch?: number;
-//   width?: number;
-//   height?: number;
-//   onLoad?: () => void;
-// };
 class Viewer {
   gl: WebGL2RenderingContext | null = null;
   deck: Deck;
   jsonConverter: JSONConverter;
   viewStore: ViewStore;
-  layerStore: LayerStore;
   maplibreMap?: maplibregl.Map;
   selectedObject: Feature | null = null;
   selectedGraphObject: Feature | null = null;
@@ -85,7 +65,6 @@ class Viewer {
       configuration: new JSONConfiguration(JSON_CONVERTER_CONFIGURATION),
     });
     this.viewStore = new ViewStore(this);
-    this.layerStore = new LayerStore(this);
 
     const resolvedProps = Object.assign({}, internalProps, props);
     this.props = resolvedProps;
@@ -100,20 +79,7 @@ class Viewer {
       this.deck = new Deck(resolvedProps);
     }
     //this.viewStore.setViewState(props);
-
-    // makeObservable(this, {
-    //   selectedObject: observable,
-    //   setSelectedObject: action,
-    // });
   }
-
-  // onTilesetLoad(tileset) {
-  //   console.log(tileset);
-  // }
-
-  // onTileLoad(tile) {
-  //   console.log(tile);
-  // }
 
   get zoom() {
     return this.viewStore.zoom;
@@ -160,7 +126,6 @@ class Viewer {
   onWebGLInitialized(gl) {
     console.log('initialised');
     this.gl = gl;
-    this.layerStore.renderLayers();
   }
 
   onViewStateChange({ viewId, viewState }) {
@@ -169,26 +134,12 @@ class Viewer {
     //   views: this.viewStore.getViews(),
     //   viewState: this.viewStore.getViewState(),
     // });
-    console.log('viewState', viewState);
     return viewState;
   }
 
   layerFilter = ({ layer, viewport }) => {
     return true;
   };
-
-  // getProps() {
-  //   if (this.useMaplibre) {
-  //     return {
-  //       layers: this.layerStore.getLayersInstances(),
-  //     };
-  //   }
-  //   return {
-  //     layers: this.layerStore.getLayersInstances(),
-  //     views: this.viewStore.getViews(),
-  //     viewState: this.viewStore.getViewStates(),
-  //   };
-  // }
 
   setSelectedObject(object) {
     this.selectedObject = object;
@@ -212,14 +163,6 @@ class Viewer {
     });
   }
 
-  setLayerProps(layerId: string, props) {
-    this.layerStore.setLayerProps(layerId, props);
-  }
-
-  getLayerData(layerId: string) {
-    return this.layerStore.getLayerData(layerId);
-  }
-
   // note: confusing, but due to artifacts when center on real webmercator, the center here is the offset relative to the city center
   // (it means that the viewer camera is 0,0 at city center at start which is a epsg3857 coordinate from getCity function, and here moved to the area of interest with an offset)
   setCenter(webmercatorCenter) {
@@ -234,84 +177,8 @@ class Viewer {
     });
   }
 
-  setLayerState(layerId: string, state) {
-    this.layerStore.setLayerState(layerId, state);
-  }
-
-  setLayerStyle(layerId: string, style) {
-    this.layerStore.setLayerStyle(layerId, style);
-  }
-
-  // setLayerStyle(layerId: string, style) {
-  //   const layer = this.deck.getLayerById(layerId);
-  //   if (!layer) {
-  //     return;
-  //   }
-  //   this.applyLayerStyle(layer, )
-  // }
-
-  // // todo: move out to styling utils
-  // applyLayerStyle(layer: LayerSetting) {
-  //   const features = layer.props.data;
-  //   const colorStyle = layer.layerStyle?.color;
-  //   if (colorStyle) {
-  //     for (const feature of features) {
-  //       this.setColor(feature, colorStyle);
-  //     }
-  //   }
-  // }
-  // todo: move out to styling utils
-  // setColor(layerId, colorStyle) {
-  //   const layer = this.deck.getLayerById(layerId);
-  //   if (!layer) {
-  //     return;
-  //   }
-  //   const features = layer.props.data;
-  //   for (const feature of features) {
-  //     if (
-  //       feature.properties &&
-  //       colorStyle.propertyKey &&
-  //       colorStyle.sufficient &&
-  //       colorStyle.excellent
-  //     ) {
-  //       const color = generateColor(
-  //         feature.properties[colorStyle.propertyKey],
-  //         colorStyle.sufficient,
-  //         colorStyle.excellent
-  //       );
-  //       feature.properties.color = color;
-  //     }
-  //   }
-  // }
-
   setActiveView(viewId: 'graph' | 'map') {
     this.viewStore.setActiveView(viewId);
-  }
-
-  // public updateLayer(updateData: UpdateLayerProps) {
-  //   const { layerId } = updateData;
-  //   if (updateData.props) {
-  //     this.setLayerProps(layerId, updateData.props);
-  //   }
-  //   if (updateData.state) {
-  //     // set isLoaded to true by default
-  //     if (updateData.state.isLoaded !== false) {
-  //       updateData.state.isLoaded = true;
-  //     }
-  //     this.setLayerState(layerId, updateData.state);
-  //   }
-  //   if (updateData.style) {
-  //     this.setLayerStyle(layerId, updateData.style);
-  //   }
-  //   if (layerId === 'graph-layer') {
-  //     this.viewStore.setShowGraphView(true);
-  //     this.viewStore.setActiveView('graph');
-  //   }
-  //   this.render();
-  // }
-
-  unload() {
-    this.layerStore.unload();
   }
 
   setProps(props: ViewerProps) {
