@@ -10,7 +10,7 @@ import {
 import { Feature } from 'geojson';
 import maplibreGl from 'maplibre-gl';
 import { tileToQuadkey } from '@mapbox/tilebelt';
-import { City } from '@dtcv/cities';
+import { City, cities } from '@dtcv/cities';
 import { ViewStore } from './store/ViewStore.js';
 import MaplibreWrapper from './utils/MaplibreWrapper.js';
 import { toLngLat } from './utils/projection.js';
@@ -90,9 +90,22 @@ class Viewer {
     // this.render();
   }
 
-  // todo: determine the most convenient way to set the current city, enumeration?
+  setCityFromId(cityId: string) {
+    const city = cities.find(c => c.id === cityId);
+    if (!city) {
+      console.warn('city was not found by: ', cityId);
+    }
+    this.setCity(city);
+  }
+
   setCity(city: City) {
+    // todo: figure out if the viewer should clean out all layers if a new city is coming in
+    console.log('set city', city);
     this.currentCity = city;
+  }
+
+  getCity() {
+    return this.currentCity;
   }
 
   getVisibleObjects(
