@@ -37,7 +37,7 @@ function translateCoordinate(
 }
 
 function projectCoordinate(x, y, fromProj = 'EPSG:3006') {
-  return proj4(fromProj, 'EPSG:3857', [x, y]);
+  return proj4(fromProj, 'EPSG:4326', [x, y]);
 }
 
 const CrsList = {
