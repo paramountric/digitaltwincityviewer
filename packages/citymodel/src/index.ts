@@ -13,7 +13,7 @@ async function initPb() {
 
 initPb();
 
-function parseGround(fileData) {
+function parseGround(fileData, crs: string, cityXY: number[]) {
   const groundSurface = fileData.GroundSurface || fileData.groundSurface;
   const origin = fileData.Origin || fileData.origin || { x: 0, y: 0 };
   const vertices = groundSurface ? groundSurface.vertices : fileData.vertices;
@@ -27,12 +27,14 @@ function parseGround(fileData) {
   let maxY = -Infinity;
   const projectedVertices = [];
   for (let i = 0; i < vertices.length; i++) {
-    const v = vertices[i];
-    const projected = [v.x || 0, v.y || 0, v.z || 0];
-    // const transformed = transformCoordinate(vertices[i], vertices[i + 1], {
-    //   translate: [origin.x, origin.y],
-    // });
-    // const projected = projectCoordinate(transformed[0], transformed[1]);
+    const { x = 0, y = 0, z = 0 } = vertices[i];
+    const projected = convert(
+      x + origin.x,
+      y + origin.y,
+      crs,
+      cityXY || [0, 0]
+    );
+    projected.push(z);
     if (projected[0] < minX) {
       minX = projected[0];
     }
@@ -147,7 +149,6 @@ function parseBuildings(
   cityXY: number[],
   setZCoordinateToZero = false
 ) {
-  console.log('set z: ', setZCoordinateToZero);
   const buildings = fileData.Buildings || fileData.buildings;
   // todo: the crs is discussed to be added to CityModel files, so add that when it comes in new examples
   const origin = fileData.Origin || fileData.origin || { x: 0, y: 0 };
@@ -174,12 +175,13 @@ function parseBuildings(
       : footprint;
     for (let j = 0; j < polygon.length; j++) {
       const { x, y } = polygon[j];
-      const projected = [x + origin.x, y + origin.y];
-      if (cityXY) {
-        convert(x, y, crs, cityXY, projected);
-      }
+      const projected = convert(
+        x + origin.x,
+        y + origin.y,
+        crs,
+        cityXY || [0, 0]
+      );
 
-      // const projected = projectCoordinate(transformed[0], transformed[1]);
       if (projected[0] < minX) {
         minX = projected[0];
       }
@@ -383,7 +385,7 @@ function parseCityModel(
       result.buildings = buildings;
     }
   } else if (type === 'Surface3D') {
-    const ground = parseGround(fileData);
+    const ground = parseGround(fileData, crs, cityXY);
     if (ground) {
       result.ground = ground;
     }
@@ -393,20 +395,20 @@ function parseCityModel(
       result.surfaceField = surfaceField;
     }
   } else {
-    // legacy
-    const buildings = parseBuildings(
-      fileData,
-      crs,
-      cityXY,
-      setZCoordinateToZero
-    );
-    if (buildings) {
-      result.buildings = buildings;
-    }
-    const ground = parseGround(fileData);
-    if (ground) {
-      result.ground = ground;
-    }
+    // legacy (update: disabled and should be removed)
+    // const buildings = parseBuildings(
+    //   fileData,
+    //   crs,
+    //   cityXY,
+    //   setZCoordinateToZero
+    // );
+    // if (buildings) {
+    //   result.buildings = buildings;
+    // }
+    // const ground = parseGround(fileData);
+    // if (ground) {
+    //   result.ground = ground;
+    // }
   }
 
   return result;
