@@ -3,7 +3,7 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "projects/dtcc-citymodel-file-viewer"
+    "projects/dtcc-file-viewer"
   ],
   "scripts": {
     "build": "turbo run build",
