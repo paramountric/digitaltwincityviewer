@@ -12,6 +12,11 @@ export type ViewerStore = {
   isLoading: boolean;
 };
 
+/*
+ * The layer state is any properties that goes into the layer
+ * See each layer in the @dtcv/viewer package
+ * if viewer.setJson is used, '@@type' key will be used in the viewer to map the layer type to layer instance
+ */
 type LayerState = {
   id: string;
 } & any;
@@ -40,7 +45,6 @@ export const useViewer = () => {
   const viewerActions = useMemo(() => {
     return {
       initViewer: (ref: HTMLDivElement) => {
-        console.log(ref);
         viewerStore.set({
           ...viewerState,
           viewer: new Viewer(
