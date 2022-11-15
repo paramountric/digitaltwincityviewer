@@ -25,20 +25,26 @@ export default class CityModelLayer<
     }
   }
   renderLayers() {
-    const { id, data, modelMatrix, coordinateOrigin } = this.props;
+    const {
+      id,
+      data,
+      modelMatrix,
+      coordinateOrigin,
+      pickable = false,
+    } = this.props;
     return [
       new SolidPolygonLayer({
         id: `${id}-solid-polygon`,
         data,
         modelMatrix,
+        pickable,
         opacity: 1,
         autoHighlight: true,
         highlightColor: HIGHLIGHT_COLOR,
         extruded: true,
         wireframe: true,
-        pickable: true,
-        coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-        coordinateOrigin,
+        // coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+        // coordinateOrigin,
         getPolygon: d => d.geometry.coordinates,
         getFillColor: d => d.properties.color || [255, 255, 255, 255],
         getLineColor: [100, 100, 100],

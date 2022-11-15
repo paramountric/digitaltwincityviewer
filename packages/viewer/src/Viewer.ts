@@ -19,20 +19,6 @@ import JSON_CONVERTER_CONFIGURATION, {
   JsonProps,
 } from './config/converter-config.js';
 
-// internalProps = not to be set from parent component
-const internalProps = {
-  debug: false,
-  glOptions: {
-    antialias: true,
-    depth: true,
-  },
-  layers: [],
-  useDevicePixels: true,
-  // onWebGLInitialized: null,
-  // onViewStateChange: null,
-  // layerFilter: null,
-};
-
 type ViewerProps = any & {
   onLoad?: () => void;
   onSelectObject?: (object: any) => Feature | null;
@@ -66,7 +52,18 @@ class Viewer {
     });
     this.viewStore = new ViewStore(this);
 
-    const resolvedProps = Object.assign({}, internalProps, props);
+    const defaultProps = {
+      debug: false,
+      glOptions: {
+        antialias: true,
+        depth: true,
+      },
+      layers: [],
+      useDevicePixels: true,
+      getCursor: this.getCursor.bind(this),
+    };
+
+    const resolvedProps = Object.assign({}, defaultProps, props);
     this.props = resolvedProps;
 
     if (maplibreOptions) {
@@ -99,7 +96,23 @@ class Viewer {
   }
 
   setCity(city: City) {
-    // todo: figure out if the viewer should clean out all layers if a new city is coming in
+    const currentCity = this.currentCity || { id: null };
+    if (city.id !== currentCity.id) {
+      if (this.maplibreMap) {
+        console.log('set center', city);
+        this.maplibreMap.setCenter([city.lng, city.lat]);
+        this.setProps({
+          layers: [],
+        });
+      } else {
+        this.setProps({
+          viewState: {
+            // todo: refactor the viewStore, set the lng lat from city and keep the rest of the state
+          },
+          layers: [],
+        });
+      }
+    }
     console.log('set city', city);
     this.currentCity = city;
   }
@@ -134,6 +147,10 @@ class Viewer {
       height: height || defaultHeight,
       layerIds,
     });
+  }
+
+  getCursor({ isDragging, isHovering }) {
+    return isHovering ? 'pointer' : 'grab';
   }
 
   onWebGLInitialized(gl) {
@@ -246,9 +263,9 @@ class Viewer {
         version: 8,
       },
       center: [props.longitude || 0, props.latitude || 0],
-      zoom: props.zoom || 14, // starting zoom
-      minZoom: props.minZoom || 10,
-      pitch: props.pitch || 60,
+      zoom: props.zoom || props.zoom === 0 ? props.zoom : 14, // starting zoom
+      minZoom: props.minZoom || props.minZoom === 0 ? props.minZoom : 10,
+      pitch: props.pitch || props.pitch === 0 ? props.pitch : 60,
       attributionControl: false,
     } as maplibregl.MapOptions;
     if (props.container) {

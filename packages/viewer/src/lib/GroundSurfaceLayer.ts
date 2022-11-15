@@ -43,8 +43,8 @@ export default class GroundSurfaceLayer<
         modelMatrix,
         _instanced: false,
         wireframe: false,
-        coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-        coordinateOrigin,
+        // coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+        // coordinateOrigin,
         getPosition: d => [0, 0, 0],
         parameters: {
           depthTest: true,
