@@ -1,6 +1,7 @@
 {
   "name": "@dtcv/convert",
   "version": "1.2.0",
+  "type": "module",
   "description": "City metadata and utility functions",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -26,6 +27,7 @@
     "build": "tsc",
     "tsc": "tsc",
     "watch": "tsc --watch",
+    "dev": "tsc --watch",
     "lint": "eslint --ext .ts,.js src",
     "format": "prettier --ignore-path .eslintignore --write \"src/**/*.+(js|ts|json)\"",
     "test": "jest"
