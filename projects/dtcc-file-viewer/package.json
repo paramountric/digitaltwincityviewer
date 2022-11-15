@@ -9,7 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@dtcv/cities": "^1.2.0",
+    "@dtcv/citymodel": "^1.2.0",
     "@dtcv/viewer": "^1.2.0",
+    "@headlessui/react": "^1.7.4",
+    "@heroicons/react": "^2.0.13",
     "@types/node": "18.11.8",
     "@types/react": "18.0.24",
     "@types/react-dom": "18.0.8",

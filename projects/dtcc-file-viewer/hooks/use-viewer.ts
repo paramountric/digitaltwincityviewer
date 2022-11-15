@@ -1,6 +1,7 @@
 import {useState, useEffect, useMemo} from 'react';
 import {Observable} from '../lib/Observable';
 import {Viewer} from '@dtcv/viewer';
+import {City} from '@dtcv/cities';
 
 /*
  * This is the app state management for the viewer data and where to store layer data and view state
@@ -9,18 +10,24 @@ import {Viewer} from '@dtcv/viewer';
  */
 export type ViewerStore = {
   viewer: Viewer | null;
-  isLoading: boolean;
+  cityId: string | null;
 };
 
+/*
+ * The layer state is any properties that goes into the layer
+ * See each layer in the @dtcv/viewer package
+ * if viewer.setJson is used, '@@type' key will be used in the viewer to map the layer type to layer instance
+ */
 type LayerState = {
   id: string;
+  visible: boolean;
 } & any;
 
 type LayerStore = LayerState[];
 
 const viewerStore = new Observable<ViewerStore>({
   viewer: null,
-  isLoading: false,
+  cityId: null,
 });
 
 const layerStore = new Observable<LayerStore>([]);
@@ -40,7 +47,6 @@ export const useViewer = () => {
   const viewerActions = useMemo(() => {
     return {
       initViewer: (ref: HTMLDivElement) => {
-        console.log(ref);
         viewerStore.set({
           ...viewerState,
           viewer: new Viewer(
@@ -62,12 +68,39 @@ export const useViewer = () => {
         });
       },
       addLayer: (layer: LayerState) => {
-        const existingLayer = layerState.find(l => l.id === layer.id);
+        const state = layerStore.get();
+        const existingLayer = state.find(l => l.id === layer.id);
         if (existingLayer) {
           console.log('fix update existing layer state');
         } else {
-          layerStore.set([...layerState, layer]);
+          layer.visible = true;
+          layerStore.set([...state, layer]);
         }
+      },
+      setCity: (cityId: string) => {
+        console.log(viewerStore.get());
+        console.log(viewerState);
+        const state = viewerStore.get();
+        state.viewer.setCityFromId(cityId);
+        viewerStore.set({
+          ...state,
+          cityId,
+        });
+      },
+      setLayerVisibility: (layerId: string, isVisible: boolean) => {
+        const layerStates = layerStore.get().map(l => {
+          if (l.id === layerId) {
+            return {...l, visible: isVisible};
+          }
+          return l;
+        });
+        layerStore.set(layerStates);
+      },
+      getCity: () => {
+        return viewerState.viewer.getCity();
+      },
+      getLayerState: () => {
+        return layerStore.get();
       },
     };
   }, [viewerState]);
@@ -86,6 +119,7 @@ export const useViewer = () => {
 
   return {
     viewerState,
-    viewerActions,
+    layerState,
+    actions: viewerActions,
   };
 };

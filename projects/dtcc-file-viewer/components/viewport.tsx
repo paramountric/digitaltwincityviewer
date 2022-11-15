@@ -5,7 +5,7 @@ type ViewportProps = {};
 
 const Viewport: React.FC<ViewportProps> = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const {viewerActions} = useViewer();
+  const {actions: viewerActions} = useViewer();
 
   useEffect(() => {
     if (containerRef.current) {
@@ -15,17 +15,6 @@ const Viewport: React.FC<ViewportProps> = () => {
       containerRef.current.style.top = '0px';
       containerRef.current.style.left = '0px';
       viewerActions.initViewer(containerRef.current);
-      // Add data when it is loaded, this is just an example triggered immediately
-      viewerActions.addLayer({
-        '@@type': 'PoiLayer',
-        id: 'test',
-        data: [
-          {
-            name: 'Test point',
-            coordinates: [0, 0],
-          },
-        ],
-      });
     }
   }, []);
 
