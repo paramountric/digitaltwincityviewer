@@ -60,12 +60,11 @@ export default function LeftPanel() {
 
     // not loaded, -> load layer data
     setIsLoading(true);
-    const {data, modelMatrix} = await loadExampleData(fileSetting);
+    const result = await loadExampleData(fileSetting);
     addLayer({
+      ...result,
       id,
       '@@type': layerType,
-      data,
-      modelMatrix,
     });
 
     setIsLoading(false);

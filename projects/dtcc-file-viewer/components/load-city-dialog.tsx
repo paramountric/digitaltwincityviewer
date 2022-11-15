@@ -5,7 +5,7 @@ import {useUi} from '../hooks/use-ui';
 import {useViewer} from '../hooks/use-viewer';
 import {loadExampleData, cityDatasets} from '../lib/load-example';
 
-export default function ImportDataDialog() {
+export default function LoadCityDialog() {
   const {
     state,
     actions: {setShowLoadCityDialog, setIsLoading},
@@ -18,12 +18,11 @@ export default function ImportDataDialog() {
     const {id, cityId, url, fileType, pbType, layerType} = fileSetting;
     setCity(cityId);
     setIsLoading(true);
-    const {data, modelMatrix} = await loadExampleData(fileSetting);
+    const result = await loadExampleData(fileSetting);
     addLayer({
+      ...result,
       id,
       '@@type': layerType,
-      data,
-      modelMatrix,
     });
 
     setIsLoading(false);

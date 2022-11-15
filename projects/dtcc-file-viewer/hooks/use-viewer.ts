@@ -59,10 +59,10 @@ export const useViewer = () => {
             {
               longitude: 0,
               latitude: 0,
-              zoom: 14,
+              zoom: 10,
               minZoom: 10,
               maxZoom: 18,
-              pitch: 60,
+              pitch: 0,
             }
           ),
         });
