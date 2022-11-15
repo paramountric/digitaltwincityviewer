@@ -1,6 +1,17 @@
 import { vec3, mat4 } from 'gl-matrix';
 // import { generateColor } from '@dtcv/indicators';
 import { convert } from '@dtcv/convert';
+import * as protobuf from 'protobufjs';
+
+let protoRoot;
+
+async function initPb() {
+  protoRoot = await protobuf.load(
+    'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/dtcc.proto'
+  );
+}
+
+initPb();
 
 function parseGround(fileData) {
   const groundSurface = fileData.GroundSurface || fileData.groundSurface;
@@ -401,4 +412,15 @@ function parseCityModel(
   return result;
 }
 
-export { parseCityModel };
+function parseProtobuf(pbData: Uint8Array, pbType: string) {
+  if (!protoRoot) {
+    console.warn('protobuf has not been loaded properly during init');
+    return;
+  }
+  const typeData = protoRoot.lookupType(pbType);
+  const decoded = typeData.decode(pbData);
+  const decodedJson = decoded.toJSON();
+  return decodedJson;
+}
+
+export { parseCityModel, parseProtobuf };

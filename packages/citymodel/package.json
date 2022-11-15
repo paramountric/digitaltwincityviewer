@@ -36,7 +36,8 @@
   "dependencies": {
     "@dtcv/convert": "^1.2.0",
     "gl-matrix": "^3.4.3",
-    "proj4": "^2.8.0"
+    "proj4": "^2.8.0",
+    "protobufjs": "^7.1.2"
   },
   "devDependencies": {
     "@types/jest": "^28.1.4",
