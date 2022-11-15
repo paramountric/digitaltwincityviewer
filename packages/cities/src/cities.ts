@@ -39,8 +39,11 @@ const cities = [
   {
     id: 'helsingborg',
     city: 'Helsingborg',
-    lat: '56.0424',
-    lng: '12.7210',
+    // these are the original coords
+    // lat: '56.0424',
+    // lng: '12.7210',
+    lat: '56.0430155',
+    lng: '12.7401827',
     country: 'Sweden',
     iso2: 'SE',
     admin_name: 'Skåne',
