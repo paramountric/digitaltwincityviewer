@@ -15,7 +15,7 @@ const uiStore = new Observable<UiStore>({
   showLoadCityDialog: false,
   showUploadFileDialog: false,
   showLayerDialog: false,
-  showLeftPanel: false,
+  showLeftPanel: true,
   showRightPanel: false,
 });
 

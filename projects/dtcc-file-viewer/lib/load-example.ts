@@ -86,7 +86,7 @@ export async function loadExampleData(fileSetting) {
           result.data = layerData.buildings.data;
           //result.coordinateOrigin = [lng, lat];
           // this makes it works perfectly, but how should other layers realate?
-          //result.modelMatrix = layerData.buildings.modelMatrix;
+          result.modelMatrix = Array.from(layerData.modelMatrix);
           result.pickable = true;
           result.autoHighlight = true;
           break;

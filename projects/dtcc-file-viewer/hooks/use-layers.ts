@@ -11,6 +11,7 @@ import {useUi} from './use-ui';
 type LayerState = {
   id: string;
   visible: boolean;
+  elevation: number; // extra z level for the layer, adjustable in the left panel
 } & any;
 
 type LayerStore = LayerState[];
@@ -40,6 +41,7 @@ export const useLayers = () => {
           console.log('fix update existing layer state');
         } else {
           layer.visible = true;
+          layer.elevation = layer.elevation || 0;
           if (layer['@@type'] === 'CityModelLayer') {
             layer.onClick = ({object}) => {
               if (object) {
@@ -62,6 +64,20 @@ export const useLayers = () => {
       },
       getLayerState: () => {
         return layerStore.get();
+      },
+      setLayerElevation: (layerId: string, elevation: number) => {
+        console.log(layerId, elevation);
+        const layerStates = layerStore.get().map(l => {
+          if (l.id === layerId) {
+            const modelMatrix = Array.from(
+              viewerState.viewer.getElevationMatrix(elevation)
+            );
+            console.log(modelMatrix);
+            return {...l, elevation, modelMatrix};
+          }
+          return l;
+        });
+        layerStore.set(layerStates);
       },
     };
   }, [layerState]);
