@@ -146,7 +146,7 @@ function getLayerPosition(extent) {
 function parseBuildings(
   fileData,
   crs: string,
-  cityXY: number[],
+  cityXY?: number[],
   setZCoordinateToZero = false
 ) {
   const buildings = fileData.Buildings || fileData.buildings;
@@ -175,12 +175,7 @@ function parseBuildings(
       : footprint;
     for (let j = 0; j < polygon.length; j++) {
       const { x, y } = polygon[j];
-      const projected = convert(
-        x + origin.x,
-        y + origin.y,
-        crs,
-        cityXY || [0, 0]
-      );
+      const projected = convert(x + origin.x, y + origin.y, crs, cityXY);
 
       if (projected[0] < minX) {
         minX = projected[0];
@@ -350,6 +345,60 @@ function parseSurfaceField(fileData) {
   };
 }
 
+function getPointCloudColor(classification: number) {
+  // 19-63 is reserved, 64-255 ia user definable
+  const colors = [
+    [196, 188, 196], // 0: never classifed
+    [196, 188, 196], // 1: unassigned
+    [124, 124, 116], // 2: ground
+    [58, 68, 57], // 3: low veg
+    [58, 68, 57], // 4: medium veg
+    [58, 68, 57], // 5: high veg
+    [58, 68, 57], // 6: building
+    [58, 68, 57], // 7: low point
+    [58, 68, 57], // 8: reserved
+    [58, 68, 57], // 9: water
+    [58, 68, 57], // 10: rail
+    [58, 68, 57], // 11: road surface
+    [58, 68, 57], // 12: reserved
+    [58, 68, 57], // 13: wire - guard (shield)
+    [58, 68, 57], // 14: wire - conductor (phase)
+    [58, 68, 57], // 15: transmission tower
+    [58, 68, 57], // 16: wire - structure connector (insulator)
+    [58, 68, 57], // 17: bridge deck
+    [58, 68, 57], // 18: high noise
+  ];
+  return colors[classification] || [63, 191, 63];
+}
+
+function parsePointCloud(fileData, crs: string) {
+  console.log(fileData);
+  const points: any = [];
+  const origin = fileData.Origin || fileData.origin || { x: 0, y: 0 };
+  console.log(origin);
+  //const selection = fileData.points.slice(0, 1000000);
+  let i = 0;
+  const classes = {};
+  for (const p of fileData.points) {
+    const classification = fileData.classification[i];
+    classes[classification] = true;
+    i++;
+    if (!p.x || !p.y) {
+      continue;
+    }
+    const projected = convert(p.x + origin.x, p.y + origin.y, crs);
+    points.push({
+      position: [projected[0], projected[1], p.z],
+      color: getPointCloudColor(classification),
+      normal: [-1, 0, 0],
+    });
+  }
+  console.log(classes);
+  return {
+    data: points,
+  };
+}
+
 // function fixLegacyUpperCase(fileData, fixKeys) {
 //   for (const key of fixKeys) {
 //     if (!fileData[key]) {
@@ -373,6 +422,7 @@ function parseCityModel(
     buildings?: any;
     ground?: any;
     surfaceField?: any;
+    pointCloud?: any;
   } = {};
   if (type === 'CityModel') {
     const buildings = parseBuildings(
@@ -393,6 +443,11 @@ function parseCityModel(
     const surfaceField = parseSurfaceField(fileData);
     if (surfaceField) {
       result.surfaceField = surfaceField;
+    }
+  } else if (type === 'PointCloud') {
+    const pointCloud = parsePointCloud(fileData, crs);
+    if (pointCloud) {
+      result.pointCloud = pointCloud;
     }
   } else {
     // legacy (update: disabled and should be removed)
