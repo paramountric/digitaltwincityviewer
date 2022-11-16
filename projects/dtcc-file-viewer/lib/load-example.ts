@@ -37,6 +37,18 @@ export const cityDatasets = {
       },
       {
         ...helsingborg,
+        id: 'helsingborg-pointcloud',
+        cityId: 'helsingborg',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/helsingborg-pointcloud-nov-2022.pb',
+        fileType: 'protobuf',
+        pbType: 'PointCloud',
+        layerType: 'PointCloudLayer',
+        text: 'Helsingborg point cloud',
+        origin: {x: 102000, y: 6213004.15744457},
+        crs: 'EPSG:3008',
+      },
+      {
+        ...helsingborg,
         id: 'helsingborg-osm',
         cityId: 'helsingborg',
         url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/helsingborg-osm-nov-2022.geojson',
@@ -79,6 +91,20 @@ export async function loadExampleData(fileSetting) {
           break;
         case 'Surface3D':
           result.data = layerData.ground.data;
+          //result.coordinateOrigin = [lng, lat];
+          //result.modelMatrix = layerData.ground.modelMatrix;
+          break;
+        case 'PointCloud':
+          result.data = layerData.pointCloud.data;
+          result.id = 'point-cloud';
+          result.opacity = 1;
+          result.getPosition = '@@=position';
+          result.getColor = '@@=color';
+          result.getNormal = '@@=normal';
+          result.pointSize = 1;
+          result.material = {
+            ambient: 1.0,
+          };
           //result.coordinateOrigin = [lng, lat];
           //result.modelMatrix = layerData.ground.modelMatrix;
           break;

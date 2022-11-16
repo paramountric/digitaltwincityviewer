@@ -24,7 +24,6 @@ export default function LoadCityDialog() {
       id,
       '@@type': layerType,
     });
-
     setIsLoading(false);
     setShowLoadCityDialog(false);
   };
@@ -33,7 +32,7 @@ export default function LoadCityDialog() {
     <Transition.Root show={state.showLoadCityDialog} as={Fragment}>
       <Dialog
         as="div"
-        className="relative z-50"
+        className="relative z-30"
         onClose={() => setShowLoadCityDialog(false)}
       >
         <Transition.Child
