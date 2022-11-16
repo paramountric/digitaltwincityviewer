@@ -1,6 +1,7 @@
 import { CompositeLayer, COORDINATE_SYSTEM } from '@deck.gl/core';
 import type { CompositeLayerProps } from '@deck.gl/core/typed';
 import { SolidPolygonLayer } from '@deck.gl/layers';
+import { mat4 } from 'gl-matrix';
 
 export type CityModelProps<DataT = any> = _CityModelProps &
   CompositeLayerProps<DataT>;
@@ -28,7 +29,7 @@ export default class CityModelLayer<
     const {
       id,
       data,
-      modelMatrix,
+      modelMatrix = mat4.create(),
       coordinateOrigin,
       pickable = false,
     } = this.props;

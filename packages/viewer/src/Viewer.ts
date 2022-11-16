@@ -11,6 +11,7 @@ import { Feature } from 'geojson';
 import maplibreGl from 'maplibre-gl';
 import { tileToQuadkey } from '@mapbox/tilebelt';
 import { City, cities } from '@dtcv/cities';
+import { mat4 } from 'gl-matrix';
 import { ViewStore } from './store/ViewStore.js';
 import MaplibreWrapper from './utils/MaplibreWrapper.js';
 import { toLngLat } from './utils/projection.js';
@@ -225,6 +226,11 @@ class Viewer {
     console.log('props', props);
 
     this.setProps(props);
+  }
+
+  // should probably be helper function in some other package
+  getElevationMatrix(elevation) {
+    return mat4.fromTranslation(mat4.create(), [0, 0, elevation]);
   }
 
   getQuadkey(x: number, y: number, z: number) {

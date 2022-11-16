@@ -423,7 +423,11 @@ function parseCityModel(
     ground?: any;
     surfaceField?: any;
     pointCloud?: any;
-  } = {};
+    modelMatrix: mat4;
+  } = {
+    // this can be overriden if necessary from the parsers
+    modelMatrix: mat4.create(),
+  };
   if (type === 'CityModel') {
     const buildings = parseBuildings(
       fileData,
