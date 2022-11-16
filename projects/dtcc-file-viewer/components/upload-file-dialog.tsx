@@ -1,9 +1,14 @@
-import {Fragment} from 'react';
+import {Fragment, useState} from 'react';
 import {Dialog, Transition} from '@headlessui/react';
-import {XMarkIcon, ExclamationTriangleIcon} from '@heroicons/react/24/outline';
-import {parseProtobuf} from '@dtcv/citymodel';
+import {
+  XMarkIcon,
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+} from '@heroicons/react/24/outline';
+import {parseProtobuf, parseCityModel} from '@dtcv/citymodel';
 import {useUi} from '../hooks/use-ui';
 import {useViewer} from '../hooks/use-viewer';
+import {findCity} from '@dtcv/cities';
 
 export default function UploadFileDialog() {
   const {
@@ -12,13 +17,98 @@ export default function UploadFileDialog() {
   } = useUi();
 
   const {
-    actions: {addLayer},
+    actions: {addLayer, setCity},
   } = useViewer();
+
+  const [errorMsg, setErrorMsg] = useState<string>('');
+
+  const supportedPbTypes = ['CityModel', 'Surface3D'];
+  const layerMapping = ['CityModelLayer', 'GroundSurfaceLayer'];
+
+  // This functin needs to figure out content and metadata of the pbData
+  const findPbJson = pbData => {
+    let pbJson;
+    let idx = 0;
+    let pbType;
+    let layerType;
+    while (!pbJson && idx < supportedPbTypes.length) {
+      try {
+        pbType = supportedPbTypes[idx];
+        layerType = layerMapping[idx];
+        pbJson = parseProtobuf(pbData, pbType);
+        if (!pbJson) {
+          throw new Error('Parsing error');
+        }
+        // These should come from the file!!
+        pbJson.crs = 'EPSG:3008';
+        pbJson.origin = {x: 102000, y: 6213004.15744457};
+
+        console.log('pbjson', pbJson);
+      } catch (e) {
+        //
+      }
+      idx++;
+    }
+    return {pbJson, pbType, layerType};
+  };
+
+  const findCityFromPb = pbJson => {
+    // todo: take the first coordinate, add origin, convert to lnglat, call the findCity function
+    // const isLngLat = true;
+    // const city = findCity(lng, lat, isLngLat);
+    // return city.id;
+    return 'helsingborg';
+  };
+
+  const addLayerFromPbData = pbData => {
+    const {pbJson, pbType, layerType} = findPbJson(pbData);
+    if (!pbJson) {
+      setErrorMsg(
+        'This type is not supported. Supported types: CityModel, Surface3D'
+      );
+      return;
+    }
+    const cityId = findCityFromPb(pbJson);
+    setCity(cityId);
+    const result: any = {};
+    if (!pbJson) {
+      console.log('handle this');
+    }
+    const layerData = parseCityModel(pbJson, pbJson.crs, pbType);
+
+    switch (pbType) {
+      case 'CityModel':
+        result.data = layerData.buildings.data;
+        //result.coordinateOrigin = [lng, lat];
+        // this makes it works perfectly, but how should other layers realate?
+        //result.modelMatrix = layerData.buildings.modelMatrix;
+        result.pickable = true;
+        result.autoHighlight = true;
+        break;
+      case 'Surface3D':
+        result.data = layerData.ground.data;
+        //result.coordinateOrigin = [lng, lat];
+        //result.modelMatrix = layerData.ground.modelMatrix;
+        break;
+      default:
+        result.data = [];
+    }
+    addLayer({
+      ...result,
+      id: `${layerType}${Date.now()}`,
+      '@@type': layerType,
+    });
+    setShowUploadFileDialog(false);
+  };
 
   const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e?.target?.files) {
       return;
     }
+
+    // reset any error message
+    setErrorMsg('');
+
     const file = e?.target?.files[0];
     const reader = new FileReader();
     const splits = file.name.split('.');
@@ -28,8 +118,7 @@ export default function UploadFileDialog() {
         reader.onload = () => {
           const result = reader.result as ArrayBuffer;
           const pbData = new Uint8Array(result);
-          // todo: need to find out how to see what pbType this is
-          //const jsonData = parseProtobuf(pbData, pbType, city)
+          addLayerFromPbData(pbData);
         };
         reader.readAsArrayBuffer(file);
         break;
@@ -39,6 +128,7 @@ export default function UploadFileDialog() {
           // todo: need to find a way to determine what process the data should go through now
         };
         reader.readAsText(file);
+        break;
       default:
         console.warn('example files should be explicit');
     }
@@ -92,14 +182,23 @@ export default function UploadFileDialog() {
                   Upload file
                 </Dialog.Title>
 
-                <div className="flex mt-6 text-md text-red-600">
-                  <ExclamationTriangleIcon
+                <div className="flex mt-6 text-md text-blue-900">
+                  <InformationCircleIcon
                     className="h-6 w-6"
                     aria-hidden="true"
                   />
-                  The file upload function for DTCC citymodel files (.pb) is
-                  currently in maintenance (disabled)
+                  The upload currently only supports .pb (protobuf) files
+                  generated by the DTCC Platfrom
                 </div>
+                {errorMsg && (
+                  <div className="flex mt-6 text-md text-red-600">
+                    <ExclamationTriangleIcon
+                      className="h-6 w-6"
+                      aria-hidden="true"
+                    />
+                    {errorMsg}
+                  </div>
+                )}
                 <div className="flex mt-6 text-md text-gray-600">
                   <label
                     htmlFor="file-upload"
