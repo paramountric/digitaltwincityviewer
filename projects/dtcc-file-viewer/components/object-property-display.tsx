@@ -10,13 +10,7 @@ type DisplayDict = {
   [key: string]: string | number;
 };
 
-const displayProperties: string[] = [
-  'uuid',
-  'type',
-  'address',
-  'height',
-  'heatedFloorArea',
-];
+const displayProperties: string[] = ['uuid', 'height'];
 
 const propertyLabels: DisplayDict = {
   address: 'Address',
