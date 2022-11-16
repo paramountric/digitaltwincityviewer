@@ -9,6 +9,7 @@ import {
   LineLayer,
   GeoJsonLayer,
   SolidPolygonLayer,
+  PointCloudLayer,
 } from '@deck.gl/layers';
 import GL from '@luma.gl/constants';
 import { QuadkeyLayer, MVTLayer } from '@deck.gl/geo-layers';
@@ -94,6 +95,7 @@ export default {
     QuadkeyLayer,
     MVTLayer,
     SolidPolygonLayer,
+    PointCloudLayer,
   },
   functions: {
     getLinearScale,
