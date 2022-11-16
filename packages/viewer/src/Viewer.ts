@@ -40,9 +40,7 @@ class Viewer {
   viewStore: ViewStore;
   maplibreMap?: maplibregl.Map;
   selectedObject: Feature | null = null;
-  selectedGraphObject: Feature | null = null;
   hoveredObject: Feature | null = null;
-  hoveredGraphObject: Feature | null = null;
   currentCity: City | null = null;
   useMaplibre = false;
   props: ViewerProps;
@@ -172,25 +170,16 @@ class Viewer {
   };
 
   setSelectedObject(object) {
-    this.selectedObject = object;
+    // todo: refactor out selected object in viewer state
+    // todo: instead let the app keep that state, viewer must call the onSelectObject when layer is clicked
+    //this.selectedObject = object;
     if (this.props.onSelectObject) {
       this.props.onSelectObject(object);
     }
   }
 
-  setSelectedGraphObject(object) {
-    this.selectedGraphObject = object;
-  }
-
   setHoveredObject(object) {
     this.hoveredObject = object;
-  }
-
-  setHoveredGraphObject(object) {
-    this.hoveredGraphObject = object;
-    this.deck.setProps({
-      views: this.viewStore.getViews(),
-    });
   }
 
   // note: confusing, but due to artifacts when center on real webmercator, the center here is the offset relative to the city center

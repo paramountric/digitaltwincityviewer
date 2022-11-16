@@ -8,6 +8,7 @@ import {
 import {parseProtobuf, parseCityModel} from '@dtcv/citymodel';
 import {useUi} from '../hooks/use-ui';
 import {useViewer} from '../hooks/use-viewer';
+import {useLayers} from '../hooks/use-layers';
 import {findCity} from '@dtcv/cities';
 
 export default function UploadFileDialog() {
@@ -17,8 +18,12 @@ export default function UploadFileDialog() {
   } = useUi();
 
   const {
-    actions: {addLayer, setCity},
+    actions: {setCity},
   } = useViewer();
+
+  const {
+    actions: {addLayer},
+  } = useLayers();
 
   const [errorMsg, setErrorMsg] = useState<string>('');
 

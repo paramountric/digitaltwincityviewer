@@ -3,6 +3,7 @@ import {Dialog, Transition} from '@headlessui/react';
 import {XMarkIcon} from '@heroicons/react/24/outline';
 import {useUi} from '../hooks/use-ui';
 import {useViewer} from '../hooks/use-viewer';
+import {useLayers} from '../hooks/use-layers';
 import {loadExampleData, cityDatasets} from '../lib/load-example';
 
 export default function LoadCityDialog() {
@@ -11,8 +12,11 @@ export default function LoadCityDialog() {
     actions: {setShowLoadCityDialog, setIsLoading},
   } = useUi();
   const {
-    actions: {setCity, addLayer},
+    actions: {setCity},
   } = useViewer();
+  const {
+    actions: {addLayer},
+  } = useLayers();
 
   const handleLoadExample = async fileSetting => {
     const {id, cityId, url, fileType, pbType, layerType} = fileSetting;

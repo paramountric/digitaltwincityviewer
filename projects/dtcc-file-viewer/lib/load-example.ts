@@ -72,6 +72,7 @@ export async function loadExampleData(fileSetting) {
     case 'protobuf':
       const pbData = new Uint8Array(await response.arrayBuffer());
       const pbJson = parseProtobuf(pbData, pbType);
+      console.log(pbJson);
       pbJson.origin = origin;
       //console.log('protobuf', pbJson);
       const layerData = parseCityModel(pbJson, crs, pbType);

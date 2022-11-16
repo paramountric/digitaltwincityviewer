@@ -1,5 +1,6 @@
 import {Disclosure} from '@headlessui/react';
 import {useViewer} from '../hooks/use-viewer';
+import {useLayers} from '../hooks/use-layers';
 import {useUi} from '../hooks/use-ui';
 import {loadExampleData, cityDatasets} from '../lib/load-example';
 import layerIcon from '../assets/layer-icon';
@@ -11,9 +12,12 @@ function classNames(...classes) {
 
 export default function LeftPanel() {
   const {
-    viewerState,
-    actions: {getCity, addLayer, setLayerVisibility, getLayerState},
+    state: viewerState,
+    actions: {getCity},
   } = useViewer();
+  const {
+    actions: {addLayer, setLayerVisibility, getLayerState},
+  } = useLayers();
   const {
     state,
     actions: {setShowLoadCityDialog, setIsLoading},
