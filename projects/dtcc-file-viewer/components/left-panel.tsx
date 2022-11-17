@@ -5,6 +5,7 @@ import {useUi} from '../hooks/use-ui';
 import {loadExampleData, cityDatasets} from '../lib/load-example';
 import LayerIcon from '../assets/layer-icon';
 import ShowOneLayer from '../assets/show-one-layer';
+import LayersForward from '../assets/layers-forward';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -180,12 +181,12 @@ export default function LeftPanel() {
                 <>
                   <Disclosure.Button className="bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 group w-full flex items-center pl-2 pr-1 py-2 text-left text-sm font-medium rounded-md focus:outline-none">
                     <div className="mr-1">
-                      <LayerIcon
+                      <LayersForward
                         className="mr-3 h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
                         aria-hidden="true"
                       />
                     </div>
-                    <span className="flex-1">Layer z-levels</span>
+                    <span className="flex-1">Elevation</span>
                     <svg
                       className={classNames(
                         open ? 'text-gray-400 rotate-90' : 'text-gray-300',
@@ -201,8 +202,14 @@ export default function LeftPanel() {
                     {visibleLayers.map(layer => {
                       return (
                         <div key={layer.id} className="p-2">
+                          <label
+                            htmlFor={layer.id}
+                            className="block mb-2 text-sm font-medium text-gray-900 "
+                          >
+                            {layer.text}
+                          </label>
                           <input
-                            id="minmax-range"
+                            id={layer.id}
                             type="range"
                             min="-100"
                             max="100"
