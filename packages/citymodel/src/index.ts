@@ -3,11 +3,15 @@ import { vec3, mat4 } from 'gl-matrix';
 import { convert } from '@dtcv/convert';
 import * as protobuf from 'protobufjs';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 let protoRoot;
 
 async function initPb() {
   protoRoot = await protobuf.load(
-    'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/dtcc.proto'
+    isProd
+      ? '/dtcc.proto'
+      : 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/dtcc.proto'
   );
 }
 
@@ -55,17 +59,19 @@ function parseGround(fileData, crs: string, cityXY: number[]) {
     if (typeof i === 'number') {
       acc.push(i);
     }
-    if (i.v0) {
-      acc.push(i.v0);
-    } else if (i.v1) {
-      acc.push(0);
-    }
-    if (i.v1) {
-      acc.push(i.v1);
-    }
-    if (i.v2) {
-      acc.push(i.v2);
-    }
+    const { v0 = 0, v1 = 0, v2 = 0 } = i;
+    // if (i.v0) {
+    //   acc.push(i.v0);
+    // } else if (i.v1) {
+    //   acc.push(0);
+    // }
+    // if (i.v1) {
+    //   acc.push(i.v1);
+    // }
+    // if (i.v2) {
+    //   acc.push(i.v2);
+    // }
+    acc.push(v0, v1, v2);
     return acc;
   }, []);
   return {

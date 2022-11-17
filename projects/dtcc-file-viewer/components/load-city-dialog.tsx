@@ -12,15 +12,22 @@ export default function LoadCityDialog() {
     actions: {setShowLoadCityDialog, setIsLoading},
   } = useUi();
   const {
-    actions: {setCity},
+    state: viewerState,
+    actions: {setCity, setCenter, setActiveDataSet},
   } = useViewer();
   const {
-    actions: {addLayer},
+    actions: {addLayer, resetLayers},
   } = useLayers();
 
-  const handleLoadExample = async fileSetting => {
-    const {id, cityId, url, fileType, pbType, layerType} = fileSetting;
+  const handleLoadExample = async (fileSetting, cityDatasetKey) => {
+    if (cityDatasetKey !== viewerState.activeDataSetId) {
+      resetLayers();
+    }
+    const {id, cityId, url, fileType, pbType, layerType, lng, lat} =
+      fileSetting;
     setCity(cityId);
+    setCenter(lng, lat);
+    setActiveDataSet(cityDatasetKey);
     setIsLoading(true);
     const result = await loadExampleData(fileSetting);
     addLayer({
@@ -51,7 +58,7 @@ export default function LoadCityDialog() {
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
         </Transition.Child>
 
-        <div className="fixed inset-0 z-10 overflow-y-auto">
+        <div className="fixed inset-0 z-20 overflow-y-auto">
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <Transition.Child
               as={Fragment}
@@ -98,17 +105,20 @@ export default function LoadCityDialog() {
                             >
                               <div
                                 onClick={() =>
-                                  handleLoadExample(dataset.files[fileKey])
+                                  handleLoadExample(
+                                    dataset.files[fileKey],
+                                    cityDatasetKey
+                                  )
                                 }
                                 className="relative flex items-center space-x-3 px-6 py-5 hover:bg-gray-50"
                               >
-                                <div className="flex-shrink-0">
+                                {/* <div className="flex-shrink-0">
                                   <img
                                     className="h-10 w-10 rounded-full"
                                     src={dataset.files[fileKey].imageUrl}
                                     alt=""
                                   />
-                                </div>
+                                </div> */}
                                 <div className="min-w-0 flex-1">
                                   <a href="#" className="focus:outline-none">
                                     <span

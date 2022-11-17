@@ -53,6 +53,9 @@ export const useLayers = () => {
           layerStore.set([...state, layer]);
         }
       },
+      resetLayers: () => {
+        layerStore.set([]);
+      },
       setLayerVisibility: (layerId: string, isVisible: boolean) => {
         const layerStates = layerStore.get().map(l => {
           if (l.id === layerId) {

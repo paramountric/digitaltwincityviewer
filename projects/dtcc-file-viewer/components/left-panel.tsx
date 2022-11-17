@@ -33,7 +33,7 @@ export default function LeftPanel() {
     return null;
   }
 
-  const cityDataset = cityDatasets[currentCity.id] || {};
+  const cityDataset = cityDatasets[viewerState.activeDataSetId] || {};
   const cityFiles = cityDataset.files || [];
 
   const layerState = getLayerState();
@@ -84,7 +84,7 @@ export default function LeftPanel() {
   };
 
   return (
-    <div className="absolute z-40">
+    <div className="absolute z-10">
       <div className="flex flex-grow pt-16 pb-6 h-screen flex-col overflow-y-auto border-r border-gray-200 bg-white ">
         <div className="flex flex-grow flex-col">
           <div className="text-center font-medium p-1 text-gray-600">

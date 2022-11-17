@@ -183,11 +183,13 @@ class Viewer {
     this.hoveredObject = object;
   }
 
-  // note: confusing, but due to artifacts when center on real webmercator, the center here is the offset relative to the city center
-  // (it means that the viewer camera is 0,0 at city center at start which is a epsg3857 coordinate from getCity function, and here moved to the area of interest with an offset)
-  setCenter(webmercatorCenter) {
-    const lngLatCenter = toLngLat(webmercatorCenter[0], webmercatorCenter[1]);
+  setCenter(center, isLngLat: boolean) {
+    let lngLatCenter = center;
+    if (!isLngLat) {
+      lngLatCenter = toLngLat(center[0], center[1]);
+    }
     if (this.useMaplibre && this.maplibreMap) {
+      console.log('set center', lngLatCenter);
       this.maplibreMap.setCenter(lngLatCenter);
     } else {
       this.viewStore.setCenter(lngLatCenter);

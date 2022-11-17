@@ -2,56 +2,64 @@ import {parseProtobuf, parseCityModel} from '@dtcv/citymodel';
 import {cities} from '@dtcv/cities';
 import {convert, getLayerPosition, forEachCoordinate} from '@dtcv/geojson';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 // for now a hard coded list of city data, because auth needs to be solved as well as how the data will be distributed
 // here the data is just loaded to an AWS bucket
 
 const helsingborg = cities.find(c => c.id === 'helsingborg');
 
 export const cityDatasets = {
-  helsingborg: {
+  helsingborgResidential: {
     cityLabel: 'Helsingborg residential',
     files: [
       {
         ...helsingborg,
         id: 'helsingborg-citymodel',
         cityId: 'helsingborg',
-        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/helsingborg-citymodel-nov-2022.pb',
+        url: '/helsingborg-citymodel-nov-2022.pb',
         fileType: 'protobuf',
         pbType: 'CityModel',
         layerType: 'CityModelLayer',
         text: 'Helsingborg Residential buildings',
         origin: {x: 102000, y: 6213004.15744457},
+        lat: 56.0430155,
+        lng: 12.7401827,
         crs: 'EPSG:3008',
       },
       {
         ...helsingborg,
         id: 'helsingborg-groundsurface',
         cityId: 'helsingborg',
-        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/helsingborg-groundsurface-june-2022.pb',
+        url: '/helsingborg-groundsurface-nov-2022.pb',
         fileType: 'protobuf',
         pbType: 'Surface3D',
         layerType: 'GroundSurfaceLayer',
         text: 'Helsingborg Residential ground surface',
         origin: {x: 102000, y: 6213004.15744457},
+        lat: 56.0430155,
+        lng: 12.7401827,
         crs: 'EPSG:3008',
       },
       {
         ...helsingborg,
         id: 'helsingborg-citysurface',
         cityId: 'helsingborg',
-        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/helsingborg-citysurface-nov-2022.pb',
+        url: '/helsingborg-citysurface-nov-2022.pb',
         fileType: 'protobuf',
         pbType: 'Surface3D',
         layerType: 'GroundSurfaceLayer',
         text: 'Helsingborg Residential city surface',
         origin: {x: 102000, y: 6213004.15744457},
+        lat: 56.0430155,
+        lng: 12.7401827,
         crs: 'EPSG:3008',
       },
       // {
       //   ...helsingborg,
       //   id: 'helsingborg-pointcloud',
       //   cityId: 'helsingborg',
-      //   url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/helsingborg-pointcloud-nov-2022.pb',
+      //   url: '/helsingborg-pointcloud-nov-2022.pb',
       //   fileType: 'protobuf',
       //   pbType: 'PointCloud',
       //   layerType: 'PointCloudLayer',
@@ -63,12 +71,61 @@ export const cityDatasets = {
         ...helsingborg,
         id: 'helsingborg-osm',
         cityId: 'helsingborg',
-        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/helsingborg-osm-nov-2022.geojson',
+        url: '/helsingborg-osm-nov-2022.geojson',
         fileType: 'geojson',
         pbType: null,
         layerType: 'GeoJsonLayer',
-        text: 'Helsingborg Residential OpenStreetMap',
+        text: 'Helsingborg Residential OSM',
         origin: {x: 0, y: 0},
+        lat: 56.0430155,
+        lng: 12.7401827,
+        crs: 'EPSG:4326',
+      },
+    ],
+  },
+  helsingborgHarbour: {
+    cityLabel: 'Helsingborg residential',
+    files: [
+      {
+        ...helsingborg,
+        id: 'helsingborg-harbour-citymodel',
+        cityId: 'helsingborg',
+        url: '/helsingborg-harbour-citymodel-nov-2022.pb',
+        fileType: 'protobuf',
+        pbType: 'CityModel',
+        layerType: 'CityModelLayer',
+        text: 'Helsingborg Harbour buildings',
+        origin: {x: 99127.32489934558, y: 6212834.209326515},
+        lat: 56.0441543,
+        lng: 12.6967404,
+        crs: 'EPSG:3008',
+      },
+      {
+        ...helsingborg,
+        id: 'helsingborg-harbour-groundsurface',
+        cityId: 'helsingborg',
+        url: '/helsingborg-harbour-groundsurface-nov-2022.pb',
+        fileType: 'protobuf',
+        pbType: 'Surface3D',
+        layerType: 'GroundSurfaceLayer',
+        text: 'Helsingborg Harbour ground surface',
+        origin: {x: 99127.32489934558, y: 6212834.209326515},
+        lat: 56.0441543,
+        lng: 12.6967404,
+        crs: 'EPSG:3008',
+      },
+      {
+        ...helsingborg,
+        id: 'helsingborg-harbour-osm',
+        cityId: 'helsingborg',
+        url: '/helsingborg-harbour-osm-nov-2022.geojson',
+        fileType: 'geojson',
+        pbType: null,
+        layerType: 'GeoJsonLayer',
+        text: 'Helsingborg Harbour OSM',
+        origin: {x: 0, y: 0},
+        lat: 56.0441543,
+        lng: 12.6967404,
         crs: 'EPSG:4326',
       },
     ],
@@ -77,8 +134,20 @@ export const cityDatasets = {
 
 // the fileSetting is the object in files array above
 export async function loadExampleData(fileSetting) {
-  const {id, text, url, fileType, pbType, crs, x, y, lng, lat, origin} =
-    fileSetting;
+  const {
+    id,
+    text,
+    url,
+    fileType,
+    pbType,
+    crs,
+    x,
+    y,
+    lng,
+    lat,
+    origin,
+    extraOrigin,
+  } = fileSetting;
   const response = await fetch(url);
   const result: any = {
     id,
@@ -91,6 +160,11 @@ export async function loadExampleData(fileSetting) {
       const pbJson = parseProtobuf(pbData, pbType);
       console.log(pbJson);
       pbJson.origin = origin;
+      if (extraOrigin) {
+        pbJson.origin.x += extraOrigin.x;
+        pbJson.origin.y += extraOrigin.y;
+        console.log('extra origin', pbJson);
+      }
       //console.log('protobuf', pbJson);
       const layerData = parseCityModel(pbJson, crs, pbType);
       // , [
@@ -143,6 +217,7 @@ export async function loadExampleData(fileSetting) {
             properties.highway === 'platform' ||
             properties.leisure === 'pitch' ||
             properties.leisure === 'playground' ||
+            properties.building ||
             properties.power
           ) {
             return null;
@@ -157,6 +232,12 @@ export async function loadExampleData(fileSetting) {
             });
           } else if (properties.natural === 'water') {
             properties.color = [100, 150, 250, 100];
+            forEachCoordinate({
+              featureCollection: {
+                features: [f],
+              },
+              setZ: 0.1,
+            });
           } else if (properties.building) {
             properties.height = properties.height || 10;
             properties.color = [255, 255, 255, 255];

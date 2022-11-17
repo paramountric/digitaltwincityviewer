@@ -11,12 +11,14 @@ import {City} from '@dtcv/cities';
 export type ViewerStore = {
   viewer: Viewer | null;
   cityId: string | null;
+  activeDataSetId: string | null;
   selectedObject: any | null;
 };
 
 const viewerStore = new Observable<ViewerStore>({
   viewer: null,
   cityId: null,
+  activeDataSetId: null,
   selectedObject: null,
 });
 
@@ -64,12 +66,20 @@ export const useViewer = () => {
       getCity: () => {
         return viewerState.viewer.getCity();
       },
+      setCenter: (lng, lat) => {
+        const state = viewerStore.get();
+        state.viewer.setCenter([lng, lat], true);
+      },
       setSelectedObject: (selectedObject: string) => {
         const state = viewerStore.get();
         viewerStore.set({
           ...state,
           selectedObject,
         });
+      },
+      setActiveDataSet: (dataSetId: string) => {
+        const state = viewerStore.get();
+        viewerStore.set({...state, activeDataSetId: dataSetId});
       },
       getSelectedObject: () => {},
     };
