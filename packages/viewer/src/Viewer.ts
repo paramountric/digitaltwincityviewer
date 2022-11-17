@@ -98,7 +98,6 @@ class Viewer {
     const currentCity = this.currentCity || { id: null };
     if (city.id !== currentCity.id) {
       if (this.maplibreMap) {
-        console.log('set center', city);
         this.maplibreMap.setCenter([city.lng, city.lat]);
         this.setProps({
           layers: [],
@@ -112,7 +111,6 @@ class Viewer {
         });
       }
     }
-    console.log('set city', city);
     this.currentCity = city;
   }
 
@@ -153,7 +151,6 @@ class Viewer {
   }
 
   onWebGLInitialized(gl) {
-    console.log('initialised');
     this.gl = gl;
   }
 
@@ -189,7 +186,6 @@ class Viewer {
       lngLatCenter = toLngLat(center[0], center[1]);
     }
     if (this.useMaplibre && this.maplibreMap) {
-      console.log('set center', lngLatCenter);
       this.maplibreMap.setCenter(lngLatCenter);
     } else {
       this.viewStore.setCenter(lngLatCenter);
@@ -224,8 +220,6 @@ class Viewer {
 
     addUpdateTriggersForAccessors(json);
     const props = this.jsonConverter.convert(json);
-
-    console.log('props', props);
 
     this.setProps(props);
   }
