@@ -54,8 +54,6 @@ export const useViewer = () => {
         });
       },
       setCity: (cityId: string) => {
-        console.log(viewerStore.get());
-        console.log(viewerState);
         const state = viewerStore.get();
         state.viewer.setCityFromId(cityId);
         viewerStore.set({

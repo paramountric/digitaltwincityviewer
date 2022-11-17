@@ -6,6 +6,8 @@ import {loadExampleData, cityDatasets} from '../lib/load-example';
 import LayerIcon from '../assets/layer-icon';
 import ShowOneLayer from '../assets/show-one-layer';
 import LayersForward from '../assets/layers-forward';
+import VisibilityOffIcon from '../assets/visibility-off-icon';
+import VisibilityOnIcon from '../assets/visibility-on-icon';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -45,7 +47,6 @@ export default function LeftPanel() {
       current: false,
       children: cityFiles.map(fileSetting => {
         const ls = layerState.find(l => l.id === fileSetting.id) || {};
-        console.log(ls);
         return {...fileSetting, ...ls, icon: ShowOneLayer};
       }),
     },
@@ -151,7 +152,7 @@ export default function LeftPanel() {
                             key={subItem.id}
                             as="a"
                             onClick={() => handleClickLoadFile(subItem)}
-                            className="group flex w-full items-center rounded-md py-2 pl-4 pr-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                            className="group flex w-full items-center justify-between rounded-md py-2 pl-4 pr-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                           >
                             {subItem.text}
                             {/* <div onClick={() => handleClickShowOnlyLayer(subItem)} className="ml-1">
@@ -160,14 +161,19 @@ export default function LeftPanel() {
                                 aria-hidden="true"
                               />
                             </div> */}
-                            {subItem.isVisible && (
-                              <div className="ml-1">
-                                <subItem.icon
+                            <div className="flex ml-1">
+                              {subItem.visible ? (
+                                <VisibilityOnIcon
                                   className="mr-3 h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
                                   aria-hidden="true"
                                 />
-                              </div>
-                            )}
+                              ) : (
+                                <VisibilityOffIcon
+                                  className="mr-3 h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
+                                  aria-hidden="true"
+                                />
+                              )}
+                            </div>
                           </Disclosure.Button>
                         ))}
                       </Disclosure.Panel>
