@@ -28,12 +28,7 @@ function parseGround(fileData, crs: string, cityXY: number[]) {
   const projectedVertices = [];
   for (let i = 0; i < vertices.length; i++) {
     const { x = 0, y = 0, z = 0 } = vertices[i];
-    const projected = convert(
-      x + origin.x,
-      y + origin.y,
-      crs,
-      cityXY || [0, 0]
-    );
+    const projected = convert(x + origin.x, y + origin.y, crs, cityXY);
     projected.push(z);
     if (projected[0] < minX) {
       minX = projected[0];
