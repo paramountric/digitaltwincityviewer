@@ -3,11 +3,12 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "projects/dtcc-file-viewer"
+    "projects/*"
   ],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dtcv-next-template-dev": "turbo run dev --scope 'dtcv-next-template' --include-dependencies",
     "publish-packages": "turbo run build && changeset version && changeset publish"
   },
   "devDependencies": {

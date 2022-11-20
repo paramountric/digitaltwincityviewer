@@ -1,11 +1,13 @@
 import {useRef, useEffect, useMemo} from 'react';
 import {useViewer} from '../hooks/use-viewer';
+import {useLayers} from '../hooks/use-layers';
 
 type ViewportProps = {};
 
 const Viewport: React.FC<ViewportProps> = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const {viewerActions} = useViewer();
+  const {actions: viewerActions} = useViewer();
+  const {actions: layerActons} = useLayers();
 
   useEffect(() => {
     if (containerRef.current) {
@@ -16,7 +18,7 @@ const Viewport: React.FC<ViewportProps> = () => {
       containerRef.current.style.left = '0px';
       viewerActions.initViewer(containerRef.current);
       // Add data when it is loaded, this is just an example triggered immediately
-      viewerActions.addLayer({
+      layerActons.addLayer({
         '@@type': 'PoiLayer',
         id: 'test',
         data: [

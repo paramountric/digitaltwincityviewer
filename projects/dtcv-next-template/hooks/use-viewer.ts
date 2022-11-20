@@ -1,57 +1,44 @@
 import {useState, useEffect, useMemo} from 'react';
 import {Observable} from '../lib/Observable';
 import {Viewer} from '@dtcv/viewer';
+import {LayerState} from './use-layers';
 
 /*
- * This is the app state management for the viewer data and where to store layer data and view state
- * Note that the @dtcv/viewer library has some helper layers that should make it easier to add certain kinds of city data
- * See the example applications on how to use these layers from this file by calling viewerState.viewer.setJson()
+ * This is the app state management for the viewer instance
+ * Use this hook to proxy the Viewer component for app specific functionality
  */
 export type ViewerStore = {
   viewer: Viewer | null;
   isLoading: boolean;
+  isInitialized: boolean;
 };
-
-/*
- * The layer state is any properties that goes into the layer
- * See each layer in the @dtcv/viewer package
- * if viewer.setJson is used, '@@type' key will be used in the viewer to map the layer type to layer instance
- */
-type LayerState = {
-  id: string;
-} & any;
-
-type LayerStore = LayerState[];
 
 const viewerStore = new Observable<ViewerStore>({
   viewer: null,
   isLoading: false,
+  isInitialized: false,
 });
 
-const layerStore = new Observable<LayerStore>([]);
-
 export const useViewer = () => {
-  const [viewerState, setViewerState] = useState(viewerStore.get());
-  const [layerState, setLayerState] = useState(layerStore.get());
-  const [isInit, setIsInit] = useState<boolean>(false);
+  const [state, setState] = useState(viewerStore.get());
 
   useEffect(() => {
-    return viewerStore.subscribe(setViewerState);
-  }, []);
-  useEffect(() => {
-    return layerStore.subscribe(setLayerState);
+    return viewerStore.subscribe(setState);
   }, []);
 
-  const viewerActions = useMemo(() => {
+  const actions = useMemo(() => {
     return {
       initViewer: (ref: HTMLDivElement) => {
         viewerStore.set({
-          ...viewerState,
+          ...viewerStore.get(),
           viewer: new Viewer(
             {
               container: ref,
               onLoad: () => {
-                setIsInit(true);
+                viewerStore.set({
+                  ...viewerStore.get(),
+                  isInitialized: true,
+                });
               },
             },
             {
@@ -65,31 +52,21 @@ export const useViewer = () => {
           ),
         });
       },
-      addLayer: (layer: LayerState) => {
-        const existingLayer = layerState.find(l => l.id === layer.id);
-        if (existingLayer) {
-          console.log('fix update existing layer state');
-        } else {
-          layerStore.set([...layerState, layer]);
+      // this is called from layer store, when layers state change
+      renderLayers: (layers: LayerState[]) => {
+        if (!state.viewer) {
+          console.warn('viewer is not initialised');
+          return;
         }
+        state.viewer.setJson({
+          layers,
+        });
       },
     };
-  }, [viewerState]);
-
-  /*
-   * Use the trigger array of useEffect to listen to changes in state and call the viewer (setProps, setJson, etc) to render
-   */
-  useEffect(() => {
-    if (!isInit) {
-      return;
-    }
-    viewerState.viewer.setJson({
-      layers: layerState,
-    });
-  }, [isInit, layerState]);
+  }, [state]);
 
   return {
-    viewerState,
-    viewerActions,
+    state,
+    actions,
   };
 };
