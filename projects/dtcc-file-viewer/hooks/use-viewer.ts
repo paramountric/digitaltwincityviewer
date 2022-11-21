@@ -1,13 +1,7 @@
 import {useState, useEffect, useMemo} from 'react';
 import {Observable} from '../lib/Observable';
 import {Viewer} from '@dtcv/viewer';
-import {City} from '@dtcv/cities';
 
-/*
- * This is the app state management for the viewer data and where to store layer data and view state
- * Note that the @dtcv/viewer library has some helper layers that should make it easier to add certain kinds of city data
- * See the example applications on how to use these layers from this file by calling viewerState.viewer.setJson()
- */
 export type ViewerStore = {
   viewer: Viewer | null;
   cityId: string | null;
