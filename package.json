@@ -9,6 +9,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dtcv-next-template-dev": "turbo run dev --scope 'dtcv-next-template' --include-dependencies",
+    "dtcc-cfd-vertical-dev": "turbo run dev --filter dtcc-cfd-vertical...",
     "publish-packages": "turbo run build && changeset version && changeset publish"
   },
   "devDependencies": {
