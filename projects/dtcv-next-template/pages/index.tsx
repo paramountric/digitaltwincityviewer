@@ -2,7 +2,6 @@ import Viewport from '../components/viewport';
 import Header from '../components/header';
 import LeftPanel from '../components/left-panel';
 import RightPanel from '../components/right-panel';
-('');
 import Loader from '../components/loader';
 import {useUi} from '../hooks/use-ui';
 
