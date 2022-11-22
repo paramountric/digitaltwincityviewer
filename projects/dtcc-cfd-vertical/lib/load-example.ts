@@ -132,6 +132,9 @@ export const cityDatasets = {
   },
 };
 
+// Todo: refactor this function to load from file extension
+// also refactor the citymodel file to automatically find the data in the protobuf file
+
 // the fileSetting is the object in files array above
 export async function loadExampleData(fileSetting) {
   const {

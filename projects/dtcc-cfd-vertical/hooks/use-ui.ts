@@ -3,7 +3,7 @@ import {Observable} from '../lib/Observable';
 
 export type UiStore = {
   isLoading: boolean;
-  showExampleFileDialog: boolean;
+  showCreateFlowDialog: boolean;
   showUploadFileDialog: boolean;
   showLayerDialog: boolean;
   showLeftPanel: boolean;
@@ -12,7 +12,7 @@ export type UiStore = {
 
 const uiStore = new Observable<UiStore>({
   isLoading: false,
-  showExampleFileDialog: false,
+  showCreateFlowDialog: false,
   showUploadFileDialog: false,
   showLayerDialog: false,
   showLeftPanel: false,
@@ -30,8 +30,8 @@ export const useUi = () => {
     return {
       setIsLoading: (isLoading: boolean) =>
         uiStore.set({...uiState, isLoading}),
-      setShowExampleFileDialog: (showExampleFileDialog: boolean) =>
-        uiStore.set({...uiState, showExampleFileDialog}),
+      setShowCreateFlowDialog: (showCreateFlowDialog: boolean) =>
+        uiStore.set({...uiState, showCreateFlowDialog}),
       setShowUploadFileDialog: (showUploadFileDialog: boolean) =>
         uiStore.set({...uiState, showUploadFileDialog}),
       setShowLayerDialog: (showLayerDialog: boolean) =>

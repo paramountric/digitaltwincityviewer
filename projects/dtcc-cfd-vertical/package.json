@@ -19,6 +19,7 @@
     "@types/react-dom": "18.0.8",
     "busboy": "^1.6.0",
     "next": "13.0.1",
+    "next-s3-upload": "^0.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "typescript": "4.8.4"

@@ -1,4 +1,5 @@
-import {Fragment, useState} from 'react';
+import {Fragment, useEffect, useState} from 'react';
+import {useS3Upload} from 'next-s3-upload';
 import {Dialog, Transition} from '@headlessui/react';
 import {
   XMarkIcon,
@@ -9,9 +10,13 @@ import {parseProtobuf, parseCityModel} from '@dtcv/citymodel';
 import {useUi} from '../hooks/use-ui';
 import {useViewer} from '../hooks/use-viewer';
 import {useLayers} from '../hooks/use-layers';
-import {findCity} from '@dtcv/cities';
+import {loadExampleData} from '../lib/load-example';
 
 export default function UploadFileDialog() {
+  const [fileUrl, setFileUrl] = useState<string>();
+  const [listFiles, setListFiles] = useState<any[]>([]);
+  const {FileInput, openFileDialog, uploadToS3, files} = useS3Upload();
+
   const {
     state,
     actions: {setShowUploadFileDialog},
@@ -25,136 +30,135 @@ export default function UploadFileDialog() {
     actions: {addLayer},
   } = useLayers();
 
+  useEffect(() => {
+    (async () => {
+      const fileListRes = await fetch('/api/s3-file-list');
+      const fileListRaw = await fileListRes.json();
+      const fileList = fileListRaw.Contents.map(file => {
+        const fileName = file.Key.split('/').pop();
+        const fileSize = (file.Size / 1000).toFixed();
+        const d = new Date(file.LastModified);
+        const lastModified = `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+        return {name: fileName, size: fileSize, lastModified};
+      });
+
+      setListFiles(fileList);
+    })();
+  }, [fileUrl]);
+
   const [errorMsg, setErrorMsg] = useState<string>('');
 
-  const supportedPbTypes = ['CityModel', 'Surface3D'];
-  const layerMapping = ['CityModelLayer', 'GroundSurfaceLayer'];
+  // const supportedPbTypes = ['CityModel', 'Surface3D'];
+  // const layerMapping = ['CityModelLayer', 'GroundSurfaceLayer'];
 
-  // This functin needs to figure out content and metadata of the pbData
-  const findPbJson = pbData => {
-    let pbJson;
-    let idx = 0;
-    let pbType;
-    let layerType;
-    while (!pbJson && idx < supportedPbTypes.length) {
-      try {
-        pbType = supportedPbTypes[idx];
-        layerType = layerMapping[idx];
-        pbJson = parseProtobuf(pbData, pbType);
-        if (!pbJson) {
-          throw new Error('Parsing error');
-        }
-        // These should come from the file!!
-        pbJson.crs = 'EPSG:3008';
-        pbJson.origin = {x: 102000, y: 6213004.15744457};
+  // const addLayerFromPbData = pbData => {
+  //   const {pbJson, pbType, layerType} = findPbJson(pbData);
+  //   if (!pbJson) {
+  //     setErrorMsg(
+  //       'This type is not supported. Supported types: CityModel, Surface3D'
+  //     );
+  //     return;
+  //   }
+  //   const cityId = findCityFromPb(pbJson);
+  //   setCity(cityId);
+  //   const result: any = {};
+  //   if (!pbJson) {
+  //     console.log('handle this');
+  //   }
+  //   const layerData = parseCityModel(pbJson, pbJson.crs, pbType);
 
-        console.log('pbjson', pbJson);
-      } catch (e) {
-        //
-      }
-      idx++;
-    }
-    return {pbJson, pbType, layerType};
+  //   switch (pbType) {
+  //     case 'CityModel':
+  //       result.data = layerData.buildings.data;
+  //       //result.coordinateOrigin = [lng, lat];
+  //       // this makes it works perfectly, but how should other layers realate?
+  //       //result.modelMatrix = layerData.buildings.modelMatrix;
+  //       result.pickable = true;
+  //       result.autoHighlight = true;
+  //       break;
+  //     case 'Surface3D':
+  //       result.data = layerData.ground.data;
+  //       //result.coordinateOrigin = [lng, lat];
+  //       //result.modelMatrix = layerData.ground.modelMatrix;
+  //       break;
+  //     default:
+  //       result.data = [];
+  //   }
+  //   addLayer({
+  //     ...result,
+  //     id: `${layerType}${Date.now()}`,
+  //     '@@type': layerType,
+  //   });
+  //   setShowUploadFileDialog(false);
+  // };
+
+  const handleFileChange = async file => {
+    const res = await uploadToS3(file);
+    setFileUrl(res.url);
   };
 
-  const findCityFromPb = pbJson => {
-    // todo: take the first coordinate, add origin, convert to lnglat, call the findCity function
-    // const isLngLat = true;
-    // const city = findCity(lng, lat, isLngLat);
-    // return city.id;
-    return 'helsingborg';
-  };
-
-  const addLayerFromPbData = pbData => {
-    const {pbJson, pbType, layerType} = findPbJson(pbData);
-    if (!pbJson) {
-      setErrorMsg(
-        'This type is not supported. Supported types: CityModel, Surface3D'
-      );
-      return;
-    }
-    const cityId = findCityFromPb(pbJson);
-    setCity(cityId);
-    const result: any = {};
-    if (!pbJson) {
-      console.log('handle this');
-    }
-    const layerData = parseCityModel(pbJson, pbJson.crs, pbType);
-
-    switch (pbType) {
-      case 'CityModel':
-        result.data = layerData.buildings.data;
-        //result.coordinateOrigin = [lng, lat];
-        // this makes it works perfectly, but how should other layers realate?
-        //result.modelMatrix = layerData.buildings.modelMatrix;
-        result.pickable = true;
-        result.autoHighlight = true;
-        break;
-      case 'Surface3D':
-        result.data = layerData.ground.data;
-        //result.coordinateOrigin = [lng, lat];
-        //result.modelMatrix = layerData.ground.modelMatrix;
-        break;
-      default:
-        result.data = [];
-    }
-    addLayer({
-      ...result,
-      id: `${layerType}${Date.now()}`,
-      '@@type': layerType,
+  const handleViewFile = async file => {
+    const fileExtension = file.name.split('.').pop();
+    const layerData = await loadExampleData({
+      url: file.url,
+      fileType: fileExtension,
+      text: file.name,
     });
-    setShowUploadFileDialog(false);
   };
 
-  const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e?.target?.files) {
-      return;
-    }
-    const formData = new FormData();
+  // this is connected to the variant on the server side for uploading to 3D
+  // const handleUploadFile = async (
+  //   e: React.ChangeEvent<HTMLInputElement>
+  // ) => {
+  //   if (!e?.target?.files) {
+  //     return;
+  //   }
+  //   const formData = new FormData();
 
-    formData.append('file', e.target.files[0]);
+  //   formData.append('file', e.target.files[0]);
 
-    const options = {
-      method: 'POST',
-      body: formData,
-    };
-    fetch('/api/upload', options);
-  };
+  //   const options = {
+  //     method: 'POST',
+  //     body: formData,
+  //   };
+  //   fetch('/api/upload', options);
+  // };
 
-  const handleLoadLocalFile = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (!e?.target?.files) {
-      return;
-    }
+  // this could probably be removed, but could be used for preview
+  // const handleLoadLocalFile = async (
+  //   e: React.ChangeEvent<HTMLInputElement>
+  // ) => {
+  //   if (!e?.target?.files) {
+  //     return;
+  //   }
 
-    // reset any error message
-    setErrorMsg('');
+  //   // reset any error message
+  //   setErrorMsg('');
 
-    const file = e?.target?.files[0];
-    const reader = new FileReader();
-    const splits = file.name.split('.');
-    const fileExtension = splits[splits.length - 1];
-    switch (fileExtension) {
-      case 'pb':
-        reader.onload = () => {
-          const result = reader.result as ArrayBuffer;
-          const pbData = new Uint8Array(result);
-          addLayerFromPbData(pbData);
-        };
-        reader.readAsArrayBuffer(file);
-        break;
-      case 'json':
-        reader.onload = () => {
-          const result = reader.result as string;
-          // todo: need to find a way to determine what process the data should go through now
-        };
-        reader.readAsText(file);
-        break;
-      default:
-        console.warn('example files should be explicit');
-    }
-  };
+  //   const file = e?.target?.files[0];
+  //   const reader = new FileReader();
+  //   const splits = file.name.split('.');
+  //   const fileExtension = splits[splits.length - 1];
+  //   switch (fileExtension) {
+  //     case 'pb':
+  //       reader.onload = () => {
+  //         const result = reader.result as ArrayBuffer;
+  //         const pbData = new Uint8Array(result);
+  //         addLayerFromPbData(pbData);
+  //       };
+  //       reader.readAsArrayBuffer(file);
+  //       break;
+  //     case 'json':
+  //       reader.onload = () => {
+  //         const result = reader.result as string;
+  //         // todo: need to find a way to determine what process the data should go through now
+  //       };
+  //       reader.readAsText(file);
+  //       break;
+  //     default:
+  //       console.warn('example files should be explicit');
+  //   }
+  // };
 
   return (
     <Transition.Root show={state.showUploadFileDialog} as={Fragment}>
@@ -201,7 +205,7 @@ export default function UploadFileDialog() {
                   as="h3"
                   className="text-lg font-medium leading-6 text-gray-900"
                 >
-                  Upload file
+                  Datasets
                 </Dialog.Title>
 
                 {errorMsg && (
@@ -214,7 +218,7 @@ export default function UploadFileDialog() {
                   </div>
                 )}
                 <div className="flex mt-6 text-md text-gray-600">
-                  <label
+                  {/* <label
                     htmlFor="file-upload"
                     className="relative cursor-pointer rounded-md bg-white font-medium focus-within:outline-none hover:text-blue-400"
                   >
@@ -226,9 +230,54 @@ export default function UploadFileDialog() {
                       name="file-upload"
                       type="file"
                       className="sr-only"
-                      onChange={handleUploadFile}
+                      onChange={handleFileChange}
                     />
-                  </label>
+                  </label> */}
+                  <div className="w-full">
+                    <div className="sticky rounded text-white top-0 z-10  bg-slate-500 px-6 py-1 text-md font-medium">
+                      <h3>Upload file</h3>
+                    </div>
+                    <FileInput onChange={handleFileChange} />
+
+                    <button
+                      className="border rounded-full p-1 px-2 m-2 mt-4 hover:ring-2"
+                      onClick={openFileDialog}
+                    >
+                      Select file
+                    </button>
+
+                    {files.map((file, index) => (
+                      <div key={index}>Progress: {file.progress}%</div>
+                    ))}
+
+                    <div className="mt-4 overflow-hidden">
+                      <div className="sticky rounded text-white top-0 z-10  bg-slate-500 px-6 py-1 text-md font-medium">
+                        <h3>Uploaded files</h3>
+                      </div>
+                      <ul role="list" className="divide-y divide-gray-200">
+                        {listFiles &&
+                          listFiles.map((file, index) => (
+                            <li key={index}>
+                              <div className="flex flex-row items-center justify-between px-4 py-4">
+                                <div>{file.name}</div>
+                                <div className="rounded-full border p-1 px-2 ml-2 text-sm items-baseline text-gray-500">
+                                  {file.size} KB
+                                </div>
+                                <div className="rounded-full border p-1 px-2 ml-2 text-sm items-baseline text-gray-500">
+                                  {file.lastModified}
+                                </div>
+                                <div
+                                  onClick={() => handleViewFile(file)}
+                                  className="rounded-full border border-slate-500 p-1 px-2 ml-2 text-sm items-baseline hover:bg-slate-500 hover:cursor-pointer hover:text-white text-gray-500"
+                                >
+                                  View
+                                </div>
+                              </div>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </Dialog.Panel>
             </Transition.Child>

@@ -13,8 +13,8 @@ const Header: React.FC<HeaderProps> = () => {
     uiActions.setShowUploadFileDialog(true);
   };
 
-  const handleShowLoadExampleDialog = () => {
-    uiActions.setShowExampleFileDialog(true);
+  const handleShowCreateFlowDialog = () => {
+    uiActions.setShowCreateFlowDialog(true);
   };
 
   return (
@@ -33,20 +33,14 @@ const Header: React.FC<HeaderProps> = () => {
               onClick={handleShowUploadFileDialog}
               className="border rounded-full p-1 px-2 m-2 hover:ring-2 ml-10"
             >
-              Upload file
+              Datasets
             </button>
             <button
-              onClick={handleShowUploadFileDialog}
+              onClick={handleShowCreateFlowDialog}
               className="border rounded-full p-1 px-2 m-2 hover:ring-2"
             >
-              Create flow
+              Tools
             </button>
-            {/* <button
-              onClick={handleShowLoadExampleDialog}
-              className="border rounded-full p-1 px-2 m-2 hover:ring-2"
-            >
-              Load example
-            </button> */}
           </div>
         </div>
       </div>
