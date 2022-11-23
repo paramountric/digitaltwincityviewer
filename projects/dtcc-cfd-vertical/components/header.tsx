@@ -24,7 +24,7 @@ const Header: React.FC<HeaderProps> = () => {
         <meta name="description" content="" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="shadow-sm p-1 border-b top-0 sticky z-50 bg-white">
+      <div className="shadow-sm p-1 border-b top-0 sticky z-20 bg-white">
         <div className="flex items-center justify-between mx-4">
           <div className="flex items-center">
             <Image className="h-10 w-32" alt="DTCV logo" src={logo}></Image>

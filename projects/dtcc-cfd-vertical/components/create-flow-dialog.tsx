@@ -1,10 +1,12 @@
-import React, {Fragment} from 'react';
+import React, {Fragment, useState} from 'react';
 import {Dialog, Transition} from '@headlessui/react';
 import {XMarkIcon} from '@heroicons/react/24/outline';
 import {useUi} from '../hooks/use-ui';
 import {useViewer} from '../hooks/use-viewer';
 import {useLayers} from '../hooks/use-layers';
-import modulesConfig from '../lib/dtcc-modules-conf.json';
+import SelectTool from './select-tool';
+import ToolInput from './tool-input';
+import RunTool from './run-tool';
 
 export default function CreateFlowDialog() {
   const {
@@ -19,45 +21,64 @@ export default function CreateFlowDialog() {
     actions: {addLayer, resetLayers},
   } = useLayers();
 
-  const handleExecuteFlow = async flowSetting => {};
+  const [selectedToolName, setSelectedToolName] = useState<string>('');
+  const [selectedCommandName, setSelectedCommandName] = useState<string>('');
 
-  // const exampleFlowSettings = [
-  //   {
-  //     name: 'Hello world',
-  //     key: 'hello-world',
-  //     modules: [
-  //       {
-  //         id: 'hello-world',
-  //         name: 'Hello world module',
-  //         description: 'This flow will just return a text string',
-  //         input: [],
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     name: 'Generate mesh',
-  //     key: 'generate-mesh',
-  //     modules: [
-  //       {
-  //         id: 'dtcc-builder',
-  //         name: 'DTCC Builder',
-  //         description:
-  //           'This flow generates different meshes from the given files',
-  //         input: [
-  //           {
-  //             type: 'Shapefile (zip)',
-  //             description: 'Shapefile with building footprint polygons',
-  //           },
-  //           {
-  //             type: 'Point cloud (las, laz)',
-  //             description: 'Point cloud data covering the are of the shapefile',
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //   },
-  // ];
+  type Step = {
+    id: string;
+    name: string;
+    status: 'current' | 'complete' | 'upcoming';
+  };
 
+  const steps: Step[] = [
+    {
+      id: 'step-1',
+      name: 'Select tool',
+      status: 'current',
+    },
+    {
+      id: 'step-2',
+      name: 'Input',
+      status: 'upcoming',
+    },
+    {id: 'step-3', name: 'Run', status: 'upcoming'},
+  ];
+
+  const [stepsState, setStepsState] = useState<Step[]>(steps);
+
+  const setSelectedStep = stepId => {
+    const step = stepsState.find(s => s.id === stepId);
+    handleSelectStep(step);
+  };
+
+  const handleSelectStep = step => {
+    const newState = stepsState.map(stepState => {
+      if (stepState.id === step.id) {
+        return {...stepState, status: 'current'} as Step;
+      } else {
+        return {
+          ...stepState,
+          status: stepState.status === 'current' ? 'complete' : 'upcoming',
+        } as Step;
+      }
+      return stepState;
+    });
+    setStepsState(newState);
+  };
+
+  const handleSelectTool = (toolName, commandName) => {
+    console.log('toolName', toolName);
+    setSelectedStep('step-2');
+    setSelectedToolName(toolName);
+    setSelectedCommandName(commandName);
+  };
+
+  const handleClickRun = () => {
+    setSelectedStep('step-3');
+  };
+
+  const selectedStep =
+    stepsState.find(s => s.status === 'current') || stepsState[0];
   return (
     <Transition.Root show={state.showCreateFlowDialog} as={Fragment}>
       <Dialog
@@ -99,69 +120,68 @@ export default function CreateFlowDialog() {
                     <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
                 </div>
+                <nav aria-label="Progress">
+                  <ol
+                    role="list"
+                    className="space-y-4 md:flex md:space-y-0 md:space-x-8"
+                  >
+                    {stepsState.map(step => (
+                      <li key={step.name} className="md:flex-1">
+                        {step.status === 'complete' ? (
+                          <a
+                            onClick={() => handleSelectStep(step)}
+                            className="group flex flex-col border-l-4 border-slate-400 py-2 pl-4 hover:border-slate-800 md:border-l-0 md:border-t-4 md:pl-0 md:pt-4 md:pb-0"
+                          >
+                            <span className="text-sm font-medium text-slate-600 group-hover:text-slate-800">
+                              {step.id}
+                            </span>
+                            <span className="text-sm font-medium">
+                              {step.name}
+                            </span>
+                          </a>
+                        ) : step.status === 'current' ? (
+                          <a
+                            className="flex flex-col border-l-4 border-slate-600 py-2 pl-4 md:border-l-0 md:border-t-4 md:pl-0 md:pt-4 md:pb-0"
+                            aria-current="step"
+                          >
+                            <span className="text-sm font-medium text-slate-600">
+                              {step.id}
+                            </span>
+                            <span className="text-sm font-medium">
+                              {step.name}
+                            </span>
+                          </a>
+                        ) : (
+                          <a className="group flex flex-col border-l-4 border-gray-200 py-2 pl-4 hover:border-gray-300 md:border-l-0 md:border-t-4 md:pl-0 md:pt-4 md:pb-0">
+                            <span className="text-sm font-medium text-gray-500 group-hover:text-gray-700">
+                              {step.id}
+                            </span>
+                            <span className="text-sm font-medium">
+                              {step.name}
+                            </span>
+                          </a>
+                        )}
+                      </li>
+                    ))}
+                  </ol>
+                </nav>
                 <Dialog.Title
                   as="h3"
-                  className="text-lg font-medium leading-6 text-gray-900"
+                  className="text-lg mt-6 font-medium leading-6 text-gray-900"
                 >
-                  Select tools
+                  {selectedStep.name}
                 </Dialog.Title>
-                <nav className="h-full overflow-y-auto mt-8">
-                  {modulesConfig.modules.map(flowSetting => {
-                    return (
-                      <div
-                        key={flowSetting.name}
-                        className="relative hover:bg-gray-100 border-white rounded-md border hover:border-slate-100 hover:cursor-pointer m-2"
-                      >
-                        <div className="sticky rounded text-white top-0 z-10  bg-slate-500 px-6 py-1 text-md font-medium">
-                          <h3>{flowSetting.name}</h3>
-                        </div>
-                        <p className="text-sm m-4">
-                          Description: {flowSetting.description}
-                        </p>
-                        {/* <p className="ml-4 mt-2">Modules</p>
-                        <ul
-                          role="list"
-                          className="relative z-0 divide-y divide-gray-200"
-                        >
-                          {flowSetting.modules.map(module => (
-                            <li key={module.id}>
-                              <div className="relative flex items-center space-x-3 px-6 py-5 ">
-                                <div className="min-w-0 flex-1">
-                                  <span
-                                    className="absolute inset-0"
-                                    aria-hidden="true"
-                                  />
-                                  <p className="text-sm font-medium text-gray-900">
-                                    {module.name}
-                                  </p>
-                                  <p className="truncate text-sm text-gray-500">
-                                    {module.description}
-                                  </p>
-                                  {module.input.length > 0 ? (
-                                    <div>
-                                      {module.input.map(input => (
-                                        <span
-                                          key={module.id}
-                                          className="text-sm rounded-full p-1 px-2 mr-1 text-white bg-slate-400"
-                                        >
-                                          {input.type}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  ) : (
-                                    <p className="text-sm italic">
-                                      No required input
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            </li>
-                          ))}
-                        </ul> */}
-                      </div>
-                    );
-                  })}
-                </nav>
+                {selectedStep.id === 'step-1' ? (
+                  <SelectTool onSelectTool={handleSelectTool}></SelectTool>
+                ) : selectedStep.id === 'step-2' ? (
+                  <ToolInput
+                    selectedToolName={selectedToolName}
+                    selectedCommandName={selectedCommandName}
+                    onClickRun={handleClickRun}
+                  ></ToolInput>
+                ) : (
+                  <RunTool></RunTool>
+                )}
               </Dialog.Panel>
             </Transition.Child>
           </div>

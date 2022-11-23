@@ -20,7 +20,7 @@ const viewerStore = new Observable<ViewerStore>({
 });
 
 export const useViewer = () => {
-  const [state, setState] = useState(viewerStore.get());
+  const [viewerState, setState] = useState(viewerStore.get());
   const [isInit, setIsInit] = useState<boolean>(false);
 
   useEffect(() => {
@@ -30,6 +30,7 @@ export const useViewer = () => {
   const viewerActions = useMemo(() => {
     return {
       initViewer: (ref: HTMLDivElement) => {
+        const state = viewerStore.get();
         viewerStore.set({
           ...state,
           viewer: new Viewer(
@@ -59,6 +60,7 @@ export const useViewer = () => {
         });
       },
       getCity: () => {
+        const state = viewerStore.get();
         return state.viewer.getCity();
       },
       setCenter: (lng, lat) => {
@@ -79,6 +81,7 @@ export const useViewer = () => {
       getSelectedObject: () => {},
       // this is called from layer store, when layers state change
       renderLayers: (layers: LayerState[]) => {
+        const state = viewerStore.get();
         if (!state.viewer) {
           console.warn('viewer is not initialised');
           return;
@@ -88,10 +91,10 @@ export const useViewer = () => {
         });
       },
     };
-  }, [state]);
+  }, [viewerState]);
 
   return {
-    state: state,
+    state: viewerState,
     actions: viewerActions,
   };
 };

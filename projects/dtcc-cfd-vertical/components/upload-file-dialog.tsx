@@ -39,7 +39,8 @@ export default function UploadFileDialog() {
         const fileSize = (file.Size / 1000).toFixed();
         const d = new Date(file.LastModified);
         const lastModified = `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
-        return {name: fileName, size: fileSize, lastModified};
+        const url = `https://dtcc-cfd-vertical.s3.eu-north-1.amazonaws.com/${file.Key}`;
+        return {name: fileName, size: fileSize, lastModified, url};
       });
 
       setListFiles(fileList);
@@ -99,11 +100,17 @@ export default function UploadFileDialog() {
 
   const handleViewFile = async file => {
     const fileExtension = file.name.split('.').pop();
-    const layerData = await loadExampleData({
+    const result = await loadExampleData({
       url: file.url,
-      fileType: fileExtension,
+      fileExtension,
       text: file.name,
     });
+    addLayer({
+      ...result,
+      id: `${file.name}${Date.now()}`,
+      '@@type': result.layerType,
+    });
+    setShowUploadFileDialog(false);
   };
 
   // this is connected to the variant on the server side for uploading to 3D

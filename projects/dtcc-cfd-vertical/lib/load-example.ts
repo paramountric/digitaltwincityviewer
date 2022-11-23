@@ -132,8 +132,25 @@ export const cityDatasets = {
   },
 };
 
-// Todo: refactor this function to load from file extension
-// also refactor the citymodel file to automatically find the data in the protobuf file
+// todo: find different properties to determine what type this data is, for parsing
+function findJsonType(json) {
+  return 'streamlines';
+}
+
+// todo: move this to a module (cityModel?)
+function parseStreamlines(json) {
+  console.log('parse', json);
+  const streamLines = json.map(streamLine => {
+    return {
+      name: streamLine.Name,
+      points: streamLine.Points.map(p => [p.x / 100, p.y / 100, p.z / 100]),
+      velocity: streamLine.Points.map(p => [p.vx, p.vz, p.vy]),
+      pressure: streamLine.Points.map(p => p.p),
+    };
+  });
+  console.log('streamlines', streamLines);
+  return streamLines;
+}
 
 // the fileSetting is the object in files array above
 export async function loadExampleData(fileSetting) {
@@ -142,6 +159,7 @@ export async function loadExampleData(fileSetting) {
     text,
     url,
     fileType,
+    fileExtension,
     pbType,
     crs,
     x,
@@ -151,14 +169,19 @@ export async function loadExampleData(fileSetting) {
     origin,
     extraOrigin,
   } = fileSetting;
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    mode: 'cors',
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
   const result: any = {
     id,
     text,
   };
   // now add data depending on type of file
-  switch (fileType) {
-    case 'protobuf':
+  switch (fileExtension) {
+    case 'pb':
       const pbData = new Uint8Array(await response.arrayBuffer());
       const pbJson = parseProtobuf(pbData, pbType);
       pbJson.origin = origin;
@@ -205,11 +228,11 @@ export async function loadExampleData(fileSetting) {
       }
       break;
     case 'geojson':
-      const json = await response.json();
+      const geojson = await response.json();
       //const processed = convert(json, crs, [x, y]);
       // this should not be used since it centers the layer relatively
       //const position = getLayerPosition(processed.features);
-      const features = json.features
+      const features = geojson.features
         .map(f => {
           const {properties} = f;
           if (
@@ -274,7 +297,7 @@ export async function loadExampleData(fileSetting) {
         })
         .filter(Boolean);
 
-      result.data = json;
+      result.data = geojson;
       result.data.features = features;
       result.opacity = 1;
       result.autoHighlight = false;
@@ -289,6 +312,23 @@ export async function loadExampleData(fileSetting) {
       result.getPolygon = '@@=geometry.coordinates';
       result.getFillColor = '@@=properties.color || [250, 250, 250, 30]';
       result.getLineColor = [150, 150, 150];
+      break;
+    case 'json':
+      const json = await response.json();
+      const jsonType = findJsonType(json);
+      switch (jsonType) {
+        case 'streamlines':
+          result.data = parseStreamlines(json);
+          result.getPath = d => d.points;
+          result.getColor = [Math.random() * 255, 128, 128];
+          result.getWidth = 15;
+          result.billboard = true;
+          result.coordinateSystem = '@@#COORDINATE_SYSTEM.METER_OFFSETS';
+          result.layerType = 'PathLayer';
+          break;
+        default:
+          console.warn('no json type was found');
+      }
       break;
     default:
       console.warn('example files should be explicit');
