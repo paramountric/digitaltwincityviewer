@@ -1,4 +1,4 @@
-// all properties in the attribute object will be shown, labels are taken from here
+// *** Settings for labels, units and rounding for the keys of various options
 const propertyLabels: {
   [key: string]: string;
 } = {
@@ -88,4 +88,73 @@ const rounding: {
   heatDemand2050: 0,
 };
 
-export {propertyLabels, units, rounding};
+// **** Settings for selecting properties/indicator ***** //
+
+export type SelectablePropertyKey =
+  | 'finalEnergyM2'
+  | 'heatDemandM2'
+  | 'primaryEnergyM2'
+  | 'deliveredEnergyM2'
+  | 'ghgEmissionsM2';
+
+export type PropertyKeyOption = {
+  key: SelectablePropertyKey;
+  label: string;
+  unit: string;
+  rounding: number;
+};
+
+// this is shown in the top action menu
+const propertyKeyOptions: PropertyKeyOption[] = [
+  'finalEnergyM2',
+  'heatDemandM2',
+  'primaryEnergyM2',
+  'deliveredEnergyM2',
+  'ghgEmissionsM2',
+].map(key => ({
+  key: key as SelectablePropertyKey,
+  label: propertyLabels[key],
+  unit: units[key],
+  rounding: rounding[key],
+}));
+
+// **** Settings for selecting year ***** //
+
+const yearLabels: {
+  [key: string]: string;
+} = {
+  '2020': '2020',
+  '2050_2_5': '2050 (2.5)',
+  '2050_4_5': '2050 (4.5)',
+  '2050_8_5': '2050 (8.5)',
+};
+
+const yearOptions = ['2020', '2050_2_5', '2050_4_5', '2050 (8.5)'].map(key => ({
+  key,
+  label: yearLabels[key],
+}));
+
+// **** Settings for selecting base map ***** //
+
+const baseMapLabels: {
+  [key: string]: string;
+} = {
+  '2020': '2020',
+  '2050': '2050',
+};
+
+const baseMapOptions = ['2020', '2050'].map(key => ({
+  key,
+  label: baseMapLabels[key],
+}));
+
+export {
+  propertyLabels,
+  units,
+  rounding,
+  propertyKeyOptions,
+  yearLabels,
+  yearOptions,
+  baseMapLabels,
+  baseMapOptions,
+};
