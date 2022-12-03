@@ -239,7 +239,7 @@ class Viewer {
       accessToken: 'wtf',
       renderWorldCopies: false,
       antialias: true,
-      style: {
+      style: props.style || {
         id: 'digitaltwincityviewer',
         layers: [
           {
