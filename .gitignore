@@ -2,6 +2,9 @@
 dist
 node_modules
 
+# special case exclue
+/packages/vectortiles/data
+
 # OS
 .DS_Store
 
