@@ -10,6 +10,7 @@
     "dev": "turbo run dev",
     "dtcv-next-template-dev": "turbo run dev --scope 'dtcv-next-template' --include-dependencies",
     "dtcc-cfd-vertical-dev": "turbo run dev --filter dtcc-cfd-vertical...",
+    "dte-digital-twin-energy-dev": "turbo run dev --filter dte-digital-twin-energy...",
     "publish-packages": "turbo run build && changeset version && changeset publish"
   },
   "devDependencies": {
