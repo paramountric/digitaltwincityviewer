@@ -1,5 +1,4 @@
-import { FeatureCollection, Position } from 'geojson';
-import { convert as convertCoordinate } from '@dtcv/convert';
+import { Position } from 'geojson';
 
 function forEachCoordinateInLineString(lineString: Position[], fn) {
   for (const point of lineString) {
@@ -31,6 +30,8 @@ function forEachCoordinateInMultiPolygon(multiPolygon: Position[][][], fn) {
   }
 }
 
+// WIP: This function is thought to be a generic foreach function for feature collection (also look into the turf one)
+// Due to a bug in a project for z level this is now setting all the z values to the given values (basically if 2.5 is required)
 const forEachCoordinate = ({ featureCollection, setZ }) => {
   // curry it
   const convertWrapper = function (point: number[]) {
