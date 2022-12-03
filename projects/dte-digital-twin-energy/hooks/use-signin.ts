@@ -1,4 +1,4 @@
-import {useMutation, useQueryClient} from 'react-query';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
 
 interface SignIn {
   email: string;
@@ -27,7 +27,7 @@ export const useSignIn = (): {
     signIn: async ({email, password}: SignIn): Promise<boolean> => {
       try {
         const user = await mutation.mutateAsync({email, password});
-        queryClient.setQueryData('user', user);
+        queryClient.setQueryData(['user'], user);
         return true;
       } catch (err) {
         return false;

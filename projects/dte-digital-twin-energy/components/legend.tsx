@@ -1,5 +1,5 @@
 import {Fragment} from 'react';
-import {useIndicators} from '../hooks/indicators';
+import {useUi} from '../hooks/use-ui';
 import {getColorFromScale, getScaleRanges} from '../lib/colorScales';
 
 function classNames(...classes: string[]) {
@@ -9,13 +9,9 @@ function classNames(...classes: string[]) {
 type LegendProps = {};
 
 const Legend: React.FC<LegendProps> = () => {
-  const {
-    getPropertyLabel,
-    getPropertyUnit,
-    state: indicatorState,
-  } = useIndicators();
+  const {getPropertyLabel, getPropertyUnit, state: indicatorState} = useUi();
 
-  const selectedProperty = indicatorState.propertyKey;
+  const selectedProperty = 'energyDeclaration' as string;
   const isGhg = selectedProperty === 'ghgEmissions';
   const scaleKey = isGhg ? 'buildingGhg' : 'energyDeclaration';
 

@@ -6,7 +6,7 @@ import {scaleBand, scaleLinear} from 'd3-scale';
 import {axisBottom, axisLeft} from 'd3-axis';
 import {getColorFromScale} from '../lib/colorScales';
 import {propertyLabels, units, rounding} from '../lib/constants';
-import {useIndicators} from '../hooks/indicators';
+//import {useIndicators} from '../hooks/indicators';
 
 type BuildingFeatureEnergyDisplayProps = {
   feature: any;
@@ -141,49 +141,49 @@ const BuildingFeatureEnergyDisplay: React.FC<
   const heatDemandRef = useRef<HTMLDivElement>(null);
   const primaryEnergyRef = useRef<HTMLDivElement>(null);
   const [trigger, setTrigger] = useState(-1);
-  const {state: indicatorState} = useIndicators();
-  useLayoutEffect(() => {
-    if (deliveredEnergyRef.current) {
-      applyChart(
-        deliveredEnergyRef.current,
-        props.feature.properties,
-        'deliveredEnergy',
-        indicatorState.selectedYear
-      );
-    }
-    if (finalEnergyRef.current) {
-      applyChart(
-        finalEnergyRef.current,
-        props.feature.properties,
-        'finalEnergy',
-        indicatorState.selectedYear
-      );
-    }
-    if (ghgEmissionsRef.current) {
-      applyChart(
-        ghgEmissionsRef.current,
-        props.feature.properties,
-        'ghgEmissions',
-        indicatorState.selectedYear
-      );
-    }
-    if (heatDemandRef.current) {
-      applyChart(
-        heatDemandRef.current,
-        props.feature.properties,
-        'heatDemand',
-        indicatorState.selectedYear
-      );
-    }
-    if (primaryEnergyRef.current) {
-      applyChart(
-        primaryEnergyRef.current,
-        props.feature.properties,
-        'primaryEnergy',
-        indicatorState.selectedYear
-      );
-    }
-  }, [props.feature.properties, trigger, indicatorState.selectedYear]);
+  //const {state: indicatorState} = useIndicators();
+  // useLayoutEffect(() => {
+  //   if (deliveredEnergyRef.current) {
+  //     applyChart(
+  //       deliveredEnergyRef.current,
+  //       props.feature.properties,
+  //       'deliveredEnergy',
+  //       indicatorState.selectedYear
+  //     );
+  //   }
+  //   if (finalEnergyRef.current) {
+  //     applyChart(
+  //       finalEnergyRef.current,
+  //       props.feature.properties,
+  //       'finalEnergy',
+  //       indicatorState.selectedYear
+  //     );
+  //   }
+  //   if (ghgEmissionsRef.current) {
+  //     applyChart(
+  //       ghgEmissionsRef.current,
+  //       props.feature.properties,
+  //       'ghgEmissions',
+  //       indicatorState.selectedYear
+  //     );
+  //   }
+  //   if (heatDemandRef.current) {
+  //     applyChart(
+  //       heatDemandRef.current,
+  //       props.feature.properties,
+  //       'heatDemand',
+  //       indicatorState.selectedYear
+  //     );
+  //   }
+  //   if (primaryEnergyRef.current) {
+  //     applyChart(
+  //       primaryEnergyRef.current,
+  //       props.feature.properties,
+  //       'primaryEnergy',
+  //       indicatorState.selectedYear
+  //     );
+  //   }
+  // }, [props.feature.properties, trigger, indicatorState.selectedYear]);
   return (
     <Disclosure>
       {({open}) => (

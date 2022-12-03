@@ -1,4 +1,4 @@
-import {useQuery} from 'react-query';
+import {useQuery} from '@tanstack/react-query';
 
 interface UserInfo {
   userName: string;
@@ -8,7 +8,7 @@ interface UserInfo {
 export function useUserInfo() {
   const userUrl = '/api/user';
   const query = useQuery(
-    'user',
+    ['user'],
     async () => {
       try {
         const res = await fetch(userUrl);

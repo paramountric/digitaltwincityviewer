@@ -2,9 +2,9 @@ import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {select, selectAll} from 'd3-selection';
 import {scaleBand, scaleLinear} from 'd3-scale';
 import {axisBottom, axisLeft} from 'd3-axis';
-import {useViewer} from '../hooks/viewer';
-import {useClimateScenarioData} from '../hooks/data';
-import {useIndicators} from '../hooks/indicators';
+import {useViewer} from '../hooks/use-viewer';
+// import {useClimateScenarioData} from '../hooks/data';
+// import {useIndicators} from '../hooks/indicators';
 import {propertyLabels, units} from '../lib/constants';
 
 function renderChart(
@@ -110,8 +110,8 @@ type BottomPanelProps = {};
 
 const BottomPanel: React.FC<BottomPanelProps> = props => {
   const chartRef = useRef<HTMLDivElement>(null);
-  const {state: indicatorState} = useIndicators();
-  const {state: dataState, isLoading} = useClimateScenarioData();
+  // const {state: indicatorState} = useIndicators();
+  // const {state: dataState, isLoading} = useClimateScenarioData();
   const [width, setWidth] = useState<number>(0);
   const [height, setHeight] = useState<number>(0);
 
@@ -120,36 +120,35 @@ const BottomPanel: React.FC<BottomPanelProps> = props => {
     setHeight(chartRef.current?.clientHeight || 0);
   };
 
-  useLayoutEffect(() => {
-    getSize();
-    if (chartRef.current && dataState.timelineData && width && height) {
-      const {showTimelinePerM2, propertyKey, selectedYear} = indicatorState;
-      const timelineDataKey = showTimelinePerM2 ? 'perM2' : 'total';
-      const timelineValues = dataState.timelineData[timelineDataKey];
-      renderChart(chartRef.current, width, height, timelineValues, propertyKey);
-    }
-  }, [dataState.timelineData, width, height]);
+  // useLayoutEffect(() => {
+  //   getSize();
+  //   if (chartRef.current && dataState.timelineData && width && height) {
+  //     const {showTimelinePerM2, propertyKey, selectedYear} = indicatorState;
+  //     const timelineDataKey = showTimelinePerM2 ? 'perM2' : 'total';
+  //     const timelineValues = dataState.timelineData[timelineDataKey];
+  //     renderChart(chartRef.current, width, height, timelineValues, propertyKey);
+  //   }
+  // }, [dataState.timelineData, width, height]);
 
   useEffect(() => {
     window.addEventListener('resize', getSize);
     return () => window.removeEventListener('resize', getSize);
   }, []);
 
-  return (
-    dataState.timelineData && (
-      <div className="absolute left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-md border border-gray-300 bottom-2 w-1/2 h-44">
-        {isLoading ? (
-          <div className="relative flex justify-center items-center">
-            <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mt-16"></div>
-          </div>
-        ) : dataState.timelineData ? (
-          <div className="h-44" ref={chartRef}></div>
-        ) : (
-          <div>No buildings found</div>
-        )}
-      </div>
-    )
-  );
+  return null;
+  // dataState.timelineData && (
+  //   <div className="absolute left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-md border border-gray-300 bottom-2 w-1/2 h-44">
+  //     {isLoading ? (
+  //       <div className="relative flex justify-center items-center">
+  //         <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mt-16"></div>
+  //       </div>
+  //     ) : dataState.timelineData ? (
+  //       <div className="h-44" ref={chartRef}></div>
+  //     ) : (
+  //       <div>No buildings found</div>
+  //     )}
+  //   </div>
+  // )
 };
 
 export default BottomPanel;

@@ -1,21 +1,69 @@
 import {useState, useEffect, useCallback} from 'react';
+import {useQuery} from '@tanstack/react-query';
 import {Viewer, JsonProps} from '@dtcv/viewer';
 import {cities} from '@dtcv/cities';
-import {useContextData, useClimateScenarioData, useBaseMapData} from './data';
-import {useIndicators} from './indicators';
-import {Feature} from '@dtcv/geojson';
-import {useUserInfo} from './userinfo';
-import {useSelectedFeature} from './selected-feature';
+import {Feature, FeatureCollection} from '@dtcv/geojson';
+import {useUserInfo} from './use-user';
+import {useSelectedFeature} from './use-selected-feature';
 import {getColorFromScale} from '../lib/colorScales';
+import {useUi} from './use-ui';
 
 const gothenburg = cities.find((c: any) => c.id === 'gothenburg');
 if (!gothenburg || !gothenburg.x) {
   throw new Error('City must be selected on app level');
 }
 
+// level 1, 2, 3 and building
+const aggregationZoomLevels = [8, 11, 12, 14];
+
+// this will be shown by default on mapload
+const initialColorProperty = 'deliveredEnergyBuildingAreaColor';
+
+const TILE_SERVER_URL = 'http://localhost:9000';
+
 const maplibreOptions = {
   longitude: gothenburg.lng,
-  latitude: 57.7927,
+  // adjust camera since the official center is not the same as the app data
+  latitude: gothenburg.lat, //57.7927,
+  style: {
+    id: 'digitaltwincityviewer',
+    aggregationZoomLevels,
+    layers: [
+      {
+        id: 'background',
+        type: 'background',
+        paint: {
+          'background-color': 'rgba(255, 255, 255, 1)',
+        },
+      },
+      {
+        id: 'building',
+        name: 'Building extruded',
+        type: 'fill-extrusion',
+        source: 'vectorTiles',
+        'source-layer': 'buildings2018',
+        maxzoom: 18,
+        minzoom: 10, //aggregationZoomLevels[3],
+        layout: {
+          visibility: 'visible',
+        },
+        paint: {
+          'fill-extrusion-color': ['get', initialColorProperty],
+          'fill-extrusion-height': ['get', 'height'],
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 0.8,
+        },
+      },
+    ],
+    sources: {
+      vectorTiles: {
+        type: 'vector',
+        promoteId: 'id',
+        tiles: [`${TILE_SERVER_URL}/tiles/{z}/{x}/{y}`],
+      },
+    },
+    version: 8,
+  },
 };
 
 export const useViewer = (): {
@@ -27,16 +75,57 @@ export const useViewer = (): {
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [extent, setExtent] = useState<number[]>([]);
 
-  const {
-    data: climateScenarioData,
-    refetch: refetchClimateScenarioData,
-    updateTimelineData,
-  } = useClimateScenarioData();
-  const {data: contextData, refetch: refetchContextData} = useContextData();
-  const {data: baseMapData, refetch: refetchBaseMapData} = useBaseMapData();
   const userInfo = useUserInfo();
-  const {state: indicatorState} = useIndicators();
+  const {state: uiState} = useUi();
   const {actions} = useSelectedFeature();
+
+  // const queryBuildings2018 = useQuery(
+  //   ['buildings-2018'],
+  //   async () => {
+  //     try {
+  //       const res = await fetch('/api/data/buildings2018');
+  //       return await res.json();
+  //     } catch (err) {
+  //       return undefined;
+  //     }
+  //   },
+  //   {
+  //     refetchOnWindowFocus: false,
+  //     enabled: true,
+  //   }
+  // );
+
+  // const queryBuildings2050 = useQuery(
+  //   ['buildings-2050'],
+  //   async () => {
+  //     try {
+  //       const res = await fetch('/api/data/buildings2050');
+  //       return await res.json();
+  //     } catch (err) {
+  //       return undefined;
+  //     }
+  //   },
+  //   {
+  //     refetchOnWindowFocus: false,
+  //     enabled: false,
+  //   }
+  // );
+
+  const contextData = useQuery(
+    ['context'],
+    async () => {
+      try {
+        const res = await fetch('/api/data/context');
+        return await res.json();
+      } catch (err) {
+        return undefined;
+      }
+    },
+    {
+      refetchOnWindowFocus: false,
+      enabled: false,
+    }
+  );
 
   // const updateTimeline = () => {
   //   console.log('test', viewer, propertyKey, selectedYear);
@@ -55,10 +144,12 @@ export const useViewer = (): {
     const jsonData: JsonProps = {
       layers: [],
     };
-    const isBaseMap2050 = baseMapData?.features?.length > 0;
+    const isBaseMap2050 = false; //baseMapData?.features?.length > 0;
 
-    const features = contextData?.features || [];
-    const pointFeatures = features.filter(f => f.geometry.type === 'Point');
+    const features = contextData.data?.features || [];
+    const pointFeatures = features.filter(
+      (f: Feature) => f.geometry.type === 'Point'
+    );
 
     for (const pointFeature of pointFeatures) {
       // @ts-ignore
@@ -171,12 +262,14 @@ export const useViewer = (): {
       // });
     }
 
+    const climateScenarioData = false;
+
     if (!isBaseMap2050 && climateScenarioData && jsonData && jsonData.layers) {
       jsonData.layers.push({
         id: 'bsm-layer',
         '@@type': 'SolidPolygonLayer',
         //'@@type': 'GeoJsonLayer',
-        data: climateScenarioData.buildings,
+        //data: climateScenarioData.buildings,
         onClick: (d: any) => {
           if (d.object) {
             if (!d.object.id) {
@@ -217,6 +310,8 @@ export const useViewer = (): {
         },
       });
     }
+
+    const baseMapData = false;
 
     if (baseMapData && jsonData && jsonData.layers) {
       jsonData.layers.push({
@@ -271,75 +366,75 @@ export const useViewer = (): {
     render();
   }, [viewer]);
 
-  useEffect(() => {
-    const {propertyKey, selectedYear} = indicatorState;
-    if (
-      !viewer ||
-      !climateScenarioData ||
-      !climateScenarioData.buildings ||
-      !propertyKey ||
-      !selectedYear
-    ) {
-      return;
-    }
-    for (const feature of climateScenarioData.buildings) {
-      if (!feature.properties) {
-        continue;
-      }
-      const key = `${propertyKey}${selectedYear}M2`;
-      const val = feature.properties[key];
-      if (val) {
-        const scale =
-          propertyKey === 'ghgEmissions' ? 'buildingGhg' : 'energyDeclaration';
-        feature.properties.color = getColorFromScale(val, scale);
-      }
-    }
-    // old code for gradient color scale between green and red using generateColor from viewer module
-    // const colorStyle = {
-    //   sufficient: 150,
-    //   excellent: 60,
-    //   propertyKey: `${propertyKey}${selectedYear}M2`,
-    // };
-    // console.log(climateScenarioData);
+  // useEffect(() => {
+  //   const {propertyKey, selectedYear} = indicatorState;
+  //   if (
+  //     !viewer ||
+  //     !climateScenarioData ||
+  //     !climateScenarioData.buildings ||
+  //     !propertyKey ||
+  //     !selectedYear
+  //   ) {
+  //     return;
+  //   }
+  //   for (const feature of climateScenarioData.buildings) {
+  //     if (!feature.properties) {
+  //       continue;
+  //     }
+  //     const key = `${propertyKey}${selectedYear}M2`;
+  //     const val = feature.properties[key];
+  //     if (val) {
+  //       const scale =
+  //         propertyKey === 'ghgEmissions' ? 'buildingGhg' : 'energyDeclaration';
+  //       feature.properties.color = getColorFromScale(val, scale);
+  //     }
+  //   }
+  //   // old code for gradient color scale between green and red using generateColor from viewer module
+  //   // const colorStyle = {
+  //   //   sufficient: 150,
+  //   //   excellent: 60,
+  //   //   propertyKey: `${propertyKey}${selectedYear}M2`,
+  //   // };
+  //   // console.log(climateScenarioData);
 
-    // for (const feature of climateScenarioData.buildings) {
-    //   if (
-    //     feature.properties &&
-    //     colorStyle.propertyKey &&
-    //     colorStyle.sufficient &&
-    //     colorStyle.excellent
-    //   ) {
-    //     const color = generateColor(
-    //       feature.properties[colorStyle.propertyKey],
-    //       colorStyle.sufficient,
-    //       colorStyle.excellent
-    //     );
-    //     feature.properties.color = color;
-    //   }
-    // }
-    // this should trigger the bottom panel initially (with all data)
-    updateTimelineData(propertyKey, selectedYear);
-    render();
-  }, [indicatorState, viewer, climateScenarioData]);
+  //   // for (const feature of climateScenarioData.buildings) {
+  //   //   if (
+  //   //     feature.properties &&
+  //   //     colorStyle.propertyKey &&
+  //   //     colorStyle.sufficient &&
+  //   //     colorStyle.excellent
+  //   //   ) {
+  //   //     const color = generateColor(
+  //   //       feature.properties[colorStyle.propertyKey],
+  //   //       colorStyle.sufficient,
+  //   //       colorStyle.excellent
+  //   //     );
+  //   //     feature.properties.color = color;
+  //   //   }
+  //   // }
+  //   // this should trigger the bottom panel initially (with all data)
+  //   // updateTimelineData(propertyKey, selectedYear);
+  //   // render();
+  // }, [indicatorState, viewer, climateScenarioData]);
 
-  useEffect(() => {
-    render();
-  }, [contextData, baseMapData]);
+  // useEffect(() => {
+  //   render();
+  // }, [contextData, baseMapData]);
 
-  useEffect(() => {
-    refetchClimateScenarioData();
-    refetchBaseMapData();
-    refetchContextData();
-  }, [userInfo]);
+  // useEffect(() => {
+  //   refetchClimateScenarioData();
+  //   refetchBaseMapData();
+  //   refetchContextData();
+  // }, [userInfo]);
 
-  useEffect(() => {
-    if (viewer) {
-      const result = viewer.getVisibleObjects(['bsm-layer']);
-      const features = result.map((r: any) => r.object).filter(Boolean);
-      const {propertyKey, selectedYear} = indicatorState;
-      updateTimelineData(propertyKey, selectedYear, features);
-    }
-  }, [extent]);
+  // useEffect(() => {
+  //   if (viewer) {
+  //     const result = viewer.getVisibleObjects(['bsm-layer']);
+  //     const features = result.map((r: any) => r.object).filter(Boolean);
+  //     const {propertyKey, selectedYear} = indicatorState;
+  //     updateTimelineData(propertyKey, selectedYear, features);
+  //   }
+  // }, [extent]);
 
   return {
     initViewer: ref => {

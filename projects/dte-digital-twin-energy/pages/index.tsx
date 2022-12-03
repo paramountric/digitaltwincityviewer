@@ -3,7 +3,7 @@ import React from 'react';
 import Header from '../components/header';
 import Viewport from '../components/viewport';
 import Login from '../components/login';
-import {useUserInfo} from '../hooks/userinfo';
+import {useUserInfo} from '../hooks/use-user';
 
 const StartPage: NextPage = () => {
   const userInfo = useUserInfo();

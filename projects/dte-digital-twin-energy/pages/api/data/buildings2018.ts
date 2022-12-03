@@ -22,7 +22,7 @@ const {
   S3_ENDPOINT,
   S3_REGION,
   S3_BUCKET,
-  S3_OBJECT_KEY,
+  S3_OBJECT_KEY_BUILDINGS_2018,
   JWT_SECRET = '',
 } = process.env;
 
@@ -214,7 +214,10 @@ export default async function handleGetData(
     });
   }
 
-  const command = new GetObjectCommand({Bucket: S3_BUCKET, Key: S3_OBJECT_KEY});
+  const command = new GetObjectCommand({
+    Bucket: S3_BUCKET,
+    Key: S3_OBJECT_KEY_BUILDINGS_2018,
+  });
   const setZCoordinateToZero = true;
   try {
     const response = await client.send(command);

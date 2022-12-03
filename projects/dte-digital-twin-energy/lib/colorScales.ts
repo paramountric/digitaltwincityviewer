@@ -1,3 +1,7 @@
+// ! important: the color scales in the tile generation are copy-pasted currently in the tile generation package
+// ! the colors of the buildings are not generated from this code (but legends are for example)
+// todo: find a way to generalise indicator keys and colors without bloating the indicator package with too much project level code
+
 const scales: {
   [scaleKey: string]: number[];
 } = {
