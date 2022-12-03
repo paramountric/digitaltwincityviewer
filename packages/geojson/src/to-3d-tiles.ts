@@ -66,6 +66,7 @@ export type ToGltfInput = {
   toGltfOptions: ToGltfOptions;
 };
 
+// WIP: use vectortiles package, then generate glTF from the tiles and blend with lodding of parametric objects
 export async function toGltf(input: ToGltfInput): Promise<void> {
   const { minZoom, maxZoom = 16 } = input.toGltfOptions;
   const geojsonVtOptions: GeoJsonVtOptions = {
