@@ -9,6 +9,7 @@ import { toGltf, ToGltfInput } from './to-3d-tiles.js';
 import { getModelMatrix, getBounds, getLayerPosition } from './bounds.js';
 import { convert } from './convert.js';
 import { forEachCoordinate } from './foreach.js';
+import { copyProperties, addProperty } from './properties.js';
 
 export {
   Feature,
@@ -24,4 +25,6 @@ export {
   toEntities,
   toGltf,
   ToGltfInput,
+  copyProperties,
+  addProperty,
 };
