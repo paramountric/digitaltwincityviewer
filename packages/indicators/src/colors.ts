@@ -1,6 +1,9 @@
 // Copyright (C) 2022 Andreas Rudenå
 // Licensed under the MIT License
 
+// Note: this code was partly commented out because of need of the TS fix for D3 scaleLinear
+// But it is not used in any project so far since custom color scales have been used instead on project level
+
 import {scaleLinear} from 'd3-scale';
 import {getIndicator} from './index.js';
 
