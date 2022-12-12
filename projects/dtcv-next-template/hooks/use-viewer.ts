@@ -34,6 +34,12 @@ export const useViewer = () => {
           viewer: new Viewer(
             {
               container: ref,
+              longitude: 0,
+              latitude: 0,
+              zoom: 14,
+              minZoom: 10,
+              maxZoom: 18,
+              pitch: 60,
               onLoad: () => {
                 viewerStore.set({
                   ...viewerStore.get(),
@@ -42,12 +48,12 @@ export const useViewer = () => {
               },
             },
             {
-              longitude: 0,
-              latitude: 0,
-              zoom: 14,
-              minZoom: 10,
-              maxZoom: 18,
-              pitch: 60,
+              // in general, common functionality should use the first props object above, the second is for maplibre specific props
+              // center: [0, 0],
+              // zoom: 14,
+              // minZoom: 10,
+              // maxZoom: 18,
+              // pitch: 60,
             }
           ),
         });
