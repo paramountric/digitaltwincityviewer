@@ -181,6 +181,9 @@ class Viewer {
   }
 
   setCenter(center, isLngLat: boolean) {
+    if (!this.deck) {
+      return;
+    }
     let lngLatCenter = center;
     if (!isLngLat) {
       lngLatCenter = toLngLat(center[0], center[1]);
@@ -200,6 +203,9 @@ class Viewer {
   }
 
   setProps(props: ViewerProps) {
+    if (!this.deck) {
+      return;
+    }
     if (this.useMaplibre) {
       this.deck.setProps({
         layers: props.layers,
@@ -234,6 +240,10 @@ class Viewer {
   }
 
   private maplibre(props) {
+    const existingContainer = document.getElementById('viewport');
+    if (existingContainer && existingContainer.hasChildNodes()) {
+      existingContainer.innerHTML = '';
+    }
     const maplibreOptions = {
       container: 'canvas',
       accessToken: 'wtf',
