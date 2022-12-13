@@ -26,35 +26,29 @@ export const useViewer = () => {
 
   const viewerActions = useMemo(() => {
     return {
-      initViewer: (ref: HTMLDivElement, onLoad: () => any) => {
-        if (!isInit) {
-          viewerStore.set({
-            ...viewerState,
-            viewer: new Viewer(
-              {
-                container: ref,
-                onLoad: () => {
-                  setIsInit(true);
-                  onLoad();
-                },
+      initViewer: (ref: HTMLDivElement) => {
+        viewerStore.set({
+          ...viewerState,
+          viewer: new Viewer(
+            {
+              container: ref,
+              onLoad: () => {
+                setIsInit(true);
               },
-              {
-                longitude: 12.7401827,
-                latitude: 56.0430155,
-                zoom: 14,
-                minZoom: 10,
-                maxZoom: 18,
-                pitch: 60,
-              }
-            ),
-          });
-        }
+            },
+            {
+              longitude: 0,
+              latitude: 0,
+              zoom: 14,
+              minZoom: 10,
+              maxZoom: 18,
+              pitch: 60,
+            }
+          ),
+        });
       },
       setCity: (cityId: string) => {
         const state = viewerStore.get();
-        if (!state.viewer) {
-          return;
-        }
         state.viewer.setCityFromId(cityId);
         viewerStore.set({
           ...state,
@@ -62,17 +56,10 @@ export const useViewer = () => {
         });
       },
       getCity: () => {
-        const state = viewerStore.get();
-        if (!state.viewer) {
-          return;
-        }
-        return state.viewer.getCity();
+        return viewerState.viewer.getCity();
       },
-      setCenter: (lng: number, lat: number) => {
+      setCenter: (lng, lat) => {
         const state = viewerStore.get();
-        if (!state.viewer) {
-          return;
-        }
         state.viewer.setCenter([lng, lat], true);
       },
       setSelectedObject: (selectedObject: string) => {
@@ -82,11 +69,11 @@ export const useViewer = () => {
           selectedObject,
         });
       },
-      getSelectedObject: () => {},
       setActiveDataSet: (dataSetId: string) => {
         const state = viewerStore.get();
         viewerStore.set({...state, activeDataSetId: dataSetId});
       },
+      getSelectedObject: () => {},
     };
   }, [viewerState]);
 

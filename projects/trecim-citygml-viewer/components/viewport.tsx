@@ -1,59 +1,36 @@
-import {useRef, useState, useEffect} from 'react';
+import {useRef, useEffect, useMemo} from 'react';
 import {useViewer} from '../hooks/use-viewer';
-import {LayerConfig, useLayers} from '../hooks/use-layers';
-import {useUi, cityDatasets} from '../hooks/use-ui';
+import {useLayers} from '../hooks/use-layers';
 
 type ViewportProps = {};
 
 const Viewport: React.FC<ViewportProps> = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const {
-    actions: {initViewer},
-  } = useViewer();
-  const {
-    state,
-    actions: {setIsLoading},
-  } = useUi();
-  const {
-    state: viewerState,
-    actions: {setCity, setCenter, setActiveDataSet},
-  } = useViewer();
-  const {
-    actions: {loadLayer, addLayer, resetLayers},
-  } = useLayers();
+  const {actions: viewerActions} = useViewer();
   const {actions: layerActions} = useLayers();
-
-  const handleLoadExample = async (layerConfig: LayerConfig) => {
-    const {id, cityId, layerType, lng, lat} = layerConfig;
-    if (cityId !== viewerState.activeDataSetId) {
-      resetLayers();
-    }
-    setCity(cityId);
-    // setCenter(lng, lat);
-    // setActiveDataSet(cityId);
-    // setIsLoading(true);
-    // const result = await loadLayer(layerConfig);
-    // console.log(result);
-    // addLayer({
-    //   ...result,
-    //   id,
-    //   '@@type': layerType,
-    // });
-    setIsLoading(false);
-  };
 
   useEffect(() => {
     if (containerRef.current) {
+      console.log('init');
       containerRef.current.style.width = '100%';
       containerRef.current.style.height = '100%';
       containerRef.current.style.position = 'absolute';
       containerRef.current.style.top = '0px';
       containerRef.current.style.left = '0px';
-      initViewer(containerRef.current, () => {
-        handleLoadExample(cityDatasets.malmo.layerConfigs[0]);
-      });
+      viewerActions.initViewer(containerRef.current);
+      // Use this layer for testing that rendering work (for the Helsingborg example data, or change the coordinate)
+      // layerActions.addLayer({
+      //   '@@type': 'PoiLayer',
+      //   id: 'test',
+      //   data: [
+      //     {
+      //       name: 'Test point',
+      //       coordinates: [12.7401827, 56.0430155],
+      //     },
+      //   ],
+      // });
     }
-  }, [initViewer]);
+  }, []);
 
   return (
     <>

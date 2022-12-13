@@ -1,14 +1,15 @@
 import {Disclosure} from '@headlessui/react';
 import {useViewer} from '../hooks/use-viewer';
-import {LayerConfig, useLayers} from '../hooks/use-layers';
-import {useUi, cityDatasets, CityDataset} from '../hooks/use-ui';
-import LayerIcon from '../icons/layer-icon';
-import ShowOneLayer from '../icons/show-one-layer';
-import LayersForward from '../icons/layers-forward';
-import VisibilityOffIcon from '../icons/visibility-off-icon';
-import VisibilityOnIcon from '../icons/visibility-on-icon';
+import {useLayers} from '../hooks/use-layers';
+import {useUi} from '../hooks/use-ui';
+import {loadExampleData, cityDatasets} from '../lib/load-example';
+import LayerIcon from '../assets/layer-icon';
+import ShowOneLayer from '../assets/show-one-layer';
+import LayersForward from '../assets/layers-forward';
+import VisibilityOffIcon from '../assets/visibility-off-icon';
+import VisibilityOnIcon from '../assets/visibility-on-icon';
 
-function classNames(...classes: string[]) {
+function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
@@ -21,8 +22,8 @@ export default function LeftPanel() {
     actions: {addLayer, setLayerVisibility, getLayerState, setLayerElevation},
   } = useLayers();
   const {
-    state: uiState,
-    actions: {setIsLoading},
+    state,
+    actions: {setShowLoadCityDialog, setIsLoading},
   } = useUi();
 
   if (!viewerState.viewer) {
@@ -34,22 +35,17 @@ export default function LeftPanel() {
     return null;
   }
 
-  const cityDataset =
-    (cityDatasets[uiState.activeCityId] as CityDataset) ||
-    ({
-      cityLabel: '',
-      layerConfigs: [],
-    } as CityDataset);
-  const layerConfigs = cityDataset.layerConfigs || [];
+  const cityDataset = cityDatasets[viewerState.activeDataSetId] || {};
+  const cityFiles = cityDataset.files || [];
 
   const layerState = getLayerState();
 
   const menuItems = [
     {
-      name: 'Layers',
+      name: 'Lager',
       icon: LayerIcon,
       current: false,
-      children: layerConfigs.map(fileSetting => {
+      children: cityFiles.map(fileSetting => {
         const ls = layerState.find(l => l.id === fileSetting.id) || {};
         return {...fileSetting, ...ls, icon: ShowOneLayer};
       }),
@@ -58,29 +54,59 @@ export default function LeftPanel() {
 
   const visibleLayers = layerState.filter(l => l.visible);
 
-  const handleClickLoadFile = async (layerConfig: LayerConfig) => {
-    // const {id, layerType, visible} = layerConfig;
-    // // if already loaded, toggle visibility
-    // if (visible) {
-    //   setLayerVisibility(id, false);
-    //   return;
-    // } else if (visible === false) {
-    //   setLayerVisibility(id, true);
-    //   return;
-    // }
-    // // not loaded, -> load layer data
-    // setIsLoading(true);
-    // const result = await loadExampleData(fileSetting);
-    // addLayer({
-    //   ...result,
-    //   id,
-    //   '@@type': layerType,
-    // });
-    // setIsLoading(false);
-    // setShowLoadCityDialog(false);
+  const handleClickLoadFile = async fileSetting => {
+    const {id, layerType, fileType, visible} = fileSetting;
+
+    // if already loaded, toggle visibility
+    if (visible) {
+      setLayerVisibility(id, false);
+      return;
+    } else if (visible === false) {
+      setLayerVisibility(id, true);
+      return;
+    }
+
+    // not loaded, -> load layer data
+    setIsLoading(true);
+    // ! note that the loading is done in left menu as well
+    if (fileType === 'citygml') {
+      // todo: refactor the callbacks to promises, this is due to the xml parser lib
+      await loadExampleData(fileSetting, layerDataArray => {
+        // since a citygml file could contain many layers
+        for (const layerData of layerDataArray) {
+          addLayer({
+            ...layerData,
+            id,
+            '@@type': layerType,
+          });
+        }
+
+        setIsLoading(false);
+        setShowLoadCityDialog(false);
+      });
+    } else {
+      const result = await loadExampleData(fileSetting, layerData => {
+        addLayer({
+          ...layerData,
+          id,
+          '@@type': layerType,
+        });
+
+        setIsLoading(false);
+        setShowLoadCityDialog(false);
+      });
+      addLayer({
+        ...result,
+        id,
+        '@@type': layerType,
+      });
+
+      setIsLoading(false);
+      setShowLoadCityDialog(false);
+    }
   };
 
-  const handleOnChangeSlider = (layerId: string, e: any) => {
+  const handleOnChangeSlider = (layerId, e) => {
     const val = Number(e.target.value);
     setLayerElevation(layerId, val);
   };
@@ -193,7 +219,7 @@ export default function LeftPanel() {
                         aria-hidden="true"
                       />
                     </div>
-                    <span className="flex-1">Elevation</span>
+                    <span className="flex-1">Justera höjd</span>
                     <svg
                       className={classNames(
                         open ? 'text-gray-400 rotate-90' : 'text-gray-300',

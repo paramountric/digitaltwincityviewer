@@ -1,52 +1,22 @@
 import {useState, useEffect, useMemo} from 'react';
-import {cities} from '@dtcv/cities';
 import {Observable} from '../lib/Observable';
-import {LayerConfig} from './use-layers';
-
-export type CityDatasetCollection = {
-  [cityId: string]: CityDataset;
-};
-
-export type CityDataset = {
-  cityLabel: string;
-  layerConfigs: LayerConfig[];
-};
-
-// blend in official settings
-const malmo = cities.find(c => c.id === 'malmo');
-
-export const cityDatasets: CityDatasetCollection = {
-  malmo: {
-    cityLabel: 'Malmö',
-    layerConfigs: [
-      {
-        id: 'malmo-buildings',
-        label: 'Malmö byggnader',
-        cityId: 'malmo',
-        url: '/malmo.gml',
-        fileType: 'gml',
-        layerType: 'CityModelLayer',
-        offset: [0, 0],
-        lat: 56.0430155,
-        lng: 12.7401827,
-        crs: 'EPSG:3008',
-      },
-    ],
-  },
-};
 
 export type UiStore = {
   isLoading: boolean;
-  showLeftMenu: boolean;
-  showRightMenu: boolean;
-  activeCityId: string;
+  showLoadCityDialog: boolean;
+  showUploadFileDialog: boolean;
+  showLayerDialog: boolean;
+  showLeftPanel: boolean;
+  showRightPanel: boolean;
 };
 
 const uiStore = new Observable<UiStore>({
   isLoading: false,
-  showLeftMenu: true,
-  showRightMenu: false,
-  activeCityId: 'malmo',
+  showLoadCityDialog: false,
+  showUploadFileDialog: false,
+  showLayerDialog: false,
+  showLeftPanel: true,
+  showRightPanel: false,
 });
 
 export const useUi = () => {
@@ -58,16 +28,18 @@ export const useUi = () => {
 
   const actions = useMemo(() => {
     return {
-      setIsLoading: (isLoading: boolean) => setUiState({...uiState, isLoading}),
-      setShowRightMenu: (showRightMenu: boolean) =>
-        setUiState({...uiState, showRightMenu}),
-      setShowLeftMenu: (showLeftMenu: boolean) =>
-        setUiState({...uiState, showLeftMenu}),
-      setActiveCityId: (activeCityId: string) =>
-        setUiState({...uiState, activeCityId}),
-      getSelectedCity: () => {
-        return cityDatasets[uiState.activeCityId];
-      },
+      setIsLoading: (isLoading: boolean) =>
+        uiStore.set({...uiState, isLoading}),
+      setShowLoadCityDialog: (showLoadCityDialog: boolean) =>
+        uiStore.set({...uiState, showLoadCityDialog}),
+      setShowUploadFileDialog: (showUploadFileDialog: boolean) =>
+        uiStore.set({...uiState, showUploadFileDialog}),
+      setShowLayerDialog: (showLayerDialog: boolean) =>
+        uiStore.set({...uiState, showLayerDialog}),
+      setShowRightPanel: (showRightPanel: boolean) =>
+        uiStore.set({...uiState, showRightPanel}),
+      setShowLeftPanel: (showLeftPanel: boolean) =>
+        uiStore.set({...uiState, showLeftPanel}),
     };
   }, [uiState]);
 

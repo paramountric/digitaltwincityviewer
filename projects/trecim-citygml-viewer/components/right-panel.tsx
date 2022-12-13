@@ -10,7 +10,7 @@ const RightPanel: React.FC<RightPanelProps> = () => {
     state: {selectedObject},
   } = useViewer();
   const {
-    actions: {setShowRightMenu},
+    actions: {setShowRightPanel},
   } = useUi();
 
   if (!selectedObject) {
@@ -26,7 +26,7 @@ const RightPanel: React.FC<RightPanelProps> = () => {
             selectedObject.properties?.uuid ||
             'Selected building'}
         </div>
-        <div onClick={() => setShowRightMenu(false)} className="ml-1">
+        <div onClick={() => setShowRightPanel(false)} className="ml-1">
           <XMarkIcon className="h-5 w-5 cursor-pointer hover:bg-gray-100 rounded-md" />
         </div>
       </div>

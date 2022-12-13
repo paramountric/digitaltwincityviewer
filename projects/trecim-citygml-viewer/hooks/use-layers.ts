@@ -4,6 +4,7 @@ import {useViewer} from './use-viewer';
 import {useUi} from './use-ui';
 import {parser} from '../lib/parser';
 
+// initial settings for layer
 export type LayerConfig = {
   id: string;
   label: string;
@@ -17,7 +18,8 @@ export type LayerConfig = {
   crs: string; // for the original data in the source
 };
 
-type LayerState = {
+// layer state + any props that goes
+export type LayerState = {
   id: string;
   visible: boolean;
   elevation: number; // extra z level for the layer, adjustable in the left panel
@@ -34,7 +36,7 @@ export const useLayers = () => {
     actions: {setSelectedObject},
   } = useViewer();
   const {
-    actions: {setShowRightMenu},
+    actions: {setShowRightPanel},
   } = useUi();
 
   useEffect(() => {
@@ -44,12 +46,18 @@ export const useLayers = () => {
   const layerActions = useMemo(() => {
     return {
       loadLayer: async (layerConfig: LayerConfig) => {
+        const state = layerStore.get();
         const {url} = layerConfig;
         // fetch data
         const response = await fetch(url);
         // process data
-        const layerData = parser(response, layerConfig);
-        // add layer
+        await parser(response, layerConfig, (layerData: LayerState) => {
+          console.log(layerData);
+          layerData.visible = true;
+          // add layer
+          console.log(layerData);
+          layerStore.set([...state, layerData]);
+        });
       },
       addLayer: (layer: LayerState) => {
         const state = layerStore.get();
@@ -59,16 +67,20 @@ export const useLayers = () => {
         } else {
           layer.visible = true;
           layer.elevation = layer.elevation || 0;
-          // if (layer['@@type'] === 'CityModelLayer') {
-          //   layer.onClick = ({object}) => {
-          //     if (object) {
-          //       setSelectedObject(object);
-          //       setShowRightPanel(true);
-          //     }
-          //   };
-          // }
+          if (layer['@@type'] === 'CityModelLayer') {
+            layer.onClick = ({object}) => {
+              if (object) {
+                setSelectedObject(object);
+                setShowRightPanel(true);
+              }
+            };
+          }
           layerStore.set([...state, layer]);
         }
+      },
+      addLayers: (layerArray: LayerState[]) => {
+        const state = layerStore.get();
+        layerStore.set([...state, ...layerArray]);
       },
       resetLayers: () => {
         layerStore.set([]);
@@ -88,7 +100,7 @@ export const useLayers = () => {
       setLayerElevation: (layerId: string, elevation: number) => {
         console.log(layerId, elevation);
         const layerStates = layerStore.get().map(l => {
-          if (viewerState.viewer && l.id === layerId) {
+          if (l.id === layerId) {
             const modelMatrix = Array.from(
               viewerState.viewer.getElevationMatrix(elevation)
             );
