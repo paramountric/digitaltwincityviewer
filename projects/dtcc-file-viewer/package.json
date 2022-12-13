@@ -26,7 +26,6 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.13",
-    "next-export-optimize-images": "^1.9.0",
     "postcss": "^8.4.19",
     "postcss-preset-env": "^7.8.2",
     "tailwindcss": "^3.2.1",
