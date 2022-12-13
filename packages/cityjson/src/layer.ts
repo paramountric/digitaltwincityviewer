@@ -16,6 +16,11 @@ proj4.defs(
 );
 
 proj4.defs(
+  'EPSG:3011',
+  '+proj=tmerc +lat_0=0 +lon_0=18 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs'
+);
+
+proj4.defs(
   'EPSG:31256',
   '+proj=tmerc +lat_0=0 +lon_0=16.33333333333333 +k=1 +x_0=0 +y_0=-5000000 +ellps=bessel +towgs84=577.326,90.129,463.919,5.137,1.474,5.297,2.4232 +units=m +no_defs'
 );
@@ -81,17 +86,24 @@ export function getLayerMatrix(extent, { refLat, addZ }: LayerMatrixOptions) {
   return modelMatrix;
 }
 
-export function projectCoordinate(x, y, fromProj = 'EPSG:3008') {
-  return proj4(fromProj, 'EPSG:3857', [x, y]);
+export function projectCoordinate(
+  x,
+  y,
+  fromProj = 'EPSG:3008',
+  toProj = 'EPSG:3857'
+) {
+  return proj4(fromProj, toProj, [x, y]);
 }
 
-export function projectVertices(vertices, fromProj) {
+export function projectVertices(vertices, fromProj, toProj) {
+  console.log('from', fromProj);
   const projectedVertices = [];
   for (const vertex of vertices) {
     const projectedCoordinate = projectCoordinate(
       vertex[0],
       vertex[1],
-      fromProj
+      fromProj,
+      toProj
     );
     projectedVertices.push([
       projectedCoordinate[0],
