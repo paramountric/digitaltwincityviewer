@@ -23,7 +23,8 @@ export type CityGmlParserOptions = {
 function parseCityGml(
   xml: string,
   options: CityGmlParserOptions,
-  cb: (result) => void
+  cb: (result) => void,
+  swapPosHack?: boolean // because someone did a classic mistake to turn lon and lat the other way around
 ) {
   const parser = new SaxesParser({
     xmlns: true,
@@ -104,6 +105,27 @@ function parseCityGml(
 
   const parserConfig = {
     // * cityObjectMembers
+    'transportation:Railway': {
+      include: options.cityObjectMembers['transportation:Railway'],
+      opentag: node => {
+        const id = node.attributes['gml:id']?.value || createId();
+
+        const cityObject: CityObject = {
+          id,
+          namespace: 'transportation',
+          type: 'Railway',
+          geometry: [],
+        };
+
+        currentCityObject = cityObject;
+        currentCityObjectId = id;
+
+        result.CityObjects[id] = cityObject;
+      },
+      closetag: node => {
+        currentCityObject = null;
+      },
+    },
     'transportation:TrafficArea': {
       include: options.cityObjectMembers['transportation:TrafficArea'],
       opentag: node => {
@@ -156,6 +178,27 @@ function parseCityGml(
           id,
           namespace: 'transportation',
           type: 'TransportationComplex',
+          geometry: [],
+        };
+
+        currentCityObject = cityObject;
+        currentCityObjectId = id;
+
+        result.CityObjects[id] = cityObject;
+      },
+      closetag: node => {
+        currentCityObject = null;
+      },
+    },
+    'veg:PlantCover': {
+      include: options.cityObjectMembers['veg:PlantCover'],
+      opentag: node => {
+        const id = node.attributes['gml:id']?.value || createId();
+
+        const cityObject: CityObject = {
+          id,
+          namespace: 'vegetation',
+          type: 'PlantCover',
           geometry: [],
         };
 
@@ -671,7 +714,11 @@ function parseCityGml(
           if (z > geographicalExtent[5]) {
             geographicalExtent[5] = z;
           }
-          currentPosList.push([x, y, z]);
+          if (swapPosHack) {
+            currentPosList.push([y, x, z]);
+          } else {
+            currentPosList.push([x, y, z]);
+          }
         }
       },
       closetag: node => {
