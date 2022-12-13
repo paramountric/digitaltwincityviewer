@@ -3,16 +3,19 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "projects/*",
-    "website/"
+    "projects/*"
   ],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dtcv-next-template-dev": "turbo run dev --scope 'dtcv-next-template' --include-dependencies",
+    "dtcv-maplibre-example-dev": "turbo run dev --scope 'dtcv-maplibre-example' --include-dependencies",
     "dtcc-cfd-vertical-dev": "turbo run dev --filter dtcc-cfd-vertical...",
+    "dtcc-file-viewer-dev": "turbo run dev --filter dtcc-file-viewer...",
     "dte-digital-twin-energy-dev": "turbo run dev --filter dte-digital-twin-energy...",
     "trecim-citygml-viewer-dev": "turbo run dev --filter trecim-citygml-viewer...",
+    "trecim-citygml-viewer-dev-2": "turbo run dev --filter trecim-citygml-viewer-2...",
+    "trecim-dev": "turbo run dev --filter trecim...",
     "dtcv-website-dev": "turbo run dev --filter dtcv-website...",
     "publish-packages": "turbo run build && changeset version && changeset publish"
   },
