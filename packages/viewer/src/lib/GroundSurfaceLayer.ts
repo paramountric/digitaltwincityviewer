@@ -42,6 +42,7 @@ export default class GroundSurfaceLayer<
         mesh,
         modelMatrix,
         _instanced: false,
+        _useMeshColors: true,
         wireframe: false,
         // coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
         // coordinateOrigin,
