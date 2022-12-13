@@ -11,10 +11,10 @@ function getColor(surface) {
     GroundSurface: [0.5, 0.5, 0.5],
   };
   if (!surface) {
-    return [0, 0.5, 0];
+    return [1, 1, 1];
   }
 
-  return colors[surface.type] || [0, 0.5, 0];
+  return colors[surface.type] || [1, 1, 1];
 }
 
 // https://github.com/visgl/deck.gl/blob/8.7-release/modules/core/src/lib/layer.js
@@ -66,7 +66,8 @@ export function buildingsLayerSurfacesLod3Data(
     for (const geometry of geometries) {
       let boundaryIndex = 0;
       for (const boundary of geometry.boundaries) {
-        const color = getColor(geometry.semantics?.surfaces[boundaryIndex]);
+        const type = geometry.semantics?.surfaces[boundaryIndex];
+        const color = getColor(type);
         const semantics =
           geometry.semantics.surfaces[geometry.semantics.values[boundaryIndex]];
         if (!currentSurfaceType) {
