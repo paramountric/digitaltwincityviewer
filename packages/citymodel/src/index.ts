@@ -20,6 +20,7 @@ initPb();
 function parseGround(
   fileData,
   fromCrs: string,
+  toCrs: string,
   center: [number, number, number]
 ) {
   const groundSurface = fileData.GroundSurface || fileData.groundSurface;
@@ -40,6 +41,7 @@ function parseGround(
       x: x + origin.x,
       y: y + origin.y,
       fromCrs,
+      toCrs,
       center,
     });
     projected.push(z);
@@ -124,6 +126,7 @@ function getLayerPosition(extent) {
 function parseBuildings(
   fileData,
   fromCrs: string,
+  toCrs,
   center?: [number, number, number],
   setZToZero = false
 ) {
@@ -157,6 +160,7 @@ function parseBuildings(
         x: x + origin.x,
         y: y + origin.y,
         fromCrs,
+        toCrs,
         center,
       });
 
@@ -401,12 +405,18 @@ function parseCityModel(options: ParseOptions) {
   };
   const { data: fileData, type, fromCrs, toCrs, center, setZToZero } = options;
   if (type === 'CityModel') {
-    const buildings = parseBuildings(fileData, fromCrs, center, setZToZero);
+    const buildings = parseBuildings(
+      fileData,
+      fromCrs,
+      toCrs,
+      center,
+      setZToZero
+    );
     if (buildings) {
       result.buildings = buildings;
     }
   } else if (type === 'Surface3D') {
-    const ground = parseGround(fileData, fromCrs, center);
+    const ground = parseGround(fileData, fromCrs, toCrs, center);
     if (ground) {
       result.ground = ground;
     }
