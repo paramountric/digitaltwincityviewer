@@ -2,7 +2,7 @@
   "name": "@dtcv/convert",
   "version": "1.2.0",
   "type": "module",
-  "description": "City metadata and utility functions",
+  "description": "Convert coordinate to meter offset, including optional projection",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
