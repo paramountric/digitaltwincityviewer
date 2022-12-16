@@ -80,10 +80,10 @@ export type ConvertOptions = {
 
 // this function projects and converts the data to meter offsets from city center
 const convert = (options: ConvertOptions) => {
-  const { x, y, fromCrs, toCrs, center, out, setZToZero } = options;
+  const { x, y, z, fromCrs, toCrs, center, out, setZToZero } = options;
 
   // to be returned
-  const result = out || [x, y];
+  const result = out || [x, y, z || 0];
 
   // project
   if (fromCrs) {
@@ -94,7 +94,7 @@ const convert = (options: ConvertOptions) => {
         `The CRS ${fromCrs} is not supported. Add it to the source code of the convert package`
       );
     }
-    const projected = projectCoordinate(x, y, supportedCrs);
+    const projected = projectCoordinate(x, y, supportedCrs, toCrs);
     result[0] = projected[0];
     result[1] = projected[1];
   }
