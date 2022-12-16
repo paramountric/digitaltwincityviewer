@@ -61,7 +61,10 @@ export function getLayerMatrix(extent, { refLat, addZ }: LayerMatrixOptions) {
   return modelMatrix;
 }
 
-export function getLayerPosition(extent, options: LayerMatrixOptions) {
+export function getLayerPosition(
+  extent: [number, number, number, number, number, number],
+  options: LayerMatrixOptions
+) {
   const min = [extent[0], extent[1], extent[2]] as vec3;
   const max = [extent[3], extent[4], extent[5]] as vec3;
   const modelMatrix = getLayerMatrix(extent, options);
