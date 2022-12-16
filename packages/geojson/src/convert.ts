@@ -33,14 +33,21 @@ function forEachCoordinateInMultiPolygon(multiPolygon: Position[][][], fn) {
 
 const convert = (
   jsonData: FeatureCollection,
-  crs: string, // from crs -> to webmercator
-  cityXY?: number[],
+  fromCrs: string, // from crs -> to webmercator
+  center?: number[],
   setZToZero = false
 ) => {
   // curry it
   const convertWrapper = function (point: [number, number]) {
     const [x, y] = point;
-    return convertCoordinate(x, y, crs, cityXY, point, setZToZero);
+    return convertCoordinate({
+      x,
+      y,
+      fromCrs,
+      center: [center[0], center[1], center[2] || 0],
+      out: point,
+      setZToZero,
+    });
   };
   const { features } = jsonData;
   for (const feature of features) {
