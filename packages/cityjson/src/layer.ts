@@ -1,29 +1,4 @@
 import { vec3, mat4 } from 'gl-matrix';
-import proj4 from 'proj4';
-
-// TODO: this is duplicated, it's moved to convert package that should be used for converting and offsetting coordinates -> Refactor this!
-proj4.defs(
-  'EPSG:3008',
-  '+proj=tmerc +lat_0=0 +lon_0=13.5 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-);
-proj4.defs(
-  'EPSG:3006',
-  '+proj=utm +zone=33 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-);
-proj4.defs(
-  'EPSG:3007',
-  '+proj=tmerc +lat_0=0 +lon_0=12 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
-);
-
-proj4.defs(
-  'EPSG:3011',
-  '+proj=tmerc +lat_0=0 +lon_0=18 +k=1 +x_0=150000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs'
-);
-
-proj4.defs(
-  'EPSG:31256',
-  '+proj=tmerc +lat_0=0 +lon_0=16.33333333333333 +k=1 +x_0=0 +y_0=-5000000 +ellps=bessel +towgs84=577.326,90.129,463.919,5.137,1.474,5.297,2.4232 +units=m +no_defs'
-);
 
 // Not sure if this is supposed to be CityObject?
 // In some files a subdivision of CityObject is wanted in the viewer -> is this a badly designed CityGML file?
@@ -84,40 +59,6 @@ export function getLayerMatrix(extent, { refLat, addZ }: LayerMatrixOptions) {
   mat4.translate(modelMatrix, modelMatrix, translate);
 
   return modelMatrix;
-}
-
-export function projectCoordinate(
-  x,
-  y,
-  fromProj = 'EPSG:3008',
-  toProj = 'EPSG:3857'
-) {
-  return proj4(fromProj, toProj, [x, y]);
-}
-
-export function projectVertices(vertices, fromProj, toProj) {
-  console.log('from', fromProj);
-  const projectedVertices = [];
-  for (const vertex of vertices) {
-    const projectedCoordinate = projectCoordinate(
-      vertex[0],
-      vertex[1],
-      fromProj,
-      toProj
-    );
-    projectedVertices.push([
-      projectedCoordinate[0],
-      projectedCoordinate[1],
-      vertex[2],
-    ]);
-  }
-  return projectedVertices;
-}
-
-export function projectExtent(extent, fromProj?) {
-  const projectedExtentMin = projectCoordinate(extent[0], extent[1], fromProj);
-  const projectedExtentMax = projectCoordinate(extent[3], extent[4], fromProj);
-  return [...projectedExtentMin, extent[2], ...projectedExtentMax, extent[5]];
 }
 
 export function getLayerPosition(extent, options: LayerMatrixOptions) {
