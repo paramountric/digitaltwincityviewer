@@ -44,6 +44,8 @@ function parseCityGml(
       'xmlns:dem': 'http://www.opengis.net/citygml/relief/2.0',
       'xmlns:app': 'http://www.opengis.net/citygml/appearance/2.0',
       'xmlns:luse': 'http://www.opengis.net/citygml/landuse/2.0',
+      'xmlns:landuse': 'http://www.opengis.net/citygml/landuse/2.0',
+      'xmlns:waterbodies': 'http://www.opengis.net/citygml/water/2.0',
       'xmlns:bldg': 'http://www.opengis.net/citygml/building/2.0',
       'xmlns:smil20': 'http://www.w3.org/2001/SMIL20/',
       'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
@@ -293,6 +295,48 @@ function parseCityGml(
           id,
           namespace: 'luse',
           type: 'LandUse',
+          geometry: [],
+        };
+
+        currentCityObject = cityObject;
+        currentCityObjectId = id;
+
+        result.CityObjects[id] = cityObject;
+      },
+      closetag: node => {
+        currentCityObject = null;
+      },
+    },
+    'landuse:LandUse': {
+      include: options.cityObjectMembers['landuse:LandUse'],
+      opentag: node => {
+        const id = node.attributes['gml:id']?.value || createId();
+
+        const cityObject: CityObject = {
+          id,
+          namespace: 'landuse',
+          type: 'LandUse',
+          geometry: [],
+        };
+
+        currentCityObject = cityObject;
+        currentCityObjectId = id;
+
+        result.CityObjects[id] = cityObject;
+      },
+      closetag: node => {
+        currentCityObject = null;
+      },
+    },
+    'waterbodies:WaterBody': {
+      include: options.cityObjectMembers['waterbodies:WaterBody'],
+      opentag: node => {
+        const id = node.attributes['gml:id']?.value || createId();
+
+        const cityObject: CityObject = {
+          id,
+          namespace: 'waterbodies',
+          type: 'WaterBody',
           geometry: [],
         };
 
@@ -657,7 +701,11 @@ function parseCityGml(
           if (z > geographicalExtent[5]) {
             geographicalExtent[5] = z;
           }
-          currentPosList.push([x, y, z]);
+          if (swapPosHack) {
+            currentPosList.push([y, x, z]);
+          } else {
+            currentPosList.push([x, y, z]);
+          }
         }
       },
       closetag: node => {
@@ -791,6 +839,17 @@ function parseCityGml(
   });
   parser.on('end', () => {
     result.metadata.geographicalExtent = geographicalExtent;
+    if (swapPosHack) {
+      const tempMinX = result.metadata.geographicalExtent[0];
+      const tempMaxX = result.metadata.geographicalExtent[3];
+      result.metadata.geographicalExtent[0] =
+        result.metadata.geographicalExtent[1];
+      result.metadata.geographicalExtent[3] =
+        result.metadata.geographicalExtent[4];
+      result.metadata.geographicalExtent[1] = tempMinX;
+      result.metadata.geographicalExtent[4] = tempMaxX;
+    }
+
     //console.log(tags);
     cb(result);
   });
