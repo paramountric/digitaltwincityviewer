@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "module": "ES6",
+    "target": "es6",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
+    "downlevelIteration": true,
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": ["src/"],
+  "exclude": ["dist", "node_modules"]
+}
