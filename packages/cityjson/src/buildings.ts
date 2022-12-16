@@ -31,10 +31,12 @@ export function buildingsLayerSurfacesLod3Data(
 ) {
   let vertexCount = 0;
 
+  const [minX, minY, minZ, maxX, maxY, maxZ] =
+    cityJson.metadata.geographicalExtent;
   // find a way to reuse layer position between layer
   // yet there needs to a way to modify layer individually
   const { modelMatrix, center, min, max, width, height } = getLayerPosition(
-    cityJson.metadata.geographicalExtent,
+    [minX, minY, minZ, maxX, maxY, maxZ],
     options
   );
 
