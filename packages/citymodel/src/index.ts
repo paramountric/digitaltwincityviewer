@@ -17,7 +17,11 @@ async function initPb() {
 
 initPb();
 
-function parseGround(fileData, crs: string, cityXY: number[]) {
+function parseGround(
+  fileData,
+  fromCrs: string,
+  center: [number, number, number]
+) {
   const groundSurface = fileData.GroundSurface || fileData.groundSurface;
   const origin = fileData.Origin || fileData.origin || { x: 0, y: 0 };
   const vertices = groundSurface ? groundSurface.vertices : fileData.vertices;
@@ -32,7 +36,12 @@ function parseGround(fileData, crs: string, cityXY: number[]) {
   const projectedVertices = [];
   for (let i = 0; i < vertices.length; i++) {
     const { x = 0, y = 0, z = 0 } = vertices[i];
-    const projected = convert(x + origin.x, y + origin.y, crs, cityXY);
+    const projected = convert({
+      x: x + origin.x,
+      y: y + origin.y,
+      fromCrs,
+      center,
+    });
     projected.push(z);
     if (projected[0] < minX) {
       minX = projected[0];
@@ -52,58 +61,26 @@ function parseGround(fileData, crs: string, cityXY: number[]) {
 
   const bounds = [minX, minY, 0, maxX, maxY, 0];
 
-  const { modelMatrix, center, min, max, width, height } =
-    getLayerPosition(bounds);
+  const layerPosition = getLayerPosition(bounds);
 
   const flatIndices = indices.reduce((acc, i) => {
     if (typeof i === 'number') {
       acc.push(i);
     }
     const { v0 = 0, v1 = 0, v2 = 0 } = i;
-    // if (i.v0) {
-    //   acc.push(i.v0);
-    // } else if (i.v1) {
-    //   acc.push(0);
-    // }
-    // if (i.v1) {
-    //   acc.push(i.v1);
-    // }
-    // if (i.v2) {
-    //   acc.push(i.v2);
-    // }
     acc.push(v0, v1, v2);
     return acc;
   }, []);
   return {
+    ...layerPosition,
     origin,
     bounds,
-    modelMatrix,
-    center,
-    min,
-    max,
-    width,
-    height,
     data: {
       indices: flatIndices,
       vertices: projectedVertices,
     },
   };
 }
-
-// function transformCoordinate(x, y, transform) {
-//   if (!transform) {
-//     return [x, y];
-//   }
-//   const s = transform.scale || [1, 1, 1];
-//   const t = transform.translate || [0, 0, 0];
-//   return [x * s[0] + t[0], y * s[1] + t[1]];
-// }
-
-// function projectExtent(extent, fromProj?) {
-//   const projectedExtentMin = projectCoordinate(extent[0], extent[1], fromProj);
-//   const projectedExtentMax = projectCoordinate(extent[3], extent[4], fromProj);
-//   return [...projectedExtentMin, extent[2], ...projectedExtentMax, extent[5]];
-// }
 
 function getModelMatrix(bounds) {
   const min = bounds[0];
@@ -146,9 +123,9 @@ function getLayerPosition(extent) {
 // Only for lod 1 so far
 function parseBuildings(
   fileData,
-  crs: string,
-  cityXY?: number[],
-  setZCoordinateToZero = false
+  fromCrs: string,
+  center?: [number, number, number],
+  setZToZero = false
 ) {
   const buildings = fileData.Buildings || fileData.buildings;
   // todo: the crs is discussed to be added to CityModel files, so add that when it comes in new examples
@@ -176,7 +153,12 @@ function parseBuildings(
       : footprint;
     for (let j = 0; j < polygon.length; j++) {
       const { x, y } = polygon[j];
-      const projected = convert(x + origin.x, y + origin.y, crs, cityXY);
+      const projected = convert({
+        x: x + origin.x,
+        y: y + origin.y,
+        fromCrs,
+        center,
+      });
 
       if (projected[0] < minX) {
         minX = projected[0];
@@ -193,9 +175,7 @@ function parseBuildings(
       coordinates.push([
         projected[0],
         projected[1],
-        setZCoordinateToZero
-          ? 0
-          : building.GroundHeight || building.groundHeight,
+        setZToZero ? 0 : building.GroundHeight || building.groundHeight,
       ]);
     }
     if (coordinates[0]) {
@@ -227,18 +207,13 @@ function parseBuildings(
   }
   const bounds = [minX, minY, 0, maxX, maxY, 0];
 
-  const { modelMatrix, center, min, max, width, height } =
-    getLayerPosition(bounds);
+  const layerPosition = getLayerPosition(bounds);
 
   return {
+    ...layerPosition,
     data: features,
-    modelMatrix,
     origin,
     center,
-    min,
-    max,
-    width,
-    height,
   };
 }
 
@@ -372,8 +347,7 @@ function getPointCloudColor(classification: number) {
   return colors[classification] || [63, 191, 63];
 }
 
-function parsePointCloud(fileData, crs: string) {
-  console.log(fileData);
+function parsePointCloud(fileData, fromCrs: string) {
   const points: any = [];
   const origin = fileData.Origin || fileData.origin || { x: 0, y: 0 };
   console.log(origin);
@@ -387,7 +361,11 @@ function parsePointCloud(fileData, crs: string) {
     if (!p.x || !p.y) {
       continue;
     }
-    const projected = convert(p.x + origin.x, p.y + origin.y, crs);
+    const projected = convert({
+      x: p.x + origin.x,
+      y: p.y + origin.y,
+      fromCrs,
+    });
     points.push({
       position: [projected[0], projected[1], p.z],
       color: getPointCloudColor(classification),
@@ -400,25 +378,17 @@ function parsePointCloud(fileData, crs: string) {
   };
 }
 
-// function fixLegacyUpperCase(fileData, fixKeys) {
-//   for (const key of fixKeys) {
-//     if (!fileData[key]) {
-//       continue;
-//     }
-//     const val = fileData[key];
-//     const lowerCase = key.charAt(0).toLowerCase() + key.slice(1);
-//     fileData[lowerCase] = val;
-//     delete fileData[key];
-//   }
-// }
+type ParseOptions = {
+  data: any; // json data from protobuf,
+  type: string; // what to include from data
+  fromCrs: string;
+  toCrs: string;
+  center?: [number, number, number];
+  setZToZero?: boolean;
+};
 
-function parseCityModel(
-  fileData,
-  crs: string,
-  type?: string | null | undefined, // protobuf connected, but not used in legacy -> when sending in json citymodel
-  cityXY?: number[],
-  setZCoordinateToZero = false
-) {
+// old name, should be DTCC model? Since CityModel is just one part of DTCC model
+function parseCityModel(options: ParseOptions) {
   const result: {
     buildings?: any;
     ground?: any;
@@ -429,18 +399,14 @@ function parseCityModel(
     // this can be overriden if necessary from the parsers
     modelMatrix: mat4.create(),
   };
+  const { data: fileData, type, fromCrs, toCrs, center, setZToZero } = options;
   if (type === 'CityModel') {
-    const buildings = parseBuildings(
-      fileData,
-      crs,
-      cityXY,
-      setZCoordinateToZero
-    );
+    const buildings = parseBuildings(fileData, fromCrs, center, setZToZero);
     if (buildings) {
       result.buildings = buildings;
     }
   } else if (type === 'Surface3D') {
-    const ground = parseGround(fileData, crs, cityXY);
+    const ground = parseGround(fileData, fromCrs, center);
     if (ground) {
       result.ground = ground;
     }
@@ -450,25 +416,10 @@ function parseCityModel(
       result.surfaceField = surfaceField;
     }
   } else if (type === 'PointCloud') {
-    const pointCloud = parsePointCloud(fileData, crs);
+    const pointCloud = parsePointCloud(fileData, fromCrs);
     if (pointCloud) {
       result.pointCloud = pointCloud;
     }
-  } else {
-    // legacy (update: disabled and should be removed)
-    // const buildings = parseBuildings(
-    //   fileData,
-    //   crs,
-    //   cityXY,
-    //   setZCoordinateToZero
-    // );
-    // if (buildings) {
-    //   result.buildings = buildings;
-    // }
-    // const ground = parseGround(fileData);
-    // if (ground) {
-    //   result.ground = ground;
-    // }
   }
 
   return result;
