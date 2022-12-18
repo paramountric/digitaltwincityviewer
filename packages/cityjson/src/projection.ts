@@ -10,8 +10,8 @@ type ProjectOptions = {
 export function projectVertices({
   vertices,
   fromCrs,
-  toCrs = 'EPSG:3857',
-  center = [0, 0, 0], // this will be subtracted from each x, y, z
+  toCrs,
+  center, // this will be subtracted from each x, y, z after projection to toCrs
 }: ProjectOptions) {
   const projectedVertices = [];
   for (const vertex of vertices) {
