@@ -1,45 +1,93 @@
 import {parseProtobuf, parseCityModel} from '@dtcv/citymodel';
 import {cities} from '@dtcv/cities';
-import {convert, getLayerPosition, forEachCoordinate} from '@dtcv/geojson';
+import {CityGmlParserOptions} from '@dtcv/citygml';
+import {forEachCoordinate} from '@dtcv/geojson';
 import {parser} from './parser';
 
 const isProd = process.env.NODE_ENV === 'production';
 
-// for now a hard coded list of city data, because auth needs to be solved as well as how the data will be distributed
-// here the data is just loaded to an AWS bucket
+// const malmo = cities.find(c => c.id === 'malmo');
+// const sthlm = cities.find(c => c.id === 'stockholm');
+// const gothenburg = cities.find(c => c.id === 'gothenburg');
 
-const helsingborg = cities.find(c => c.id === 'helsingborg');
-const malmo = cities.find(c => c.id === 'malmo');
-const sthlm = cities.find(c => c.id === 'stockholm');
-const gothenburg = cities.find(c => c.id === 'gothenburg');
+export type DataSet = {
+  id: string;
+  cityId: string;
+  url: string;
+  fileType: string;
+  pbType: string | null;
+  layerType: string;
+  layerElevation?: number;
+  text: string;
+  crs: string;
+  parserOptions: CityGmlParserOptions;
+};
 
-console.log(sthlm);
+type DataSets =
+  | {
+      [key: string]: {
+        label: string;
+        files: DataSet[];
+      };
+    }
+  | any;
 
-export const cityDatasets = {
+export const cityDatasets: DataSets = {
   malmo: {
-    cityLabel: 'Malmö 3CIM',
+    label: 'Malmö',
     files: [
       {
-        ...malmo,
         id: 'malmo-building-surfaces',
         cityId: 'malmo',
         url: 'http://localhost:9000/files/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
-        text: 'Malmö',
-        origin: {x: 0, y: 0},
-        lat: malmo.lat - 0.01,
-        lng: malmo.lng - 0.04,
+        text: 'Malmö byggnader',
         crs: 'EPSG:3008',
+        parserOptions: {
+          cityObjectMembers: {
+            'bldg:Building': true,
+          },
+        },
+      },
+      {
+        id: 'malmo-traffic-area-surfaces',
+        cityId: 'malmo',
+        url: 'http://localhost:9000/files/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
+        fileType: 'citygml',
+        pbType: null,
+        layerType: 'GroundSurfaceLayer',
+        text: 'Malmö transport',
+        crs: 'EPSG:3008',
+        parserOptions: {
+          cityObjectMembers: {
+            'transportation:TrafficArea': true,
+            'transportation:AuxiliaryTrafficArea': true,
+          },
+        },
+      },
+      {
+        id: 'malmo-vegetation',
+        cityId: 'malmo',
+        url: 'http://localhost:9000/files/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
+        fileType: 'citygml',
+        pbType: null,
+        layerType: 'GroundSurfaceLayer',
+        text: 'Malmö vegetation',
+        crs: 'EPSG:3008',
+        parserOptions: {
+          cityObjectMembers: {
+            'veg:PlantCover': true,
+          },
+        },
       },
     ],
   },
   stockholm: {
-    cityLabel: 'Stockholm 3CIM',
+    label: 'Stockholm',
     files: [
       {
-        ...sthlm,
         id: 'sthlm-building-surfaces',
         cityId: 'stockholm',
         url: 'http://localhost:9000/files/trecim/Sthlm/Byggnad_3CIM_ver1.gml',
@@ -47,13 +95,14 @@ export const cityDatasets = {
         pbType: null,
         layerType: 'GroundSurfaceLayer',
         text: 'Stockholm byggnader',
-        origin: {x: 0, y: 0},
-        lat: sthlm.lat + 0.01,
-        lng: sthlm.lng,
         crs: 'EPSG:3011',
+        parserOptions: {
+          cityObjectMembers: {
+            'bldg:Building': true,
+          },
+        },
       },
       {
-        ...sthlm,
         id: 'sthlm-vegetation-surfaces',
         cityId: 'stockholm',
         url: 'http://localhost:9000/files/trecim/Sthlm/3CIM_ver2_vegetation.gml',
@@ -61,13 +110,24 @@ export const cityDatasets = {
         pbType: null,
         layerType: 'GroundSurfaceLayer',
         text: 'Stockholm vegetation',
-        origin: {x: 0, y: 0},
-        lat: sthlm.lat + 0.01,
-        lng: sthlm.lng,
         crs: 'EPSG:3011',
+        layerElevation: 25,
+        parserOptions: {
+          cityObjectMembers: {
+            'bldg:Building': true,
+            'transportation:TrafficArea': true,
+            'transportation:AuxiliaryTrafficArea': true,
+            // 'transportation:TransportationComplex': false, // how to do with this?
+            'luse:LandUse': true,
+            'landuse:LandUse': true,
+            'waterbodies:WaterBody': true,
+            // 'frn:CityFurniture': true,
+            // 'trecim:Facility': true,
+            'veg:PlantCover': true,
+          },
+        },
       },
       {
-        ...sthlm,
         id: 'sthlm-transportation-surfaces',
         cityId: 'stockholm',
         url: 'http://localhost:9000/files/trecim/Sthlm/3CIM_ver2_transport.gml',
@@ -75,32 +135,52 @@ export const cityDatasets = {
         pbType: null,
         layerType: 'GroundSurfaceLayer',
         text: 'Stockholm transportation',
-        origin: {x: 0, y: 0},
-        lat: sthlm.lat + 0.01,
-        lng: sthlm.lng,
         crs: 'EPSG:3011',
+        parserOptions: {
+          cityObjectMembers: {
+            'bldg:Building': true,
+            'transportation:TrafficArea': true,
+            'transportation:AuxiliaryTrafficArea': true,
+            // 'transportation:TransportationComplex': false, // how to do with this?
+            'luse:LandUse': true,
+            'landuse:LandUse': true,
+            'waterbodies:WaterBody': true,
+            // 'frn:CityFurniture': true,
+            // 'trecim:Facility': true,
+            'veg:PlantCover': true,
+          },
+        },
       },
     ],
   },
   gothenburg: {
-    cityLabel: 'Gothenburg 3CIM',
+    label: 'Göteborg',
     files: [
       {
-        ...gothenburg,
         id: 'gothenburg-building-surfaces',
         cityId: 'gothenburg',
-        url: 'http://localhost:9000/files/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_byggnad.gml',
+        url: 'http://localhost:9000/files/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Byggnad.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
         text: 'Göteborg byggnader',
-        origin: {x: 0, y: 0},
-        lat: gothenburg.lat + 0.01,
-        lng: gothenburg.lng,
         crs: 'EPSG:3007',
+        parserOptions: {
+          cityObjectMembers: {
+            'bldg:Building': true,
+            'transportation:TrafficArea': true,
+            'transportation:AuxiliaryTrafficArea': true,
+            // 'transportation:TransportationComplex': false, // how to do with this?
+            'luse:LandUse': true,
+            'landuse:LandUse': true,
+            'waterbodies:WaterBody': true,
+            // 'frn:CityFurniture': true,
+            // 'trecim:Facility': true,
+            'veg:PlantCover': true,
+          },
+        },
       },
       {
-        ...gothenburg,
         id: 'gothenburg-vegetation-surfaces',
         cityId: 'gothenburg',
         url: 'http://localhost:9000/files/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Marktäcke.gml',
@@ -108,166 +188,84 @@ export const cityDatasets = {
         pbType: null,
         layerType: 'GroundSurfaceLayer',
         text: 'Göteborg vegetation',
-        origin: {x: 0, y: 0},
-        lat: gothenburg.lat + 0.01,
-        lng: gothenburg.lng,
         crs: 'EPSG:3007',
+        layerElevation: 0,
+        parserOptions: {
+          cityObjectMembers: {
+            'bldg:Building': true,
+            'transportation:TrafficArea': true,
+            'transportation:AuxiliaryTrafficArea': true,
+            // 'transportation:TransportationComplex': false, // how to do with this?
+            'luse:LandUse': true,
+            'landuse:LandUse': true,
+            'waterbodies:WaterBody': true,
+            // 'frn:CityFurniture': true,
+            // 'trecim:Facility': true,
+            'veg:PlantCover': true,
+          },
+        },
       },
       {
-        ...gothenburg,
         id: 'gothenburg-transportation-surfaces',
         cityId: 'gothenburg',
         url: 'http://localhost:9000/files/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Transportation.gml',
         fileType: 'citygml',
         pbType: null,
+        layerElevation: 0.3,
         layerType: 'GroundSurfaceLayer',
         text: 'Göteborg transportation',
-        origin: {x: 0, y: 0},
-        lat: gothenburg.lat + 0.01,
-        lng: gothenburg.lng,
         crs: 'EPSG:3007',
+        parserOptions: {
+          cityObjectMembers: {
+            'bldg:Building': true,
+            'transportation:TrafficArea': true,
+            'transportation:AuxiliaryTrafficArea': true,
+            // 'transportation:TransportationComplex': false, // how to do with this?
+            'luse:LandUse': true,
+            'landuse:LandUse': true,
+            'waterbodies:WaterBody': true,
+            // 'frn:CityFurniture': true,
+            // 'trecim:Facility': true,
+            'veg:PlantCover': true,
+          },
+        },
+      },
+      {
+        id: 'gothenburg-waterbody-surfaces',
+        cityId: 'gothenburg',
+        url: 'http://localhost:9000/files/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Vatten.gml',
+        fileType: 'citygml',
+        pbType: null,
+        layerType: 'GroundSurfaceLayer',
+        layerElevation: 0.3,
+        text: 'Göteborg vatten',
+        crs: 'EPSG:3007',
+        parserOptions: {
+          cityObjectMembers: {
+            'bldg:Building': true,
+            'transportation:TrafficArea': true,
+            'transportation:AuxiliaryTrafficArea': true,
+            // 'transportation:TransportationComplex': false, // how to do with this?
+            'luse:LandUse': true,
+            'landuse:LandUse': true,
+            'waterbodies:WaterBody': true,
+            // 'frn:CityFurniture': true,
+            // 'trecim:Facility': true,
+            'veg:PlantCover': true,
+          },
+        },
       },
     ],
   },
-  // Previous examples from the DTCC file viewer app
-  // helsingborgResidential: {
-  //   cityLabel: 'Helsingborg residential',
-  //   files: [
-  //     {
-  //       ...helsingborg,
-  //       id: 'helsingborg-citymodel',
-  //       cityId: 'helsingborg',
-  //       url: '/helsingborg-citymodel-nov-2022.pb',
-  //       fileType: 'protobuf',
-  //       pbType: 'CityModel',
-  //       layerType: 'CityModelLayer',
-  //       text: 'Helsingborg Residential buildings',
-  //       origin: {x: 102000, y: 6213004.15744457},
-  //       lat: 56.0430155,
-  //       lng: 12.7401827,
-  //       crs: 'EPSG:3008',
-  //     },
-  //     {
-  //       ...helsingborg,
-  //       id: 'helsingborg-groundsurface',
-  //       cityId: 'helsingborg',
-  //       url: '/helsingborg-groundsurface-nov-2022.pb',
-  //       fileType: 'protobuf',
-  //       pbType: 'Surface3D',
-  //       layerType: 'GroundSurfaceLayer',
-  //       text: 'Helsingborg Residential ground surface',
-  //       origin: {x: 102000, y: 6213004.15744457},
-  //       lat: 56.0430155,
-  //       lng: 12.7401827,
-  //       crs: 'EPSG:3008',
-  //     },
-  //     {
-  //       ...helsingborg,
-  //       id: 'helsingborg-citysurface',
-  //       cityId: 'helsingborg',
-  //       url: '/helsingborg-citysurface-nov-2022.pb',
-  //       fileType: 'protobuf',
-  //       pbType: 'Surface3D',
-  //       layerType: 'GroundSurfaceLayer',
-  //       text: 'Helsingborg Residential city surface',
-  //       origin: {x: 102000, y: 6213004.15744457},
-  //       lat: 56.0430155,
-  //       lng: 12.7401827,
-  //       crs: 'EPSG:3008',
-  //     },
-  //     // {
-  //     //   ...helsingborg,
-  //     //   id: 'helsingborg-pointcloud',
-  //     //   cityId: 'helsingborg',
-  //     //   url: '/helsingborg-pointcloud-nov-2022.pb',
-  //     //   fileType: 'protobuf',
-  //     //   pbType: 'PointCloud',
-  //     //   layerType: 'PointCloudLayer',
-  //     //   text: 'Helsingborg Residential point cloud',
-  //     //   origin: {x: 102000, y: 6213004.15744457},
-  //     //   crs: 'EPSG:3008',
-  //     // },
-  //     {
-  //       ...helsingborg,
-  //       id: 'helsingborg-osm',
-  //       cityId: 'helsingborg',
-  //       url: '/helsingborg-osm-nov-2022.geojson',
-  //       fileType: 'geojson',
-  //       pbType: null,
-  //       layerType: 'GeoJsonLayer',
-  //       text: 'Helsingborg Residential OSM',
-  //       origin: {x: 0, y: 0},
-  //       lat: 56.0430155,
-  //       lng: 12.7401827,
-  //       crs: 'EPSG:4326',
-  //     },
-  //   ],
-  // },
-  // helsingborgHarbour: {
-  //   cityLabel: 'Helsingborg residential',
-  //   files: [
-  //     {
-  //       ...helsingborg,
-  //       id: 'helsingborg-harbour-citymodel',
-  //       cityId: 'helsingborg',
-  //       url: '/helsingborg-harbour-citymodel-nov-2022.pb',
-  //       fileType: 'protobuf',
-  //       pbType: 'CityModel',
-  //       layerType: 'CityModelLayer',
-  //       text: 'Helsingborg Harbour buildings',
-  //       origin: {x: 99127.32489934558, y: 6212834.209326515},
-  //       lat: 56.0441543,
-  //       lng: 12.6967404,
-  //       crs: 'EPSG:3008',
-  //     },
-  //     {
-  //       ...helsingborg,
-  //       id: 'helsingborg-harbour-groundsurface',
-  //       cityId: 'helsingborg',
-  //       url: '/helsingborg-harbour-groundsurface-nov-2022.pb',
-  //       fileType: 'protobuf',
-  //       pbType: 'Surface3D',
-  //       layerType: 'GroundSurfaceLayer',
-  //       text: 'Helsingborg Harbour ground surface',
-  //       origin: {x: 99127.32489934558, y: 6212834.209326515},
-  //       lat: 56.0441543,
-  //       lng: 12.6967404,
-  //       crs: 'EPSG:3008',
-  //     },
-  //     {
-  //       ...helsingborg,
-  //       id: 'helsingborg-harbour-osm',
-  //       cityId: 'helsingborg',
-  //       url: '/helsingborg-harbour-osm-nov-2022.geojson',
-  //       fileType: 'geojson',
-  //       pbType: null,
-  //       layerType: 'GeoJsonLayer',
-  //       text: 'Helsingborg Harbour OSM',
-  //       origin: {x: 0, y: 0},
-  //       lat: 56.0441543,
-  //       lng: 12.6967404,
-  //       crs: 'EPSG:4326',
-  //     },
-  //   ],
-  // },
 };
 
 // the fileSetting is the object in files array above
-export async function loadExampleData(fileSetting, onLoadData?: any) {
-  const {
-    id,
-    text,
-    url,
-    fileType,
-    pbType,
-    crs,
-    x,
-    y,
-    lng,
-    lat,
-    origin,
-    extraOrigin,
-  } = fileSetting;
+export async function loadExampleData(
+  fileSetting,
+  onLoadData?: any,
+  previousLngLatAlt?: [number, number, number]
+) {
+  const {id, text, url, fileType} = fileSetting;
   const response = await fetch(url);
   const result: any = {
     id,
@@ -275,53 +273,6 @@ export async function loadExampleData(fileSetting, onLoadData?: any) {
   };
   // now add data depending on type of file
   switch (fileType) {
-    case 'protobuf':
-      const pbData = new Uint8Array(await response.arrayBuffer());
-      const pbJson = parseProtobuf(pbData, pbType);
-      pbJson.origin = origin;
-      if (extraOrigin) {
-        pbJson.origin.x += extraOrigin.x;
-        pbJson.origin.y += extraOrigin.y;
-      }
-      //console.log('protobuf', pbJson);
-      const layerData = parseCityModel(pbJson, crs, pbType);
-      // , [
-      //   fileSetting.x,
-      //   fileSetting.y,
-      // ]);
-
-      switch (pbType) {
-        case 'CityModel':
-          result.data = layerData.buildings.data;
-          //result.coordinateOrigin = [lng, lat];
-          // this makes it works perfectly, but how should other layers realate?
-          result.modelMatrix = Array.from(layerData.modelMatrix);
-          result.pickable = true;
-          result.autoHighlight = true;
-          break;
-        case 'Surface3D':
-          result.data = layerData.ground.data;
-          console.log(result);
-          //result.coordinateOrigin = [lng, lat];
-          //result.modelMatrix = layerData.ground.modelMatrix;
-          break;
-        case 'PointCloud':
-          result.data = layerData.pointCloud.data;
-          result.opacity = 1;
-          result.getPosition = '@@=position';
-          result.getColor = '@@=color';
-          result.getNormal = '@@=normal';
-          result.pointSize = 1;
-          result.material = {
-            ambient: 1.0,
-          };
-          //result.coordinateOrigin = [lng, lat];
-          //result.modelMatrix = layerData.ground.modelMatrix;
-          break;
-        default:
-          result.data = [];
-      }
-      break;
     case 'geojson':
       const json = await response.json();
       //const processed = convert(json, crs, [x, y]);
@@ -409,9 +360,14 @@ export async function loadExampleData(fileSetting, onLoadData?: any) {
       result.getLineColor = [150, 150, 150];
       break;
     case 'citygml':
-      await parser(response, fileSetting, layerData => {
-        onLoadData(layerData);
-      });
+      await parser(
+        response,
+        fileSetting,
+        (layerData, lngLatAlt) => {
+          onLoadData(layerData, lngLatAlt);
+        },
+        previousLngLatAlt
+      );
       break;
     default:
       console.warn('example files should be explicit');

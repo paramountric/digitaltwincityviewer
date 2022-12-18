@@ -19,7 +19,14 @@ export default function LeftPanel() {
     actions: {getCity},
   } = useViewer();
   const {
-    actions: {addLayer, setLayerVisibility, getLayerState, setLayerElevation},
+    actions: {
+      addLayer,
+      addLayers,
+      setLayerVisibility,
+      getLayerVisibility,
+      getLayerState,
+      setLayerElevation,
+    },
   } = useLayers();
   const {
     state,
@@ -38,7 +45,7 @@ export default function LeftPanel() {
   const cityDataset = cityDatasets[viewerState.activeDataSetId] || {};
   const cityFiles = cityDataset.files || [];
 
-  const layerState = getLayerState();
+  //const layerState = getLayerState();
 
   const menuItems = [
     {
@@ -46,49 +53,56 @@ export default function LeftPanel() {
       icon: LayerIcon,
       current: false,
       children: cityFiles.map(fileSetting => {
-        const ls = layerState.find(l => l.id === fileSetting.id) || {};
-        return {...fileSetting, ...ls, icon: ShowOneLayer};
+        // get any existing layer state from the hook
+        // if several sublayers are used, use the first since all sublayers will have the same visibility and elevation
+
+        const visible = getLayerVisibility(fileSetting.id);
+
+        console.log('visible', fileSetting.id, visible);
+
+        return {...fileSetting, visible, icon: ShowOneLayer};
       }),
     },
   ];
 
-  const visibleLayers = layerState.filter(l => l.visible);
+  // used for the currently disabled elevation control
+  // const visibleLayers = layerState.filter(l => l.visible);
 
   const handleClickLoadFile = async fileSetting => {
-    const {id, layerType, fileType, visible} = fileSetting;
+    setIsLoading(true);
+
+    const {id, layerElevation, layerType, fileType} = fileSetting;
+    const visible = getLayerVisibility(fileSetting.id);
 
     // if already loaded, toggle visibility
     if (visible) {
-      setLayerVisibility(id, false);
+      setLayerVisibility(fileSetting.id, false);
+      setIsLoading(false);
       return;
     } else if (visible === false) {
-      setLayerVisibility(id, true);
+      setLayerVisibility(fileSetting.id, true);
+      setIsLoading(false);
       return;
     }
 
     // not loaded, -> load layer data
-    setIsLoading(true);
-    // ! note that the loading is done in left menu as well
+    // ! note that the loading is done in dialog as well
     if (fileType === 'citygml') {
       // todo: refactor the callbacks to promises, this is due to the xml parser lib
-      await loadExampleData(fileSetting, layerDataArray => {
-        // since a citygml file could contain many layers
-        for (const layerData of layerDataArray) {
-          addLayer({
-            ...layerData,
-            id,
-            '@@type': layerType,
-          });
-        }
-
-        setIsLoading(false);
-        setShowLoadCityDialog(false);
-      });
+      await loadExampleData(
+        fileSetting,
+        layerDataArray => {
+          addLayers(layerDataArray);
+          setLayerElevation(id, layerElevation);
+          setIsLoading(false);
+          setShowLoadCityDialog(false);
+        },
+        viewerState.offsetCenter
+      );
     } else {
       const result = await loadExampleData(fileSetting, layerData => {
         addLayer({
           ...layerData,
-          id,
           '@@type': layerType,
         });
 
@@ -97,7 +111,6 @@ export default function LeftPanel() {
       });
       addLayer({
         ...result,
-        id,
         '@@type': layerType,
       });
 
@@ -144,7 +157,12 @@ export default function LeftPanel() {
                   </a>
                 </div>
               ) : (
-                <Disclosure as="div" key={item.name} className="space-y-1">
+                <Disclosure
+                  defaultOpen
+                  as="div"
+                  key={item.name}
+                  className="space-y-1"
+                >
                   {({open}) => (
                     <>
                       <Disclosure.Button
@@ -179,7 +197,7 @@ export default function LeftPanel() {
                             key={subItem.id}
                             as="a"
                             onClick={() => handleClickLoadFile(subItem)}
-                            className="group flex w-full items-center justify-between rounded-md py-2 pl-4 pr-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                            className="group flex w-full items-center justify-between rounded-md py-2 pl-4 pr-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:cursor-pointer"
                           >
                             {subItem.text}
                             {/* <div onClick={() => handleClickShowOnlyLayer(subItem)} className="ml-1">
@@ -209,7 +227,7 @@ export default function LeftPanel() {
                 </Disclosure>
               )
             )}
-            <Disclosure as="div" key="layers-z" className="space-y-1">
+            {/* <Disclosure as="div" key="layers-z" className="space-y-1">
               {({open}) => (
                 <>
                   <Disclosure.Button className="bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 group w-full flex items-center pl-2 pr-1 py-2 text-left text-sm font-medium rounded-md focus:outline-none">
@@ -256,7 +274,7 @@ export default function LeftPanel() {
                   </Disclosure.Panel>
                 </>
               )}
-            </Disclosure>
+            </Disclosure> */}
           </div>
         </div>
       </div>

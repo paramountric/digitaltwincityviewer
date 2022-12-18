@@ -5,6 +5,7 @@ import {Viewer} from '@dtcv/viewer';
 export type ViewerStore = {
   viewer: Viewer | null;
   cityId: string | null;
+  offsetCenter: [number, number, number] | null; // lng lat for the loaded dataset (reuse for next layer of the same dataset)
   activeDataSetId: string | null;
   selectedObject: any | null;
 };
@@ -14,6 +15,7 @@ const viewerStore = new Observable<ViewerStore>({
   cityId: null,
   activeDataSetId: null,
   selectedObject: null,
+  offsetCenter: null,
 });
 
 export const useViewer = () => {
@@ -58,9 +60,14 @@ export const useViewer = () => {
       getCity: () => {
         return viewerState.viewer.getCity();
       },
-      setCenter: (lng, lat) => {
+      setMapCenter: (lng, lat) => {
         const state = viewerStore.get();
         state.viewer.setCenter([lng, lat], true);
+      },
+      // this is reused for next loaded layer, otherwise the layers do not align
+      setOffsetCenter: (center?: [number, number, number] | null) => {
+        const state = viewerStore.get();
+        viewerStore.set({...state, offsetCenter: center});
       },
       setSelectedObject: (selectedObject: string) => {
         const state = viewerStore.get();

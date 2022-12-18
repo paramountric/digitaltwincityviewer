@@ -27,85 +27,6 @@ export default function UploadFileDialog() {
 
   const [errorMsg, setErrorMsg] = useState<string>('');
 
-  const supportedPbTypes = ['CityModel', 'Surface3D'];
-  const layerMapping = ['CityModelLayer', 'GroundSurfaceLayer'];
-
-  // This functin needs to figure out content and metadata of the pbData
-  const findPbJson = pbData => {
-    let pbJson;
-    let idx = 0;
-    let pbType;
-    let layerType;
-    while (!pbJson && idx < supportedPbTypes.length) {
-      try {
-        pbType = supportedPbTypes[idx];
-        layerType = layerMapping[idx];
-        pbJson = parseProtobuf(pbData, pbType);
-        if (!pbJson) {
-          throw new Error('Parsing error');
-        }
-        // These should come from the file!!
-        pbJson.crs = 'EPSG:3008';
-        pbJson.origin = {x: 102000, y: 6213004.15744457};
-
-        console.log('pbjson', pbJson);
-      } catch (e) {
-        //
-      }
-      idx++;
-    }
-    return {pbJson, pbType, layerType};
-  };
-
-  const findCityFromPb = pbJson => {
-    // todo: take the first coordinate, add origin, convert to lnglat, call the findCity function
-    // const isLngLat = true;
-    // const city = findCity(lng, lat, isLngLat);
-    // return city.id;
-    return 'helsingborg';
-  };
-
-  const addLayerFromPbData = pbData => {
-    const {pbJson, pbType, layerType} = findPbJson(pbData);
-    if (!pbJson) {
-      setErrorMsg(
-        'This type is not supported. Supported types: CityModel, Surface3D'
-      );
-      return;
-    }
-    const cityId = findCityFromPb(pbJson);
-    setCity(cityId);
-    const result: any = {};
-    if (!pbJson) {
-      console.log('handle this');
-    }
-    const layerData = parseCityModel(pbJson, pbJson.crs, pbType);
-
-    switch (pbType) {
-      case 'CityModel':
-        result.data = layerData.buildings.data;
-        //result.coordinateOrigin = [lng, lat];
-        // this makes it works perfectly, but how should other layers realate?
-        //result.modelMatrix = layerData.buildings.modelMatrix;
-        result.pickable = true;
-        result.autoHighlight = true;
-        break;
-      case 'Surface3D':
-        result.data = layerData.ground.data;
-        //result.coordinateOrigin = [lng, lat];
-        //result.modelMatrix = layerData.ground.modelMatrix;
-        break;
-      default:
-        result.data = [];
-    }
-    addLayer({
-      ...result,
-      id: `${layerType}${Date.now()}`,
-      '@@type': layerType,
-    });
-    setShowUploadFileDialog(false);
-  };
-
   const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e?.target?.files) {
       return;
@@ -119,14 +40,7 @@ export default function UploadFileDialog() {
     const splits = file.name.split('.');
     const fileExtension = splits[splits.length - 1];
     switch (fileExtension) {
-      case 'pb':
-        reader.onload = () => {
-          const result = reader.result as ArrayBuffer;
-          const pbData = new Uint8Array(result);
-          addLayerFromPbData(pbData);
-        };
-        reader.readAsArrayBuffer(file);
-        break;
+      // WIP, need to support CityGML / CityJSON
       case 'json':
         reader.onload = () => {
           const result = reader.result as string;

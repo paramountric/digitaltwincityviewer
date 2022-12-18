@@ -4,7 +4,7 @@ import {XMarkIcon} from '@heroicons/react/24/outline';
 import {useUi} from '../hooks/use-ui';
 import {useViewer} from '../hooks/use-viewer';
 import {useLayers} from '../hooks/use-layers';
-import {loadExampleData, cityDatasets} from '../lib/load-example';
+import {loadExampleData, cityDatasets, DataSet} from '../lib/load-example';
 
 export default function LoadCityDialog() {
   const {
@@ -13,32 +13,61 @@ export default function LoadCityDialog() {
   } = useUi();
   const {
     state: viewerState,
-    actions: {setCity, setCenter, setActiveDataSet},
+    actions: {setCity, setMapCenter, setOffsetCenter, setActiveDataSet},
   } = useViewer();
   const {
-    actions: {addLayer, addLayers, resetLayers},
+    actions: {addLayer, addLayers, resetLayers, setLayerElevation},
   } = useLayers();
 
-  const handleLoadExample = async (fileSetting, cityDatasetKey) => {
+  const handleLoadExample = async (fileSetting: DataSet, cityDatasetKey) => {
+    // this is because state is divided into layers and viewer, not sure if they should better go into same state
+    // the two states needs to communicate through the component to avoid dependencies between hooks
     if (cityDatasetKey !== viewerState.activeDataSetId) {
       resetLayers();
     }
-    const {id, cityId, url, fileType, pbType, layerType, lng, lat} =
-      fileSetting;
-    setCity(cityId);
-    setCenter(lng, lat);
-    setActiveDataSet(cityDatasetKey);
+    const {id, cityId, fileType, layerType, layerElevation} = fileSetting;
     setIsLoading(true);
     // ! note that the loading is done in left menu as well
     if (fileType === 'citygml') {
       // todo: refactor the callbacks to promises, this is due to the xml parser lib
-      await loadExampleData(fileSetting, layerDataArray => {
-        // since a citygml file could contain many layers
-        addLayers(layerDataArray);
+      await loadExampleData(
+        fileSetting,
+        (layerDataArray, lngLatAlt) => {
+          const [lng, lat] = lngLatAlt;
+          // the idea that the city could contain metadata from the cityId
+          setCity(cityId);
+          // the map moves to this position
+          setMapCenter(lng, lat);
+          // the next layer will use this x and y for the offsetting
+          setOffsetCenter(lngLatAlt);
+          // the dataset can be several in the same city, so a reload could be needed (this is managed by the list of datasets)
+          setActiveDataSet(cityDatasetKey);
+          // since a citygml file could contain many layers
+          addLayers(layerDataArray);
+          // hack to adjust the layer elevation since the z is messed up
+          setLayerElevation(id, layerElevation);
 
-        setIsLoading(false);
-        setShowLoadCityDialog(false);
-      });
+          // test layer
+          // addLayer({
+          //   '@@type': 'PoiLayer',
+          //   id: 'test',
+          //   coordinateOrigin: [lng, lat, 0],
+          //   coordinateSystem: 2,
+          //   data: [
+          //     {
+          //       name: 'Test point',
+          //       coordinates: [0, 0],
+          //     },
+          //   ],
+          // });
+
+          setIsLoading(false);
+          setShowLoadCityDialog(false);
+        },
+        cityDatasetKey === viewerState.activeDataSetId
+          ? viewerState.offsetCenter
+          : null
+      );
     } else {
       const result = await loadExampleData(fileSetting, layerData => {
         addLayer({
