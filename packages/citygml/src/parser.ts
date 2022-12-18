@@ -33,6 +33,7 @@ function parseCityGml(
       'xmlns:transportation':
         'http://www.opengis.net/citygml/transportation/2.0',
       'xmlns:frn': 'http://www.opengis.net/citygml/cityfurniture/2.0',
+      'xmlns:cityfurniture': 'http://www.opengis.net/citygml/cityfurniture/2.0',
       'xmlns:wtr': 'http://www.opengis.net/citygml/waterbody/2.0',
       'xmlns:sch': 'http://www.ascc.net/xml/schematron',
       'xmlns:veg': 'http://www.opengis.net/citygml/vegetation/2.0',
@@ -87,6 +88,7 @@ function parseCityGml(
     type: string;
     version?: string;
     function?: string;
+    status?: string;
     geometry: [];
   };
 
@@ -98,6 +100,7 @@ function parseCityGml(
   let currentId = null;
   let currentVersion = null;
   let currentFunction = null;
+  let currentStatus = null;
   let currentClass = null;
   let currentSurfaceType: string;
   //let currentSurfaceNumber = 0;
@@ -227,6 +230,20 @@ function parseCityGml(
         currentFunction = null;
       },
     },
+    'trecim:status': {
+      include: true,
+      opentag: node => {
+        currentStatus = node;
+      },
+      text: text => {
+        if (currentCityObject && currentStatus) {
+          currentCityObject.status = text;
+        }
+      },
+      closetag: node => {
+        currentStatus = null;
+      },
+    },
     'trecim:version': {
       include: true,
       opentag: node => {
@@ -265,6 +282,28 @@ function parseCityGml(
           id,
           namespace: 'trecim',
           type: 'Facility',
+          geometry: [],
+        };
+
+        currentCityObject = cityObject;
+        currentCityObjectId = id;
+
+        result.CityObjects[id] = cityObject;
+      },
+      closetag: node => {
+        currentCityObject = null;
+      },
+    },
+    'trecim:Utility': {
+      include: options.cityObjectMembers['trecim:Utility'],
+
+      opentag: node => {
+        const id = node.attributes['gml:id']?.value || createId();
+
+        const cityObject: CityObject = {
+          id,
+          namespace: 'trecim',
+          type: 'Utility',
           geometry: [],
         };
 
@@ -357,6 +396,27 @@ function parseCityGml(
         const cityObject: CityObject = {
           id,
           namespace: 'frn',
+          type: 'CityFurniture',
+          geometry: [],
+        };
+
+        currentCityObject = cityObject;
+        currentCityObjectId = id;
+
+        result.CityObjects[id] = cityObject;
+      },
+      closetag: node => {
+        currentCityObject = null;
+      },
+    },
+    'cityfurniture:CityFurniture': {
+      include: options.cityObjectMembers['cityfurniture:CityFurniture'],
+      opentag: node => {
+        const id = node.attributes['gml:id']?.value || createId();
+
+        const cityObject: CityObject = {
+          id,
+          namespace: 'cityfurniture',
           type: 'CityFurniture',
           geometry: [],
         };
@@ -519,6 +579,7 @@ function parseCityGml(
           id,
           type: 'CompositeSurface',
           lod: currentLod,
+          surfaceType: currentSurfaceType,
           boundaries: [],
           semantics: {
             surfaces: [
