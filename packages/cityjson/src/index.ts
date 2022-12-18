@@ -9,6 +9,7 @@ import { waterBodySurfaceLod1Data } from './waterbody.js';
 import { vegetationSurfaceLod1Data } from './vegetation.js';
 import { furnitureLod1Data } from './furniture.js';
 import { facilityLod1Data } from './facility.js';
+import { utilityLod1Data } from './utility.js';
 import { projectVertices, projectExtent } from './projection.js';
 import { CityJSONV111 } from './CityJSONV111.js';
 
@@ -22,6 +23,7 @@ export {
   vegetationSurfaceLod1Data,
   furnitureLod1Data,
   facilityLod1Data,
+  utilityLod1Data,
   projectExtent,
   projectVertices,
   CityJSONV111,

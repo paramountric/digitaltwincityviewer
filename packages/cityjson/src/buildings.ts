@@ -27,7 +27,8 @@ function encodePickingColor(i, target = []) {
 
 export function buildingsLayerSurfacesLod3Data(
   cityJson: CityJSONV111,
-  options: LayerMatrixOptions
+  options: LayerMatrixOptions,
+  planned?: boolean
 ) {
   let vertexCount = 0;
 
@@ -64,6 +65,11 @@ export function buildingsLayerSurfacesLod3Data(
   let currentSurfaceType;
   let pickingColor = encodePickingColor(0);
   for (const cityObject of cityObjects) {
+    if (cityObject.status === 'Planerad' && !planned) {
+      continue;
+    } else if (cityObject.status === 'Gällande' && planned) {
+      continue;
+    }
     const geometries = (cityObject.geometry as any) || [];
     for (const geometry of geometries) {
       let boundaryIndex = 0;

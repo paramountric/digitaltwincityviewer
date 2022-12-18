@@ -9,7 +9,7 @@ function getColor(cityObject) {
     Fordonsramp: [0.1, 0.7, 0.1],
     Staket: [0.1, 0.7, 0.1],
   };
-  return colors[cityObject.function] || [0, 0, 0];
+  return colors[cityObject.function] || [200, 200, 200];
 }
 
 export function furnitureLod1Data(
@@ -38,7 +38,11 @@ export function furnitureLod1Data(
     const color = getColor(cityObject);
     const geometries = (cityObject.geometry as any) || [];
     for (const geometry of geometries) {
-      if (geometry.type !== 'Polygon' && geometry.type !== 'LineString') {
+      if (
+        geometry.type !== 'Polygon' &&
+        geometry.type !== 'LineString' &&
+        geometry.type !== 'Point'
+      ) {
         console.warn(
           'geometry type is not supported in city furniture lod 1: ',
           geometry.type
@@ -67,7 +71,7 @@ export function furnitureLod1Data(
             lod: geometry.lod,
           },
         });
-      } else {
+      } else if (geometry.type === 'Polygon') {
         const polygon = [];
         boundaryToPolygon(geometry.boundaries, cityJson.vertices, polygon);
         layerProps.data.push({
@@ -75,6 +79,26 @@ export function furnitureLod1Data(
           geometry: {
             type: 'Polygon',
             coordinates: polygon[0],
+          },
+          properties: {
+            id: cityObject.id,
+            type: cityObject.type,
+            context: cityObject.namespace,
+            version: cityObject.version,
+            color,
+            function: cityObject.function,
+            lod: geometry.lod,
+          },
+        });
+      } else if (geometry.type === 'Point') {
+        const point = geometry.boundaries[0][0].map(index => {
+          return cityJson.vertices[index];
+        });
+        layerProps.data.push({
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: point[0],
           },
           properties: {
             id: cityObject.id,

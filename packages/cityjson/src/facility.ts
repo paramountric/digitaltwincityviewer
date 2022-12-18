@@ -4,6 +4,7 @@ import { getLayerPosition, LayerMatrixOptions } from './layer.js';
 
 function getColor(cityObject) {
   const colors = {
+    '1000': [255, 215, 0],
     Dagvattenbrunn: [255, 215, 0],
   };
   if (!colors[cityObject.function]) {
