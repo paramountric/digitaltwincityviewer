@@ -58,8 +58,6 @@ export default function LeftPanel() {
 
         const visible = getLayerVisibility(fileSetting.id);
 
-        console.log('visible', fileSetting.id, visible);
-
         return {...fileSetting, visible, icon: ShowOneLayer};
       }),
     },

@@ -9,6 +9,7 @@ import {
   waterBodySurfaceLod1Data,
   furnitureLod1Data,
   facilityLod1Data,
+  utilityLod1Data,
   vegetationSurfaceLod1Data,
   projectVertices,
   projectExtent,
@@ -27,7 +28,14 @@ export async function parser(
   ) => any,
   previousOffsetLngLatAlt?: [number, number, number] // if a layer is already loaded, the previous center must be used if same dataset
 ) {
-  const {fileType, id, crs: fromCrs, layerType, parserOptions} = layerConfig;
+  const {
+    fileType,
+    id,
+    crs: fromCrs,
+    layerType,
+    parserOptions,
+    planned,
+  } = layerConfig;
   switch (fileType) {
     case 'citygml':
       const rawCityGml = await apiResponse.text();
@@ -85,9 +93,13 @@ export async function parser(
 
           if (cityObjectMembers['bldg:Building']) {
             // BUILDINGS
-            const buildingProps = buildingsLayerSurfacesLod3Data(cityJson, {
-              refLat: lat,
-            }) as LayerState;
+            const buildingProps = buildingsLayerSurfacesLod3Data(
+              cityJson,
+              {
+                refLat: lat,
+              },
+              planned || false
+            ) as LayerState;
 
             buildingProps['@@type'] = layerType;
             buildingProps.groupId = id;
@@ -291,6 +303,171 @@ export async function parser(
             ) {
               layers.push(transportationTrafficAuxiliaryAreaProps);
             }
+          }
+
+          if (cityObjectMembers['trecim:Facility']) {
+            // FACILITY (trecim ver 1)
+            const facilityProps = facilityLod1Data(cityJson, {
+              refLat: lat,
+            }) as LayerState;
+
+            console.log(facilityProps);
+
+            facilityProps['@@type'] = layerType;
+            facilityProps.groupId = id;
+            facilityProps.id = `${id}-trecim:Facility`;
+            delete facilityProps.modelMatrix;
+
+            facilityProps.coordinateSystem = 2;
+            facilityProps.coordinateOrigin = [lng, lat, 0];
+            facilityProps.autoHighlight = true;
+            facilityProps.highlightColor = [100, 150, 250, 255];
+            facilityProps._instanced = false;
+            facilityProps._useMeshColors = true;
+            facilityProps.wireframe = false;
+            facilityProps.pickable = true;
+            facilityProps.visible = true;
+            facilityProps.parameters = {
+              depthTest: true,
+            };
+            facilityProps.stroked = true;
+            facilityProps.filled = true;
+            facilityProps.extruded = false;
+            facilityProps.pointType = 'circle';
+            facilityProps.lineWidthScale = 1;
+            facilityProps.lineWidthMinPixels = 2;
+            facilityProps.getFillColor = d =>
+              d.properties.color
+                ? [
+                    d.properties.color[0],
+                    d.properties.color[1],
+                    d.properties.color[2],
+                    100,
+                  ]
+                : [255, 215, 0, 100];
+            facilityProps.getLineColor = d =>
+              d.properties.color
+                ? [
+                    d.properties.color[0],
+                    d.properties.color[1],
+                    d.properties.color[2],
+                    255,
+                  ]
+                : [255, 215, 0, 255];
+            facilityProps.getPointRadius = 5;
+            facilityProps.getLineWidth = 1;
+
+            layers.push(facilityProps);
+          }
+
+          if (cityObjectMembers['trecim:Utility']) {
+            // UTILITY (trecim ver 2)
+            const utilityProps = utilityLod1Data(cityJson, {
+              refLat: lat,
+            }) as LayerState;
+
+            console.log(utilityProps);
+
+            utilityProps['@@type'] = layerType;
+            utilityProps.groupId = id;
+            utilityProps.id = `${id}-trecim:Utility`;
+            delete utilityProps.modelMatrix;
+
+            utilityProps.coordinateSystem = 2;
+            utilityProps.coordinateOrigin = [lng, lat, 0];
+            utilityProps.autoHighlight = true;
+            utilityProps.highlightColor = [100, 150, 250, 255];
+            utilityProps._instanced = false;
+            utilityProps._useMeshColors = true;
+            utilityProps.wireframe = false;
+            utilityProps.pickable = true;
+            utilityProps.visible = true;
+            utilityProps.parameters = {
+              depthTest: true,
+            };
+            utilityProps.stroked = true;
+            utilityProps.filled = true;
+            utilityProps.extruded = false;
+            utilityProps.pointType = 'circle';
+            utilityProps.lineWidthScale = 1;
+            utilityProps.lineWidthMinPixels = 2;
+            utilityProps.getFillColor = d =>
+              d.properties.color
+                ? [
+                    d.properties.color[0],
+                    d.properties.color[1],
+                    d.properties.color[2],
+                    100,
+                  ]
+                : [255, 215, 0, 100];
+            utilityProps.getLineColor = d =>
+              d.properties.color
+                ? [
+                    d.properties.color[0],
+                    d.properties.color[1],
+                    d.properties.color[2],
+                    255,
+                  ]
+                : [255, 215, 0, 255];
+            utilityProps.getPointRadius = 5;
+            utilityProps.getLineWidth = 1;
+
+            layers.push(utilityProps);
+          }
+
+          if (cityObjectMembers['cityfurniture:CityFurniture']) {
+            // FACILITY (trecim ver 1)
+            const cityFurnitureProps = furnitureLod1Data(cityJson, {
+              refLat: lat,
+            }) as LayerState;
+
+            console.log(cityFurnitureProps);
+
+            cityFurnitureProps['@@type'] = layerType;
+            cityFurnitureProps.groupId = id;
+            cityFurnitureProps.id = `${id}-cityfurniture:CityFurniture`;
+            delete cityFurnitureProps.modelMatrix;
+
+            cityFurnitureProps.coordinateSystem = 2;
+            cityFurnitureProps.coordinateOrigin = [lng, lat, 0];
+            cityFurnitureProps.autoHighlight = true;
+            cityFurnitureProps.highlightColor = [100, 150, 250, 255];
+            cityFurnitureProps._instanced = false;
+            cityFurnitureProps._useMeshColors = true;
+            cityFurnitureProps.wireframe = false;
+            cityFurnitureProps.pickable = true;
+            cityFurnitureProps.visible = true;
+            cityFurnitureProps.parameters = {
+              depthTest: true,
+            };
+            cityFurnitureProps.stroked = true;
+            cityFurnitureProps.filled = true;
+            cityFurnitureProps.extruded = false;
+            cityFurnitureProps.pointType = 'circle';
+            cityFurnitureProps.lineWidthScale = 1;
+            cityFurnitureProps.lineWidthMinPixels = 2;
+            cityFurnitureProps.getFillColor = d =>
+              d.properties.color
+                ? [
+                    d.properties.color[0],
+                    d.properties.color[1],
+                    d.properties.color[2],
+                    100,
+                  ]
+                : [255, 215, 0, 100];
+            cityFurnitureProps.getLineColor = d =>
+              d.properties.color
+                ? [
+                    d.properties.color[0],
+                    d.properties.color[1],
+                    d.properties.color[2],
+                    255,
+                  ]
+                : [255, 215, 0, 255];
+            cityFurnitureProps.getPointRadius = 5;
+            cityFurnitureProps.getLineWidth = 1;
+
+            layers.push(cityFurnitureProps);
           }
 
           console.log(layers);

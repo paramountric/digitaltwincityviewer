@@ -143,7 +143,7 @@ export default function LoadCityDialog() {
                     return (
                       <div key={cityDatasetKey} className="relative">
                         <div className="sticky rounded text-white top-0 z-10  bg-slate-500 px-6 py-1 text-md font-medium">
-                          <h3>{dataset.cityLabel}</h3>
+                          <h3>{dataset.label}</h3>
                         </div>
                         <ul
                           role="list"

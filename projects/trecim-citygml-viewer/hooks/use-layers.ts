@@ -21,6 +21,7 @@ export type LayerConfig = {
   centerX: number; // the reference x in web mercator, used for translating to meter offset
   centerY: number; // the reference x in web mercator, used for translating to meter offset
   crs: string; // for the original data in the source
+  planned?: boolean; // include planned objects
 };
 
 // layer state + any props that goes

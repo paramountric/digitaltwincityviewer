@@ -43,8 +43,25 @@ export const cityDatasets: DataSets = {
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
-        text: 'Malmö byggnader',
+        text: 'Gällande byggnader',
         crs: 'EPSG:3008',
+        planned: false,
+        parserOptions: {
+          cityObjectMembers: {
+            'bldg:Building': true,
+          },
+        },
+      },
+      {
+        id: 'malmo-building-planned-surfaces',
+        cityId: 'malmo',
+        url: 'http://localhost:9000/files/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
+        fileType: 'citygml',
+        pbType: null,
+        layerType: 'GroundSurfaceLayer',
+        text: 'Planerade byggnader',
+        crs: 'EPSG:3008',
+        planned: true,
         parserOptions: {
           cityObjectMembers: {
             'bldg:Building': true,
@@ -58,7 +75,7 @@ export const cityDatasets: DataSets = {
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
-        text: 'Malmö transport',
+        text: 'Transport',
         crs: 'EPSG:3008',
         parserOptions: {
           cityObjectMembers: {
@@ -74,11 +91,26 @@ export const cityDatasets: DataSets = {
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
-        text: 'Malmö vegetation',
+        text: 'Vegetation',
         crs: 'EPSG:3008',
         parserOptions: {
           cityObjectMembers: {
             'veg:PlantCover': true,
+          },
+        },
+      },
+      {
+        id: 'malmo-city-furniture',
+        cityId: 'malmo',
+        url: 'http://localhost:9000/files/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
+        fileType: 'citygml',
+        pbType: null,
+        layerType: 'GeoJsonLayer',
+        text: 'Markdetaljer',
+        crs: 'EPSG:3008',
+        parserOptions: {
+          cityObjectMembers: {
+            'cityfurniture:CityFurniture': true,
           },
         },
       },
@@ -94,7 +126,7 @@ export const cityDatasets: DataSets = {
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
-        text: 'Stockholm byggnader',
+        text: 'Byggnader',
         crs: 'EPSG:3011',
         parserOptions: {
           cityObjectMembers: {
@@ -109,20 +141,11 @@ export const cityDatasets: DataSets = {
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
-        text: 'Stockholm vegetation',
+        text: 'Vegetation',
         crs: 'EPSG:3011',
         layerElevation: 25,
         parserOptions: {
           cityObjectMembers: {
-            'bldg:Building': true,
-            'transportation:TrafficArea': true,
-            'transportation:AuxiliaryTrafficArea': true,
-            // 'transportation:TransportationComplex': false, // how to do with this?
-            'luse:LandUse': true,
-            'landuse:LandUse': true,
-            'waterbodies:WaterBody': true,
-            // 'frn:CityFurniture': true,
-            // 'trecim:Facility': true,
             'veg:PlantCover': true,
           },
         },
@@ -134,20 +157,43 @@ export const cityDatasets: DataSets = {
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
-        text: 'Stockholm transportation',
+        text: 'Transport',
         crs: 'EPSG:3011',
         parserOptions: {
           cityObjectMembers: {
-            'bldg:Building': true,
             'transportation:TrafficArea': true,
             'transportation:AuxiliaryTrafficArea': true,
-            // 'transportation:TransportationComplex': false, // how to do with this?
-            'luse:LandUse': true,
-            'landuse:LandUse': true,
-            'waterbodies:WaterBody': true,
-            // 'frn:CityFurniture': true,
-            // 'trecim:Facility': true,
-            'veg:PlantCover': true,
+          },
+        },
+      },
+      {
+        id: 'sthlm-city-furniture',
+        cityId: 'stockholm',
+        url: 'http://localhost:9000/files/trecim/Sthlm/3CIM_ver2_markdetaljer.gml',
+        fileType: 'citygml',
+        pbType: null,
+        layerType: 'GeoJsonLayer',
+        text: 'Markdetaljer',
+        crs: 'EPSG:3011',
+        parserOptions: {
+          cityObjectMembers: {
+            'cityfurniture:CityFurniture': true,
+          },
+        },
+      },
+      {
+        id: 'sthlm-utility',
+        cityId: 'stockholm',
+        url: 'http://localhost:9000/files/trecim/Sthlm/3CIM_ver2_ledningsnät.gml',
+        fileType: 'citygml',
+        pbType: null,
+        layerType: 'GeoJsonLayer',
+        layerElevation: -2,
+        text: 'Ledningsnät',
+        crs: 'EPSG:3011',
+        parserOptions: {
+          cityObjectMembers: {
+            'trecim:Utility': true,
           },
         },
       },
@@ -163,20 +209,11 @@ export const cityDatasets: DataSets = {
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
-        text: 'Göteborg byggnader',
+        text: 'Byggnad',
         crs: 'EPSG:3007',
         parserOptions: {
           cityObjectMembers: {
             'bldg:Building': true,
-            'transportation:TrafficArea': true,
-            'transportation:AuxiliaryTrafficArea': true,
-            // 'transportation:TransportationComplex': false, // how to do with this?
-            'luse:LandUse': true,
-            'landuse:LandUse': true,
-            'waterbodies:WaterBody': true,
-            // 'frn:CityFurniture': true,
-            // 'trecim:Facility': true,
-            'veg:PlantCover': true,
           },
         },
       },
@@ -187,21 +224,12 @@ export const cityDatasets: DataSets = {
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
-        text: 'Göteborg vegetation',
+        text: 'Marktäcke',
         crs: 'EPSG:3007',
         layerElevation: 0,
         parserOptions: {
           cityObjectMembers: {
-            'bldg:Building': true,
-            'transportation:TrafficArea': true,
-            'transportation:AuxiliaryTrafficArea': true,
-            // 'transportation:TransportationComplex': false, // how to do with this?
-            'luse:LandUse': true,
             'landuse:LandUse': true,
-            'waterbodies:WaterBody': true,
-            // 'frn:CityFurniture': true,
-            // 'trecim:Facility': true,
-            'veg:PlantCover': true,
           },
         },
       },
@@ -213,20 +241,12 @@ export const cityDatasets: DataSets = {
         pbType: null,
         layerElevation: 0.3,
         layerType: 'GroundSurfaceLayer',
-        text: 'Göteborg transportation',
+        text: 'Transport',
         crs: 'EPSG:3007',
         parserOptions: {
           cityObjectMembers: {
-            'bldg:Building': true,
             'transportation:TrafficArea': true,
             'transportation:AuxiliaryTrafficArea': true,
-            // 'transportation:TransportationComplex': false, // how to do with this?
-            'luse:LandUse': true,
-            'landuse:LandUse': true,
-            'waterbodies:WaterBody': true,
-            // 'frn:CityFurniture': true,
-            // 'trecim:Facility': true,
-            'veg:PlantCover': true,
           },
         },
       },
@@ -238,20 +258,27 @@ export const cityDatasets: DataSets = {
         pbType: null,
         layerType: 'GroundSurfaceLayer',
         layerElevation: 0.3,
-        text: 'Göteborg vatten',
+        text: 'Vatten',
         crs: 'EPSG:3007',
         parserOptions: {
           cityObjectMembers: {
-            'bldg:Building': true,
-            'transportation:TrafficArea': true,
-            'transportation:AuxiliaryTrafficArea': true,
-            // 'transportation:TransportationComplex': false, // how to do with this?
-            'luse:LandUse': true,
-            'landuse:LandUse': true,
             'waterbodies:WaterBody': true,
-            // 'frn:CityFurniture': true,
-            // 'trecim:Facility': true,
-            'veg:PlantCover': true,
+          },
+        },
+      },
+      {
+        id: 'gothenburg-utility-points',
+        cityId: 'gothenburg',
+        url: 'http://localhost:9000/files/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Ledningsnät.gml',
+        fileType: 'citygml',
+        pbType: null,
+        layerType: 'GeoJsonLayer',
+        layerElevation: 0.4,
+        text: 'Ledningsnät',
+        crs: 'EPSG:3007',
+        parserOptions: {
+          cityObjectMembers: {
+            'trecim:Facility': true,
           },
         },
       },
