@@ -1,5 +1,17 @@
 # Change Log
 
+## 1.2.3
+
+### Patch Changes
+
+- Fix bug in sending coordinate settings to layer
+
+## 1.2.2
+
+### Patch Changes
+
+- Change to type module
+
 ## 1.2.1
 
 ### Patch Changes
