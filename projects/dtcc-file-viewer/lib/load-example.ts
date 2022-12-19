@@ -164,7 +164,12 @@ export async function loadExampleData(fileSetting) {
         pbJson.origin.y += extraOrigin.y;
       }
       //console.log('protobuf', pbJson);
-      const layerData = parseCityModel(pbJson, crs, pbType);
+      const layerData = parseCityModel({
+        data: pbJson,
+        fromCrs: crs,
+        toCrs: 'EPSG:4326',
+        type: pbType,
+      });
       // , [
       //   fileSetting.x,
       //   fileSetting.y,

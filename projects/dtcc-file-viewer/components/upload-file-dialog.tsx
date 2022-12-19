@@ -79,7 +79,12 @@ export default function UploadFileDialog() {
     if (!pbJson) {
       console.log('handle this');
     }
-    const layerData = parseCityModel(pbJson, pbJson.crs, pbType);
+    const layerData = parseCityModel({
+      data: pbJson,
+      fromCrs: pbJson.crs,
+      toCrs: 'EPSG:4326',
+      type: pbType,
+    });
 
     switch (pbType) {
       case 'CityModel':
