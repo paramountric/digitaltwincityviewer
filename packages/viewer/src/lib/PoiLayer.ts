@@ -37,15 +37,21 @@ export default class PoiLayer<
     }
   }
   renderLayers() {
-    const { id, data, modelMatrix, coordinateOrigin = [0, 0] } = this.props;
+    const {
+      id,
+      data,
+      modelMatrix,
+      coordinateOrigin = [0, 0],
+      coordinateSystem = 1,
+    } = this.props;
     console.log('render poi', id, data);
     return [
       new ScatterplotLayer({
         id: `${id}-scatterplot`,
         data,
         //modelMatrix,
-        //coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-        //coordinateOrigin,
+        coordinateSystem,
+        coordinateOrigin,
         highlightColor: HIGHLIGHT_COLOR,
         pickable: true,
         opacity: 0.8,
