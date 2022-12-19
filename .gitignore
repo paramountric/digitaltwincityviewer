@@ -102,7 +102,7 @@ typings/
 .env
 .env.test
 .env.local
-.env.production
+#.env.production <- tricky because this is used with env vars in ci/cd
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
