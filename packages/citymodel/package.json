@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/citymodel",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Utility function for CityModel format",
   "main": "./dist/index.js",
   "type": "module",
@@ -34,7 +34,7 @@
     "url": "https://github.com/paramountric/digitaltwincityviewer/issues"
   },
   "dependencies": {
-    "@dtcv/convert": "^1.2.0",
+    "@dtcv/convert": "^1.2.1",
     "gl-matrix": "^3.4.3",
     "proj4": "^2.8.0",
     "protobufjs": "^7.1.2"

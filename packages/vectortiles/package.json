@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/vectortiles",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "description": "Generate MVT from geojson",
   "keywords": [
@@ -36,7 +36,7 @@
     "url": "https://github.com/paramountric/digitaltwincityviewer/issues"
   },
   "dependencies": {
-    "@dtcv/geojson": "^1.2.0",
+    "@dtcv/geojson": "^1.2.1",
     "@mapbox/tilebelt": "^1.0.2",
     "@turf/bbox": "^6.5.0",
     "@turf/boolean-point-in-polygon": "^6.5.0",

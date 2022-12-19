@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/projection",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "description": "Helper functions for projections between projects",
   "main": "./dist/index.js",

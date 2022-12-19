@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/convert",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "description": "Convert coordinate to meter offset, including optional projection",
   "main": "./dist/index.js",

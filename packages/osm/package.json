@@ -1,6 +1,6 @@
 {
   "name": "@dtcv/osm",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "description": "OSM parsing and validation for Digital Twin City Viewer",
   "keywords": [
