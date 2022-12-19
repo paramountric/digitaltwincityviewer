@@ -18,9 +18,10 @@ import { mat4, vec3 } from 'gl-matrix';
 import { registerLoaders } from '@loaders.gl/core';
 import { DracoWorkerLoader } from '@loaders.gl/draco';
 import { CesiumIonLoader } from '@loaders.gl/3d-tiles';
-import CityModelLayer from '../lib/CityModelLayer';
-import GroundSurfaceLayer from '../lib/GroundSurfaceLayer';
-import PoiLayer from '../lib/PoiLayer';
+import CityModelLayer from '../lib/CityModelLayer.js';
+import GroundSurfaceLayer from '../lib/GroundSurfaceLayer.js';
+import PoiLayer from '../lib/PoiLayer.js';
+import BuildingSurfaceLayer from '../layers/building-surface-layer/BuildingSurfaceLayer.js';
 // import { ViewProps } from '@deck.gl/core/views/view';
 // import { LayerProps } from '@deck.gl/core/lib/layer';
 
@@ -89,6 +90,7 @@ export default {
     ScatterplotLayer,
     CityModelLayer,
     GroundSurfaceLayer,
+    BuildingSurfaceLayer,
     PoiLayer,
     LineLayer,
     GeoJsonLayer,
