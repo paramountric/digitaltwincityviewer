@@ -14,9 +14,6 @@ WORKDIR /app
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
 
-# Since lerna will override packages the lockfile will be out of sync (but this could probably be fixed in many better ways)
-RUN npm i --package-lock-only
-
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
@@ -35,10 +32,7 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
-# RUN yarn build
-
-# If using npm comment out above and use below instead
-RUN npm run build
+RUN yarn build
 
 # Production image, copy all the files and run next
 FROM node:16-alpine AS runner
