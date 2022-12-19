@@ -7,6 +7,8 @@ import UploadFileDialog from '../components/upload-file-dialog';
 import {useUi} from '../hooks/use-ui';
 import Loader from '../components/loader';
 
+//
+
 const StartPage = () => {
   const {state} = useUi();
   return (
