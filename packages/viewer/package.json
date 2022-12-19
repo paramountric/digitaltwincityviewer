@@ -4,6 +4,7 @@
   "description": "A viewport component for distributed layered geometry",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "type": "module",
   "files": [
     "dist"
   ],
