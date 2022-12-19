@@ -93,7 +93,6 @@ export function utilityLod1Data(
           },
         });
       } else if (geometry.type === 'Point') {
-        console.log(geometry.boundaries);
         const point = geometry.boundaries[0][0].map(index => {
           return cityJson.vertices[index];
         });
