@@ -39,7 +39,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'malmo-building-surfaces',
         cityId: 'malmo',
-        url: 'http://localhost:9000/files/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
@@ -55,7 +55,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'malmo-building-planned-surfaces',
         cityId: 'malmo',
-        url: 'http://localhost:9000/files/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
@@ -71,7 +71,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'malmo-traffic-area-surfaces',
         cityId: 'malmo',
-        url: 'http://localhost:9000/files/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
@@ -87,7 +87,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'malmo-vegetation',
         cityId: 'malmo',
-        url: 'http://localhost:9000/files/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
@@ -102,7 +102,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'malmo-city-furniture',
         cityId: 'malmo',
-        url: 'http://localhost:9000/files/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GeoJsonLayer',
@@ -117,7 +117,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'malmo-utility',
         cityId: 'malmo',
-        url: 'http://localhost:9000/files/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GeoJsonLayer',
@@ -138,7 +138,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'sthlm-building-surfaces',
         cityId: 'stockholm',
-        url: 'http://localhost:9000/files/trecim/Sthlm/Byggnad_3CIM_ver1.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/Sthlm/Byggnad_3CIM_ver1.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
@@ -153,7 +153,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'sthlm-vegetation-surfaces',
         cityId: 'stockholm',
-        url: 'http://localhost:9000/files/trecim/Sthlm/3CIM_ver2_vegetation.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/Sthlm/3CIM_ver2_vegetation.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
@@ -169,7 +169,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'sthlm-transportation-surfaces',
         cityId: 'stockholm',
-        url: 'http://localhost:9000/files/trecim/Sthlm/3CIM_ver2_transport.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/Sthlm/3CIM_ver2_transport.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
@@ -185,7 +185,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'sthlm-city-furniture',
         cityId: 'stockholm',
-        url: 'http://localhost:9000/files/trecim/Sthlm/3CIM_ver2_markdetaljer.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/Sthlm/3CIM_ver2_markdetaljer.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GeoJsonLayer',
@@ -200,7 +200,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'sthlm-utility',
         cityId: 'stockholm',
-        url: 'http://localhost:9000/files/trecim/Sthlm/3CIM_ver2_ledningsnät.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/Sthlm/3CIM_ver2_ledningsnät.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GeoJsonLayer',
@@ -221,7 +221,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'gothenburg-building-surfaces',
         cityId: 'gothenburg',
-        url: 'http://localhost:9000/files/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Byggnad.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Byggnad.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
@@ -236,7 +236,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'gothenburg-vegetation-surfaces',
         cityId: 'gothenburg',
-        url: 'http://localhost:9000/files/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Marktäcke.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Marktäcke.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
@@ -252,7 +252,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'gothenburg-transportation-surfaces',
         cityId: 'gothenburg',
-        url: 'http://localhost:9000/files/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Transportation.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Transportation.gml',
         fileType: 'citygml',
         pbType: null,
         layerElevation: 0.3,
@@ -269,7 +269,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'gothenburg-waterbody-surfaces',
         cityId: 'gothenburg',
-        url: 'http://localhost:9000/files/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Vatten.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Vatten.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GroundSurfaceLayer',
@@ -285,7 +285,7 @@ export const cityDatasets: DataSets = {
       {
         id: 'gothenburg-utility-points',
         cityId: 'gothenburg',
-        url: 'http://localhost:9000/files/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Ledningsnät.gml',
+        url: 'https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/trecim/Gbg_3CIMver1_2022-09-09/Göteborg_3CIMver1_Ledningsnät.gml',
         fileType: 'citygml',
         pbType: null,
         layerType: 'GeoJsonLayer',
