@@ -26,7 +26,13 @@ export default class GroundSurfaceLayer<
     }
   }
   renderLayers() {
-    const { id, data, modelMatrix, coordinateOrigin } = this.props;
+    const {
+      id,
+      data,
+      modelMatrix,
+      coordinateOrigin = [0, 0],
+      coordinateSystem = 1,
+    } = this.props;
 
     const mesh = new Geometry({
       attributes: {
@@ -44,13 +50,13 @@ export default class GroundSurfaceLayer<
         _instanced: false,
         _useMeshColors: true,
         wireframe: false,
-        // coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-        // coordinateOrigin,
+        coordinateSystem,
+        coordinateOrigin,
         getPosition: d => [0, 0, 0],
         parameters: {
           depthTest: true,
         },
-        getColor: d => [200, 200, 200],
+        getColor: d => [255, 255, 255],
       }),
     ];
   }
