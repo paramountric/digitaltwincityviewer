@@ -18,7 +18,7 @@ const Header: React.FC<HeaderProps> = () => {
   };
 
   return (
-    <div className="absolute w-full z-50 overflow-hidden">
+    <div className="absolute w-full z-20 overflow-hidden">
       <Head>
         <title>3CIM Testdata</title>
         <meta name="description" content="3CIM Testdata" />

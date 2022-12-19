@@ -109,7 +109,7 @@ export default function LoadCityDialog() {
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
         </Transition.Child>
 
-        <div className="fixed inset-0 z-20 overflow-y-auto">
+        <div className="fixed inset-0 z-30 overflow-y-auto">
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <Transition.Child
               as={Fragment}
@@ -135,7 +135,7 @@ export default function LoadCityDialog() {
                   as="h3"
                   className="text-lg font-medium leading-6 text-gray-900"
                 >
-                  Load example
+                  Ladda exempel
                 </Dialog.Title>
                 <nav className="h-full overflow-y-auto mt-8">
                   {Object.keys(cityDatasets).map(cityDatasetKey => {
