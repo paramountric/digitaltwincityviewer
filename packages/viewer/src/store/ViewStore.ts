@@ -1,6 +1,6 @@
 import { Deck, MapViewState, MapView } from '@deck.gl/core';
 import { action, makeObservable, observable, computed, toJS } from 'mobx';
-import { Viewer } from '../Viewer';
+import { Viewer } from '../Viewer.js';
 
 const defaultViewStateProps = {
   // currently the EPSG:3857 is used instead of EPSG 4326
