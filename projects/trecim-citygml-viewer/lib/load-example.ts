@@ -114,6 +114,22 @@ export const cityDatasets: DataSets = {
           },
         },
       },
+      {
+        id: 'malmo-utility',
+        cityId: 'malmo',
+        url: 'http://localhost:9000/files/trecim/malmo/malmo_3cim_ver_2_20220710.gml',
+        fileType: 'citygml',
+        pbType: null,
+        layerType: 'GeoJsonLayer',
+        layerElevation: 0.5,
+        text: 'Ledningsnät',
+        crs: 'EPSG:3008',
+        parserOptions: {
+          cityObjectMembers: {
+            'trecim:Utility': true,
+          },
+        },
+      },
     ],
   },
   stockholm: {

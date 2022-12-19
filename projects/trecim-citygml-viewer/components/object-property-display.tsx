@@ -10,25 +10,32 @@ type DisplayDict = {
   [key: string]: string | number;
 };
 
-const displayProperties: string[] = ['uuid', 'height'];
+const displayProperties: string[] = [
+  'id',
+  'context',
+  'function',
+  'lod',
+  'type',
+  'version',
+];
 
 const propertyLabels: DisplayDict = {
-  address: 'Address',
-  uuid: 'UUID',
-  type: 'Type',
-  heatedFloorArea: 'Heated floor area',
-  height: 'Height',
+  context: 'Sammanhang',
+  function: 'Funktion',
+  id: 'ID',
+  lod: 'LoD',
+  type: 'Typ',
+  version: '3CIM Version',
 };
 
 const units: DisplayDict = {
-  height: 'm',
-  heatedFloorArea: 'm²',
+  // add any units here for the property keys
 };
 
 // if needs to be rounded
 const rounding: DisplayDict = {
+  // example
   height: 1,
-  heatedFloorArea: 0,
 };
 
 function formatValue(properties: any, propertyKey: string) {
@@ -55,7 +62,7 @@ const ObjectPropertyDisplay: React.FC<ObjectPropertyDisplayProps> = props => {
       {({open}) => (
         <>
           <Disclosure.Button className="flex w-full justify-between rounded-md py-2 pl-2 text-left text-sm text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75">
-            <span>Properties</span>
+            <span>Egenskaper</span>
             <ChevronUpIcon
               className={`${open ? 'rotate-180 transform' : ''} h-5 w-5`}
             />

@@ -24,7 +24,7 @@ const RightPanel: React.FC<RightPanelProps> = () => {
           {selectedObject.properties?.name ||
             selectedObject.properties?.address ||
             selectedObject.properties?.uuid ||
-            'Selected building'}
+            'Objektdetaljer'}
         </div>
         <div onClick={() => setShowRightPanel(false)} className="ml-1">
           <XMarkIcon className="h-5 w-5 cursor-pointer hover:bg-gray-100 rounded-md" />

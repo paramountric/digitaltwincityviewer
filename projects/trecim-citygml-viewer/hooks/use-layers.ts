@@ -54,6 +54,19 @@ export const useLayers = () => {
   }, []);
 
   const layerActions = useMemo(() => {
+    const mutateAddedLayer = layer => {
+      layer.visible = true;
+      layer.elevation = layer.elevation || 0;
+      if (layer['@@type'] === 'GeoJsonLayer') {
+        layer.onClick = ({object}) => {
+          if (object) {
+            console.log(object);
+            setSelectedObject(object);
+            setShowRightPanel(true);
+          }
+        };
+      }
+    };
     return {
       loadLayer: async (layerConfig: LayerConfig) => {
         const state = layerStore.get();
@@ -73,24 +86,14 @@ export const useLayers = () => {
         if (existingLayer) {
           console.log('fix update existing layer state');
         } else {
-          layer.visible = true;
-          layer.elevation = layer.elevation || 0;
-          if (layer['@@type'] === 'CityModelLayer') {
-            layer.onClick = ({object}) => {
-              if (object) {
-                setSelectedObject(object);
-                setShowRightPanel(true);
-              }
-            };
-          }
+          mutateAddedLayer(layer);
           layerStore.set([...state, layer]);
         }
       },
       addLayers: (layerArray: LayerState[]) => {
         const state = layerStore.get();
-        layerArray.forEach(l => {
-          l.visible = true;
-          l.elevation = l.elevation || 0;
+        layerArray.forEach(layer => {
+          mutateAddedLayer(layer);
         });
         layerStore.set([...state, ...layerArray]);
       },
