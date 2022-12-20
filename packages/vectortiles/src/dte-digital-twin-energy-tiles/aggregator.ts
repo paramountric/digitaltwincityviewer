@@ -6,6 +6,8 @@ import { toWgs84 } from 'reproject';
 import RBush from 'rbush';
 import { Feature, FeatureCollection } from 'geojson';
 
+// ! note, this file is only for the dte project case
+
 // these geojson files are used for segmentation of the areas used for aggregation, and not included in the source code.
 const cityDistricts = JSON.parse(
   fs.readFileSync('../../data/boundaries/city_district.json', 'utf8')

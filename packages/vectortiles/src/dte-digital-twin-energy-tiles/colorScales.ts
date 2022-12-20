@@ -5,25 +5,13 @@
 const scales: {
   [scaleKey: string]: number[];
 } = {
-  energyDeclaration: [40, 60, 80, 108, 144, 188],
+  buildingEnergy: [40, 60, 80, 108, 144, 188],
   districtEnergy: [25, 50, 75, 100, 125, 150],
   buildingGhg: [5, 7.5, 10, 13.5, 18, 23.5],
   districtGhg: [2.5, 5, 7.5, 10, 12.5, 15],
 };
 
-// from better to worse kwh/m2 according to scales -> this is used for be building colors according to the scales above
-// note that legend uses css declaration in separate file since that was easier than to generate it on-the-fly
-// const energyDeclarationColors: string[] = [
-//   '#009640',
-//   '#50AF31',
-//   '#C7D301',
-//   '#FFED00',
-//   '#FBB900',
-//   '#EC6707',
-//   '#E30613',
-// ];
-
-const energyDeclarationColors: number[][] = [
+const universeumColors: number[][] = [
   [171, 213, 40],
   [98, 181, 38],
   [244, 246, 42],
@@ -33,18 +21,18 @@ const energyDeclarationColors: number[][] = [
   [164, 36, 207],
 ];
 
-// currently using the color scale from swedish energy declaration
+// currently using the color scale from universeum
 export function getColorFromScale(
   value: number,
-  scaleKey = 'energyDeclaration',
+  scaleKey = 'buildingEnergy',
   css = false // stringify for css use
 ) {
-  const scale = scales[scaleKey] || scales.energyDeclaration;
-  const color = energyDeclarationColors[energyDeclarationColors.length - 1];
+  const scale = scales[scaleKey] || scales.buildingEnergy;
+  const color = universeumColors[universeumColors.length - 1];
 
   for (let i = 0; i < scale.length; i++) {
     if (value <= scale[i]) {
-      const colorArray = energyDeclarationColors[i];
+      const colorArray = universeumColors[i];
       if (css) {
         return `rgb(${colorArray.join(',')})`;
       }
@@ -57,6 +45,7 @@ export function getColorFromScale(
   return color;
 }
 
+// use to display labels
 export function getScaleRanges(scaleKey: string) {
   const scale = scales[scaleKey] || scales.energyDeclaration;
   const ranges = [];

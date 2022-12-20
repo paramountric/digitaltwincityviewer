@@ -1,11 +1,13 @@
-import fs from 'fs';
+import fs from 'fs-extra';
 import { resolve } from 'path';
 import pkg from 'reproject';
-import { addProperty, copyProperties } from '@dtcv/geojson';
+import { addProperty, copyProperties, FeatureCollection } from '@dtcv/geojson';
 import { aggregate } from './aggregator.js';
 import { getColorFromScale } from './colorScales.js';
 
 const { toWgs84 } = pkg;
+
+// ! properties are not copied property after loading several BSM climate files, the property keys need to be postfixed with the climate temp
 
 // this file is an example on data preparation for the dte-digital-twin-energy project
 // the output of this should go read the generate-tiles script
@@ -22,45 +24,112 @@ function getNewId() {
   return newId;
 }
 
-const BSM_ATTRIBUTE_INDICATORS = [
+const indicators = [
   'finalEnergy',
   'deliveredEnergy',
   'primaryEnergy',
   'ghgEmissions',
+  'heatDemand',
   'coolingDemand',
 ];
-const BSM_ATTRIBUTES = ['heatedFloorArea', ...BSM_ATTRIBUTE_INDICATORS];
+
+// todo: how to deal with this? Needs climate scenario, but should not be divided by area?
+const monthyIndicators = [
+  'monthlyFinalEnergy2018',
+  'monthlyFinalEnergy2030',
+  'monthlyFinalEnergy2050',
+  'monthlyHeatDemand2018',
+  'monthlyHeatDemand2030',
+  'monthlyHeatDemand2050',
+  'monthlyCoolingDemand2018',
+  'monthlyCoolingDemand2030',
+  'monthlyCoolingDemand2050',
+];
+
+const indicatorsWithYear = indicators.reduce((memo, key) => {
+  memo.push(`${key}2018`);
+  memo.push(`${key}2030`);
+  memo.push(`${key}2050`);
+  return memo;
+}, []);
+
+// const indicatorsWithClimateTemp = indicatorsWithYear.reduce((memo, key) => {
+//   memo.push(`${key}_2_5`);
+//   memo.push(`${key}_4_5`);
+//   memo.push(`${key}_8_5`);
+//   return memo;
+// }, []);
+
+// use these to prepare colors
+const BSM_ATTRIBUTE_INDICATORS = indicatorsWithYear;
+
+console.log(BSM_ATTRIBUTE_INDICATORS);
+
+// copy these from the BSM file to the features
+const BSM_ATTRIBUTES = [
+  'UUID',
+  // 'Height', // this is a string, so either build a parser for converting or require the original data to be correct
+  // 'GroundHeight', // same as above
+  'address',
+  'postPlace',
+  'postCode',
+  'heatedFloorArea',
+];
 // some buildings miss attributes, use this color:
 const MISSING_ATTRIBUTE_COLOR = 'rgb(100, 100, 100)';
 
-function assignBsmStatistics(f) {
+function assignBsmStatisticsForBuilding(f, postfix) {
+  // Note: when the bsm data was copied to the features the postfix was added
   BSM_ATTRIBUTE_INDICATORS.forEach(a => {
-    if (f.properties[a] || f.properties[a] === 0) {
-      const valuePerDistrictArea = f.properties[a] / f.properties.area;
+    const indicatorWithPostfix = `${a}${postfix}`;
+    if (
+      f.properties.heatedFloorArea &&
+      (f.properties[indicatorWithPostfix] ||
+        f.properties[indicatorWithPostfix] === 0)
+    ) {
       const valuePerBuildingArea =
-        f.properties[a] / f.properties.heatedFloorArea;
-      f.properties[`${a}DistrictAreaNorm`] = valuePerDistrictArea;
-      f.properties[`${a}BuildingAreaNorm`] = valuePerBuildingArea;
-      f.properties[`${a}DistrictAreaColor`] = getColorFromScale(
-        valuePerDistrictArea,
-        a === 'ghgEmissions' ? 'districtGhg' : 'districtEnergy'
-      );
-      f.properties[`${a}BuildingAreaColor`] = getColorFromScale(
-        valuePerBuildingArea,
-        a === 'ghgEmissions' ? 'buildingGhg' : 'energyDeclaration'
-      );
+        f.properties[indicatorWithPostfix] / f.properties.heatedFloorArea;
+      f.properties[`${indicatorWithPostfix}BuildingAreaNorm`] =
+        valuePerBuildingArea;
+      f.properties[`${indicatorWithPostfix}BuildingAreaColor`] =
+        getColorFromScale(
+          valuePerBuildingArea,
+          indicatorWithPostfix.startsWith('ghgEmissions')
+            ? 'buildingGhg'
+            : 'buildingEnergy',
+          true
+        );
     } else {
-      f.properties[`${a}DistrictAreaColor`] = MISSING_ATTRIBUTE_COLOR;
-      f.properties[`${a}BuildingAreaColor`] = MISSING_ATTRIBUTE_COLOR;
+      f.properties[`${indicatorWithPostfix}BuildingAreaColor`] =
+        MISSING_ATTRIBUTE_COLOR;
     }
   });
 }
 
-function addBsmDataToFeatures(
-  inputFilePathBuildings,
-  inputFilePathBSM,
-  outputFilePath,
-  propertyMapping
+function assignBsmStatisticsForDistrict(f) {
+  BSM_ATTRIBUTE_INDICATORS.forEach(a => {
+    if (
+      f.properties.area && // area comes from the district aggregation features
+      (f.properties[a] || f.properties[a] === 0) // the value must be aggregated (summed) first from buildings inside
+    ) {
+      const valuePerDistrictArea = f.properties[a] / f.properties.area;
+      f.properties[`${a}DistrictAreaNorm`] = valuePerDistrictArea;
+      f.properties[`${a}DistrictAreaColor`] = getColorFromScale(
+        valuePerDistrictArea,
+        a.startsWith('ghgEmissions') ? 'districtGhg' : 'districtEnergy'
+      );
+    } else {
+      f.properties[`${a}DistrictAreaColor`] = MISSING_ATTRIBUTE_COLOR;
+    }
+  });
+}
+
+export function addBsmDataToFeatures(
+  inputFilePathBuildings: string, // one geometry file per layer
+  inputFilePathBSM: string[][], // add several files of BSM data to one layer
+  outputFilePath: string, // one output file per layer, to be read by the generate-tiles script
+  propertyKeyListToCopy: string[],
+  propertyKeyListToCopyIndicators: string[]
 ) {
   const buildings = JSON.parse(
     fs.readFileSync(resolve('../../data/', inputFilePathBuildings), 'utf8')
@@ -71,27 +140,104 @@ function addBsmDataToFeatures(
   const epsg3006 =
     '+proj=utm +zone=33 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
   const projectedBuildings = toWgs84(buildings, epsg3006);
-  // read the BSM data
-  const BSM = JSON.parse(
-    fs.readFileSync(resolve('../../data/', inputFilePathBSM), 'utf8')
-  );
-  const bsmFeatures = BSM.map(properties => ({ type: 'Feature', properties }));
-  const buildingsWithBSM = copyProperties(
-    projectedBuildings.features,
-    bsmFeatures,
-    propertyMapping,
-    'UUID'
-  );
-  for (const building of buildingsWithBSM) {
-    assignBsmStatistics(building);
+
+  const outputFeatureCollection = {
+    type: 'FeatureCollection',
+    features: projectedBuildings.features,
+  } as FeatureCollection;
+
+  for (const filePathBSM of inputFilePathBSM) {
+    console.log(filePathBSM);
+    // read the BSM data
+    const BSM = JSON.parse(
+      fs.readFileSync(resolve('../../data/', filePathBSM[1]), 'utf8')
+    );
+    const bsmFeatures = BSM.map(properties => ({
+      type: 'Feature',
+      properties,
+    }));
+    // ! note that reference is used here, it copies data from the BSM files by reference,
+    // ! and then mutate the statistical data below
+
+    // this will be overridden for each file if same
+    copyProperties(
+      projectedBuildings.features,
+      bsmFeatures,
+      propertyKeyListToCopy,
+      'UUID'
+    );
+    // this will use the given postfix to add the climate scenario data
+    copyProperties(
+      projectedBuildings.features,
+      bsmFeatures,
+      propertyKeyListToCopyIndicators,
+      'UUID',
+      '',
+      filePathBSM[0]
+    );
+    for (const building of projectedBuildings.features) {
+      assignBsmStatisticsForBuilding(building, filePathBSM[0]);
+    }
   }
 
-  fs.writeFileSync(
-    resolve('../../data/', outputFilePath),
-    JSON.stringify({
-      type: 'FeatureCollection',
-      features: buildingsWithBSM,
-    })
+  // ! need to stream the data to file because json.stringify(too_big_file) uses too much memory
+
+  return outputFeatureCollection;
+
+  // fs.writeJson(
+  //   resolve('../../data/', outputFilePath),
+  //   outputFeatureCollection
+  // ).then(() => console.log('prepared data was written to disk'));
+
+  // fs.writeFileSync(
+  //   resolve('../../data/', outputFilePath),
+  //   JSON.stringify(outputFeatureCollection)
+  // );
+}
+
+export function prepareDataBuildings2018() {
+  return addBsmDataToFeatures(
+    './original/GBG_Basemap_2018_universeum.json',
+    [
+      [
+        '_climate_2_5', // postfix to properties
+        './original/BSM_Results_DTCC_basemap_2018_climate_2_5.json',
+      ],
+      [
+        '_climate_4_5', // postfix to properties
+        './original/BSM_Results_DTCC_basemap_2018_climate_4_5.json',
+      ],
+      [
+        '_climate_8_5', // postfix to properties
+        './original/BSM_Results_DTCC_basemap_2018_climate_8_5.json',
+      ],
+    ],
+    './prepared/buildings_2018.json',
+    BSM_ATTRIBUTES,
+    BSM_ATTRIBUTE_INDICATORS
+  );
+}
+
+export function prepareDataBuildings2050() {
+  return addBsmDataToFeatures(
+    './original/GBG_Basemap_2050_universeum.json',
+    [
+      [
+        '_climate_2_5', // postfix to properties
+        './original/BSM_Results_DTCC_basemap_2050_climate_2_5.json',
+      ],
+      [
+        '_climate_4_5', // postfix to properties
+        './original/BSM_Results_DTCC_basemap_2050_climate_4_5.json',
+      ],
+      [
+        '_climate_8_5', // postfix to properties
+        './original/BSM_Results_DTCC_basemap_2050_climate_8_5.json',
+      ],
+    ],
+    './prepared/buildings_2050.json',
+    BSM_ATTRIBUTES,
+    BSM_ATTRIBUTE_INDICATORS
   );
 }
 
@@ -100,47 +246,45 @@ function addBsmDataToFeatures(
 export function prepareData() {
   console.log('prepare and write 2018 to file...');
   addBsmDataToFeatures(
-    './original/GBG_Basemap_2018_universeum.json',
-    './original/BSM_Results_DTCC_basemap_2018_climate_2_5.json',
-    './prepared/buildings_2018.json',
+    './original/GBG_Basemap_2018.json',
     [
-      'address',
-      'postPlace',
-      'postCode',
-      'heatedFloorArea',
-      'heatDemand2018',
-      'finalEnergy2018',
-      'deliveredEnergy2018',
-      'primaryEnergy2018',
-      'ghgEmissions2018',
-      'heatDemand2050',
-      'finalEnergy2050',
-      'deliveredEnergy2050',
-      'primaryEnergy2050',
-      'ghgEmissions2050',
-    ]
+      [
+        '_climate_2_5', // prefix to properties
+        './original/BSM_Results_DTCC_basemap_2018_climate_2_5.json',
+      ],
+      [
+        '_climate_4_5', // prefix to properties
+        './original/BSM_Results_DTCC_basemap_2018_climate_4_5.json',
+      ],
+      [
+        '_climate_8_5', // prefix to properties
+        './original/BSM_Results_DTCC_basemap_2018_climate_8_5.json',
+      ],
+    ],
+    './prepared/buildings_2018.json',
+    BSM_ATTRIBUTES,
+    BSM_ATTRIBUTE_INDICATORS
   );
   console.log('prepare and write 2050 to file...');
   addBsmDataToFeatures(
-    './original/GBG_Basemap_2050_universeum.json',
-    './original/BSM_Results_DTCC_basemap_2050_climate_2_5.json',
-    './prepared/buildings_2050.json',
+    './original/GBG_Basemap_2050.json',
     [
-      'address',
-      'postPlace',
-      'postCode',
-      'heatedFloorArea',
-      'heatDemand2018',
-      'finalEnergy2018',
-      'deliveredEnergy2018',
-      'primaryEnergy2018',
-      'ghgEmissions2018',
-      'heatDemand2050',
-      'finalEnergy2050',
-      'deliveredEnergy2050',
-      'primaryEnergy2050',
-      'ghgEmissions2050',
-    ]
+      [
+        '_climate_2_5', // prefix to properties
+        './original/BSM_Results_DTCC_basemap_2050_climate_2_5.json',
+      ],
+      [
+        '_climate_4_5', // prefix to properties
+        './original/BSM_Results_DTCC_basemap_2050_climate_4_5.json',
+      ],
+      [
+        '_climate_8_5', // prefix to properties
+        './original/BSM_Results_DTCC_basemap_2050_climate_8_5.json',
+      ],
+    ],
+    './prepared/buildings_2050.json',
+    BSM_ATTRIBUTES,
+    BSM_ATTRIBUTE_INDICATORS
   );
 
   // // aggregate buildings on 1 km
