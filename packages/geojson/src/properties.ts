@@ -5,7 +5,9 @@ export function copyProperties(
   toFeatures: Feature[],
   fromFeatures: Feature[],
   propertyKeys: string[],
-  idKey: string
+  idKey: string,
+  prefix = '',
+  postfix = ''
 ) {
   try {
     // put all properties in a map
@@ -21,7 +23,7 @@ export function copyProperties(
         for (const propertyKey of propertyKeys) {
           const value = fromProperties[propertyKey];
           if (value || value === 0) {
-            toFeature.properties[propertyKey] = value;
+            toFeature.properties[`${prefix}${propertyKey}${postfix}`] = value;
           }
         }
       }
