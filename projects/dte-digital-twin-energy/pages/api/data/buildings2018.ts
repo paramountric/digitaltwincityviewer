@@ -5,11 +5,14 @@ import jwt from 'jsonwebtoken';
 import {parseCityModel} from '@dtcv/citymodel';
 import {cities} from '@dtcv/cities';
 import {writeFileSync} from 'fs';
-import energyData from './energyData.json';
+// the below file is deleted and data is put on tiles
+// import energyData from './energyData.json';
+
+// todo: this file can be kept if we need to load data from S3
 
 const energyDataTyped: {
   [key: string]: any;
-} = energyData;
+} = {}; //energyData;
 
 const gothenburg = cities.find((c: any) => c.id === 'gothenburg');
 if (!gothenburg || !gothenburg.x) {

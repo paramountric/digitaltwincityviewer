@@ -4,7 +4,9 @@ import {Readable} from 'stream';
 import jwt from 'jsonwebtoken';
 import {convert} from '@dtcv/geojson';
 import {cities} from '@dtcv/cities';
-//
+
+// ! this file is kept for reference, previously each file was loaded from S3
+// the other file with buildings was blended with energy data, but now tiles is used instead
 
 const gothenburg = cities.find((c: any) => c.id === 'gothenburg');
 if (!gothenburg || !gothenburg.x) {
