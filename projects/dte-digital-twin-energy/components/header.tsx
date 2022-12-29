@@ -27,7 +27,7 @@ const Header: React.FC<HeaderProps> = () => {
               <Image src={logo} alt="logo of DTCC" />
             </div>
             <div className="text-xl ml-2 text-gray-500">
-              Digitial Twin Energy
+              Digital Twin Energy
             </div>
           </div>
           {userInfo ? (
