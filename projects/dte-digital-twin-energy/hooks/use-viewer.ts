@@ -139,7 +139,9 @@ export const useViewer = (): {
 
   const userInfo = useUserInfo();
   const {state: uiState} = useUi();
-  const {actions} = useSelectedFeature();
+  const {
+    actions: {setSelectedFeature},
+  } = useSelectedFeature();
 
   // const queryBuildings2018 = useQuery(
   //   ['buildings-2018'],
@@ -517,6 +519,9 @@ export const useViewer = (): {
               setExtent([longitude, latitude, zoom]);
             },
             onClick: (clickedFeature: Feature, layerId: string, point: any) => {
+              if (clickedFeature.properties) {
+                setSelectedFeature(clickedFeature);
+              }
               console.log(clickedFeature, layerId, point);
             },
           },

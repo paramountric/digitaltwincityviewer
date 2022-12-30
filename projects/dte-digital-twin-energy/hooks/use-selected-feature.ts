@@ -1,25 +1,28 @@
+import {Feature} from '@dtcv/geojson';
 import {useState, useEffect, useMemo} from 'react';
 import {Observable} from '../lib/Observable';
 
-const featureIdStore = new Observable<string | null>(null);
+const selectedFeatureStore = new Observable<Feature | null>(null);
 
 const useSelectedFeature = () => {
-  const [featureId, setFeatureId] = useState<string | null>(
-    featureIdStore.get()
+  const [feature, setFeature] = useState<Feature | null>(
+    selectedFeatureStore.get()
   );
 
   useEffect(() => {
-    return featureIdStore.subscribe(setFeatureId);
+    return selectedFeatureStore.subscribe(setFeature);
   }, []);
 
   const actions = useMemo(() => {
     return {
-      setFeatureId: (id: string | null) => featureIdStore.set(id),
+      setSelectedFeature: (feature: Feature | null) =>
+        selectedFeatureStore.set(feature),
+      getSelectedFeature: () => selectedFeatureStore.get(),
     };
   }, []);
 
   return {
-    state: featureId,
+    state: feature,
     actions,
   };
 };
