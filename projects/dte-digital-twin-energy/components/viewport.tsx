@@ -42,9 +42,7 @@ const Viewport: React.FC<ViewportProps> = () => {
         style={{background: '#eee', width: '100%', height: '400px'}}
         ref={canvasRef}
       ></div>
-      {selectedFeatureId && (
-        <RightMenu selectedFeatureId={selectedFeatureId}></RightMenu>
-      )}
+      {selectedFeatureId && <RightMenu></RightMenu>}
       <Legend></Legend>
       <BottomPanel></BottomPanel>
     </>
