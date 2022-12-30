@@ -41,6 +41,60 @@ const maplibreOptions = {
         },
       },
       {
+        id: 'water',
+        name: 'Water',
+        type: 'fill',
+        source: 'vectorTiles',
+        'source-layer': 'water',
+        layout: {
+          visibility: 'visible',
+        },
+        paint: {
+          'fill-color': 'rgb(180, 230, 255)',
+          'fill-opacity': 1,
+        },
+      },
+      {
+        id: 'roads',
+        name: 'Roads',
+        minzoom: 12,
+        type: 'fill',
+        source: 'vectorTiles',
+        'source-layer': 'roads',
+        layout: {
+          visibility: 'visible',
+        },
+        paint: {
+          'fill-color': 'rgb(200, 200, 200)',
+          'fill-opacity': 1,
+        },
+      },
+      {
+        id: 'trees',
+        name: 'Trees',
+        type: 'circle',
+        source: 'vectorTiles',
+        'source-layer': 'trees',
+        layout: {
+          visibility: 'visible',
+        },
+        paint: {
+          'circle-radius': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            // zoom is 5 (or less) -> circle radius will be 1px
+            12,
+            1,
+            // zoom is 10 (or greater) -> circle radius will be 5px
+            18,
+            6,
+          ],
+          'circle-opacity': 0.8,
+          'circle-color': 'rgb(150, 200, 150)',
+        },
+      },
+      {
         id: 'building',
         name: 'Building extruded',
         type: 'fill-extrusion',
@@ -58,7 +112,7 @@ const maplibreOptions = {
           ],
           'fill-extrusion-height': ['get', 'min_building_height'],
           'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 0.8,
+          'fill-extrusion-opacity': 1,
         },
       },
     ],
@@ -66,7 +120,7 @@ const maplibreOptions = {
       vectorTiles: {
         type: 'vector',
         promoteId: 'id',
-        //tiles: [`${TILE_SERVER_URL}/tiles/{z}/{x}/{y}`],
+        //tiles: [`http://localhost:9000/tiles/{z}/{x}/{y}`],
         tiles: [`${tileServerUrl}/api/tiles?z={z}&x={x}&y={y}`],
       },
     },
