@@ -22,6 +22,7 @@ import JSON_CONVERTER_CONFIGURATION, {
 
 type ViewerProps = any & {
   onLoad?: () => void;
+  onClick?: (object: any, sourceLayer: string, point: any) => Feature | null;
   onSelectObject?: (object: any) => Feature | null;
   onDragEnd?: () => {
     longitude: number;
@@ -306,6 +307,24 @@ class Viewer {
           deck: this.deck,
         }) as maplibregl.LayerSpecification
       );
+
+      if (props.onClick) {
+        this.maplibreMap.on('click', e => {
+          const features = this.maplibreMap.queryRenderedFeatures(
+            e.point,
+            props.clickableLayers
+              ? {
+                  layers: props.clickableLayers,
+                }
+              : undefined
+          );
+          if (features.length > 0) {
+            const selectedFeature = features[0];
+            const sourceLayer = `${selectedFeature.layer.id}`; // convension to find the line around the area clicked
+            props.onClick(selectedFeature, sourceLayer, e.point);
+          }
+        });
+      }
 
       this.maplibreMap.on('move', () => {
         if (this.deck.props.onDrag) {
