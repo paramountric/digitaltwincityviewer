@@ -241,6 +241,36 @@ export function prepareDataBuildings2050() {
   );
 }
 
+export function prepareWater() {
+  const water = JSON.parse(
+    fs.readFileSync(resolve('../../data/', './original/water2018.json'), 'utf8')
+  );
+  const epsg3006 =
+    '+proj=utm +zone=33 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
+  const projectedWater = toWgs84(water, epsg3006);
+  return projectedWater;
+}
+
+export function prepareRoads() {
+  const roads = JSON.parse(
+    fs.readFileSync(resolve('../../data/', './original/roads2018.json'), 'utf8')
+  );
+  const epsg3006 =
+    '+proj=utm +zone=33 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
+  const projectedRoads = toWgs84(roads, epsg3006);
+  return projectedRoads;
+}
+
+export function prepareTrees() {
+  const trees = JSON.parse(
+    fs.readFileSync(resolve('../../data/', './original/trees2018.json'), 'utf8')
+  );
+  const epsg3006 =
+    '+proj=utm +zone=33 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
+  const projectedTrees = toWgs84(trees, epsg3006);
+  return projectedTrees;
+}
+
 // This function reads the original data from file and add the additional attributes on the features
 // It will also aggregate some of the attribute values onto the aggregation datasets
 export function prepareData() {

@@ -10,11 +10,16 @@ type FeatureDataInput = {
 };
 
 type FeatureDataOptions = {
-  extent: number[]; // [minX, minY, maxX, maxY]
-  minZoom: number;
-  maxZoom: number;
-  indexMaxZoom: number;
-  indexMaxPoint: number;
+  maxZoom?: number; // max zoom to preserve detail on; can't be higher than 24
+  tolerance?: number; // simplification tolerance (higher means simpler)
+  extent?: number; // tile extent (both width and height)
+  buffer?: number; // tile buffer on each side
+  debug?: 0 | 1 | 2; // logging level (0 to disable, 1 or 2)
+  lineMetrics?: boolean; // whether to enable line metrics tracking for LineString/MultiLineString features
+  promoteId?: string | null; // name of a feature property to promote to feature.id. Cannot be used with `generateId`
+  generateId?: boolean; // whether to generate feature ids. Cannot be used with `promoteId`
+  indexMaxZoom?: number; // max zoom in the initial tile index
+  indexMaxPoints?: number; // max number of points per tile in the index
 };
 
 function isBrowser() {
@@ -34,15 +39,30 @@ function isBrowser() {
  */
 export function toTileIndex(
   data: FeatureDataInput | FeatureCollection,
-  options
+  options: FeatureDataOptions
 ) {
+  const resolvedOptions = Object.assign(
+    {
+      maxZoom: 16,
+      tolerance: 1,
+      extent: 4096,
+      buffer: 64,
+      debug: 0,
+      lineMetrics: false,
+      promoteId: null,
+      generateId: false,
+      indexMaxZoom: 5,
+      indexMaxPoints: 10000000,
+    },
+    options
+  );
   // todo validate this value to geojson schema
   if (data.type && data.type === 'FeatureCollection') {
-    return geojsonvt(data, options);
+    return geojsonvt(data, resolvedOptions);
   }
   const tileIndex = Object.keys(data).reduce((memo, key) => {
     // todo validate this value to geojson schema
-    memo[key] = geojsonvt(data[key], options);
+    memo[key] = geojsonvt(data[key], resolvedOptions);
     return memo;
   }, {});
   return tileIndex;
@@ -62,23 +82,14 @@ export function saveToFolderStructure(data: FeatureDataInput, options) {
   if (!extentData) {
     throw new Error('At least on FeatureCollection is needed');
   }
-  const {
-    minZoom = 8,
-    maxZoom = 16,
-    indexMaxZoom = 16,
-    indexMaxPoints = 0,
-  } = options;
+  const { minZoom = 8, maxZoom = 16 } = options;
 
   let extent = options.extent;
   if (!extent) {
     extent = bbox(extentData);
   }
 
-  const tileIndex = toTileIndex(data, {
-    maxZoom,
-    indexMaxZoom,
-    indexMaxPoints,
-  });
+  const tileIndex = toTileIndex(data, options);
 
   const outputDir = './tiles';
 
