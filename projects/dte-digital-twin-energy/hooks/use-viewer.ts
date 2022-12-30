@@ -19,7 +19,11 @@ const aggregationZoomLevels = [8, 11, 12, 14];
 // this will be shown by default on mapload
 const initialColorProperty = 'deliveredEnergyBuildingAreaColor';
 
-const TILE_SERVER_URL = 'http://localhost:3000';
+let tileServerUrl = 'http://localhost:3000';
+
+if (typeof window !== 'undefined') {
+  tileServerUrl = location.origin;
+}
 
 const maplibreOptions = {
   longitude: gothenburg.lng,
@@ -63,7 +67,7 @@ const maplibreOptions = {
         type: 'vector',
         promoteId: 'id',
         //tiles: [`${TILE_SERVER_URL}/tiles/{z}/{x}/{y}`],
-        tiles: [`${TILE_SERVER_URL}/api/tiles?z={z}&x={x}&y={y}`],
+        tiles: [`${tileServerUrl}/api/tiles?z={z}&x={x}&y={y}`],
       },
     },
     version: 8,
