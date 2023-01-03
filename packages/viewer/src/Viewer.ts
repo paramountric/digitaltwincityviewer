@@ -267,6 +267,7 @@ class Viewer {
       center: [props.longitude || 0, props.latitude || 0],
       zoom: props.zoom || props.zoom === 0 ? props.zoom : 14, // starting zoom
       minZoom: props.minZoom || props.minZoom === 0 ? props.minZoom : 10,
+      maxZoom: props.maxZoom || props.maxZoom === 0 ? props.maxZoom : 18,
       pitch: props.pitch || props.pitch === 0 ? props.pitch : 60,
       attributionControl: false,
     } as maplibregl.MapOptions;
