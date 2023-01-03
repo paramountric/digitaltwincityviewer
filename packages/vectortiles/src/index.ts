@@ -43,7 +43,7 @@ export function toTileIndex(
 ) {
   const resolvedOptions = Object.assign(
     {
-      maxZoom: 16,
+      maxZoom: 18,
       tolerance: 1,
       extent: 4096,
       buffer: 64,
@@ -82,7 +82,7 @@ export function saveToFolderStructure(data: FeatureDataInput, options) {
   if (!extentData) {
     throw new Error('At least on FeatureCollection is needed');
   }
-  const { minZoom = 8, maxZoom = 16 } = options;
+  const { minZoom = 8, maxZoom = 18 } = options;
 
   let extent = options.extent;
   if (!extent) {

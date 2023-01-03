@@ -197,7 +197,7 @@ export function addBsmDataToFeatures(
 
 export function prepareDataBuildings2018() {
   return addBsmDataToFeatures(
-    './original/GBG_Basemap_2018_universeum.json',
+    './original/GBG_Basemap_2018.json',
     [
       [
         '_climate_2_5', // postfix to properties
@@ -220,7 +220,7 @@ export function prepareDataBuildings2018() {
 
 export function prepareDataBuildings2050() {
   return addBsmDataToFeatures(
-    './original/GBG_Basemap_2050_universeum.json',
+    './original/GBG_Basemap_2050.json',
     [
       [
         '_climate_2_5', // postfix to properties
