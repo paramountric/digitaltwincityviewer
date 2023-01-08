@@ -42,6 +42,7 @@
     "@turf/boolean-point-in-polygon": "^6.5.0",
     "@turf/clone": "^6.5.0",
     "@types/geojson": "^7946.0.10",
+    "big-json": "^3.2.0",
     "fs-extra": "^11.1.0",
     "geojson-vt": "^3.2.1",
     "rbush": "^3.0.1",

@@ -78,6 +78,9 @@ const BSM_ATTRIBUTES = [
 // some buildings miss attributes, use this color:
 const MISSING_ATTRIBUTE_COLOR = 'rgb(100, 100, 100)';
 
+let numMissing = 0;
+let numExisting = 0;
+
 function assignBsmStatisticsForBuilding(f, postfix) {
   // Note: when the bsm data was copied to the features the postfix was added
   BSM_ATTRIBUTE_INDICATORS.forEach(a => {
@@ -87,6 +90,7 @@ function assignBsmStatisticsForBuilding(f, postfix) {
       (f.properties[indicatorWithPostfix] ||
         f.properties[indicatorWithPostfix] === 0)
     ) {
+      numExisting++;
       const valuePerBuildingArea =
         f.properties[indicatorWithPostfix] / f.properties.heatedFloorArea;
       f.properties[`${indicatorWithPostfix}BuildingAreaNorm`] =
@@ -100,6 +104,8 @@ function assignBsmStatisticsForBuilding(f, postfix) {
           true
         );
     } else {
+      numMissing++;
+      //console.log('missing', indicatorWithPostfix, f.properties.UUID);
       f.properties[`${indicatorWithPostfix}BuildingAreaColor`] =
         MISSING_ATTRIBUTE_COLOR;
     }
@@ -178,6 +184,7 @@ export function addBsmDataToFeatures(
     for (const building of projectedBuildings.features) {
       assignBsmStatisticsForBuilding(building, filePathBSM[0]);
     }
+    console.log(numMissing, numExisting);
   }
 
   // ! need to stream the data to file because json.stringify(too_big_file) uses too much memory

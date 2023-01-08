@@ -44,7 +44,7 @@ export function toTileIndex(
   const resolvedOptions = Object.assign(
     {
       maxZoom: 18,
-      tolerance: 1,
+      tolerance: 3,
       extent: 4096,
       buffer: 64,
       debug: 0,
@@ -52,7 +52,7 @@ export function toTileIndex(
       promoteId: null,
       generateId: false,
       indexMaxZoom: 5,
-      indexMaxPoints: 10000000,
+      indexMaxPoints: 100000,
     },
     options
   );
