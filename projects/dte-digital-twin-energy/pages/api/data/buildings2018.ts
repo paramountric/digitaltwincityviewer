@@ -222,7 +222,10 @@ export default async function handleGetData(
     Key: S3_OBJECT_KEY_BUILDINGS_2018,
   });
   const setZCoordinateToZero = true;
+  console.log('query', req.query);
+
   try {
+    console.log('key', S3_BUCKET, S3_OBJECT_KEY_BUILDINGS_2018);
     const response = await client.send(command);
     const stream = response.Body as Readable;
     const buf = await streamToBuffer(stream);

@@ -11,24 +11,31 @@ type DisplayDict = {
 };
 
 const displayProperties: string[] = [
-  'uuid',
-  'type',
-  'address',
-  'height',
-  'heatedFloorArea',
+  'UUID',
+  'addr',
+  'hgt',
+  'bp',
+  'bps',
+  'hfa',
+  'hgt',
+  'pco',
+  'ppl',
 ];
 
 const propertyLabels: DisplayDict = {
-  address: 'Address',
-  uuid: 'UUID',
-  type: 'Type',
-  heatedFloorArea: 'Heated floor area',
-  height: 'Height',
+  addr: 'Address',
+  pco: 'Postal code',
+  ppl: 'City',
+  bp: 'Type',
+  bps: 'Undertyp',
+  hgt: 'Height',
+  hfa: 'Heated floor area',
+  UUID: 'UUID',
 };
 
 const units: DisplayDict = {
-  height: 'm',
-  heatedFloorArea: 'm²',
+  hgt: 'm',
+  hfa: 'm²',
 };
 
 // if needs to be rounded

@@ -2,100 +2,95 @@
 const propertyLabels: {
   [key: string]: string;
 } = {
-  deliveredEnergy: 'Delivered energy',
-  deliveredEnergy2020: 'Delivered energy 2020',
-  deliveredEnergy2030: 'Delivered energy 2030',
-  deliveredEnergy2050: 'Delivered energy 2050',
-  primaryEnergy: 'Primary energy',
-  primaryEnergy2020: 'Primary energy 2020',
-  primaryEnergy2030: 'Primary energy 2030',
-  primaryEnergy2050: 'Primary energy 2050',
-  finalEnergy: 'Final energy',
-  finalEnergy2020: 'Final energy 2020',
-  finalEnergy2030: 'Final energy 2030',
-  finalEnergy2050: 'Final energy 2050',
-  ghgEmissions: 'GHG emissions',
-  ghgEmissions2020: 'GHG emissions 2020',
-  ghgEmissions2030: 'GHG emissions 2030',
-  ghgEmissions2050: 'GHG emissions 2050',
-  heatDemand: 'Heat demand',
-  heatDemand2020: 'Heat demand 2020',
-  heatDemand2030: 'Heat demand 2030',
-  heatDemand2050: 'Heat demand 2050',
+  de: 'Delivered energy',
+  de18: 'Delivered energy 2020',
+  de30: 'Delivered energy 2030',
+  de50: 'Delivered energy 2050',
+  pe: 'Primary energy',
+  pe18: 'Primary energy 2020',
+  pe30: 'Primary energy 2030',
+  pe50: 'Primary energy 2050',
+  fe: 'Final energy',
+  fe18: 'Final energy 2020',
+  fe30: 'Final energy 2030',
+  fe50: 'Final energy 2050',
+  ge: 'GHG emissions',
+  ge18: 'GHG emissions 2020',
+  ge30: 'GHG emissions 2030',
+  ge50: 'GHG emissions 2050',
+  hd: 'Heat demand',
+  hd18: 'Heat demand 2020',
+  hd30: 'Heat demand 2030',
+  hd50: 'Heat demand 2050',
 };
 
 // these are the units, but could be done with enum instead
 const units: {
   [key: string]: string;
 } = {
-  deliveredEnergy: 'kWh',
-  deliveredEnergyTimeline: 'MWh',
-  deliveredEnergyM2: 'kWh/m²',
-  deliveredEnergy2020: 'kWh',
-  deliveredEnergy2030: 'kWh',
-  deliveredEnergy2050: 'kWh',
-  primaryEnergy: 'kWh',
-  primaryEnergyTimeline: 'MWh',
-  primaryEnergyM2: 'kWh/m²',
-  primaryEnergy2020: 'kWh',
-  primaryEnergy2030: 'kWh',
-  primaryEnergy2050: 'kWh',
-  finalEnergy: 'kWh',
-  finalEnergyTimeline: 'MWh',
-  finalEnergyM2: 'kWh/m²',
-  finalEnergy2020: 'kWh',
-  finalEnergy2030: 'kWh',
-  finalEnergy2050: 'kWh',
-  ghgEmissions: 'kgCO2-eq.',
-  ghgEmissionsTimeline: 'kgCO2-eq.',
-  ghgEmissionsM2: 'kgCO2-eq./m²',
-  ghgEmissions2020: 'kgCO2-eq.',
-  ghgEmissions2030: 'kgCO2-eq.',
-  ghgEmissions2050: 'kgCO2-eq.',
-  heatDemand: 'kWh',
-  heatDemandTimeline: 'MWh',
-  heatDemandM2: 'kWh/m²',
-  heatDemand2020: 'kWh',
-  heatDemand2030: 'kWh',
-  heatDemand2050: 'kWh',
+  de: 'kWh',
+  deTimeline: 'MWh',
+  deM2: 'kWh/m²',
+  de18: 'kWh',
+  de30: 'kWh',
+  de50: 'kWh',
+  pe: 'kWh',
+  peTimeline: 'MWh',
+  peM2: 'kWh/m²',
+  pe18: 'kWh',
+  pe30: 'kWh',
+  pe50: 'kWh',
+  fe: 'kWh',
+  feTimeline: 'MWh',
+  feM2: 'kWh/m²',
+  fe18: 'kWh',
+  fe30: 'kWh',
+  fe50: 'kWh',
+  ge: 'kgCO2-eq.',
+  geTimeline: 'kgCO2-eq.',
+  geM2: 'kgCO2-eq./m²',
+  ge18: 'kgCO2-eq.',
+  ge30: 'kgCO2-eq.',
+  ge50: 'kgCO2-eq.',
+  hd: 'kWh',
+  hdTimeline: 'MWh',
+  hdM2: 'kWh/m²',
+  hd18: 'kWh',
+  hd30: 'kWh',
+  hd50: 'kWh',
 };
 
 // if needs to be rounded
 const rounding: {
   [key: string]: number;
 } = {
-  height: 1,
-  heatedFloorArea: 0,
-  deliveredEnergy: 0,
-  deliveredEnergy2020: 0,
-  deliveredEnergy2030: 0,
-  deliveredEnergy2050: 0,
-  primaryEnergy: 0,
-  primaryEnergy2020: 0,
-  primaryEnergy2030: 0,
-  primaryEnergy2050: 0,
-  finalEnergy: 0,
-  finalEnergy2020: 0,
-  finalEnergy2030: 0,
-  finalEnergy2050: 0,
-  ghgEmissions: 0,
-  ghgEmissions2020: 0,
-  ghgEmissions2030: 0,
-  ghgEmissions2050: 0,
-  heatDemand: 0,
-  heatDemand2020: 0,
-  heatDemand2030: 0,
-  heatDemand2050: 0,
+  hgt: 1,
+  hfa: 0,
+  de: 0,
+  de18: 0,
+  de30: 0,
+  de50: 0,
+  pe: 0,
+  pe18: 0,
+  pe30: 0,
+  pe50: 0,
+  fe: 0,
+  fe18: 0,
+  fe30: 0,
+  fe50: 0,
+  ge: 0,
+  ge18: 0,
+  ge30: 0,
+  ge50: 0,
+  hd: 0,
+  hd18: 0,
+  hd30: 0,
+  hd50: 0,
 };
 
 // **** Settings for selecting properties/indicator ***** //
 
-export type SelectablePropertyKey =
-  | 'finalEnergyM2'
-  | 'heatDemandM2'
-  | 'primaryEnergyM2'
-  | 'deliveredEnergyM2'
-  | 'ghgEmissionsM2';
+export type SelectablePropertyKey = 'fe' | 'hd' | 'pe' | 'de' | 'ge';
 
 export type PropertyKeyOption = {
   key: SelectablePropertyKey;
@@ -106,11 +101,11 @@ export type PropertyKeyOption = {
 
 // this is shown in the top action menu
 const propertyKeyOptions: PropertyKeyOption[] = [
-  'finalEnergyM2',
-  'heatDemandM2',
-  'primaryEnergyM2',
-  'deliveredEnergyM2',
-  'ghgEmissionsM2',
+  'fe',
+  'hd',
+  'pe',
+  'de',
+  'ge',
 ].map(key => ({
   key: key as SelectablePropertyKey,
   label: propertyLabels[key],
@@ -120,32 +115,43 @@ const propertyKeyOptions: PropertyKeyOption[] = [
 
 // **** Settings for selecting year ***** //
 
+// const yearLabels: {
+//   [key: string]: string;
+// } = {
+//   '18': '2020',
+//   '30': '2030',
+//   '50': '2050',
+// };
+
+// const yearOptions = ['18', '30', '50'].map(key => ({
+//   key,
+//   label: yearLabels[key],
+// }));
+
 const yearLabels: {
   [key: string]: string;
 } = {
-  '2020': '2020',
-  '2050_2_5': '2050 (2.5)',
-  '2050_4_5': '2050 (4.5)',
-  '2050_8_5': '2050 (8.5)',
+  '18': 'The city of today (2020)',
+  '50': 'The city of tomorrow (2050)',
 };
 
-const yearOptions = ['2020', '2050_2_5', '2050_4_5', '2050 (8.5)'].map(key => ({
+const yearOptions = Object.keys(yearLabels).map(key => ({
   key,
   label: yearLabels[key],
 }));
 
-// **** Settings for selecting base map ***** //
-
-const baseMapLabels: {
+const degreeLabels: {
   [key: string]: string;
 } = {
-  '2020': '2020',
-  '2050': '2050',
+  '0': '0',
+  '25': '2.5',
+  '45': '4.5',
+  '85': '8.5',
 };
 
-const baseMapOptions = ['2020', '2050'].map(key => ({
+const degreeOptions = Object.keys(degreeLabels).map(key => ({
   key,
-  label: baseMapLabels[key],
+  label: degreeLabels[key],
 }));
 
 export {
@@ -155,6 +161,6 @@ export {
   propertyKeyOptions,
   yearLabels,
   yearOptions,
-  baseMapLabels,
-  baseMapOptions,
+  degreeLabels,
+  degreeOptions,
 };

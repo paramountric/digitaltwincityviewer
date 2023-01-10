@@ -1,5 +1,6 @@
 import {useRef, useState, useEffect} from 'react';
 import {useViewer} from '../hooks/use-viewer';
+import {useUi} from '../hooks/use-ui';
 import {useSelectedFeature} from '../hooks/use-selected-feature';
 import Legend from './legend';
 import ActionPanel from './action-panel';
@@ -16,6 +17,7 @@ type ViewportProps = {};
 const Viewport: React.FC<ViewportProps> = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const {initViewer} = useViewer();
+  const {combinationIsSelected} = useUi();
   const {state: selectedFeatureId} = useSelectedFeature();
   // const climateScenarioData = useClimateScenarioData();
   // const contextData = useContextData();
@@ -43,7 +45,7 @@ const Viewport: React.FC<ViewportProps> = () => {
         ref={canvasRef}
       ></div>
       {selectedFeatureId && <RightMenu></RightMenu>}
-      <Legend></Legend>
+      {combinationIsSelected() && <Legend></Legend>}
       <BottomPanel></BottomPanel>
     </>
   );

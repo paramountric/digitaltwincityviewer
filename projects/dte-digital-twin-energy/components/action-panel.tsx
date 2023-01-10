@@ -5,8 +5,8 @@ import {
   propertyKeyOptions,
   yearLabels,
   yearOptions,
-  baseMapLabels,
-  baseMapOptions,
+  degreeLabels,
+  degreeOptions,
 } from '../lib/constants';
 
 type ActionPanelProps = {};
@@ -15,25 +15,38 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
 
   return (
     <div className="absolute flex justify-center w-full top-16 z-20">
+      <div className="mr-1">
+        <div className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 mt-1 text-sm font-medium text-gray-700 shadow-sm focus:outline-none">
+          See the
+        </div>
+      </div>
       <ActionPanelMenu
         onSelect={uiActions.setSelectedPropertyKey}
-        name={`Energy indicator: ${
-          propertyLabels[uiState.selectedPropertyKey]
-        }`}
+        name={propertyLabels[uiState.selectedPropertyKey] || 'energy'}
         selectedKey={uiState.selectedPropertyKey}
         options={propertyKeyOptions}
       ></ActionPanelMenu>
+      <div className="mr-1">
+        <div className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 mt-1 text-sm font-medium text-gray-700 shadow-sm focus:outline-none">
+          for
+        </div>
+      </div>
       <ActionPanelMenu
         onSelect={uiActions.setSelectedYearKey}
-        name={`Climate: ${yearLabels[uiState.selectedYearKey]}`}
+        name={yearLabels[uiState.selectedYearKey] || 'year'}
         selectedKey={uiState.selectedYearKey}
         options={yearOptions}
       ></ActionPanelMenu>
+      <div className="mr-1">
+        <div className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 mt-1 text-sm font-medium text-gray-700 shadow-sm focus:outline-none">
+          given the temperature rise of
+        </div>
+      </div>
       <ActionPanelMenu
         onSelect={uiActions.setSelectedBaseMapKey}
-        name={`Basemap: ${baseMapLabels[uiState.selectedBaseMapKey]}`}
-        selectedKey={uiState.selectedBaseMapKey}
-        options={baseMapOptions}
+        name={degreeLabels[uiState.selectedDegreeKey] || 'degrees'}
+        selectedKey={uiState.selectedDegreeKey}
+        options={degreeOptions}
       ></ActionPanelMenu>
     </div>
   );

@@ -26,6 +26,8 @@ if (typeof window !== 'undefined') {
 }
 
 const maplibreOptions = {
+  minZoom: 10,
+  maxZoom: 18,
   longitude: gothenburg.lng,
   // adjust camera since the official center is not the same as the app data
   latitude: gothenburg.lat, //57.7927,
@@ -57,7 +59,7 @@ const maplibreOptions = {
       {
         id: 'roads',
         name: 'Roads',
-        minzoom: 12,
+        minzoom: 13,
         type: 'fill',
         source: 'vectorTiles',
         'source-layer': 'roads',
@@ -106,11 +108,8 @@ const maplibreOptions = {
           visibility: 'visible',
         },
         paint: {
-          'fill-extrusion-color': [
-            'get',
-            'finalEnergy2018_climate_2_5BuildingAreaColor',
-          ],
-          'fill-extrusion-height': ['get', 'min_building_height'],
+          'fill-extrusion-color': 'rgb(200, 200, 200)',
+          'fill-extrusion-height': ['get', 'hgt'],
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 1,
         },
@@ -121,7 +120,10 @@ const maplibreOptions = {
         type: 'vector',
         promoteId: 'id',
         //tiles: [`http://localhost:9000/tiles/{z}/{x}/{y}`],
-        tiles: [`${tileServerUrl}/api/tiles?z={z}&x={x}&y={y}`],
+        //tiles: [`${tileServerUrl}/api/tiles?z={z}&x={x}&y={y}`],
+        tiles: [
+          'https://digitaltwincityviewer.s3.amazonaws.com/tiles/{z}/{x}/{y}.mvt',
+        ],
       },
     },
     version: 8,
@@ -138,10 +140,32 @@ export const useViewer = (): {
   const [extent, setExtent] = useState<number[]>([]);
 
   const userInfo = useUserInfo();
-  const {state: uiState} = useUi();
+  const {
+    state: uiState,
+    actions: uiActions,
+    getCombinedKey,
+    combinationIsSelected,
+  } = useUi();
   const {
     actions: {setSelectedFeature},
   } = useSelectedFeature();
+
+  useEffect(() => {
+    if (viewer) {
+      const key = getCombinedKey();
+      const showColor = combinationIsSelected();
+      console.log('showColor', showColor, key);
+      viewer.maplibreMap.setPaintProperty(
+        'building',
+        'fill-extrusion-color',
+        showColor ? ['get', `${key}_bcol`] : 'rgb(200, 200, 200)'
+      );
+    }
+  }, [
+    uiState.selectedPropertyKey,
+    uiState.selectedYearKey,
+    uiState.selectedDegreeKey,
+  ]);
 
   // const queryBuildings2018 = useQuery(
   //   ['buildings-2018'],
@@ -175,21 +199,21 @@ export const useViewer = (): {
   //   }
   // );
 
-  const contextData = useQuery(
-    ['context'],
-    async () => {
-      try {
-        const res = await fetch('/api/data/context');
-        return await res.json();
-      } catch (err) {
-        return undefined;
-      }
-    },
-    {
-      refetchOnWindowFocus: false,
-      enabled: false,
-    }
-  );
+  // const contextData = useQuery(
+  //   ['context'],
+  //   async () => {
+  //     try {
+  //       const res = await fetch('/api/data/context');
+  //       return await res.json();
+  //     } catch (err) {
+  //       return undefined;
+  //     }
+  //   },
+  //   {
+  //     refetchOnWindowFocus: false,
+  //     enabled: false,
+  //   }
+  // );
 
   // const updateTimeline = () => {
   //   console.log('test', viewer, propertyKey, selectedYear);
