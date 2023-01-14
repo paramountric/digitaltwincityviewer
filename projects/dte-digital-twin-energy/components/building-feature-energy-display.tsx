@@ -20,23 +20,17 @@ function formatValue(properties: any, propertyKey: string) {
   return val;
 }
 
-function getIndicatorKeys(selectedYear: string) {
-  if (selectedYear === '2050_4_5') {
-    return ['2018_4_5', '2030_4_5', '2050_4_5'];
-  }
-
-  if (selectedYear === '2050_8_5') {
-    return ['2018_8_5', '2030_8_5', '2050_8_5'];
-  }
-
-  return ['2020', '2030', '2050'];
-}
-
-// kwh/m2 or total ghg/m2
-function getIndicatorYears(properties: any, key: string, selectedYear: string) {
-  return getIndicatorKeys(selectedYear).map(year => {
+// kwh/m2 or total ghg/m2 for each of the years
+function getIndicatorYearValues(
+  properties: any,
+  selectedIndicatorKey: string,
+  selectedDegreeKey: string
+) {
+  return ['18', '50'].map(year => {
     // in case of not m2 - remove M2 from the end (need to update color scale as well)
-    const keyAddM2 = `${key}${year}M2`;
+    const keyAddM2 = `${selectedIndicatorKey}${year}_${selectedDegreeKey}_ban`; // building area normalized
+    console.log('key', keyAddM2);
+
     return properties[keyAddM2] || 0;
   });
 }
@@ -44,25 +38,25 @@ function getIndicatorYears(properties: any, key: string, selectedYear: string) {
 function applyChart(
   el: HTMLDivElement,
   properties: any,
-  key: string,
-  selectedYear: string
+  selectedIndicatorKey: string,
+  selectedDegreeKey: string
 ) {
-  const isGhg = key === 'ghgEmissions';
+  const isGhg = selectedIndicatorKey === 'ghgEmissions';
   const scaleKey = isGhg ? 'buildingGhg' : 'energyDeclaration';
-  const unit = units[`${key}M2`];
+  const unit = units[`${selectedIndicatorKey}M2`];
   select(el).selectAll('svg').remove();
-  const timelineValues = getIndicatorYears(properties, key, selectedYear);
+  console.log(properties, selectedIndicatorKey, selectedDegreeKey);
+  const timelineValues = getIndicatorYearValues(
+    properties,
+    selectedIndicatorKey,
+    selectedDegreeKey
+  );
   const max = Math.max(...timelineValues);
   if (max === 0) {
     return;
   }
-  // const years: string[] = [
-  //   `2020${scenarioPostfix}`,
-  //   `2030${scenarioPostfix}`,
-  //   `2050${scenarioPostfix}`,
-  // ];
-  const years: string[] = ['2020', '2030', '2050'];
-  //const yearProperties = years.map(year => `${key}${year}`);
+
+  const years: string[] = ['2020', '2050'];
 
   const margin = {top: 20, right: 0, bottom: 20, left: 60};
   const width = 250 - margin.left - margin.right;
@@ -103,7 +97,7 @@ function applyChart(
     .attr('text-anchor', 'middle')
     .style('font-size', '12px')
     //.style('text-decoration', 'underline')
-    .text(propertyLabels[key]);
+    .text(propertyLabels[selectedIndicatorKey]);
 
   svg
     .append('g')
@@ -128,13 +122,6 @@ function applyChart(
 const BuildingFeatureEnergyDisplay: React.FC<
   BuildingFeatureEnergyDisplayProps
 > = props => {
-  const indicatorKeys = [
-    'deliveredEnergy',
-    'finalEnergy',
-    'ghgEmissions',
-    'heatDemand',
-    'primaryEnergy',
-  ];
   const deliveredEnergyRef = useRef<HTMLDivElement>(null);
   const finalEnergyRef = useRef<HTMLDivElement>(null);
   const ghgEmissionsRef = useRef<HTMLDivElement>(null);
@@ -147,43 +134,43 @@ const BuildingFeatureEnergyDisplay: React.FC<
       applyChart(
         deliveredEnergyRef.current,
         props.feature.properties,
-        'deliveredEnergy',
-        uiState.selectedYearKey
+        'de',
+        uiState.selectedDegreeKey
       );
     }
     if (finalEnergyRef.current) {
       applyChart(
         finalEnergyRef.current,
         props.feature.properties,
-        'finalEnergy',
-        uiState.selectedYearKey
+        'fe',
+        uiState.selectedDegreeKey
       );
     }
     if (ghgEmissionsRef.current) {
       applyChart(
         ghgEmissionsRef.current,
         props.feature.properties,
-        'ghgEmissions',
-        uiState.selectedYearKey
+        'ge',
+        uiState.selectedDegreeKey
       );
     }
     if (heatDemandRef.current) {
       applyChart(
         heatDemandRef.current,
         props.feature.properties,
-        'heatDemand',
-        uiState.selectedYearKey
+        'hd',
+        uiState.selectedDegreeKey
       );
     }
     if (primaryEnergyRef.current) {
       applyChart(
         primaryEnergyRef.current,
         props.feature.properties,
-        'primaryEnergy',
-        uiState.selectedYearKey
+        'pe',
+        uiState.selectedDegreeKey
       );
     }
-  }, [props.feature.properties, trigger, uiState.selectedYearKey]);
+  }, [props.feature.properties, trigger, uiState.selectedDegreeKey]);
   return (
     <Disclosure>
       {({open}) => (
@@ -198,11 +185,31 @@ const BuildingFeatureEnergyDisplay: React.FC<
             />
           </Disclosure.Button>
           <Disclosure.Panel className="p-2 text-sm text-gray-500">
-            <div id="delivered-energy-bar-chart" ref={deliveredEnergyRef}></div>
-            <div id="final-energy-bar-chart" ref={finalEnergyRef}></div>
-            <div id="ghg-emissions-bar-chart" ref={ghgEmissionsRef}></div>
-            <div id="heat-demand-chart" ref={heatDemandRef}></div>
-            <div id="primary-energy-chart" ref={primaryEnergyRef}></div>
+            <div
+              className="mt-3"
+              id="delivered-energy-bar-chart"
+              ref={deliveredEnergyRef}
+            ></div>
+            <div
+              className="mt-3"
+              id="final-energy-bar-chart"
+              ref={finalEnergyRef}
+            ></div>
+            <div
+              className="mt-3"
+              id="ghg-emissions-bar-chart"
+              ref={ghgEmissionsRef}
+            ></div>
+            <div
+              className="mt-3"
+              id="heat-demand-chart"
+              ref={heatDemandRef}
+            ></div>
+            <div
+              className="mt-3"
+              id="primary-energy-chart"
+              ref={primaryEnergyRef}
+            ></div>
           </Disclosure.Panel>
         </>
       )}

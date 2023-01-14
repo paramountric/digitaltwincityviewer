@@ -19,9 +19,6 @@ if (!gothenburg || !gothenburg.x) {
 // level 1, 2, 3 and building
 const aggregationZoomLevels = [8, 11, 12, 14];
 
-// this will be shown by default on mapload
-const initialColorProperty = 'deliveredEnergyBuildingAreaColor';
-
 let tileServerUrl = 'http://localhost:3000';
 
 if (typeof window !== 'undefined') {
@@ -178,25 +175,38 @@ export const useViewer = (): {
       console.log('showColor', showColor, key);
       const {selectedYearKey} = uiState;
       console.log(selectedYearKey);
+      const buildingLayer =
+        selectedYearKey === '18' || 'year' ? 'building' : 'building-future';
+
+      if (!showColor) {
+        viewer.maplibreMap.setPaintProperty(
+          'building',
+          'fill-extrusion-color',
+          DEFAULT_BUILDING_COLOR
+        );
+        viewer.maplibreMap.setPaintProperty(
+          'building-future',
+          'fill-extrusion-color',
+          DEFAULT_BUILDING_FUTURE_COLOR
+        );
+        return;
+      }
 
       viewer.maplibreMap.setLayoutProperty(
         'building',
         'visibility',
-        selectedYearKey === '18' ? 'visible' : 'none'
+        buildingLayer === 'building' ? 'visible' : 'none'
       );
       viewer.maplibreMap.setLayoutProperty(
         'building-future',
         'visibility',
-        selectedYearKey === '50' ? 'visible' : 'none'
+        buildingLayer === 'building-future' ? 'visible' : 'none'
       );
+
       viewer.maplibreMap.setPaintProperty(
-        selectedYearKey === '18' ? 'building' : 'building-future',
+        buildingLayer,
         'fill-extrusion-color',
-        showColor
-          ? ['get', `${key}_bcol`]
-          : selectedYearKey === '18'
-          ? DEFAULT_BUILDING_COLOR
-          : DEFAULT_BUILDING_FUTURE_COLOR
+        ['get', `${key}_bcol`]
       );
     }
   }, [

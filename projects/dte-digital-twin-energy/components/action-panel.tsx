@@ -44,7 +44,11 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
       </div>
       <ActionPanelMenu
         onSelect={uiActions.setSelectedBaseMapKey}
-        name={degreeLabels[uiState.selectedDegreeKey] || 'degrees'}
+        name={
+          degreeLabels[uiState.selectedDegreeKey] || 0
+            ? `${degreeLabels[uiState.selectedDegreeKey]} degrees`
+            : 'degrees'
+        }
         selectedKey={uiState.selectedDegreeKey}
         options={degreeOptions}
       ></ActionPanelMenu>
