@@ -27,10 +27,7 @@ function getIndicatorYearValues(
   selectedDegreeKey: string
 ) {
   return ['18', '50'].map(year => {
-    // in case of not m2 - remove M2 from the end (need to update color scale as well)
     const keyAddM2 = `${selectedIndicatorKey}${year}_${selectedDegreeKey}_ban`; // building area normalized
-    console.log('key', keyAddM2);
-
     return properties[keyAddM2] || 0;
   });
 }
@@ -45,7 +42,6 @@ function applyChart(
   const scaleKey = isGhg ? 'buildingGhg' : 'energyDeclaration';
   const unit = units[`${selectedIndicatorKey}M2`];
   select(el).selectAll('svg').remove();
-  console.log(properties, selectedIndicatorKey, selectedDegreeKey);
   const timelineValues = getIndicatorYearValues(
     properties,
     selectedIndicatorKey,

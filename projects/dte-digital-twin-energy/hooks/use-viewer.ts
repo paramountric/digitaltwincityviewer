@@ -172,9 +172,7 @@ export const useViewer = (): {
     if (viewer) {
       const key = getCombinedKey();
       const showColor = combinationIsSelected();
-      console.log('showColor', showColor, key);
       const {selectedYearKey} = uiState;
-      console.log(selectedYearKey);
       const buildingLayer =
         selectedYearKey === '18' || 'year' ? 'building' : 'building-future';
 
