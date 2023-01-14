@@ -190,7 +190,7 @@ const BuildingFeatureEnergyDisplay: React.FC<
         <>
           <Disclosure.Button
             onClick={() => setTrigger(trigger + 1)}
-            className="flex w-full justify-between rounded-md py-2 text-left text-sm text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75"
+            className="flex w-full bg-gray-100 justify-between rounded-md p-2 mt-2 text-left text-sm text-gray-700 font-medium hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75"
           >
             <span>Energy</span>
             <ChevronUpIcon

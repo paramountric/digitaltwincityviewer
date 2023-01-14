@@ -27,7 +27,7 @@ const propertyLabels: DisplayDict = {
   pco: 'Postal code',
   ppl: 'City',
   bp: 'Type',
-  bps: 'Undertyp',
+  bps: 'Subtype',
   hgt: 'Height',
   hfa: 'Heated floor area',
   UUID: 'UUID',
@@ -42,6 +42,7 @@ const units: DisplayDict = {
 const rounding: DisplayDict = {
   height: 1,
   heatedFloorArea: 0,
+  hfa: 0,
 };
 
 function formatValue(properties: any, propertyKey: string) {
@@ -69,13 +70,13 @@ const BuildingFeatureGeneralDisplay: React.FC<
     <Disclosure>
       {({open}) => (
         <>
-          <Disclosure.Button className="flex w-full justify-between rounded-md py-2 text-left text-sm text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75">
+          <Disclosure.Button className="flex w-full bg-gray-100 justify-between rounded-md p-2 mt-2 text-left text-sm text-gray-700 font-medium hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75">
             <span>General</span>
             <ChevronUpIcon
               className={`${open ? 'rotate-180 transform' : ''} h-5 w-5`}
             />
           </Disclosure.Button>
-          <Disclosure.Panel className="p-2 text-xs text-gray-500">
+          <Disclosure.Panel className="p-3 text-xs text-gray-500">
             <div className="grid grid-cols-5">
               {propertySelection.map((item: any, i: number) => {
                 const val = formatValue(
@@ -84,7 +85,7 @@ const BuildingFeatureGeneralDisplay: React.FC<
                 );
                 return (
                   <Fragment key={i}>
-                    <div className="col-span-2 font-semibold">
+                    <div className="col-span-2 p-1 mr-1 mb-1 font-semibold">
                       {item.label || 'fixme'}:
                     </div>
                     <div className="col-span-3">
