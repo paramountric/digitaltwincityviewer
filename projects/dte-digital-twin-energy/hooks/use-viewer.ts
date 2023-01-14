@@ -8,6 +8,9 @@ import {useSelectedFeature} from './use-selected-feature';
 import {getColorFromScale} from '../lib/colorScales';
 import {useUi} from './use-ui';
 
+const DEFAULT_BUILDING_COLOR = 'rgb(200, 200, 200)';
+const DEFAULT_BUILDING_FUTURE_COLOR = 'rgb(230, 200, 200)';
+
 const gothenburg = cities.find((c: any) => c.id === 'gothenburg');
 if (!gothenburg || !gothenburg.x) {
   throw new Error('City must be selected on app level');
@@ -98,7 +101,7 @@ const maplibreOptions = {
       },
       {
         id: 'building',
-        name: 'Building extruded',
+        name: 'Buildings extruded',
         type: 'fill-extrusion',
         source: 'vectorTiles',
         'source-layer': 'buildings2018',
@@ -108,7 +111,25 @@ const maplibreOptions = {
           visibility: 'visible',
         },
         paint: {
-          'fill-extrusion-color': 'rgb(200, 200, 200)',
+          'fill-extrusion-color': DEFAULT_BUILDING_COLOR,
+          'fill-extrusion-height': ['get', 'hgt'],
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 1,
+        },
+      },
+      {
+        id: 'building-future',
+        name: 'Future buildings extruded',
+        type: 'fill-extrusion',
+        source: 'vectorTiles',
+        'source-layer': 'buildings2050',
+        maxzoom: 18,
+        minzoom: 10, //aggregationZoomLevels[3],
+        layout: {
+          visibility: 'none',
+        },
+        paint: {
+          'fill-extrusion-color': DEFAULT_BUILDING_FUTURE_COLOR,
           'fill-extrusion-height': ['get', 'hgt'],
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 1,
@@ -155,10 +176,27 @@ export const useViewer = (): {
       const key = getCombinedKey();
       const showColor = combinationIsSelected();
       console.log('showColor', showColor, key);
-      viewer.maplibreMap.setPaintProperty(
+      const {selectedYearKey} = uiState;
+      console.log(selectedYearKey);
+
+      viewer.maplibreMap.setLayoutProperty(
         'building',
+        'visibility',
+        selectedYearKey === '18' ? 'visible' : 'none'
+      );
+      viewer.maplibreMap.setLayoutProperty(
+        'building-future',
+        'visibility',
+        selectedYearKey === '50' ? 'visible' : 'none'
+      );
+      viewer.maplibreMap.setPaintProperty(
+        selectedYearKey === '18' ? 'building' : 'building-future',
         'fill-extrusion-color',
-        showColor ? ['get', `${key}_bcol`] : 'rgb(200, 200, 200)'
+        showColor
+          ? ['get', `${key}_bcol`]
+          : selectedYearKey === '18'
+          ? DEFAULT_BUILDING_COLOR
+          : DEFAULT_BUILDING_FUTURE_COLOR
       );
     }
   }, [
