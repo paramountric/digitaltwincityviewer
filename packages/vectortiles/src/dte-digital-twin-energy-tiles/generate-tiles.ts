@@ -581,7 +581,7 @@ export async function generateTiles() {
   // };
   saveToFolderStructure(data, {
     minZoom: 8,
-    maxZoom: 15,
+    maxZoom: 16,
   });
 }
 
