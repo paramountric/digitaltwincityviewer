@@ -46,6 +46,8 @@ class Viewer {
   currentCity: City | null = null;
   useMaplibre = false;
   props: ViewerProps;
+  // for now just set the cursor directly by css string (used by getCursor function)
+  public cursor: string | null = null;
   constructor(props: ViewerProps, maplibreOptions?: maplibregl.MapOptions) {
     this.jsonConverter = new JSONConverter({
       configuration: new JSONConfiguration(JSON_CONVERTER_CONFIGURATION),
@@ -148,7 +150,10 @@ class Viewer {
   }
 
   getCursor({ isDragging, isHovering }) {
-    return isHovering ? 'pointer' : 'grab';
+    if (isHovering) {
+      return 'pointer';
+    }
+    return this.cursor || 'grab';
   }
 
   onWebGLInitialized(gl) {
@@ -293,7 +298,7 @@ class Viewer {
         return;
       }
       if (props.onLoad) {
-        props.onLoad();
+        props.onLoad(this.maplibreMap);
       }
       const gl = this.maplibreMap.painter.context.gl;
       this.deck = new Deck(
@@ -309,65 +314,49 @@ class Viewer {
         }) as maplibregl.LayerSpecification
       );
 
-      if (props.onClick) {
-        this.maplibreMap.on('click', e => {
-          const features = this.maplibreMap.queryRenderedFeatures(
-            e.point,
-            props.clickableLayers
-              ? {
-                  layers: props.clickableLayers,
-                }
-              : undefined
-          );
-          if (features.length > 0) {
-            const selectedFeature = features[0];
-            const sourceLayer = `${selectedFeature.layer.id}`; // convension to find the line around the area clicked
-            props.onClick(selectedFeature, sourceLayer, e.point);
-          }
-        });
-      }
+      // todo: figure out the interactions drag and dragEnd for maplibre:
 
-      this.maplibreMap.on('move', () => {
-        if (this.deck.props.onDrag) {
-          const { lng, lat } = this.maplibreMap.getCenter();
-          // this.deck.props.onDrag({
-          //   longitude: lng,
-          //   latitude: lat,
-          // });
-        }
-        // this.deck.setProps({
-        //   viewState: {
-        //     longitude: lng,
-        //     latitude: lat,
-        //     zoom: this.maplibreMap.getZoom(),
-        //     bearing: this.maplibreMap.getBearing(),
-        //     pitch: this.maplibreMap.getPitch(),
-        //   },
-        // });
-        // this.viewStore.setViewState({
-        //   longitude: lng,
-        //   latitude: lat,
-        //   zoom: this.maplibreMap.getZoom(),
-        //   // bearing: this.maplibreMap.getBearing(),
-        //   // pitch: this.maplibreMap.getPitch(),
-        // });
-        // Prevent deck from redrawing - repaint is driven by maplibre's render loop
-        this.deck.needsRedraw({ clearRedrawFlags: true });
-      });
+      // this.maplibreMap.on('move', () => {
+      //   if (this.deck.props.onDrag) {
+      //     const { lng, lat } = this.maplibreMap.getCenter();
+      //     // this.deck.props.onDrag({
+      //     //   longitude: lng,
+      //     //   latitude: lat,
+      //     // });
+      //   }
+      //   // this.deck.setProps({
+      //   //   viewState: {
+      //   //     longitude: lng,
+      //   //     latitude: lat,
+      //   //     zoom: this.maplibreMap.getZoom(),
+      //   //     bearing: this.maplibreMap.getBearing(),
+      //   //     pitch: this.maplibreMap.getPitch(),
+      //   //   },
+      //   // });
+      //   // this.viewStore.setViewState({
+      //   //   longitude: lng,
+      //   //   latitude: lat,
+      //   //   zoom: this.maplibreMap.getZoom(),
+      //   //   // bearing: this.maplibreMap.getBearing(),
+      //   //   // pitch: this.maplibreMap.getPitch(),
+      //   // });
+      //   // Prevent deck from redrawing - repaint is driven by maplibre's render loop
+      //   this.deck.needsRedraw({ clearRedrawFlags: true });
+      // });
 
-      this.maplibreMap.on('moveend', () => {
-        if (this.deck.props.onDragEnd) {
-          const { lng, lat } = this.maplibreMap.getCenter();
-          const viewport = this.deck.viewManager.getViewport('mapview');
-          const { zoom } = viewport;
-          // this.deck.props.onDragEnd({
-          //   longitude: lng,
-          //   latitude: lat,
-          //   zoom,
-          // });
-        }
-        //this.viewStore.setViewStateEnd();
-      });
+      // this.maplibreMap.on('moveend', () => {
+      //   if (this.deck.props.onDragEnd) {
+      //     const { lng, lat } = this.maplibreMap.getCenter();
+      //     const viewport = this.deck.viewManager.getViewport('mapview');
+      //     const { zoom } = viewport;
+      //     // this.deck.props.onDragEnd({
+      //     //   longitude: lng,
+      //     //   latitude: lat,
+      //     //   zoom,
+      //     // });
+      //   }
+      //   //this.viewStore.setViewStateEnd();
+      // });
 
       //this.render();
     });
