@@ -10,6 +10,19 @@ import {useUi} from './use-ui';
 
 const DEFAULT_BUILDING_COLOR = 'rgb(200, 200, 200)';
 const DEFAULT_BUILDING_FUTURE_COLOR = 'rgb(230, 200, 200)';
+const DEFAULT_BUILDING_HOVER_COLOR = 'rgb(100, 100, 100)';
+const BUILDING_PAINT_PROPERTY = [
+  'case',
+  ['boolean', ['feature-state', 'hover'], false],
+  DEFAULT_BUILDING_HOVER_COLOR,
+  DEFAULT_BUILDING_COLOR,
+];
+const BUILDING_FUTURE_PAINT_PROPERTY = [
+  'case',
+  ['boolean', ['feature-state', 'hover'], false],
+  DEFAULT_BUILDING_HOVER_COLOR,
+  DEFAULT_BUILDING_FUTURE_COLOR,
+];
 
 const gothenburg = cities.find((c: any) => c.id === 'gothenburg');
 if (!gothenburg || !gothenburg.x) {
@@ -27,7 +40,7 @@ if (typeof window !== 'undefined') {
 
 const maplibreOptions = {
   minZoom: 10,
-  maxZoom: 18,
+  maxZoom: 17,
   longitude: gothenburg.lng,
   // adjust camera since the official center is not the same as the app data
   latitude: gothenburg.lat, //57.7927,
@@ -108,7 +121,7 @@ const maplibreOptions = {
           visibility: 'visible',
         },
         paint: {
-          'fill-extrusion-color': DEFAULT_BUILDING_COLOR,
+          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
           'fill-extrusion-height': ['get', 'hgt'],
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 1,
@@ -126,7 +139,7 @@ const maplibreOptions = {
           visibility: 'none',
         },
         paint: {
-          'fill-extrusion-color': DEFAULT_BUILDING_FUTURE_COLOR,
+          'fill-extrusion-color': BUILDING_FUTURE_PAINT_PROPERTY,
           'fill-extrusion-height': ['get', 'hgt'],
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 1,
@@ -152,10 +165,13 @@ export const useViewer = (): {
   initViewer: (ref: HTMLElement) => void;
   viewer: Viewer | null;
   viewerLoading: boolean;
-  getVisibleFeatures: () => Feature[];
+  //getVisibleFeatures: () => Feature[];
 } => {
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [extent, setExtent] = useState<number[]>([]);
+  const [hoveredObject, setHoveredObject] = useState<any | null>(null);
+  // state needs to find objects for changing back the colors due to shift between states
+  const [lastHoveredObject, setLastHoveredObject] = useState<any | null>(null);
 
   const userInfo = useUserInfo();
   const {
@@ -174,20 +190,27 @@ export const useViewer = (): {
       const showColor = combinationIsSelected();
       const {selectedYearKey} = uiState;
       const buildingLayer =
-        selectedYearKey === '18' || 'year' ? 'building' : 'building-future';
+        selectedYearKey === '18' || selectedYearKey === 'year'
+          ? 'building'
+          : 'building-future';
 
-      if (!showColor) {
+      if (showColor) {
+        viewer.maplibreMap.setPaintProperty(
+          buildingLayer,
+          'fill-extrusion-color',
+          ['get', `${key}_bcol`]
+        );
+      } else {
         viewer.maplibreMap.setPaintProperty(
           'building',
           'fill-extrusion-color',
-          DEFAULT_BUILDING_COLOR
+          BUILDING_PAINT_PROPERTY
         );
         viewer.maplibreMap.setPaintProperty(
           'building-future',
           'fill-extrusion-color',
-          DEFAULT_BUILDING_FUTURE_COLOR
+          BUILDING_FUTURE_PAINT_PROPERTY
         );
-        return;
       }
 
       viewer.maplibreMap.setLayoutProperty(
@@ -200,12 +223,6 @@ export const useViewer = (): {
         'visibility',
         buildingLayer === 'building-future' ? 'visible' : 'none'
       );
-
-      viewer.maplibreMap.setPaintProperty(
-        buildingLayer,
-        'fill-extrusion-color',
-        ['get', `${key}_bcol`]
-      );
     }
   }, [
     uiState.selectedPropertyKey,
@@ -213,362 +230,38 @@ export const useViewer = (): {
     uiState.selectedDegreeKey,
   ]);
 
-  // const queryBuildings2018 = useQuery(
-  //   ['buildings-2018'],
-  //   async () => {
-  //     try {
-  //       const res = await fetch('/api/data/buildings2018');
-  //       return await res.json();
-  //     } catch (err) {
-  //       return undefined;
-  //     }
-  //   },
-  //   {
-  //     refetchOnWindowFocus: false,
-  //     enabled: true,
-  //   }
-  // );
-
-  // const queryBuildings2050 = useQuery(
-  //   ['buildings-2050'],
-  //   async () => {
-  //     try {
-  //       const res = await fetch('/api/data/buildings2050');
-  //       return await res.json();
-  //     } catch (err) {
-  //       return undefined;
-  //     }
-  //   },
-  //   {
-  //     refetchOnWindowFocus: false,
-  //     enabled: false,
-  //   }
-  // );
-
-  // const contextData = useQuery(
-  //   ['context'],
-  //   async () => {
-  //     try {
-  //       const res = await fetch('/api/data/context');
-  //       return await res.json();
-  //     } catch (err) {
-  //       return undefined;
-  //     }
-  //   },
-  //   {
-  //     refetchOnWindowFocus: false,
-  //     enabled: false,
-  //   }
-  // );
-
-  // const updateTimeline = () => {
-  //   console.log('test', viewer, propertyKey, selectedYear);
-  //   if (!viewer || !propertyKey || !selectedYear) {
-  //     return;
-  //   }
-  //   const visibleObjects = ;
-  //   const timelineData = getTimelineData(visibleObjects);
-  //   console.log(timelineData);
-  // };
-
-  // const render = () => {
-  //   if (!viewer) {
-  //     return;
-  //   }
-  //   const jsonData: JsonProps = {
-  //     layers: [],
-  //   };
-  //   const isBaseMap2050 = false; //baseMapData?.features?.length > 0;
-
-  //   const features = contextData.data?.features || [];
-  //   const pointFeatures = features.filter(
-  //     (f: Feature) => f.geometry.type === 'Point'
-  //   );
-
-  //   for (const pointFeature of pointFeatures) {
-  //     // @ts-ignore
-  //     pointFeature.geometry.coordinates[2] = 0;
-  //   }
-
-  //   if (contextData && jsonData && jsonData.layers) {
-  //     jsonData.layers.push({
-  //       id: 'context-layer',
-  //       //'@@type': 'SolidPolygonLayer',
-  //       '@@type': 'GeoJsonLayer',
-  //       data: contextData,
-  //       onClick: (d: any) => {
-  //         //
-  //       },
-  //       //modelMatrix: [],
-  //       opacity: 1,
-  //       autoHighlight: false,
-  //       highlightColor: [100, 150, 250, 255],
-  //       extruded: false,
-  //       wireframe: false,
-  //       pickable: false,
-  //       isClickable: false,
-  //       coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
-  //       coordinateOrigin: [gothenburg.lng, gothenburg.lat],
-  //       getPolygon: '@@=geometry.coordinates',
-  //       //getFillColor: '@@=properties.color || [100, 150, 250, 30]',
-  //       getFillColor: (feature: Feature) => {
-  //         const defaultFillColor = [200, 200, 200, 255];
-  //         if (!feature.properties) {
-  //           return defaultFillColor;
-  //         }
-  //         const fillColor = feature.properties?.fillColor;
-  //         if (fillColor) {
-  //           // todo: have to check the color coding
-  //           //return fillColor;
-  //         }
-  //         // hacky checks for properties in project data
-  //         if (feature.properties.DETALJTYP === 'VATTEN') {
-  //           return [100, 150, 250, 105];
-  //         } else if (feature.properties.SW_MEMBER) {
-  //           return [220, 220, 220, 255];
-  //         } else if (feature.geometry.type === 'Point') {
-  //           return [50, 100, 50, 55];
-  //         }
-  //       },
-  //       getLineColor: (feature: Feature) => {
-  //         const defaultFillColor = [200, 200, 200, 255];
-  //         if (!feature.properties) {
-  //           return defaultFillColor;
-  //         }
-  //         const fillColor = feature.properties?.fillColor;
-  //         if (fillColor) {
-  //           // todo: have to check the color coding
-  //           //return fillColor;
-  //         }
-  //         // hacky checks for properties in project data
-  //         if (feature.properties.DETALJTYP === 'VATTEN') {
-  //           return [100, 150, 250, 50];
-  //         } else if (feature.properties.SW_MEMBER) {
-  //           return [190, 190, 190, 255];
-  //         } else if (feature.geometry.type === 'Point') {
-  //           return [50, 100, 50, 50];
-  //         }
-  //       },
-  //       getElevation: 0, //'@@=properties.height || 0',
-  //       useDevicePixels: true,
-  //       stroked: true,
-  //       filled: true,
-  //       pointType: 'circle',
-  //       lineWidthScale: 1,
-  //       lineWidthMinPixels: 1,
-  //       getPointRadius: 7,
-  //       getLineWidth: 1,
-  //       parameters: {
-  //         depthMask: true,
-  //         depthTest: true,
-  //         blend: true,
-  //         blendFunc: [
-  //           '@@#GL.SRC_ALPHA',
-  //           '@@#GL.ONE_MINUS_SRC_ALPHA',
-  //           '@@#GL.ONE',
-  //           '@@#GL.ONE_MINUS_SRC_ALPHA',
-  //         ],
-  //         polygonOffsetFill: true,
-  //         depthFunc: '@@#GL.LEQUAL',
-  //         blendEquation: '@@#GL.FUNC_ADD',
-  //       },
-  //     });
-  //   } else if (jsonData && jsonData.layers) {
-  //     // jsonData.layers.push({
-  //     //   id: 'context-layer',
-  //     //   //'@@type': 'SolidPolygonLayer',
-  //     //   '@@type': 'GeoJsonLayer',
-  //     //   data: {},
-  //     //   parameters: {
-  //     //     depthMask: true,
-  //     //     depthTest: true,
-  //     //     blend: true,
-  //     //     blendFunc: [
-  //     //       '@@#GL.SRC_ALPHA',
-  //     //       '@@#GL.ONE_MINUS_SRC_ALPHA',
-  //     //       '@@#GL.ONE',
-  //     //       '@@#GL.ONE_MINUS_SRC_ALPHA',
-  //     //     ],
-  //     //     polygonOffsetFill: true,
-  //     //     depthFunc: '@@#GL.LEQUAL',
-  //     //     blendEquation: '@@#GL.FUNC_ADD',
-  //     //   },
-  //     // });
-  //   }
-
-  //   const climateScenarioData = false;
-
-  //   if (!isBaseMap2050 && climateScenarioData && jsonData && jsonData.layers) {
-  //     jsonData.layers.push({
-  //       id: 'bsm-layer',
-  //       '@@type': 'SolidPolygonLayer',
-  //       //'@@type': 'GeoJsonLayer',
-  //       //data: climateScenarioData.buildings,
-  //       onClick: (d: any) => {
-  //         if (d.object) {
-  //           if (!d.object.id) {
-  //             d.object.id = d.object.properties.uuid;
-  //           }
-  //           actions.setFeatureId(d.object.id);
-  //           return;
-  //         }
-  //       },
-  //       //modelMatrix: data.modelMatrix,
-  //       opacity: 1,
-  //       autoHighlight: true,
-  //       highlightColor: [100, 150, 250, 255],
-  //       extruded: true,
-  //       wireframe: true,
-  //       pickable: true,
-  //       isClickable: true,
-  //       coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
-  //       coordinateOrigin: [gothenburg.lng, gothenburg.lat],
-  //       getPolygon: '@@=geometry.coordinates',
-  //       getFillColor: '@@=properties.color || [255, 255, 255, 255]',
-  //       getLineColor: [100, 100, 100],
-  //       getElevation: '@@=properties.height || 0',
-  //       useDevicePixels: true,
-  //       parameters: {
-  //         depthMask: true,
-  //         depthTest: true,
-  //         blend: true,
-  //         blendFunc: [
-  //           '@@#GL.SRC_ALPHA',
-  //           '@@#GL.ONE_MINUS_SRC_ALPHA',
-  //           '@@#GL.ONE',
-  //           '@@#GL.ONE_MINUS_SRC_ALPHA',
-  //         ],
-  //         polygonOffsetFill: true,
-  //         depthFunc: '@@#GL.LEQUAL',
-  //         blendEquation: '@@#GL.FUNC_ADD',
-  //       },
-  //     });
-  //   }
-
-  //   const baseMapData = false;
-
-  //   if (baseMapData && jsonData && jsonData.layers) {
-  //     jsonData.layers.push({
-  //       id: 'baseMap-layer',
-  //       //'@@type': 'SolidPolygonLayer',
-  //       '@@type': 'GeoJsonLayer',
-  //       data: baseMapData,
-  //       // onClick: (d: any) => {
-  //       //   if (d.object) {
-  //       //     if (!d.object.id) {
-  //       //       d.object.id = d.object.properties.uuid;
-  //       //     }
-  //       //     actions.setFeatureId(d.object.id);
-  //       //     return;
-  //       //   }
-  //       // },
-  //       //modelMatrix: data.modelMatrix,
-  //       opacity: 0.9,
-  //       autoHighlight: false,
-  //       highlightColor: [100, 150, 250, 255],
-  //       extruded: true,
-  //       wireframe: false,
-  //       pickable: false,
-  //       isClickable: false,
-  //       coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
-  //       coordinateOrigin: [gothenburg.lng, gothenburg.lat],
-  //       getPolygon: '@@=geometry.coordinates',
-  //       getFillColor: '@@=properties.color || [255, 255, 255, 255]',
-  //       getLineColor: [100, 100, 100, 255],
-  //       getElevation: '@@=properties.height || 20',
-  //       useDevicePixels: true,
-  //       parameters: {
-  //         depthMask: true,
-  //         depthTest: true,
-  //         blend: true,
-  //         blendFunc: [
-  //           '@@#GL.SRC_ALPHA',
-  //           '@@#GL.ONE_MINUS_SRC_ALPHA',
-  //           '@@#GL.ONE',
-  //           '@@#GL.ONE_MINUS_SRC_ALPHA',
-  //         ],
-  //         polygonOffsetFill: true,
-  //         depthFunc: '@@#GL.LEQUAL',
-  //         blendEquation: '@@#GL.FUNC_ADD',
-  //       },
-  //     });
-  //   }
-  //   viewer.setJson(jsonData);
-  // };
-
   useEffect(() => {
     //render();
   }, [viewer]);
 
-  // useEffect(() => {
-  //   const {propertyKey, selectedYear} = indicatorState;
-  //   if (
-  //     !viewer ||
-  //     !climateScenarioData ||
-  //     !climateScenarioData.buildings ||
-  //     !propertyKey ||
-  //     !selectedYear
-  //   ) {
-  //     return;
-  //   }
-  //   for (const feature of climateScenarioData.buildings) {
-  //     if (!feature.properties) {
-  //       continue;
-  //     }
-  //     const key = `${propertyKey}${selectedYear}M2`;
-  //     const val = feature.properties[key];
-  //     if (val) {
-  //       const scale =
-  //         propertyKey === 'ghgEmissions' ? 'buildingGhg' : 'energyDeclaration';
-  //       feature.properties.color = getColorFromScale(val, scale);
-  //     }
-  //   }
-  //   // old code for gradient color scale between green and red using generateColor from viewer module
-  //   // const colorStyle = {
-  //   //   sufficient: 150,
-  //   //   excellent: 60,
-  //   //   propertyKey: `${propertyKey}${selectedYear}M2`,
-  //   // };
-  //   // console.log(climateScenarioData);
-
-  //   // for (const feature of climateScenarioData.buildings) {
-  //   //   if (
-  //   //     feature.properties &&
-  //   //     colorStyle.propertyKey &&
-  //   //     colorStyle.sufficient &&
-  //   //     colorStyle.excellent
-  //   //   ) {
-  //   //     const color = generateColor(
-  //   //       feature.properties[colorStyle.propertyKey],
-  //   //       colorStyle.sufficient,
-  //   //       colorStyle.excellent
-  //   //     );
-  //   //     feature.properties.color = color;
-  //   //   }
-  //   // }
-  //   // this should trigger the bottom panel initially (with all data)
-  //   // updateTimelineData(propertyKey, selectedYear);
-  //   // render();
-  // }, [indicatorState, viewer, climateScenarioData]);
-
-  // useEffect(() => {
-  //   render();
-  // }, [contextData, baseMapData]);
-
-  // useEffect(() => {
-  //   refetchClimateScenarioData();
-  //   refetchBaseMapData();
-  //   refetchContextData();
-  // }, [userInfo]);
-
-  // useEffect(() => {
-  //   if (viewer) {
-  //     const result = viewer.getVisibleObjects(['bsm-layer']);
-  //     const features = result.map((r: any) => r.object).filter(Boolean);
-  //     const {propertyKey, selectedYear} = indicatorState;
-  //     updateTimelineData(propertyKey, selectedYear, features);
-  //   }
-  // }, [extent]);
+  useEffect(() => {
+    if (viewer?.maplibreMap && lastHoveredObject) {
+      const sourceLayer = lastHoveredObject.layer['source-layer'];
+      const sourceId = lastHoveredObject.layer['source'];
+      viewer.maplibreMap.setFeatureState(
+        {
+          source: sourceId,
+          sourceLayer: sourceLayer,
+          id: lastHoveredObject.id,
+        },
+        {hover: false}
+      );
+      viewer.cursor = 'grab';
+    }
+    if (viewer?.maplibreMap && hoveredObject) {
+      const sourceLayer = hoveredObject.layer['source-layer'];
+      const sourceId = hoveredObject.layer['source'];
+      viewer.maplibreMap.setFeatureState(
+        {
+          source: sourceId,
+          sourceLayer: sourceLayer,
+          id: hoveredObject.id,
+        },
+        {hover: true}
+      );
+      viewer.cursor = 'pointer';
+    }
+  }, [hoveredObject]);
 
   return {
     initViewer: ref => {
@@ -588,11 +281,44 @@ export const useViewer = (): {
             onDragEnd: ({longitude, latitude, zoom}: any) => {
               setExtent([longitude, latitude, zoom]);
             },
-            onClick: (clickedFeature: Feature, layerId: string, point: any) => {
-              if (clickedFeature.properties) {
-                setSelectedFeature(clickedFeature);
+            onLoad: (maplibreMap: any) => {
+              if (!maplibreMap || viewer) {
+                return;
               }
-              console.log(clickedFeature, layerId, point);
+              // ON CLICK
+              maplibreMap.on('click', (e: any) => {
+                const {point} = e;
+                const features = maplibreMap.queryRenderedFeatures(
+                  point,
+                  undefined
+                );
+                if (features.length > 0) {
+                  setSelectedFeature(null);
+                  const clickedFeature = features[0];
+                  // if layer needed:
+                  // const sourceLayer = `${clickedFeature.layer.id}`;
+                  if (clickedFeature.properties) {
+                    setSelectedFeature(clickedFeature);
+                  }
+                } else {
+                  setSelectedFeature(null);
+                }
+              });
+
+              // ON HOVER
+              const hoverLayers = ['building', 'building-future'];
+
+              for (const hoverLayer of hoverLayers) {
+                maplibreMap.on('mouseenter', hoverLayer, (e: any) => {
+                  if (e.features.length > 0) {
+                    setLastHoveredObject(e.features[0]);
+                    setHoveredObject(e.features[0]);
+                  }
+                });
+                maplibreMap.on('mouseleave', hoverLayer, () => {
+                  setHoveredObject(null);
+                });
+              }
             },
           },
           maplibreOptions
@@ -601,16 +327,369 @@ export const useViewer = (): {
     },
     viewer,
     viewerLoading: false,
-    getVisibleFeatures: () => {
-      if (viewer) {
-        return viewer.getVisibleObjects(['bsm-layer']);
-      }
-      return [];
-    },
+    // getVisibleFeatures: () => {
+    //   if (viewer) {
+    //     return viewer.getVisibleObjects(['bsm-layer']);
+    //   }
+    //   return [];
+    // },
   };
 };
 
 // ! kept for reference
+
+// const queryBuildings2018 = useQuery(
+//   ['buildings-2018'],
+//   async () => {
+//     try {
+//       const res = await fetch('/api/data/buildings2018');
+//       return await res.json();
+//     } catch (err) {
+//       return undefined;
+//     }
+//   },
+//   {
+//     refetchOnWindowFocus: false,
+//     enabled: true,
+//   }
+// );
+
+// const queryBuildings2050 = useQuery(
+//   ['buildings-2050'],
+//   async () => {
+//     try {
+//       const res = await fetch('/api/data/buildings2050');
+//       return await res.json();
+//     } catch (err) {
+//       return undefined;
+//     }
+//   },
+//   {
+//     refetchOnWindowFocus: false,
+//     enabled: false,
+//   }
+// );
+
+// const contextData = useQuery(
+//   ['context'],
+//   async () => {
+//     try {
+//       const res = await fetch('/api/data/context');
+//       return await res.json();
+//     } catch (err) {
+//       return undefined;
+//     }
+//   },
+//   {
+//     refetchOnWindowFocus: false,
+//     enabled: false,
+//   }
+// );
+
+// const updateTimeline = () => {
+//   console.log('test', viewer, propertyKey, selectedYear);
+//   if (!viewer || !propertyKey || !selectedYear) {
+//     return;
+//   }
+//   const visibleObjects = ;
+//   const timelineData = getTimelineData(visibleObjects);
+//   console.log(timelineData);
+// };
+
+// const render = () => {
+//   if (!viewer) {
+//     return;
+//   }
+//   const jsonData: JsonProps = {
+//     layers: [],
+//   };
+//   const isBaseMap2050 = false; //baseMapData?.features?.length > 0;
+
+//   const features = contextData.data?.features || [];
+//   const pointFeatures = features.filter(
+//     (f: Feature) => f.geometry.type === 'Point'
+//   );
+
+//   for (const pointFeature of pointFeatures) {
+//     // @ts-ignore
+//     pointFeature.geometry.coordinates[2] = 0;
+//   }
+
+//   if (contextData && jsonData && jsonData.layers) {
+//     jsonData.layers.push({
+//       id: 'context-layer',
+//       //'@@type': 'SolidPolygonLayer',
+//       '@@type': 'GeoJsonLayer',
+//       data: contextData,
+//       onClick: (d: any) => {
+//         //
+//       },
+//       //modelMatrix: [],
+//       opacity: 1,
+//       autoHighlight: false,
+//       highlightColor: [100, 150, 250, 255],
+//       extruded: false,
+//       wireframe: false,
+//       pickable: false,
+//       isClickable: false,
+//       coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
+//       coordinateOrigin: [gothenburg.lng, gothenburg.lat],
+//       getPolygon: '@@=geometry.coordinates',
+//       //getFillColor: '@@=properties.color || [100, 150, 250, 30]',
+//       getFillColor: (feature: Feature) => {
+//         const defaultFillColor = [200, 200, 200, 255];
+//         if (!feature.properties) {
+//           return defaultFillColor;
+//         }
+//         const fillColor = feature.properties?.fillColor;
+//         if (fillColor) {
+//           // todo: have to check the color coding
+//           //return fillColor;
+//         }
+//         // hacky checks for properties in project data
+//         if (feature.properties.DETALJTYP === 'VATTEN') {
+//           return [100, 150, 250, 105];
+//         } else if (feature.properties.SW_MEMBER) {
+//           return [220, 220, 220, 255];
+//         } else if (feature.geometry.type === 'Point') {
+//           return [50, 100, 50, 55];
+//         }
+//       },
+//       getLineColor: (feature: Feature) => {
+//         const defaultFillColor = [200, 200, 200, 255];
+//         if (!feature.properties) {
+//           return defaultFillColor;
+//         }
+//         const fillColor = feature.properties?.fillColor;
+//         if (fillColor) {
+//           // todo: have to check the color coding
+//           //return fillColor;
+//         }
+//         // hacky checks for properties in project data
+//         if (feature.properties.DETALJTYP === 'VATTEN') {
+//           return [100, 150, 250, 50];
+//         } else if (feature.properties.SW_MEMBER) {
+//           return [190, 190, 190, 255];
+//         } else if (feature.geometry.type === 'Point') {
+//           return [50, 100, 50, 50];
+//         }
+//       },
+//       getElevation: 0, //'@@=properties.height || 0',
+//       useDevicePixels: true,
+//       stroked: true,
+//       filled: true,
+//       pointType: 'circle',
+//       lineWidthScale: 1,
+//       lineWidthMinPixels: 1,
+//       getPointRadius: 7,
+//       getLineWidth: 1,
+//       parameters: {
+//         depthMask: true,
+//         depthTest: true,
+//         blend: true,
+//         blendFunc: [
+//           '@@#GL.SRC_ALPHA',
+//           '@@#GL.ONE_MINUS_SRC_ALPHA',
+//           '@@#GL.ONE',
+//           '@@#GL.ONE_MINUS_SRC_ALPHA',
+//         ],
+//         polygonOffsetFill: true,
+//         depthFunc: '@@#GL.LEQUAL',
+//         blendEquation: '@@#GL.FUNC_ADD',
+//       },
+//     });
+//   } else if (jsonData && jsonData.layers) {
+//     // jsonData.layers.push({
+//     //   id: 'context-layer',
+//     //   //'@@type': 'SolidPolygonLayer',
+//     //   '@@type': 'GeoJsonLayer',
+//     //   data: {},
+//     //   parameters: {
+//     //     depthMask: true,
+//     //     depthTest: true,
+//     //     blend: true,
+//     //     blendFunc: [
+//     //       '@@#GL.SRC_ALPHA',
+//     //       '@@#GL.ONE_MINUS_SRC_ALPHA',
+//     //       '@@#GL.ONE',
+//     //       '@@#GL.ONE_MINUS_SRC_ALPHA',
+//     //     ],
+//     //     polygonOffsetFill: true,
+//     //     depthFunc: '@@#GL.LEQUAL',
+//     //     blendEquation: '@@#GL.FUNC_ADD',
+//     //   },
+//     // });
+//   }
+
+//   const climateScenarioData = false;
+
+//   if (!isBaseMap2050 && climateScenarioData && jsonData && jsonData.layers) {
+//     jsonData.layers.push({
+//       id: 'bsm-layer',
+//       '@@type': 'SolidPolygonLayer',
+//       //'@@type': 'GeoJsonLayer',
+//       //data: climateScenarioData.buildings,
+//       onClick: (d: any) => {
+//         if (d.object) {
+//           if (!d.object.id) {
+//             d.object.id = d.object.properties.uuid;
+//           }
+//           actions.setFeatureId(d.object.id);
+//           return;
+//         }
+//       },
+//       //modelMatrix: data.modelMatrix,
+//       opacity: 1,
+//       autoHighlight: true,
+//       highlightColor: [100, 150, 250, 255],
+//       extruded: true,
+//       wireframe: true,
+//       pickable: true,
+//       isClickable: true,
+//       coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
+//       coordinateOrigin: [gothenburg.lng, gothenburg.lat],
+//       getPolygon: '@@=geometry.coordinates',
+//       getFillColor: '@@=properties.color || [255, 255, 255, 255]',
+//       getLineColor: [100, 100, 100],
+//       getElevation: '@@=properties.height || 0',
+//       useDevicePixels: true,
+//       parameters: {
+//         depthMask: true,
+//         depthTest: true,
+//         blend: true,
+//         blendFunc: [
+//           '@@#GL.SRC_ALPHA',
+//           '@@#GL.ONE_MINUS_SRC_ALPHA',
+//           '@@#GL.ONE',
+//           '@@#GL.ONE_MINUS_SRC_ALPHA',
+//         ],
+//         polygonOffsetFill: true,
+//         depthFunc: '@@#GL.LEQUAL',
+//         blendEquation: '@@#GL.FUNC_ADD',
+//       },
+//     });
+//   }
+
+//   const baseMapData = false;
+
+//   if (baseMapData && jsonData && jsonData.layers) {
+//     jsonData.layers.push({
+//       id: 'baseMap-layer',
+//       //'@@type': 'SolidPolygonLayer',
+//       '@@type': 'GeoJsonLayer',
+//       data: baseMapData,
+//       // onClick: (d: any) => {
+//       //   if (d.object) {
+//       //     if (!d.object.id) {
+//       //       d.object.id = d.object.properties.uuid;
+//       //     }
+//       //     actions.setFeatureId(d.object.id);
+//       //     return;
+//       //   }
+//       // },
+//       //modelMatrix: data.modelMatrix,
+//       opacity: 0.9,
+//       autoHighlight: false,
+//       highlightColor: [100, 150, 250, 255],
+//       extruded: true,
+//       wireframe: false,
+//       pickable: false,
+//       isClickable: false,
+//       coordinateSystem: '@@#COORDINATE_SYSTEM.METER_OFFSETS',
+//       coordinateOrigin: [gothenburg.lng, gothenburg.lat],
+//       getPolygon: '@@=geometry.coordinates',
+//       getFillColor: '@@=properties.color || [255, 255, 255, 255]',
+//       getLineColor: [100, 100, 100, 255],
+//       getElevation: '@@=properties.height || 20',
+//       useDevicePixels: true,
+//       parameters: {
+//         depthMask: true,
+//         depthTest: true,
+//         blend: true,
+//         blendFunc: [
+//           '@@#GL.SRC_ALPHA',
+//           '@@#GL.ONE_MINUS_SRC_ALPHA',
+//           '@@#GL.ONE',
+//           '@@#GL.ONE_MINUS_SRC_ALPHA',
+//         ],
+//         polygonOffsetFill: true,
+//         depthFunc: '@@#GL.LEQUAL',
+//         blendEquation: '@@#GL.FUNC_ADD',
+//       },
+//     });
+//   }
+//   viewer.setJson(jsonData);
+// };
+
+// useEffect(() => {
+//   const {propertyKey, selectedYear} = indicatorState;
+//   if (
+//     !viewer ||
+//     !climateScenarioData ||
+//     !climateScenarioData.buildings ||
+//     !propertyKey ||
+//     !selectedYear
+//   ) {
+//     return;
+//   }
+//   for (const feature of climateScenarioData.buildings) {
+//     if (!feature.properties) {
+//       continue;
+//     }
+//     const key = `${propertyKey}${selectedYear}M2`;
+//     const val = feature.properties[key];
+//     if (val) {
+//       const scale =
+//         propertyKey === 'ghgEmissions' ? 'buildingGhg' : 'energyDeclaration';
+//       feature.properties.color = getColorFromScale(val, scale);
+//     }
+//   }
+//   // old code for gradient color scale between green and red using generateColor from viewer module
+//   // const colorStyle = {
+//   //   sufficient: 150,
+//   //   excellent: 60,
+//   //   propertyKey: `${propertyKey}${selectedYear}M2`,
+//   // };
+//   // console.log(climateScenarioData);
+
+//   // for (const feature of climateScenarioData.buildings) {
+//   //   if (
+//   //     feature.properties &&
+//   //     colorStyle.propertyKey &&
+//   //     colorStyle.sufficient &&
+//   //     colorStyle.excellent
+//   //   ) {
+//   //     const color = generateColor(
+//   //       feature.properties[colorStyle.propertyKey],
+//   //       colorStyle.sufficient,
+//   //       colorStyle.excellent
+//   //     );
+//   //     feature.properties.color = color;
+//   //   }
+//   // }
+//   // this should trigger the bottom panel initially (with all data)
+//   // updateTimelineData(propertyKey, selectedYear);
+//   // render();
+// }, [indicatorState, viewer, climateScenarioData]);
+
+// useEffect(() => {
+//   render();
+// }, [contextData, baseMapData]);
+
+// useEffect(() => {
+//   refetchClimateScenarioData();
+//   refetchBaseMapData();
+//   refetchContextData();
+// }, [userInfo]);
+
+// useEffect(() => {
+//   if (viewer) {
+//     const result = viewer.getVisibleObjects(['bsm-layer']);
+//     const features = result.map((r: any) => r.object).filter(Boolean);
+//     const {propertyKey, selectedYear} = indicatorState;
+//     updateTimelineData(propertyKey, selectedYear, features);
+//   }
+// }, [extent]);
 
 // useEffect(() => {
 //   if (viewer) {
