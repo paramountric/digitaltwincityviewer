@@ -6,8 +6,8 @@ export function copyProperties(
   fromFeatures: Feature[],
   propertyKeys: string[],
   idKey: string,
-  prefix = '',
-  postfix = ''
+  prefix?: string,
+  postfix?: string
 ) {
   try {
     // put all properties in a map
