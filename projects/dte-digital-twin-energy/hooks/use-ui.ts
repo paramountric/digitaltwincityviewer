@@ -47,14 +47,17 @@ export const useUi = () => {
       );
     },
     getCombinedKey: () => {
-      const {selectedPropertyKey, selectedYearKey, selectedDegreeKey} = uiState;
-      return `${selectedPropertyKey}${selectedYearKey}_${selectedDegreeKey}`;
+      const {selectedPropertyKey, selectedDegreeKey} = uiState;
+
+      // all the 18 keys are the same for all the degrees
+      if (selectedDegreeKey === '0') {
+        return `${selectedPropertyKey}18_25`;
+      }
+      // for all the other degrees the 50 is used
+      return `${selectedPropertyKey}50_${selectedDegreeKey}`;
     },
     combinationIsSelected: () => {
       const {selectedPropertyKey, selectedYearKey, selectedDegreeKey} = uiState;
-      if (selectedDegreeKey === '0') {
-        return false;
-      }
       if (
         selectedPropertyKey === 'energy' ||
         selectedYearKey === 'year' ||
