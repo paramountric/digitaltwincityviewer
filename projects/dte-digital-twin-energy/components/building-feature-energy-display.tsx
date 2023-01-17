@@ -26,10 +26,18 @@ function getIndicatorYearValues(
   selectedIndicatorKey: string,
   selectedDegreeKey: string
 ) {
-  return ['18', '50'].map(year => {
-    const keyAddM2 = `${selectedIndicatorKey}${year}_${selectedDegreeKey}_ban`; // building area normalized
-    return properties[keyAddM2] || 0;
-  });
+  const currentYearValue = properties[`${selectedIndicatorKey}18_25_ban`];
+  return [
+    currentYearValue,
+    // if the degree is 0, we use the same value since there is no simulation for 0 degrees
+    selectedDegreeKey === 'degrees' || selectedDegreeKey === '0'
+      ? currentYearValue
+      : properties[`${selectedIndicatorKey}50_${selectedDegreeKey}_ban`],
+  ];
+  // return ['18', '50'].map(year => {
+  //   const keyAddM2 = `${selectedIndicatorKey}${year}_${selectedDegreeKey}_ban`; // building area normalized
+  //   return properties[keyAddM2] || 0;
+  // });
 }
 
 function applyChart(
@@ -85,6 +93,19 @@ function applyChart(
     .attr('height', function (d) {
       return height - y(d);
     });
+  // svg
+  //   .selectAll('.bar-text')
+  //   .data(timelineValues)
+  //   .enter()
+  //   .append('text')
+  //   .text(d => {
+  //     return `${propertyLabels[selectedIndicatorKey]} (${d.toFixed(1)})`;
+  //   })
+  //   .attr('x', width / 2)
+  //   .attr('y', 0 - margin.top / 2)
+  //   .attr('text-anchor', 'middle')
+  //   .style('font-size', '12px')
+  //   .style('text-anchor', 'middle');
 
   svg
     .append('text')
