@@ -16,4 +16,4 @@ RUN npm i
 
 COPY . .
 
-CMD ["npm", "run", "dev"];
+CMD ["yarn", "run", "dev"];
