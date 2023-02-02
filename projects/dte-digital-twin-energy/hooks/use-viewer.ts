@@ -42,8 +42,8 @@ const maplibreOptions = {
   minZoom: 10,
   maxZoom: 17,
   longitude: gothenburg.lng,
-  // adjust camera since the official center is not the same as the app data
-  latitude: gothenburg.lat, //57.7927,
+  // adjust camera since the official center is not the expected center
+  latitude: gothenburg.lat + 0.03,
   style: {
     id: 'digitaltwincityviewer',
     aggregationZoomLevels,
