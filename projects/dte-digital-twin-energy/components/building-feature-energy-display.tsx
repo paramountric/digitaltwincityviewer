@@ -21,19 +21,17 @@ function formatValue(properties: any, propertyKey: string) {
 }
 
 // kwh/m2 or total ghg/m2 for each of the years
-function getIndicatorYearValues(
+function getIndicatorDegreeValues(
   properties: any,
-  selectedIndicatorKey: string,
-  selectedDegreeKey: string
+  selectedIndicatorKey: string
 ) {
-  const currentYearValue = properties[`${selectedIndicatorKey}18_25_ban`];
-  return [
-    currentYearValue,
-    // if the degree is 0, we use the same value since there is no simulation for 0 degrees
-    selectedDegreeKey === 'degrees' || selectedDegreeKey === '0'
-      ? currentYearValue
-      : properties[`${selectedIndicatorKey}50_${selectedDegreeKey}_ban`],
-  ];
+  console.log(properties);
+  // todo: refactor the property names, since they are not named in a good way -> the 18 year has the same values and are all the degZero
+  const deg0 = properties[`${selectedIndicatorKey}18_25_ban`];
+  const deg25 = properties[`${selectedIndicatorKey}50_25_ban`];
+  const deg45 = properties[`${selectedIndicatorKey}50_45_ban`];
+  const deg85 = properties[`${selectedIndicatorKey}50_85_ban`];
+  return [deg0, deg25, deg45, deg85];
   // return ['18', '50'].map(year => {
   //   const keyAddM2 = `${selectedIndicatorKey}${year}_${selectedDegreeKey}_ban`; // building area normalized
   //   return properties[keyAddM2] || 0;
@@ -43,29 +41,28 @@ function getIndicatorYearValues(
 function applyChart(
   el: HTMLDivElement,
   properties: any,
-  selectedIndicatorKey: string,
-  selectedDegreeKey: string
+  selectedIndicatorKey: string
 ) {
   const isGhg = selectedIndicatorKey === 'ghgEmissions';
   const scaleKey = isGhg ? 'buildingGhg' : 'energyDeclaration';
   const unit = units[`${selectedIndicatorKey}M2`];
   select(el).selectAll('svg').remove();
-  const timelineValues = getIndicatorYearValues(
+  const timelineValues = getIndicatorDegreeValues(
     properties,
-    selectedIndicatorKey,
-    selectedDegreeKey
+    selectedIndicatorKey
   );
+  console.log(timelineValues);
   const max = Math.max(...timelineValues);
   if (max === 0) {
     return;
   }
 
-  const years: string[] = ['2020', '2050'];
+  const degrees: string[] = ['+0°C', '+2.5°C', '+4.5°C', '+8.5°C'];
 
   const margin = {top: 20, right: 0, bottom: 20, left: 60};
   const width = 250 - margin.left - margin.right;
   const height = 80 - margin.top - margin.bottom;
-  const x = scaleBand().domain(years).range([0, width]).padding(0.6);
+  const x = scaleBand().domain(degrees).range([0, width]).padding(0.6);
   const y = scaleLinear().domain([0, max]).range([height, 0]);
 
   const svg = select(el)
@@ -74,6 +71,9 @@ function applyChart(
     .attr('height', height + margin.top + margin.bottom)
     .append('g')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+  const tooltip = select('.tooltip');
+
   svg
     .selectAll('.bar')
     .data(timelineValues)
@@ -84,7 +84,7 @@ function applyChart(
     .attr('stroke-width', '0.5px')
     .attr('class', 'bar')
     .attr('x', (d, i): number => {
-      return x(years[i]) as number;
+      return x(degrees[i]) as number;
     })
     .attr('width', x.bandwidth())
     .attr('y', function (d) {
@@ -92,6 +92,16 @@ function applyChart(
     })
     .attr('height', function (d) {
       return height - y(d);
+    })
+    .on('mouseover', function (d) {
+      console.log(d);
+      tooltip
+        .text(d.target.__data__.toFixed(1) + ' ' + unit)
+        .style('left', d.offsetX + 'px')
+        .style('top', d.y - 35 + 'px');
+    })
+    .on('mouseout', function (d) {
+      //tooltip.style('opacity', 0);
     });
   // svg
   //   .selectAll('.bar-text')
@@ -148,44 +158,19 @@ const BuildingFeatureEnergyDisplay: React.FC<
   const {state: uiState} = useUi();
   useLayoutEffect(() => {
     if (deliveredEnergyRef.current) {
-      applyChart(
-        deliveredEnergyRef.current,
-        props.feature.properties,
-        'de',
-        uiState.selectedDegreeKey
-      );
+      applyChart(deliveredEnergyRef.current, props.feature.properties, 'de');
     }
     if (finalEnergyRef.current) {
-      applyChart(
-        finalEnergyRef.current,
-        props.feature.properties,
-        'fe',
-        uiState.selectedDegreeKey
-      );
+      applyChart(finalEnergyRef.current, props.feature.properties, 'fe');
     }
     if (ghgEmissionsRef.current) {
-      applyChart(
-        ghgEmissionsRef.current,
-        props.feature.properties,
-        'ge',
-        uiState.selectedDegreeKey
-      );
+      applyChart(ghgEmissionsRef.current, props.feature.properties, 'ge');
     }
     if (heatDemandRef.current) {
-      applyChart(
-        heatDemandRef.current,
-        props.feature.properties,
-        'hd',
-        uiState.selectedDegreeKey
-      );
+      applyChart(heatDemandRef.current, props.feature.properties, 'hd');
     }
     if (primaryEnergyRef.current) {
-      applyChart(
-        primaryEnergyRef.current,
-        props.feature.properties,
-        'pe',
-        uiState.selectedDegreeKey
-      );
+      applyChart(primaryEnergyRef.current, props.feature.properties, 'pe');
     }
   }, [props.feature.properties, trigger, uiState.selectedDegreeKey]);
   return (
@@ -227,6 +212,9 @@ const BuildingFeatureEnergyDisplay: React.FC<
               id="primary-energy-chart"
               ref={primaryEnergyRef}
             ></div>
+            <div className="tooltip p-1 bg-white border shadow-md absolute left-0 top-0 z-50">
+              {/* this is replaced with tooltip text */}
+            </div>
           </Disclosure.Panel>
         </>
       )}
