@@ -3,7 +3,7 @@ import {useQuery} from '@tanstack/react-query';
 import {useEffect} from 'react';
 
 export type SelectToolProps = {
-  onSelectTool: (toolName: string, commandName) => void;
+  onSelectTool: (toolName: string, commandName: string) => void;
 };
 
 export default function SelectTool(props: SelectToolProps) {

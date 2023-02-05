@@ -53,7 +53,7 @@ export const useViewer = () => {
       },
       setCity: (cityId: string) => {
         const state = viewerStore.get();
-        state.viewer.setCityFromId(cityId);
+        state.viewer?.setCityFromId(cityId);
         viewerStore.set({
           ...state,
           cityId,
@@ -61,11 +61,11 @@ export const useViewer = () => {
       },
       getCity: () => {
         const state = viewerStore.get();
-        return state.viewer.getCity();
+        return state.viewer?.getCity();
       },
-      setCenter: (lng, lat) => {
+      setCenter: (lng: number, lat: number) => {
         const state = viewerStore.get();
-        state.viewer.setCenter([lng, lat], true);
+        state.viewer?.setCenter([lng, lat], true);
       },
       setSelectedObject: (selectedObject: string) => {
         const state = viewerStore.get();

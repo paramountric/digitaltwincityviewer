@@ -34,7 +34,7 @@ export default function UploadFileDialog() {
     (async () => {
       const fileListRes = await fetch('/api/s3-file-list');
       const fileListRaw = await fileListRes.json();
-      const fileList = fileListRaw.Contents.map(file => {
+      const fileList = fileListRaw.Contents.map((file: any) => {
         const fileName = file.Key.split('/').pop();
         const fileSize = (file.Size / 1000).toFixed();
         const d = new Date(file.LastModified);
@@ -93,12 +93,12 @@ export default function UploadFileDialog() {
   //   setShowUploadFileDialog(false);
   // };
 
-  const handleFileChange = async file => {
+  const handleFileChange = async (file: any) => {
     const res = await uploadToS3(file);
     setFileUrl(res.url);
   };
 
-  const handleViewFile = async file => {
+  const handleViewFile = async (file: any) => {
     const fileExtension = file.name.split('.').pop();
     const result = await loadExampleData({
       url: file.url,
@@ -113,59 +113,58 @@ export default function UploadFileDialog() {
     setShowUploadFileDialog(false);
   };
 
-  // this is connected to the variant on the server side for uploading to 3D
-  // const handleUploadFile = async (
-  //   e: React.ChangeEvent<HTMLInputElement>
-  // ) => {
-  //   if (!e?.target?.files) {
-  //     return;
-  //   }
-  //   const formData = new FormData();
+  // this is connected to the variant on the server side for uploading to s3
+  const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('handle upload file');
+    if (!e?.target?.files) {
+      return;
+    }
+    const formData = new FormData();
 
-  //   formData.append('file', e.target.files[0]);
+    formData.append('file', e.target.files[0]);
 
-  //   const options = {
-  //     method: 'POST',
-  //     body: formData,
-  //   };
-  //   fetch('/api/upload', options);
-  // };
+    const options = {
+      method: 'POST',
+      body: formData,
+    };
+    console.log('upload file');
+    fetch('/api/upload', options);
+  };
 
   // this could probably be removed, but could be used for preview
-  // const handleLoadLocalFile = async (
-  //   e: React.ChangeEvent<HTMLInputElement>
-  // ) => {
-  //   if (!e?.target?.files) {
-  //     return;
-  //   }
+  const handlePreview = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e?.target?.files) {
+      return;
+    }
 
-  //   // reset any error message
-  //   setErrorMsg('');
+    // reset any error message
+    setErrorMsg('');
 
-  //   const file = e?.target?.files[0];
-  //   const reader = new FileReader();
-  //   const splits = file.name.split('.');
-  //   const fileExtension = splits[splits.length - 1];
-  //   switch (fileExtension) {
-  //     case 'pb':
-  //       reader.onload = () => {
-  //         const result = reader.result as ArrayBuffer;
-  //         const pbData = new Uint8Array(result);
-  //         addLayerFromPbData(pbData);
-  //       };
-  //       reader.readAsArrayBuffer(file);
-  //       break;
-  //     case 'json':
-  //       reader.onload = () => {
-  //         const result = reader.result as string;
-  //         // todo: need to find a way to determine what process the data should go through now
-  //       };
-  //       reader.readAsText(file);
-  //       break;
-  //     default:
-  //       console.warn('example files should be explicit');
-  //   }
-  // };
+    const file = e?.target?.files[0];
+    const reader = new FileReader();
+    const splits = file.name.split('.');
+    const fileExtension = splits[splits.length - 1];
+    switch (fileExtension) {
+      case 'pb':
+        reader.onload = () => {
+          const result = reader.result as ArrayBuffer;
+          const pbData = new Uint8Array(result);
+          console.log('pb data was read, but not used');
+          //addLayerFromPbData(pbData);
+        };
+        reader.readAsArrayBuffer(file);
+        break;
+      case 'json':
+        reader.onload = () => {
+          const result = reader.result as string;
+          // todo: need to find a way to determine what process the data should go through now
+        };
+        reader.readAsText(file);
+        break;
+      default:
+        console.warn('example files should be explicit');
+    }
+  };
 
   return (
     <Transition.Root show={state.showUploadFileDialog} as={Fragment}>
@@ -225,33 +224,48 @@ export default function UploadFileDialog() {
                   </div>
                 )}
                 <div className="flex mt-6 text-md text-gray-600">
-                  {/* <label
-                    htmlFor="file-upload"
-                    className="relative cursor-pointer rounded-md bg-white font-medium focus-within:outline-none hover:text-blue-400"
-                  >
-                    <span className="border-2 rounded-full px-2 py-1">
-                      Select a file
-                    </span>
-                    <input
-                      id="file-upload"
-                      name="file-upload"
-                      type="file"
-                      className="sr-only"
-                      onChange={handleFileChange}
-                    />
-                  </label> */}
                   <div className="w-full">
                     <div className="sticky rounded text-white top-0 z-10  bg-slate-500 px-6 py-1 text-md font-medium">
                       <h3>Upload file</h3>
                     </div>
+                    <label
+                      htmlFor="file-upload"
+                      className="relative cursor-pointer rounded-md bg-white focus-within:outline-none hover:text-blue-400"
+                    >
+                      <span className="border rounded-full px-2 p-1">
+                        DTCC upload
+                      </span>
+                      <input
+                        id="file-upload"
+                        name="file-upload"
+                        type="file"
+                        className="sr-only"
+                        onChange={handleUploadFile}
+                      />
+                    </label>
                     <FileInput onChange={handleFileChange} />
-
                     <button
                       className="border rounded-full p-1 px-2 m-2 mt-4 hover:ring-2"
                       onClick={openFileDialog}
                     >
-                      Select file
+                      S3 upload
                     </button>
+
+                    <label
+                      htmlFor="file-preview"
+                      className="relative cursor-pointer rounded-md bg-white focus-within:outline-none hover:text-blue-400"
+                    >
+                      <span className="border rounded-full px-2 p-1">
+                        Preview
+                      </span>
+                      <input
+                        id="file-preview"
+                        name="file-preview"
+                        type="file"
+                        className="sr-only"
+                        onChange={handlePreview}
+                      />
+                    </label>
 
                     {files.map((file, index) => (
                       <div key={index}>Progress: {file.progress}%</div>

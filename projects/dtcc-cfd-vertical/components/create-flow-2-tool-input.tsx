@@ -1,34 +1,24 @@
-import toolsConfig from '../lib/dtcc-modules-conf.json';
+import {TaskModuleTool} from './create-flow-dialog';
 
 export type ToolInputProps = {
-  selectedToolName: string;
-  selectedCommandName: string;
+  taskModuleTool: TaskModuleTool;
   onClickRun: () => void;
 };
 
 export default function ToolInput(props: ToolInputProps) {
-  console.log(props);
-  const selectedTool = toolsConfig.modules.find(
-    t => t.name === props.selectedToolName
-  );
-  const selectedCommand = selectedTool.commands.find(
-    c => c.name === props.selectedCommandName
-  );
-  console.log(selectedTool);
+  const {taskModuleTool, onClickRun} = props;
 
   return (
     <div>
       <div className="relative  border-white rounded-md border  m-2">
         <div className="sticky rounded text-white top-0 z-10  bg-slate-500 px-6 py-1 text-md font-medium">
-          <h3>{selectedCommand.name}</h3>
+          <h3>{taskModuleTool.name}</h3>
         </div>
-        <p className="text-sm m-4">
-          Description: {selectedCommand.description}
-        </p>
-        {selectedCommand.parameters.length === 0 ? (
+        <p className="text-sm m-4">Description: {taskModuleTool.description}</p>
+        {taskModuleTool.parameters.length === 0 ? (
           <p className="text-sm m-4">No parameters required</p>
         ) : (
-          selectedCommand.parameters.map((param, index) => (
+          taskModuleTool.parameters.map((param, index) => (
             <div
               key={index}
               className="ml-4 p-2 sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5"

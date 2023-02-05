@@ -18,7 +18,7 @@ const Header: React.FC<HeaderProps> = () => {
   };
 
   return (
-    <div className="absolute w-full z-50 overflow-hidden">
+    <div className="absolute w-full z-30 overflow-hidden">
       <Head>
         <title>Example flow</title>
         <meta name="description" content="" />
