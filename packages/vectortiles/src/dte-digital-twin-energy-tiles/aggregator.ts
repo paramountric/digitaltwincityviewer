@@ -2,30 +2,32 @@ import fs from 'fs';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import clone from '@turf/clone';
 import bbox from '@turf/bbox';
-import { toWgs84 } from 'reproject';
+import pkg from 'reproject';
 import RBush from 'rbush';
 import { Feature, FeatureCollection } from 'geojson';
+
+const { toWgs84 } = pkg;
 
 // ! note, this file is only for the dte project case
 
 // these geojson files are used for segmentation of the areas used for aggregation, and not included in the source code.
 const cityDistricts = JSON.parse(
-  fs.readFileSync('../../data/boundaries/city_district.json', 'utf8')
+  fs.readFileSync('../../data/boundaries/city_districts.json', 'utf8')
 );
 const baseAreas = JSON.parse(
-  fs.readFileSync('../../boundaries/base_areas.json', 'utf8')
+  fs.readFileSync('../../data/boundaries/base_areas.json', 'utf8')
 );
 const primaryAreas = JSON.parse(
-  fs.readFileSync('../../boundaries/primary_areas.json', 'utf8')
+  fs.readFileSync('../../data/boundaries/primary_areas.json', 'utf8')
 );
 const grid1km = JSON.parse(
-  fs.readFileSync('../../boundaries/grid_1km.json', 'utf8')
+  fs.readFileSync('../../data/boundaries/grid_1km.json', 'utf8')
 );
 const grid250m = JSON.parse(
-  fs.readFileSync('../../boundaries/grid_250m.json', 'utf8')
+  fs.readFileSync('../../data/boundaries/grid_250m.json', 'utf8')
 );
 const grid100m = JSON.parse(
-  fs.readFileSync('../../boundaries/grid_100m.json', 'utf8')
+  fs.readFileSync('../../data/boundaries/grid_100m.json', 'utf8')
 );
 
 // the segmentation files (as well as the input geoJson) needs to be standard coordinates
@@ -57,8 +59,17 @@ function getPointFromFeature(feature: Feature) {
         coordinates: feature.geometry.coordinates[0][0],
       },
     };
+  } else if (feature.geometry.type === 'MultiPolygon') {
+    return {
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: feature.geometry.coordinates[0][0][0],
+      },
+    };
   }
   // do something about this later..
+  console.log('crash: ', feature);
   return 'crash';
 }
 
@@ -77,6 +88,7 @@ export function aggregate(
   properties: string[] = [],
   options: AggregateOptions
 ) {
+  console.log('properties', properties);
   // prepare features to searchtree
   const { features } = geoJson;
   const searchItems = [];

@@ -1,4 +1,4 @@
-import { FeatureCollection } from 'geojson';
+import { Feature, FeatureCollection } from 'geojson';
 //import pkg from 'reproject';
 import { createWriteStream } from 'fs';
 import { stringify } from 'big-json';
@@ -9,14 +9,172 @@ import {
   prepareWater,
   prepareRoads,
   prepareTrees,
+  prepareGrid1Km,
 } from './prepare-data.js';
+
+function shortenPropertyNames(featureCollection: FeatureCollection) {
+  const propertyNameDict = {
+    min_building_height: 'short',
+    address: 'short',
+    postPlace: 'short',
+    postCode: 'short',
+    heatedFloorArea: 'short',
+    building_purpose: 'short',
+    building_purpose_sub_type: 'short',
+    finalEnergy2018_climate_2_5BuildingAreaColor: 'short',
+    finalEnergy2030_climate_2_5BuildingAreaColor: 'short',
+    finalEnergy2050_climate_2_5BuildingAreaColor: 'short',
+    deliveredEnergy2018_climate_2_5BuildingAreaColor: 'short',
+    deliveredEnergy2030_climate_2_5BuildingAreaColor: 'short',
+    deliveredEnergy2050_climate_2_5BuildingAreaColor: 'short',
+    primaryEnergy2018_climate_2_5BuildingAreaColor: 'short',
+    primaryEnergy2030_climate_2_5BuildingAreaColor: 'short',
+    primaryEnergy2050_climate_2_5BuildingAreaColor: 'short',
+    ghgEmissions2018_climate_2_5BuildingAreaColor: 'short',
+    ghgEmissions2030_climate_2_5BuildingAreaColor: 'short',
+    ghgEmissions2050_climate_2_5BuildingAreaColor: 'short',
+    heatDemand2018_climate_2_5BuildingAreaColor: 'short',
+    heatDemand2030_climate_2_5BuildingAreaColor: 'short',
+    heatDemand2050_climate_2_5BuildingAreaColor: 'short',
+    coolingDemand2018_climate_2_5BuildingAreaColor: 'short',
+    coolingDemand2030_climate_2_5BuildingAreaColor: 'short',
+    coolingDemand2050_climate_2_5BuildingAreaColor: 'short',
+    finalEnergy2018_climate_4_5BuildingAreaColor: 'short',
+    finalEnergy2030_climate_4_5BuildingAreaColor: 'short',
+    finalEnergy2050_climate_4_5BuildingAreaColor: 'short',
+    deliveredEnergy2018_climate_4_5BuildingAreaColor: 'short',
+    deliveredEnergy2030_climate_4_5BuildingAreaColor: 'short',
+    deliveredEnergy2050_climate_4_5BuildingAreaColor: 'short',
+    primaryEnergy2018_climate_4_5BuildingAreaColor: 'short',
+    primaryEnergy2030_climate_4_5BuildingAreaColor: 'short',
+    primaryEnergy2050_climate_4_5BuildingAreaColor: 'short',
+    ghgEmissions2018_climate_4_5BuildingAreaColor: 'short',
+    ghgEmissions2030_climate_4_5BuildingAreaColor: 'short',
+    ghgEmissions2050_climate_4_5BuildingAreaColor: 'short',
+    heatDemand2018_climate_4_5BuildingAreaColor: 'short',
+    heatDemand2030_climate_4_5BuildingAreaColor: 'short',
+    heatDemand2050_climate_4_5BuildingAreaColor: 'short',
+    coolingDemand2018_climate_4_5BuildingAreaColor: 'short',
+    coolingDemand2030_climate_4_5BuildingAreaColor: 'short',
+    coolingDemand2050_climate_4_5BuildingAreaColor: 'short',
+    finalEnergy2018_climate_8_5BuildingAreaColor: 'short',
+    finalEnergy2030_climate_8_5BuildingAreaColor: 'short',
+    finalEnergy2050_climate_8_5BuildingAreaColor: 'short',
+    deliveredEnergy2018_climate_8_5BuildingAreaColor: 'short',
+    deliveredEnergy2030_climate_8_5BuildingAreaColor: 'short',
+    deliveredEnergy2050_climate_8_5BuildingAreaColor: 'short',
+    primaryEnergy2018_climate_8_5BuildingAreaColor: 'short',
+    primaryEnergy2030_climate_8_5BuildingAreaColor: 'short',
+    primaryEnergy2050_climate_8_5BuildingAreaColor: 'short',
+    ghgEmissions2018_climate_8_5BuildingAreaColor: 'short',
+    ghgEmissions2030_climate_8_5BuildingAreaColor: 'short',
+    ghgEmissions2050_climate_8_5BuildingAreaColor: 'short',
+    heatDemand2018_climate_8_5BuildingAreaColor: 'short',
+    heatDemand2030_climate_8_5BuildingAreaColor: 'short',
+    heatDemand2050_climate_8_5BuildingAreaColor: 'short',
+    coolingDemand2018_climate_8_5BuildingAreaColor: 'short',
+    coolingDemand2030_climate_8_5BuildingAreaColor: 'short',
+    coolingDemand2050_climate_8_5BuildingAreaColor: 'short',
+    finalEnergy2018_climate_2_5: 'short',
+    finalEnergy2050_climate_2_5: 'short',
+    deliveredEnergy2018_climate_2_5: 'short',
+    deliveredEnergy2050_climate_2_5: 'short',
+    primaryEnergy2018_climate_2_5: 'short',
+    primaryEnergy2050_climate_2_5: 'short',
+    ghgEmissions2018_climate_2_5: 'short',
+    ghgEmissions2050_climate_2_5: 'short',
+    heatDemand2018_climate_2_5: 'short',
+    heatDemand2050_climate_2_5: 'short',
+    finalEnergy2018_climate_4_5: 'short',
+    finalEnergy2050_climate_4_5: 'short',
+    deliveredEnergy2018_climate_4_5: 'short',
+    deliveredEnergy2050_climate_4_5: 'short',
+    primaryEnergy2018_climate_4_5: 'short',
+    primaryEnergy2050_climate_4_5: 'short',
+    ghgEmissions2018_climate_4_5: 'short',
+    ghgEmissions2050_climate_4_5: 'short',
+    heatDemand2018_climate_4_5: 'short',
+    heatDemand2050_climate_4_5: 'short',
+    finalEnergy2018_climate_8_5: 'short',
+    finalEnergy2050_climate_8_5: 'short',
+    deliveredEnergy2018_climate_8_5: 'short',
+    deliveredEnergy2050_climate_8_5: 'short',
+    primaryEnergy2018_climate_8_5: 'short',
+    primaryEnergy2050_climate_8_5: 'short',
+    ghgEmissions2018_climate_8_5: 'short',
+    ghgEmissions2050_climate_8_5: 'short',
+    heatDemand2018_climate_8_5: 'short',
+    heatDemand2050_climate_8_5: 'short',
+    finalEnergy2018_climate_2_5BuildingAreaNorm: 'short',
+    finalEnergy2050_climate_2_5BuildingAreaNorm: 'short',
+    deliveredEnergy2018_climate_2_5BuildingAreaNorm: 'short',
+    deliveredEnergy2050_climate_2_5BuildingAreaNorm: 'short',
+    primaryEnergy2018_climate_2_5BuildingAreaNorm: 'short',
+    primaryEnergy2050_climate_2_5BuildingAreaNorm: 'short',
+    ghgEmissions2018_climate_2_5BuildingAreaNorm: 'short',
+    ghgEmissions2050_climate_2_5BuildingAreaNorm: 'short',
+    heatDemand2018_climate_2_5BuildingAreaNorm: 'short',
+    heatDemand2050_climate_2_5BuildingAreaNorm: 'short',
+    finalEnergy2018_climate_4_5BuildingAreaNorm: 'short',
+    finalEnergy2050_climate_4_5BuildingAreaNorm: 'short',
+    deliveredEnergy2018_climate_4_5BuildingAreaNorm: 'short',
+    deliveredEnergy2050_climate_4_5BuildingAreaNorm: 'short',
+    primaryEnergy2018_climate_4_5BuildingAreaNorm: 'short',
+    primaryEnergy2050_climate_4_5BuildingAreaNorm: 'short',
+    ghgEmissions2018_climate_4_5BuildingAreaNorm: 'short',
+    ghgEmissions2050_climate_4_5BuildingAreaNorm: 'short',
+    heatDemand2018_climate_4_5BuildingAreaNorm: 'short',
+    heatDemand2050_climate_4_5BuildingAreaNorm: 'short',
+    finalEnergy2018_climate_8_5BuildingAreaNorm: 'short',
+    finalEnergy2050_climate_8_5BuildingAreaNorm: 'short',
+    deliveredEnergy2018_climate_8_5BuildingAreaNorm: 'short',
+    deliveredEnergy2050_climate_8_5BuildingAreaNorm: 'short',
+    primaryEnergy2018_climate_8_5BuildingAreaNorm: 'short',
+    primaryEnergy2050_climate_8_5BuildingAreaNorm: 'short',
+    ghgEmissions2018_climate_8_5BuildingAreaNorm: 'short',
+    ghgEmissions2050_climate_8_5BuildingAreaNorm: 'short',
+    heatDemand2018_climate_8_5BuildingAreaNorm: 'short',
+    heatDemand2050_climate_8_5BuildingAreaNorm: 'short',
+  };
+  const newFeatures = [];
+  for (const feature of featureCollection.features) {
+    const newProperties = Object.assign({}, feature.properties);
+    for (const propertyKey of Object.keys(feature.properties)) {
+      if (propertyNameDict[propertyKey]) {
+        feature.properties[propertyNameDict[propertyKey]] =
+          feature.properties[propertyKey];
+        delete feature.properties[propertyKey];
+      }
+    }
+    newFeatures.push({
+      type: feature.type,
+      geometry: feature.geometry,
+      properties: newProperties,
+    });
+  }
+  const newFeatureCollection = Object.assign({}, featureCollection, {
+    features: newFeatures,
+  });
+  return newFeatureCollection;
+}
 
 // this file is an example on tile generation for the dte-digital-twin-energy project
 
 export async function generateTiles() {
   const buildings2018 = prepareDataBuildings2018();
   const buildings2050 = prepareDataBuildings2050();
+  // const grid1Km2018 = prepareGrid1Km(buildings2018);
+  //const grid1Km2050 = prepareGrid1Km(buildings2050);
   //const featureTable = {};
+
+  const buildings2018Condensed: FeatureCollection =
+    shortenPropertyNames(buildings2018);
+
+  for (const feature of buildings2018Condensed.features) {
+    console.log(feature);
+  }
+
+  return;
 
   const buildings2018Features = buildings2018.features.map(f => {
     const {

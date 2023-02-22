@@ -1,9 +1,44 @@
 import fs from 'fs-extra';
 import { resolve } from 'path';
 import pkg from 'reproject';
-import { addProperty, copyProperties, FeatureCollection } from '@dtcv/geojson';
+import { addProperty, FeatureCollection, Feature } from '@dtcv/geojson';
 import { aggregate } from './aggregator.js';
 import { getColorFromScale } from './colorScales.js';
+
+export function copyProperties(
+  toFeatures: Feature[],
+  fromFeatures: Feature[],
+  propertyKeys: string[],
+  idKey: string,
+  prefix?: string,
+  postfix?: string
+) {
+  try {
+    // put all properties in a map
+    const propertyMap = {};
+    for (const fromFeature of fromFeatures) {
+      propertyMap[fromFeature.properties[idKey]] = fromFeature.properties;
+    }
+    // assign the properties to the features
+    for (const toFeature of toFeatures) {
+      const fromProperties = propertyMap[toFeature.properties[idKey]];
+      // if properties in fromFeatures was found for this toFeature
+      if (fromProperties) {
+        for (const propertyKey of propertyKeys) {
+          const value = fromProperties[propertyKey];
+          if (value || value === 0) {
+            toFeature.properties[
+              `${prefix || ''}${propertyKey}${postfix || ''}`
+            ] = value;
+          }
+        }
+      }
+    }
+    return toFeatures;
+  } catch (err) {
+    console.warn('Error in copyProperties function', err);
+  }
+}
 
 const { toWgs84 } = pkg;
 
@@ -63,6 +98,16 @@ const indicatorsWithYear = indicators.reduce((memo, key) => {
 // use these to prepare colors
 const BSM_ATTRIBUTE_INDICATORS = indicatorsWithYear;
 
+const BSM_ATTRIBUTE_INDICATORS_DEGREES = BSM_ATTRIBUTE_INDICATORS.reduce(
+  (memo, key) => {
+    memo.push(`${key}_climate_2_5`);
+    memo.push(`${key}_climate_4_5`);
+    memo.push(`${key}_climate_8_5`);
+    return memo;
+  },
+  []
+);
+
 console.log(BSM_ATTRIBUTE_INDICATORS);
 
 // copy these from the BSM file to the features
@@ -113,12 +158,14 @@ function assignBsmStatisticsForBuilding(f, postfix) {
 }
 
 function assignBsmStatisticsForDistrict(f) {
-  BSM_ATTRIBUTE_INDICATORS.forEach(a => {
+  BSM_ATTRIBUTE_INDICATORS_DEGREES.forEach(a => {
+    // ! note that heatedFloorArea from buildings are used now and not the are from the district shapes
     if (
-      f.properties.area && // area comes from the district aggregation features
+      f.properties.heatedFloorArea && // area comes from the district aggregation features
       (f.properties[a] || f.properties[a] === 0) // the value must be aggregated (summed) first from buildings inside
     ) {
-      const valuePerDistrictArea = f.properties[a] / f.properties.area;
+      const valuePerDistrictArea =
+        f.properties[a] / f.properties.heatedFloorArea;
       f.properties[`${a}DistrictAreaNorm`] = valuePerDistrictArea;
       f.properties[`${a}DistrictAreaColor`] = getColorFromScale(
         valuePerDistrictArea,
@@ -136,7 +183,7 @@ export function addBsmDataToFeatures(
   outputFilePath: string, // one output file per layer, to be read by the generate-tiles script
   propertyKeyListToCopy: string[],
   propertyKeyListToCopyIndicators: string[]
-) {
+): FeatureCollection {
   const buildings = JSON.parse(
     fs.readFileSync(resolve('../../data/', inputFilePathBuildings), 'utf8')
   );
@@ -202,7 +249,7 @@ export function addBsmDataToFeatures(
   // );
 }
 
-export function prepareDataBuildings2018() {
+export function prepareDataBuildings2018(): FeatureCollection {
   return addBsmDataToFeatures(
     './original/GBG_Basemap_2018.json',
     [
@@ -225,7 +272,7 @@ export function prepareDataBuildings2018() {
   );
 }
 
-export function prepareDataBuildings2050() {
+export function prepareDataBuildings2050(): FeatureCollection {
   return addBsmDataToFeatures(
     './original/GBG_Basemap_2050.json',
     [
@@ -248,7 +295,7 @@ export function prepareDataBuildings2050() {
   );
 }
 
-export function prepareWater() {
+export function prepareWater(): FeatureCollection {
   const water = JSON.parse(
     fs.readFileSync(resolve('../../data/', './original/water2018.json'), 'utf8')
   );
@@ -258,7 +305,7 @@ export function prepareWater() {
   return projectedWater;
 }
 
-export function prepareRoads() {
+export function prepareRoads(): FeatureCollection {
   const roads = JSON.parse(
     fs.readFileSync(resolve('../../data/', './original/roads2018.json'), 'utf8')
   );
@@ -268,7 +315,7 @@ export function prepareRoads() {
   return projectedRoads;
 }
 
-export function prepareTrees() {
+export function prepareTrees(): FeatureCollection {
   const trees = JSON.parse(
     fs.readFileSync(resolve('../../data/', './original/trees2018.json'), 'utf8')
   );
@@ -280,6 +327,8 @@ export function prepareTrees() {
 
 // This function reads the original data from file and add the additional attributes on the features
 // It will also aggregate some of the attribute values onto the aggregation datasets
+// ! note that this doesn't work for larger files (json.stringify), and requires streaming
+// ! atm it is not used, but it is left here for reference -> use in-memory pipeline from generate-tiles
 export function prepareData() {
   console.log('prepare and write 2018 to file...');
   addBsmDataToFeatures(
@@ -323,138 +372,143 @@ export function prepareData() {
     BSM_ATTRIBUTES,
     BSM_ATTRIBUTE_INDICATORS
   );
-
-  // // aggregate buildings on 1 km
-  // let grid1km;
-  // if (usePreparedFiles.grid1km) {
-  //   grid1km = JSON.parse(fs.readFileSync('data/grid1km.geojson', 'utf8'));
-  // } else {
-  //   console.log('preparing grid 1km');
-  //   console.log(process.memoryUsage());
-  //   grid1km = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
-  //     segmentation: 'grid1km',
-  //   });
-  // }
-  // grid1km.features.forEach(f => {
-  //   f.properties.id = getNewId();
-  //   assignBsmStatistics(f);
-  // });
-  // fs.writeFileSync('data/grid1km.geojson', JSON.stringify(grid1km));
-
-  // // aggregate buildings on 250 m
-  // let grid250m;
-  // if (usePreparedFiles.grid250m) {
-  //   grid250m = JSON.parse(fs.readFileSync('data/grid250m.geojson', 'utf8'));
-  // } else {
-  //   console.log('preparing grid 250m');
-  //   console.log(process.memoryUsage());
-  //   grid250m = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
-  //     segmentation: 'grid250m',
-  //   });
-  // }
-  // grid250m.features.forEach(f => {
-  //   f.properties.id = getNewId();
-  //   assignBsmStatistics(f);
-  // });
-  // fs.writeFileSync('data/grid250m.geojson', JSON.stringify(grid250m));
-
-  // // // aggregate buildings on 100 m
-  // let grid100m;
-  // if (usePreparedFiles.grid100m) {
-  //   grid100m = JSON.parse(fs.readFileSync('data/grid100m.geojson', 'utf8'));
-  // } else {
-  //   console.log('preparing grid 100m');
-  //   console.log(process.memoryUsage());
-  //   grid100m = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
-  //     segmentation: 'grid100m',
-  //   });
-  // }
-  // grid100m.features.forEach(f => {
-  //   f.properties.id = getNewId();
-  //   assignBsmStatistics(f);
-  // });
-  // fs.writeFileSync('data/grid100m.geojson', JSON.stringify(grid100m));
-
-  // // aggregate buildings on base area
-  // let baseAreas;
-  // if (usePreparedFiles.baseAreas) {
-  //   baseAreas = JSON.parse(fs.readFileSync('data/baseAreas.geojson', 'utf8'));
-  // } else {
-  //   console.log('preparing baseAreas');
-  //   console.log(process.memoryUsage());
-  //   baseAreas = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
-  //     segmentation: 'baseAreas',
-  //   });
-  // }
-  // baseAreas.features.forEach(f => {
-  //   f.properties.id = getNewId();
-  //   assignBsmStatistics(f);
-  // });
-  // fs.writeFileSync('data/baseAreas.geojson', JSON.stringify(baseAreas));
-
-  // // aggregate buildings on city district
-  // let cityDistricts;
-  // if (usePreparedFiles.cityDistricts) {
-  //   cityDistricts = JSON.parse(
-  //     fs.readFileSync('data/cityDistricts.geojson', 'utf8')
-  //   );
-  // } else {
-  //   console.log('preparing cityDistricts');
-  //   console.log(process.memoryUsage());
-  //   cityDistricts = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
-  //     segmentation: 'cityDistricts',
-  //   });
-  // }
-  // cityDistricts.features.forEach(f => {
-  //   f.properties.id = getNewId();
-  //   assignBsmStatistics(f);
-  // });
-  // fs.writeFileSync('data/cityDistricts.geojson', JSON.stringify(cityDistricts));
-
-  // let primaryAreas;
-  // if (usePreparedFiles.primaryAreas) {
-  //   primaryAreas = JSON.parse(
-  //     fs.readFileSync('data/primaryAreas.geojson', 'utf8')
-  //   );
-  // } else {
-  //   console.log('preparing primaryAreas');
-  //   console.log(process.memoryUsage());
-  //   primaryAreas = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
-  //     segmentation: 'primaryAreas',
-  //   });
-  // }
-  // primaryAreas.features.forEach(f => {
-  //   f.properties.id = getNewId();
-  //   assignBsmStatistics(f);
-  // });
-  // fs.writeFileSync('data/primaryAreas.geojson', JSON.stringify(primaryAreas));
-  // // aggregate buildings on primary area
-  // let primaryAreas;
-  // if (usePreparedFiles.primaryAreas) {
-  //   primaryAreas = JSON.parse(fs.readFileSync('data/primaryAreas.geojson', 'utf8'));
-  // } else {
-  //   console.log('preparing primaryAreas');
-  //   console.log(process.memoryUsage());
-  //   const primaryAreas = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, { segmentation: 'primaryAreas' });
-  //   primaryAreas.features.forEach(f => {
-  //     f.properties.color = indicators.generateColor(f.properties.deliveredEnergy / f.properties.heatedFloorArea, 100, 50);
-  //   });
-  //   fs.writeFileSync('data/primaryAreas.geojson', JSON.stringify(primaryAreas));
-  // }
-
-  // const tileLayers = {
-  //   cityModel: cityModelGeoJson,
-  //   roadNetwork: roadNetworkGeoJson,
-  //   landDataArea: landDataAreaGeoJson,
-  //   grid1km,
-  //   grid100m,
-  //   grid250m,
-  //   baseAreas,
-  //   cityDistricts,
-  //   primaryAreas,
-  // };
-
-  // return tileLayers;
 }
 
-prepareData();
+export function prepareGrid1Km(cityModelGeoJson: FeatureCollection) {
+  console.log('preparing grid 1km');
+  const grid1km = aggregate(
+    cityModelGeoJson,
+    ['heatedFloorArea', ...BSM_ATTRIBUTE_INDICATORS_DEGREES],
+    {
+      segmentation: 'grid1km',
+    }
+  );
+  grid1km.features.forEach(f => {
+    for (const indicator of BSM_ATTRIBUTE_INDICATORS_DEGREES) {
+      delete f.properties[`${indicator}Sum`];
+      delete f.properties[`${indicator}Count`];
+    }
+    f.properties.id = getNewId();
+    assignBsmStatisticsForDistrict(f);
+  });
+
+  return grid1km;
+  //fs.writeFileSync('data/grid1km.geojson', JSON.stringify(grid1km));
+}
+
+// // aggregate buildings on 250 m
+// let grid250m;
+// if (usePreparedFiles.grid250m) {
+//   grid250m = JSON.parse(fs.readFileSync('data/grid250m.geojson', 'utf8'));
+// } else {
+//   console.log('preparing grid 250m');
+//   console.log(process.memoryUsage());
+//   grid250m = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
+//     segmentation: 'grid250m',
+//   });
+// }
+// grid250m.features.forEach(f => {
+//   f.properties.id = getNewId();
+//   assignBsmStatistics(f);
+// });
+// fs.writeFileSync('data/grid250m.geojson', JSON.stringify(grid250m));
+
+// // // aggregate buildings on 100 m
+// let grid100m;
+// if (usePreparedFiles.grid100m) {
+//   grid100m = JSON.parse(fs.readFileSync('data/grid100m.geojson', 'utf8'));
+// } else {
+//   console.log('preparing grid 100m');
+//   console.log(process.memoryUsage());
+//   grid100m = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
+//     segmentation: 'grid100m',
+//   });
+// }
+// grid100m.features.forEach(f => {
+//   f.properties.id = getNewId();
+//   assignBsmStatistics(f);
+// });
+// fs.writeFileSync('data/grid100m.geojson', JSON.stringify(grid100m));
+
+// // aggregate buildings on base area
+// let baseAreas;
+// if (usePreparedFiles.baseAreas) {
+//   baseAreas = JSON.parse(fs.readFileSync('data/baseAreas.geojson', 'utf8'));
+// } else {
+//   console.log('preparing baseAreas');
+//   console.log(process.memoryUsage());
+//   baseAreas = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
+//     segmentation: 'baseAreas',
+//   });
+// }
+// baseAreas.features.forEach(f => {
+//   f.properties.id = getNewId();
+//   assignBsmStatistics(f);
+// });
+// fs.writeFileSync('data/baseAreas.geojson', JSON.stringify(baseAreas));
+
+// // aggregate buildings on city district
+// let cityDistricts;
+// if (usePreparedFiles.cityDistricts) {
+//   cityDistricts = JSON.parse(
+//     fs.readFileSync('data/cityDistricts.geojson', 'utf8')
+//   );
+// } else {
+//   console.log('preparing cityDistricts');
+//   console.log(process.memoryUsage());
+//   cityDistricts = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
+//     segmentation: 'cityDistricts',
+//   });
+// }
+// cityDistricts.features.forEach(f => {
+//   f.properties.id = getNewId();
+//   assignBsmStatistics(f);
+// });
+// fs.writeFileSync('data/cityDistricts.geojson', JSON.stringify(cityDistricts));
+
+// let primaryAreas;
+// if (usePreparedFiles.primaryAreas) {
+//   primaryAreas = JSON.parse(
+//     fs.readFileSync('data/primaryAreas.geojson', 'utf8')
+//   );
+// } else {
+//   console.log('preparing primaryAreas');
+//   console.log(process.memoryUsage());
+//   primaryAreas = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
+//     segmentation: 'primaryAreas',
+//   });
+// }
+// primaryAreas.features.forEach(f => {
+//   f.properties.id = getNewId();
+//   assignBsmStatistics(f);
+// });
+// fs.writeFileSync('data/primaryAreas.geojson', JSON.stringify(primaryAreas));
+// // aggregate buildings on primary area
+// let primaryAreas;
+// if (usePreparedFiles.primaryAreas) {
+//   primaryAreas = JSON.parse(fs.readFileSync('data/primaryAreas.geojson', 'utf8'));
+// } else {
+//   console.log('preparing primaryAreas');
+//   console.log(process.memoryUsage());
+//   const primaryAreas = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, { segmentation: 'primaryAreas' });
+//   primaryAreas.features.forEach(f => {
+//     f.properties.color = indicators.generateColor(f.properties.deliveredEnergy / f.properties.heatedFloorArea, 100, 50);
+//   });
+//   fs.writeFileSync('data/primaryAreas.geojson', JSON.stringify(primaryAreas));
+// }
+
+// const tileLayers = {
+//   cityModel: cityModelGeoJson,
+//   roadNetwork: roadNetworkGeoJson,
+//   landDataArea: landDataAreaGeoJson,
+//   grid1km,
+//   grid100m,
+//   grid250m,
+//   baseAreas,
+//   cityDistricts,
+//   primaryAreas,
+// };
+
+// return tileLayers;
+
+// prepareData();
