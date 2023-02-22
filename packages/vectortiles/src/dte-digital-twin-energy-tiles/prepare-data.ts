@@ -166,13 +166,14 @@ function assignBsmStatisticsForDistrict(f) {
     ) {
       const valuePerDistrictArea =
         f.properties[a] / f.properties.heatedFloorArea;
-      f.properties[`${a}DistrictAreaNorm`] = valuePerDistrictArea;
-      f.properties[`${a}DistrictAreaColor`] = getColorFromScale(
+      f.properties[`${a}BuildingAreaNorm`] = valuePerDistrictArea;
+      f.properties[`${a}BuildingAreaColor`] = getColorFromScale(
         valuePerDistrictArea,
-        a.startsWith('ghgEmissions') ? 'districtGhg' : 'districtEnergy'
+        a.startsWith('ghgEmissions') ? 'districtGhg' : 'districtEnergy',
+        true
       );
     } else {
-      f.properties[`${a}DistrictAreaColor`] = MISSING_ATTRIBUTE_COLOR;
+      f.properties[`${a}BuildingAreaColor`] = MISSING_ATTRIBUTE_COLOR;
     }
   });
 }
@@ -392,7 +393,7 @@ export function prepareGrid1Km(cityModelGeoJson: FeatureCollection) {
     assignBsmStatisticsForDistrict(f);
   });
 
-  return grid1km;
+  return grid1km as FeatureCollection;
   //fs.writeFileSync('data/grid1km.geojson', JSON.stringify(grid1km));
 }
 
