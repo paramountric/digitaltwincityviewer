@@ -10,6 +10,8 @@ import {
   prepareRoads,
   prepareTrees,
   prepareGrid1Km,
+  prepareGrid250m,
+  prepareCityDistricts,
 } from './prepare-data.js';
 
 function shortenPropertyNames(featureCollection: FeatureCollection) {
@@ -177,6 +179,10 @@ export async function generateTiles() {
   const buildings2050 = prepareDataBuildings2050();
   const grid1Km2018 = prepareGrid1Km(buildings2018);
   const grid1Km2050 = prepareGrid1Km(buildings2050);
+  const grid250m2018 = prepareGrid250m(buildings2018);
+  const grid250m2050 = prepareGrid250m(buildings2050);
+  const cityDistricts2018 = prepareCityDistricts(buildings2018);
+  const cityDistricts2050 = prepareCityDistricts(buildings2050);
   //const featureTable = {};
 
   const data = {
@@ -184,6 +190,10 @@ export async function generateTiles() {
     buildings2050: shortenPropertyNames(buildings2050),
     grid1Km2018: shortenPropertyNames(grid1Km2018),
     grid1Km2050: shortenPropertyNames(grid1Km2050),
+    grid250m2018: shortenPropertyNames(grid250m2018),
+    grid250m2050: shortenPropertyNames(grid250m2050),
+    cityDistricts2018: shortenPropertyNames(cityDistricts2018),
+    cityDistricts2050: shortenPropertyNames(cityDistricts2050),
     water: prepareWater(),
     roads: prepareRoads(),
     trees: prepareTrees(),

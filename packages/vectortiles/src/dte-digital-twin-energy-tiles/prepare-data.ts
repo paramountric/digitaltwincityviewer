@@ -385,15 +385,62 @@ export function prepareGrid1Km(cityModelGeoJson: FeatureCollection) {
     }
   );
   grid1km.features.forEach(f => {
-    for (const indicator of BSM_ATTRIBUTE_INDICATORS_DEGREES) {
-      delete f.properties[`${indicator}Sum`];
-      delete f.properties[`${indicator}Count`];
-    }
+    // dont delete as it can be used in ui
+    // for (const indicator of BSM_ATTRIBUTE_INDICATORS_DEGREES) {
+    //   delete f.properties[`${indicator}Sum`];
+    //   delete f.properties[`${indicator}Count`];
+    // }
     f.properties.id = getNewId();
     assignBsmStatisticsForDistrict(f);
   });
 
   return grid1km as FeatureCollection;
+  //fs.writeFileSync('data/grid1km.geojson', JSON.stringify(grid1km));
+}
+
+export function prepareGrid250m(cityModelGeoJson: FeatureCollection) {
+  console.log('preparing grid 250m');
+  const grid250m = aggregate(
+    cityModelGeoJson,
+    ['heatedFloorArea', ...BSM_ATTRIBUTE_INDICATORS_DEGREES],
+    {
+      segmentation: 'grid250m',
+    }
+  );
+  grid250m.features.forEach(f => {
+    // dont delete as it can be used in ui
+    // for (const indicator of BSM_ATTRIBUTE_INDICATORS_DEGREES) {
+    //   delete f.properties[`${indicator}Sum`];
+    //   delete f.properties[`${indicator}Count`];
+    // }
+    f.properties.id = getNewId();
+    assignBsmStatisticsForDistrict(f);
+  });
+
+  return grid250m as FeatureCollection;
+  //fs.writeFileSync('data/grid1km.geojson', JSON.stringify(grid1km));
+}
+
+export function prepareCityDistricts(cityModelGeoJson: FeatureCollection) {
+  console.log('preparing city districts');
+  const cityDistricts = aggregate(
+    cityModelGeoJson,
+    ['heatedFloorArea', ...BSM_ATTRIBUTE_INDICATORS_DEGREES],
+    {
+      segmentation: 'cityDistricts',
+    }
+  );
+  cityDistricts.features.forEach(f => {
+    // dont delete as it can be used in ui
+    // for (const indicator of BSM_ATTRIBUTE_INDICATORS_DEGREES) {
+    //   delete f.properties[`${indicator}Sum`];
+    //   delete f.properties[`${indicator}Count`];
+    // }
+    f.properties.id = getNewId();
+    assignBsmStatisticsForDistrict(f);
+  });
+
+  return cityDistricts as FeatureCollection;
   //fs.writeFileSync('data/grid1km.geojson', JSON.stringify(grid1km));
 }
 
