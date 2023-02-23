@@ -24,6 +24,15 @@ const BUILDING_FUTURE_PAINT_PROPERTY = [
   DEFAULT_BUILDING_FUTURE_COLOR,
 ];
 
+const GRID_LAYERS = [
+  'grid1km2018',
+  'grid1km2050',
+  'grid250m2018',
+  'grid250m2050',
+  'cityDistricts2018',
+  'cityDistricts2050',
+];
+
 const gothenburg = cities.find((c: any) => c.id === 'gothenburg');
 if (!gothenburg || !gothenburg.x) {
   throw new Error('City must be selected on app level');
@@ -55,6 +64,116 @@ const maplibreOptions = {
           'background-color': 'rgba(255, 255, 255, 1)',
         },
       },
+      {
+        id: 'grid1km2018',
+        name: 'Grid 1km 2018 extruded',
+        type: 'fill-extrusion',
+        source: 'vectorTiles',
+        'source-layer': 'grid1Km2018',
+        maxzoom: 18,
+        minzoom: 10, //aggregationZoomLevels[3],
+        layout: {
+          visibility: 'none',
+        },
+        paint: {
+          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+          'fill-extrusion-height': 1,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 1,
+        },
+      },
+      {
+        id: 'grid1km2050',
+        name: 'Grid 1km 2050 extruded',
+        type: 'fill-extrusion',
+        source: 'vectorTiles',
+        'source-layer': 'grid1Km2050',
+        maxzoom: 18,
+        minzoom: 10, //aggregationZoomLevels[3],
+        layout: {
+          visibility: 'none',
+        },
+        paint: {
+          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+          'fill-extrusion-height': 1,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 1,
+        },
+      },
+      {
+        id: 'grid250m2018',
+        name: 'Grid 250m 2018 extruded',
+        type: 'fill-extrusion',
+        source: 'vectorTiles',
+        'source-layer': 'grid250m2018',
+        maxzoom: 18,
+        minzoom: 10, //aggregationZoomLevels[3],
+        layout: {
+          visibility: 'none',
+        },
+        paint: {
+          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+          'fill-extrusion-height': 1,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 1,
+        },
+      },
+      {
+        id: 'grid250m2050',
+        name: 'Grid 250m 2050 extruded',
+        type: 'fill-extrusion',
+        source: 'vectorTiles',
+        'source-layer': 'grid250m2050',
+        maxzoom: 18,
+        minzoom: 10, //aggregationZoomLevels[3],
+        layout: {
+          visibility: 'none',
+        },
+        paint: {
+          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+          'fill-extrusion-height': 1,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 1,
+        },
+      },
+
+      {
+        id: 'cityDistricts2018',
+        name: 'City Districts 2018 extruded',
+        type: 'fill-extrusion',
+        source: 'vectorTiles',
+        'source-layer': 'cityDistricts2018',
+        maxzoom: 18,
+        minzoom: 10, //aggregationZoomLevels[3],
+        layout: {
+          visibility: 'none',
+        },
+        paint: {
+          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+          'fill-extrusion-height': 1,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 1,
+        },
+      },
+      {
+        id: 'cityDistricts2050',
+        name: 'City Districts 2050 extruded',
+        type: 'fill-extrusion',
+        source: 'vectorTiles',
+        'source-layer': 'cityDistricts2050',
+        maxzoom: 18,
+        minzoom: 10, //aggregationZoomLevels[3],
+        layout: {
+          visibility: 'none',
+        },
+        paint: {
+          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+          'fill-extrusion-height': 1,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 1,
+        },
+      },
+
       {
         id: 'water',
         name: 'Water',
@@ -150,11 +269,11 @@ const maplibreOptions = {
       vectorTiles: {
         type: 'vector',
         promoteId: 'id',
-        //tiles: [`http://localhost:9000/tiles/{z}/{x}/{y}`],
+        tiles: [`http://localhost:9000/tiles/{z}/{x}/{y}`],
         //tiles: [`${tileServerUrl}/api/tiles?z={z}&x={x}&y={y}`],
-        tiles: [
-          'https://digitaltwincityviewer.s3.amazonaws.com/tiles/{z}/{x}/{y}.mvt',
-        ],
+        // tiles: [
+        //   'https://digitaltwincityviewer.s3.amazonaws.com/tiles/{z}/{x}/{y}.mvt',
+        // ],
       },
     },
     version: 8,
@@ -188,11 +307,19 @@ export const useViewer = (): {
     if (viewer) {
       const key = getCombinedKey();
       const showColor = combinationIsSelected();
-      const {selectedYearKey} = uiState;
+      const {selectedYearKey, selectedAggregator} = uiState;
       const buildingLayer =
         selectedYearKey === '18' || selectedYearKey === 'year'
           ? 'building'
           : 'building-future';
+      const aggregationLayer =
+        selectedAggregator === 'none'
+          ? null
+          : selectedYearKey === '18' || selectedYearKey === 'year'
+          ? `${selectedAggregator}2018`
+          : `${selectedAggregator}2050`;
+
+      console.log('aggregationLayer', aggregationLayer);
 
       if (showColor) {
         viewer.maplibreMap.setPaintProperty(
@@ -200,6 +327,13 @@ export const useViewer = (): {
           'fill-extrusion-color',
           ['get', `${key}_bcol`]
         );
+        if (aggregationLayer) {
+          viewer.maplibreMap.setPaintProperty(
+            aggregationLayer,
+            'fill-extrusion-color',
+            ['get', `${key}_bcol`]
+          );
+        }
       } else {
         viewer.maplibreMap.setPaintProperty(
           'building',
@@ -211,6 +345,13 @@ export const useViewer = (): {
           'fill-extrusion-color',
           BUILDING_FUTURE_PAINT_PROPERTY
         );
+        for (const gridKey of GRID_LAYERS) {
+          viewer.maplibreMap.setPaintProperty(
+            gridKey,
+            'fill-extrusion-color',
+            BUILDING_PAINT_PROPERTY
+          );
+        }
       }
 
       viewer.maplibreMap.setLayoutProperty(
@@ -223,11 +364,23 @@ export const useViewer = (): {
         'visibility',
         buildingLayer === 'building-future' ? 'visible' : 'none'
       );
+
+      for (const gridKey of GRID_LAYERS) {
+        viewer.maplibreMap.setLayoutProperty(gridKey, 'visibility', 'none');
+      }
+      if (aggregationLayer) {
+        viewer.maplibreMap.setLayoutProperty(
+          aggregationLayer,
+          'visibility',
+          'visible'
+        );
+      }
     }
   }, [
     uiState.selectedPropertyKey,
     uiState.selectedYearKey,
     uiState.selectedDegreeKey,
+    uiState.selectedAggregator,
   ]);
 
   useEffect(() => {

@@ -7,6 +7,8 @@ import {
   yearOptions,
   degreeLabels,
   degreeOptions,
+  aggregatorLabels,
+  aggregatorOptions,
 } from '../lib/constants';
 
 type ActionPanelProps = {};
@@ -51,6 +53,21 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
         }
         selectedKey={uiState.selectedDegreeKey}
         options={degreeOptions}
+      ></ActionPanelMenu>
+      <div className="mr-1">
+        <div className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 mt-1 text-sm font-medium text-gray-700 shadow-sm focus:outline-none">
+          aggregated by
+        </div>
+      </div>
+      <ActionPanelMenu
+        onSelect={uiActions.setSelectedAggregator}
+        name={
+          aggregatorLabels[uiState.selectedAggregator] || 'none'
+            ? `${aggregatorLabels[uiState.selectedAggregator || 'none']}`
+            : 'aggregator'
+        }
+        selectedKey={uiState.selectedDegreeKey}
+        options={aggregatorOptions}
       ></ActionPanelMenu>
     </div>
   );

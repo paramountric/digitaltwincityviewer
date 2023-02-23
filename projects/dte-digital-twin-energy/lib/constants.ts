@@ -154,6 +154,20 @@ const degreeOptions = Object.keys(degreeLabels).map(key => ({
   label: degreeLabels[key],
 }));
 
+const aggregatorLabels: {
+  [key: string]: string;
+} = {
+  none: 'no aggregator',
+  grid1km: 'Grid 1km',
+  grid250m: 'Grid 250m',
+  cityDistricts: 'City Districts',
+};
+
+const aggregatorOptions = Object.keys(aggregatorLabels).map(key => ({
+  key,
+  label: aggregatorLabels[key],
+}));
+
 export {
   propertyLabels,
   units,
@@ -163,4 +177,6 @@ export {
   yearOptions,
   degreeLabels,
   degreeOptions,
+  aggregatorLabels,
+  aggregatorOptions,
 };

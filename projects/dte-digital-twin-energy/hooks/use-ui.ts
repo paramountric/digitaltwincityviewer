@@ -7,6 +7,7 @@ export type UiStore = {
   selectedYearKey: string;
   selectedDegreeKey: string;
   showTimelinePerM2: boolean;
+  selectedAggregator: string;
 };
 
 const uiStore = new Observable<UiStore>({
@@ -14,6 +15,7 @@ const uiStore = new Observable<UiStore>({
   selectedYearKey: 'year', //yearOptions[0].key,
   selectedDegreeKey: 'degrees', //degreeOptions[0].key,
   showTimelinePerM2: false,
+  selectedAggregator: 'none',
 });
 
 export const useUi = () => {
@@ -33,6 +35,8 @@ export const useUi = () => {
         uiStore.set({...uiState, selectedDegreeKey}),
       setShowTimelinePerM2: (showTimelinePerM2: boolean) =>
         uiStore.set({...uiState, showTimelinePerM2}),
+      setSelectedAggregator: (selectedAggregator: string) =>
+        uiStore.set({...uiState, selectedAggregator}),
     };
   }, [uiState]);
 
