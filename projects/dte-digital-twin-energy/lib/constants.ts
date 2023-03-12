@@ -160,7 +160,10 @@ const aggregatorLabels: {
   none: 'no aggregator',
   grid1km: 'Grid 1km',
   grid250m: 'Grid 250m',
+  grid100m: 'Grid 100m',
   cityDistricts: 'City Districts',
+  baseAreas: 'Base Areas',
+  primaryAreas: 'Primary Areas',
 };
 
 const aggregatorOptions = Object.keys(aggregatorLabels).map(key => ({

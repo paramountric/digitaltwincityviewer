@@ -29,8 +29,14 @@ const GRID_LAYERS = [
   'grid1km2050',
   'grid250m2018',
   'grid250m2050',
+  'grid100m2018',
+  'grid100m2050',
   'cityDistricts2018',
   'cityDistricts2050',
+  'baseAreas2018',
+  'baseAreas2050',
+  'primaryAreas2018',
+  'primaryAreas2050',
 ];
 
 const gothenburg = cities.find((c: any) => c.id === 'gothenburg');
@@ -136,6 +142,42 @@ const maplibreOptions = {
           'fill-extrusion-opacity': 1,
         },
       },
+      {
+        id: 'grid100m2018',
+        name: 'Grid 100m 2018 extruded',
+        type: 'fill-extrusion',
+        source: 'vectorTiles',
+        'source-layer': 'grid100m2018',
+        maxzoom: 18,
+        minzoom: 10, //aggregationZoomLevels[3],
+        layout: {
+          visibility: 'none',
+        },
+        paint: {
+          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+          'fill-extrusion-height': 1,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 1,
+        },
+      },
+      {
+        id: 'grid100m2050',
+        name: 'Grid 100m 2050 extruded',
+        type: 'fill-extrusion',
+        source: 'vectorTiles',
+        'source-layer': 'grid100m2050',
+        maxzoom: 18,
+        minzoom: 10, //aggregationZoomLevels[3],
+        layout: {
+          visibility: 'none',
+        },
+        paint: {
+          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+          'fill-extrusion-height': 1,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 1,
+        },
+      },
 
       {
         id: 'cityDistricts2018',
@@ -161,6 +203,80 @@ const maplibreOptions = {
         type: 'fill-extrusion',
         source: 'vectorTiles',
         'source-layer': 'cityDistricts2050',
+        maxzoom: 18,
+        minzoom: 10, //aggregationZoomLevels[3],
+        layout: {
+          visibility: 'none',
+        },
+        paint: {
+          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+          'fill-extrusion-height': 1,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 1,
+        },
+      },
+
+      {
+        id: 'baseAreas2018',
+        name: 'Base Areas 2018 extruded',
+        type: 'fill-extrusion',
+        source: 'vectorTiles',
+        'source-layer': 'baseAreas2018',
+        maxzoom: 18,
+        minzoom: 10, //aggregationZoomLevels[3],
+        layout: {
+          visibility: 'none',
+        },
+        paint: {
+          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+          'fill-extrusion-height': 1,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 1,
+        },
+      },
+      {
+        id: 'baseAreas2050',
+        name: 'Base Areas 2050 extruded',
+        type: 'fill-extrusion',
+        source: 'vectorTiles',
+        'source-layer': 'baseAreas2050',
+        maxzoom: 18,
+        minzoom: 10, //aggregationZoomLevels[3],
+        layout: {
+          visibility: 'none',
+        },
+        paint: {
+          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+          'fill-extrusion-height': 1,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 1,
+        },
+      },
+
+      {
+        id: 'primaryAreas2018',
+        name: 'Primary areas 2018 extruded',
+        type: 'fill-extrusion',
+        source: 'vectorTiles',
+        'source-layer': 'primaryAreas2018',
+        maxzoom: 18,
+        minzoom: 10, //aggregationZoomLevels[3],
+        layout: {
+          visibility: 'none',
+        },
+        paint: {
+          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+          'fill-extrusion-height': 1,
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 1,
+        },
+      },
+      {
+        id: 'primaryAreas2050',
+        name: 'Primary areas 2050 extruded',
+        type: 'fill-extrusion',
+        source: 'vectorTiles',
+        'source-layer': 'primaryAreas2050',
         maxzoom: 18,
         minzoom: 10, //aggregationZoomLevels[3],
         layout: {
@@ -269,11 +385,11 @@ const maplibreOptions = {
       vectorTiles: {
         type: 'vector',
         promoteId: 'id',
-        tiles: [`http://localhost:9000/tiles/{z}/{x}/{y}`],
+        //tiles: [`http://localhost:9000/tiles/{z}/{x}/{y}`],
         //tiles: [`${tileServerUrl}/api/tiles?z={z}&x={x}&y={y}`],
-        // tiles: [
-        //   'https://digitaltwincityviewer.s3.amazonaws.com/tiles/{z}/{x}/{y}.mvt',
-        // ],
+        tiles: [
+          'https://digitaltwincityviewer.s3.amazonaws.com/tiles/{z}/{x}/{y}.mvt',
+        ],
       },
     },
     version: 8,
@@ -318,8 +434,6 @@ export const useViewer = (): {
           : selectedYearKey === '18' || selectedYearKey === 'year'
           ? `${selectedAggregator}2018`
           : `${selectedAggregator}2050`;
-
-      console.log('aggregationLayer', aggregationLayer);
 
       if (showColor) {
         viewer.maplibreMap.setPaintProperty(
@@ -367,6 +481,11 @@ export const useViewer = (): {
 
       for (const gridKey of GRID_LAYERS) {
         viewer.maplibreMap.setLayoutProperty(gridKey, 'visibility', 'none');
+        viewer.maplibreMap.setFilter(gridKey, [
+          '!=',
+          `${key}_bcol`,
+          'rgb(100, 100, 100)',
+        ]);
       }
       if (aggregationLayer) {
         viewer.maplibreMap.setLayoutProperty(
