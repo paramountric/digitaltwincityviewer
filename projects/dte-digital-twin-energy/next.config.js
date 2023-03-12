@@ -7,6 +7,9 @@ const nextConfig = {
     domain: process.env.DOMAIN,
     protocol: process.env.PROTOCOL,
   },
+  experimental: {
+    outputFileTracingRoot: path.join(__dirname, '../../'),
+  },
 };
 
 module.exports = nextConfig;
