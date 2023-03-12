@@ -157,13 +157,17 @@ function assignBsmStatisticsForBuilding(f, postfix) {
   });
 }
 
+// todo: each aggregator must have a specific colorRange, in the old version we did a dynamic color between green and red, but now the universeum ranges should be used
 function assignBsmStatisticsForDistrict(f) {
   BSM_ATTRIBUTE_INDICATORS_DEGREES.forEach(a => {
     if (
       f.properties.area && // area comes from the district aggregation features
       (f.properties[a] || f.properties[a] === 0) // the value must be aggregated (summed) first from buildings inside
     ) {
-      const valuePerDistrictArea = f.properties[a] / f.properties.area;
+      // ! here the heatedFloorArea is used, but it should be the area of the district -> color ranges needs to be defined
+      const valuePerDistrictArea =
+        f.properties[a] / f.properties.heatedFloorArea;
+      // const valuePerDistrictArea = f.properties[a] / f.properties.area;
       // ! note that the variable name is misleading, it is not the area of the building, but the area of the district
       // ! previously the "DistrictAreaNorm" was used, however just to make it easier on the frontend with layers..
       f.properties[`${a}BuildingAreaNorm`] = valuePerDistrictArea;
