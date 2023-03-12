@@ -6,7 +6,7 @@ RUN apk update
 WORKDIR /app
 RUN yarn global add turbo
 COPY . .
-RUN turbo prune --scope=dte-digitaltwin-energy --docker
+RUN turbo prune --scope=dte-digital-twin-energy --docker
 
 # Add lockfile and package.json's of isolated subworkspace
 FROM node:18-alpine AS installer
@@ -23,7 +23,7 @@ RUN yarn install
 # Build the project
 COPY --from=builder /app/out/full/ .
 COPY turbo.json turbo.json
-RUN yarn turbo run build --filter=dte-digitaltwin-energy...
+RUN yarn turbo run build --filter=dte-digital-twin-energy...
 
 FROM node:18-alpine AS runner
 WORKDIR /app
@@ -38,16 +38,16 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 USER nextjs
 
-COPY --from=installer /app/apps/dte-digitaltwin-energy/next.config.js ./apps/dte-digitaltwin-energy/
-COPY --from=installer /app/apps/dte-digitaltwin-energy/package.json ./apps/dte-digitaltwin-energy/
+COPY --from=installer /app/apps/dte-digital-twin-energy/next.config.js ./apps/dte-digital-twin-energy/
+COPY --from=installer /app/apps/dte-digital-twin-energy/package.json ./apps/dte-digital-twin-energy/
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=installer --chown=nextjs:nodejs /app/apps/dte-digitaltwin-energy/.next/standalone ./
-COPY --from=installer --chown=nextjs:nodejs /app/apps/dte-digitaltwin-energy/.next/static ./apps/dte-digitaltwin-energy/.next/static
+COPY --from=installer --chown=nextjs:nodejs /app/apps/dte-digital-twin-energy/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/apps/dte-digital-twin-energy/.next/static ./apps/dte-digital-twin-energy/.next/static
 
-COPY --from=builder --chown=nextjs:nodejs /app/apps/dte-digitaltwin-energy/entrypoint.sh ./apps/dte-digitaltwin-energy/
-COPY --from=builder --chown=nextjs:nodejs /app/apps/dte-digitaltwin-energy/.env.production ./apps/dte-digitaltwin-energy/
+COPY --from=builder --chown=nextjs:nodejs /app/apps/dte-digital-twin-energy/entrypoint.sh ./apps/dte-digital-twin-energy/
+COPY --from=builder --chown=nextjs:nodejs /app/apps/dte-digital-twin-energy/.env.production ./apps/dte-digitaltwin-energy/
 
 RUN chmod +x ./apps/dte-digitaltwin-energy/entrypoint.sh
 ENTRYPOINT ["./apps/dte-digitaltwin-energy/entrypoint.sh"]
