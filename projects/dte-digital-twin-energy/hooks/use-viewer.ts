@@ -8,6 +8,8 @@ import {useSelectedFeature} from './use-selected-feature';
 import {getColorFromScale} from '../lib/colorScales';
 import {useUi} from './use-ui';
 
+//
+
 const DEFAULT_BUILDING_COLOR = 'rgb(200, 200, 200)';
 const DEFAULT_BUILDING_FUTURE_COLOR = 'rgb(230, 200, 200)';
 const DEFAULT_BUILDING_HOVER_COLOR = 'rgb(100, 100, 100)';
