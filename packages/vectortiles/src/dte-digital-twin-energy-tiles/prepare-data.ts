@@ -159,13 +159,13 @@ function assignBsmStatisticsForBuilding(f, postfix) {
 
 function assignBsmStatisticsForDistrict(f) {
   BSM_ATTRIBUTE_INDICATORS_DEGREES.forEach(a => {
-    // ! note that heatedFloorArea from buildings are used now and not the are from the district shapes
     if (
-      f.properties.heatedFloorArea && // area comes from the district aggregation features
+      f.properties.area && // area comes from the district aggregation features
       (f.properties[a] || f.properties[a] === 0) // the value must be aggregated (summed) first from buildings inside
     ) {
-      const valuePerDistrictArea =
-        f.properties[a] / f.properties.heatedFloorArea;
+      const valuePerDistrictArea = f.properties[a] / f.properties.area;
+      // ! note that the variable name is misleading, it is not the area of the building, but the area of the district
+      // ! previously the "DistrictAreaNorm" was used, however just to make it easier on the frontend with layers..
       f.properties[`${a}BuildingAreaNorm`] = valuePerDistrictArea;
       f.properties[`${a}BuildingAreaColor`] = getColorFromScale(
         valuePerDistrictArea,
@@ -375,6 +375,32 @@ export function prepareData() {
   );
 }
 
+export function prepareAggregatorData(
+  featureCollection: FeatureCollection,
+  segmentation: string
+) {
+  console.log(`preparing aggregator data for ${segmentation}`);
+  console.log('Mem: ', process.memoryUsage());
+  const data = aggregate(
+    featureCollection,
+    ['heatedFloorArea', ...BSM_ATTRIBUTE_INDICATORS_DEGREES],
+    {
+      segmentation,
+    }
+  );
+  data.features.forEach(f => {
+    // dont delete as it can be used in ui
+    // for (const indicator of BSM_ATTRIBUTE_INDICATORS_DEGREES) {
+    //   delete f.properties[`${indicator}Sum`];
+    //   delete f.properties[`${indicator}Count`];
+    // }
+    f.properties.id = getNewId();
+    assignBsmStatisticsForDistrict(f);
+  });
+
+  return data as FeatureCollection;
+}
+
 export function prepareGrid1Km(cityModelGeoJson: FeatureCollection) {
   console.log('preparing grid 1km');
   const grid1km = aggregate(
@@ -421,6 +447,29 @@ export function prepareGrid250m(cityModelGeoJson: FeatureCollection) {
   //fs.writeFileSync('data/grid1km.geojson', JSON.stringify(grid1km));
 }
 
+export function prepareGrid100m(cityModelGeoJson: FeatureCollection) {
+  console.log('preparing grid 100m');
+  const grid100m = aggregate(
+    cityModelGeoJson,
+    ['heatedFloorArea', ...BSM_ATTRIBUTE_INDICATORS_DEGREES],
+    {
+      segmentation: 'grid100m',
+    }
+  );
+  grid100m.features.forEach(f => {
+    // dont delete as it can be used in ui
+    // for (const indicator of BSM_ATTRIBUTE_INDICATORS_DEGREES) {
+    //   delete f.properties[`${indicator}Sum`];
+    //   delete f.properties[`${indicator}Count`];
+    // }
+    f.properties.id = getNewId();
+    assignBsmStatisticsForDistrict(f);
+  });
+
+  return grid100m as FeatureCollection;
+  //fs.writeFileSync('data/grid1km.geojson', JSON.stringify(grid1km));
+}
+
 export function prepareCityDistricts(cityModelGeoJson: FeatureCollection) {
   console.log('preparing city districts');
   const cityDistricts = aggregate(
@@ -444,119 +493,25 @@ export function prepareCityDistricts(cityModelGeoJson: FeatureCollection) {
   //fs.writeFileSync('data/grid1km.geojson', JSON.stringify(grid1km));
 }
 
-// // aggregate buildings on 250 m
-// let grid250m;
-// if (usePreparedFiles.grid250m) {
-//   grid250m = JSON.parse(fs.readFileSync('data/grid250m.geojson', 'utf8'));
-// } else {
-//   console.log('preparing grid 250m');
-//   console.log(process.memoryUsage());
-//   grid250m = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
-//     segmentation: 'grid250m',
-//   });
-// }
-// grid250m.features.forEach(f => {
-//   f.properties.id = getNewId();
-//   assignBsmStatistics(f);
-// });
-// fs.writeFileSync('data/grid250m.geojson', JSON.stringify(grid250m));
+export function prepareBaseAreas(cityModelGeoJson: FeatureCollection) {
+  console.log('preparing base areas');
+  const baseAreas = aggregate(
+    cityModelGeoJson,
+    ['heatedFloorArea', ...BSM_ATTRIBUTE_INDICATORS_DEGREES],
+    {
+      segmentation: 'baseAreas',
+    }
+  );
+  baseAreas.features.forEach(f => {
+    // dont delete as it can be used in ui
+    // for (const indicator of BSM_ATTRIBUTE_INDICATORS_DEGREES) {
+    //   delete f.properties[`${indicator}Sum`];
+    //   delete f.properties[`${indicator}Count`];
+    // }
+    f.properties.id = getNewId();
+    assignBsmStatisticsForDistrict(f);
+  });
 
-// // // aggregate buildings on 100 m
-// let grid100m;
-// if (usePreparedFiles.grid100m) {
-//   grid100m = JSON.parse(fs.readFileSync('data/grid100m.geojson', 'utf8'));
-// } else {
-//   console.log('preparing grid 100m');
-//   console.log(process.memoryUsage());
-//   grid100m = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
-//     segmentation: 'grid100m',
-//   });
-// }
-// grid100m.features.forEach(f => {
-//   f.properties.id = getNewId();
-//   assignBsmStatistics(f);
-// });
-// fs.writeFileSync('data/grid100m.geojson', JSON.stringify(grid100m));
-
-// // aggregate buildings on base area
-// let baseAreas;
-// if (usePreparedFiles.baseAreas) {
-//   baseAreas = JSON.parse(fs.readFileSync('data/baseAreas.geojson', 'utf8'));
-// } else {
-//   console.log('preparing baseAreas');
-//   console.log(process.memoryUsage());
-//   baseAreas = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
-//     segmentation: 'baseAreas',
-//   });
-// }
-// baseAreas.features.forEach(f => {
-//   f.properties.id = getNewId();
-//   assignBsmStatistics(f);
-// });
-// fs.writeFileSync('data/baseAreas.geojson', JSON.stringify(baseAreas));
-
-// // aggregate buildings on city district
-// let cityDistricts;
-// if (usePreparedFiles.cityDistricts) {
-//   cityDistricts = JSON.parse(
-//     fs.readFileSync('data/cityDistricts.geojson', 'utf8')
-//   );
-// } else {
-//   console.log('preparing cityDistricts');
-//   console.log(process.memoryUsage());
-//   cityDistricts = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
-//     segmentation: 'cityDistricts',
-//   });
-// }
-// cityDistricts.features.forEach(f => {
-//   f.properties.id = getNewId();
-//   assignBsmStatistics(f);
-// });
-// fs.writeFileSync('data/cityDistricts.geojson', JSON.stringify(cityDistricts));
-
-// let primaryAreas;
-// if (usePreparedFiles.primaryAreas) {
-//   primaryAreas = JSON.parse(
-//     fs.readFileSync('data/primaryAreas.geojson', 'utf8')
-//   );
-// } else {
-//   console.log('preparing primaryAreas');
-//   console.log(process.memoryUsage());
-//   primaryAreas = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, {
-//     segmentation: 'primaryAreas',
-//   });
-// }
-// primaryAreas.features.forEach(f => {
-//   f.properties.id = getNewId();
-//   assignBsmStatistics(f);
-// });
-// fs.writeFileSync('data/primaryAreas.geojson', JSON.stringify(primaryAreas));
-// // aggregate buildings on primary area
-// let primaryAreas;
-// if (usePreparedFiles.primaryAreas) {
-//   primaryAreas = JSON.parse(fs.readFileSync('data/primaryAreas.geojson', 'utf8'));
-// } else {
-//   console.log('preparing primaryAreas');
-//   console.log(process.memoryUsage());
-//   const primaryAreas = aggregate(cityModelGeoJson, BSM_ATTRIBUTES, { segmentation: 'primaryAreas' });
-//   primaryAreas.features.forEach(f => {
-//     f.properties.color = indicators.generateColor(f.properties.deliveredEnergy / f.properties.heatedFloorArea, 100, 50);
-//   });
-//   fs.writeFileSync('data/primaryAreas.geojson', JSON.stringify(primaryAreas));
-// }
-
-// const tileLayers = {
-//   cityModel: cityModelGeoJson,
-//   roadNetwork: roadNetworkGeoJson,
-//   landDataArea: landDataAreaGeoJson,
-//   grid1km,
-//   grid100m,
-//   grid250m,
-//   baseAreas,
-//   cityDistricts,
-//   primaryAreas,
-// };
-
-// return tileLayers;
-
-// prepareData();
+  return baseAreas as FeatureCollection;
+  //fs.writeFileSync('data/grid1km.geojson', JSON.stringify(grid1km));
+}
