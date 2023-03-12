@@ -47,9 +47,9 @@ COPY --from=installer --chown=nextjs:nodejs /app/projects/dte-digital-twin-energ
 COPY --from=installer --chown=nextjs:nodejs /app/projects/dte-digital-twin-energy/.next/static ./projects/dte-digital-twin-energy/.next/static
 
 COPY --from=builder --chown=nextjs:nodejs /app/projects/dte-digital-twin-energy/entrypoint.sh ./projects/dte-digital-twin-energy/
-COPY --from=builder --chown=nextjs:nodejs /app/projects/dte-digital-twin-energy/.env.production ./projects/dte-digitaltwin-energy/
+COPY --from=builder --chown=nextjs:nodejs /app/projects/dte-digital-twin-energy/.env.production ./projects/dte-digital-twin-energy/
 
-RUN chmod +x ./projects/dte-digitaltwin-energy/entrypoint.sh
-ENTRYPOINT ["./projects/dte-digitaltwin-energy/entrypoint.sh"]
+RUN chmod +x ./projects/dte-digital-twin-energy/entrypoint.sh
+ENTRYPOINT ["./projects/dte-digital-twin-energy/entrypoint.sh"]
 
-CMD node projects/dte-digitaltwin-energy/server.js
+CMD node projects/dte-digital-twin-energy/server.js
