@@ -248,7 +248,7 @@ export async function generateTiles() {
   console.log('generate tiles');
   saveToFolderStructure(data, {
     minZoom: 8,
-    maxZoom: 10,
+    maxZoom: 16,
   });
 }
 
