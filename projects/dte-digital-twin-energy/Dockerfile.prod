@@ -38,18 +38,18 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 USER nextjs
 
-COPY --from=installer /app/apps/dte-digital-twin-energy/next.config.js ./apps/dte-digital-twin-energy/
-COPY --from=installer /app/apps/dte-digital-twin-energy/package.json ./apps/dte-digital-twin-energy/
+COPY --from=installer /app/projects/dte-digital-twin-energy/next.config.js ./projects/dte-digital-twin-energy/
+COPY --from=installer /app/projects/dte-digital-twin-energy/package.json ./projects/dte-digital-twin-energy/
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=installer --chown=nextjs:nodejs /app/apps/dte-digital-twin-energy/.next/standalone ./
-COPY --from=installer --chown=nextjs:nodejs /app/apps/dte-digital-twin-energy/.next/static ./apps/dte-digital-twin-energy/.next/static
+COPY --from=installer --chown=nextjs:nodejs /app/projects/dte-digital-twin-energy/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/projects/dte-digital-twin-energy/.next/static ./projects/dte-digital-twin-energy/.next/static
 
-COPY --from=builder --chown=nextjs:nodejs /app/apps/dte-digital-twin-energy/entrypoint.sh ./apps/dte-digital-twin-energy/
-COPY --from=builder --chown=nextjs:nodejs /app/apps/dte-digital-twin-energy/.env.production ./apps/dte-digitaltwin-energy/
+COPY --from=builder --chown=nextjs:nodejs /app/projects/dte-digital-twin-energy/entrypoint.sh ./projects/dte-digital-twin-energy/
+COPY --from=builder --chown=nextjs:nodejs /app/projects/dte-digital-twin-energy/.env.production ./projects/dte-digitaltwin-energy/
 
-RUN chmod +x ./apps/dte-digitaltwin-energy/entrypoint.sh
-ENTRYPOINT ["./apps/dte-digitaltwin-energy/entrypoint.sh"]
+RUN chmod +x ./projects/dte-digitaltwin-energy/entrypoint.sh
+ENTRYPOINT ["./projects/dte-digitaltwin-energy/entrypoint.sh"]
 
-CMD node apps/dte-digitaltwin-energy/server.js
+CMD node projects/dte-digitaltwin-energy/server.js
