@@ -153,6 +153,7 @@ const BuildingFeatureEnergyDisplay: React.FC<
   const finalEnergyRef = useRef<HTMLDivElement>(null);
   const ghgEmissionsRef = useRef<HTMLDivElement>(null);
   const heatDemandRef = useRef<HTMLDivElement>(null);
+  const coolDemandRef = useRef<HTMLDivElement>(null);
   const primaryEnergyRef = useRef<HTMLDivElement>(null);
   const [trigger, setTrigger] = useState(-1);
   const {state: uiState} = useUi();
@@ -167,7 +168,10 @@ const BuildingFeatureEnergyDisplay: React.FC<
       applyChart(ghgEmissionsRef.current, props.feature.properties, 'ge');
     }
     if (heatDemandRef.current) {
-      applyChart(heatDemandRef.current, props.feature.properties, 'hd');
+      applyChart(heatDemandRef.current, props.feature.properties, 'cd');
+    }
+    if (coolDemandRef.current) {
+      applyChart(coolDemandRef.current, props.feature.properties, 'hd');
     }
     if (primaryEnergyRef.current) {
       applyChart(primaryEnergyRef.current, props.feature.properties, 'pe');
@@ -206,6 +210,11 @@ const BuildingFeatureEnergyDisplay: React.FC<
               className="mt-3"
               id="heat-demand-chart"
               ref={heatDemandRef}
+            ></div>
+            <div
+              className="mt-3"
+              id="cool-demand-chart"
+              ref={coolDemandRef}
             ></div>
             <div
               className="mt-3"

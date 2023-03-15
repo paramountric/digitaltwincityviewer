@@ -51,11 +51,19 @@ export const useUi = () => {
       );
     },
     getCombinedKey: () => {
-      const {selectedPropertyKey, selectedDegreeKey} = uiState;
+      const {selectedPropertyKey, selectedDegreeKey, selectedYearKey} = uiState;
+
+      console.log('selectedPropertyKey', selectedPropertyKey);
+      console.log('selectedDegreeKey', selectedDegreeKey);
+      console.log('selectedYearKey', selectedYearKey);
 
       // all the 18 keys are the same for all the degrees
-      if (selectedDegreeKey === '0') {
+      if (selectedDegreeKey === '0' || selectedDegreeKey === 'degrees') {
         return `${selectedPropertyKey}18_25`;
+      }
+
+      if (selectedYearKey === '18' || selectedYearKey === 'year') {
+        return `${selectedPropertyKey}18_${selectedDegreeKey}`;
       }
       // for all the other degrees the 50 is used
       return `${selectedPropertyKey}50_${selectedDegreeKey}`;

@@ -436,6 +436,7 @@ export const useViewer = (): {
           : `${selectedAggregator}2050`;
 
       if (showColor) {
+        console.log('show color', key);
         viewer.maplibreMap.setPaintProperty(
           buildingLayer,
           'fill-extrusion-color',

@@ -22,6 +22,10 @@ const propertyLabels: {
   hd18: 'Heat demand 2020',
   hd30: 'Heat demand 2030',
   hd50: 'Heat demand 2050',
+  cd: 'Cooling demand',
+  cd18: 'Cooling demand 2020',
+  cd30: 'Cooling demand 2030',
+  cd50: 'Cooling demand 2050',
 };
 
 // these are the units, but could be done with enum instead
@@ -58,6 +62,12 @@ const units: {
   hd18: 'kWh',
   hd30: 'kWh',
   hd50: 'kWh',
+  cd: 'kWh',
+  cdTimeline: 'MWh',
+  cdM2: 'kWh/m²',
+  cd18: 'kWh',
+  cd30: 'kWh',
+  cd50: 'kWh',
 };
 
 // if needs to be rounded
@@ -86,11 +96,15 @@ const rounding: {
   hd18: 0,
   hd30: 0,
   hd50: 0,
+  cd: 0,
+  cd18: 0,
+  cd30: 0,
+  cd50: 0,
 };
 
 // **** Settings for selecting properties/indicator ***** //
 
-export type SelectablePropertyKey = 'fe' | 'hd' | 'pe' | 'de' | 'ge';
+export type SelectablePropertyKey = 'fe' | 'hd' | 'pe' | 'de' | 'ge' | 'cd';
 
 export type PropertyKeyOption = {
   key: SelectablePropertyKey;
@@ -106,6 +120,7 @@ const propertyKeyOptions: PropertyKeyOption[] = [
   'pe',
   'de',
   'ge',
+  'cd',
 ].map(key => ({
   key: key as SelectablePropertyKey,
   label: propertyLabels[key],
