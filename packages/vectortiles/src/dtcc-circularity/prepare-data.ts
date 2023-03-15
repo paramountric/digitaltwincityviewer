@@ -59,67 +59,191 @@ function getNewId() {
   return newId;
 }
 
-const indicators = [
-  'finalEnergy',
-  'deliveredEnergy',
-  'primaryEnergy',
-  'ghgEmissions',
-  'heatDemand',
-  'coolingDemand',
+const selectedCatergoricalPropertyKeys = [
+  'OBJECTID',
+  'TYP',
+  'rnpregby',
+  'ridregby',
+  'fnr',
+  'husnr',
+  'xkoordl',
+  'ykoordl',
+  'Byggdetalj',
+  'Byggenkel',
+  'NybyggÃ¥',
+  'Shape_Leng',
+  'Shape_Area',
+  'yr_count',
+  'yr_mean',
+  'height_cou',
+  'height_mea',
+  'OBJECTID_2',
+  'Building',
+  'Residentia',
+  'Types',
+  'Shape_Le_1',
+  'Shape_Ar_1',
+  'Constructe',
+  'Height_Bui',
+  'height_flo',
+  'Floors',
 ];
 
-// todo: how to deal with this? Needs climate scenario, but should not be divided by area?
-const monthyIndicators = [
-  'monthlyFinalEnergy2018',
-  'monthlyFinalEnergy2030',
-  'monthlyFinalEnergy2050',
-  'monthlyHeatDemand2018',
-  'monthlyHeatDemand2030',
-  'monthlyHeatDemand2050',
-  'monthlyCoolingDemand2018',
-  'monthlyCoolingDemand2030',
-  'monthlyCoolingDemand2050',
+const selectedNumericPropertyKeys = [
+  'Bottomslab',
+  'Concrete_f',
+  'Sawdust_li',
+  'Lime mix p',
+  'Floorboard',
+  'Panel_Kg',
+  'Insulation',
+  'Syll_Kg',
+  'Tot_wt_Bot',
+  'Area_Exter',
+  'Horizontal',
+  'In_panels',
+  'Fiberboard',
+  'Particle_b',
+  'WoodBeamsH',
+  'Wood Beams',
+  'Syll',
+  'Sawdust',
+  'Vertical_p',
+  'Carboard',
+  'Panels_out',
+  'Panels out',
+  'Panels_o_1',
+  'Plaster_bo',
+  'Porus_fibe',
+  'Insulati_1',
+  'Tar_paper',
+  'Foil',
+  'Grout',
+  'Bricks',
+  'Tot_wt_ext',
+  'Wood_wt_pe',
+  'Total_wood',
+  'Glass',
+  'Total_glas',
+  'Tot_wt_gla',
+  'Truss',
+  'Panelling_',
+  'Sheet_meta',
+  'Tile',
+  'Lath',
+  'Syll_1',
+  'Sheet_coop',
+  'Panel',
+  'Tar_paper_',
+  'Insulati_2',
+  'Concrete_t',
+  'Total_wt_r',
+  'Wooden_bea',
+  'Saw_dust_l',
+  'Floorboa_1',
+  'Panels',
+  'Cokeash',
+  'Tar paper',
+  'Cellar_sla',
+  'Tiers_wood',
+  'Sawdust_1',
+  'Syll_2',
+  'Total_weig',
+  'Bricks [Kg',
+  'Total_wt _',
+  'Concrete f',
+  'Wood wool',
+  'Plaster [K',
+  'Leca [Kg]',
+  'Porus fibe',
+  'Bricks [_1',
+  'Total_we_1',
+  'Plank',
+  'Vertical_w',
+  'Panel_ext',
+  'Panels_int',
+  'Wood_Beams',
+  'Wood_Bea_1',
+  'Syll_3',
+  'Sawdust_2',
+  'Diagonal_b',
+  'Vertical_b',
+  'Bricks_1',
+  'Mortar',
+  'Plaster_in',
+  'Plaster_ex',
+  'Asphat_pap',
+  'Porus_fi_1',
+  'Reeds',
+  'Standing_p',
+  'Paper',
+  'Cardboard',
+  'Total_wt_w',
+  'Panels_in',
+  'Plaster__1',
+  'Plaster__2',
+  'Diagonal_1',
+  'Bricks_2',
+  'Sawdust_3',
+  'Vertical_1',
+  'Cardboard_',
+  'Porus_fi_2',
+  'Asphat_p_1',
+  'Total_wt_b',
+  'Wood panel',
+  'Lightweigh',
+  'Bricks_3',
+  'Wood woo_1',
+  'Wood bea_1',
+  'Mineral wo',
+  'Plaster in',
+  'Plaster ex',
+  'Asbestos c',
+  'Insulati_3',
+  'Total_wt_c',
+  'Truss_1',
+  'Panelling',
+  'Tile_1',
+  'Carboard_1',
+  'Sheet coop',
+  'Sheet meta',
+  'Lath_1',
+  'Total_wt_1',
+  'Truss_2',
+  'Panellin_1',
+  'Tile_2',
+  'Carboard_2',
+  'Lath_2',
+  'Sheet me_1',
+  'Total_wt_2',
+  'Truss_3',
+  'Wood_panel',
+  'Tile_3',
+  'Cardboar_1',
+  'Lath_3',
+  'Cork insul',
+  'ESP insula',
+  'Metal shee',
+  'Concrete t',
+  'Lath_4',
+  'Total_wt_3',
+  'Wt_wood_pe',
+  'Total_we_2',
+  'Glass_weig',
+  'Total_gl_1',
+  'Tot_glass_',
+  'Wood_wt__1',
+  'Total_wt_4',
+  'Glass_wt_p',
+  'Tot_glas_1',
+  'Tot_glas_2',
+  'Wood_wt__2',
+  'Total_wt_5',
+  'Glass_wt_1',
+  'Tot_glas_3',
+  'Tot_glas_4',
 ];
 
-const indicatorsWithYear = indicators.reduce((memo, key) => {
-  memo.push(`${key}2018`);
-  memo.push(`${key}2030`);
-  memo.push(`${key}2050`);
-  return memo;
-}, []);
-
-// const indicatorsWithClimateTemp = indicatorsWithYear.reduce((memo, key) => {
-//   memo.push(`${key}_2_5`);
-//   memo.push(`${key}_4_5`);
-//   memo.push(`${key}_8_5`);
-//   return memo;
-// }, []);
-
-// use these to prepare colors
-const BSM_ATTRIBUTE_INDICATORS = indicatorsWithYear;
-
-const BSM_ATTRIBUTE_INDICATORS_DEGREES = BSM_ATTRIBUTE_INDICATORS.reduce(
-  (memo, key) => {
-    memo.push(`${key}_climate_2_5`);
-    memo.push(`${key}_climate_4_5`);
-    memo.push(`${key}_climate_8_5`);
-    return memo;
-  },
-  []
-);
-
-console.log(BSM_ATTRIBUTE_INDICATORS);
-
-// copy these from the BSM file to the features
-const BSM_ATTRIBUTES = [
-  'UUID',
-  // 'Height', // this is a string, so either build a parser for converting or require the original data to be correct
-  // 'GroundHeight', // same as above
-  'address',
-  'postPlace',
-  'postCode',
-  'heatedFloorArea',
-];
 // some buildings miss attributes, use this color:
 const MISSING_ATTRIBUTE_COLOR = 'rgb(100, 100, 100)';
 
@@ -127,8 +251,7 @@ let numMissing = 0;
 let numExisting = 0;
 
 function assignBsmStatisticsForBuilding(f, postfix) {
-  // Note: when the bsm data was copied to the features the postfix was added
-  BSM_ATTRIBUTE_INDICATORS.forEach(a => {
+  selectedNumericPropertyKeys.forEach(a => {
     const indicatorWithPostfix = `${a}${postfix}`;
     if (
       f.properties.heatedFloorArea &&
@@ -159,7 +282,7 @@ function assignBsmStatisticsForBuilding(f, postfix) {
 
 // todo: each aggregator must have a specific colorRange, in the old version we did a dynamic color between green and red, but now the universeum ranges should be used
 function assignBsmStatisticsForDistrict(f) {
-  BSM_ATTRIBUTE_INDICATORS_DEGREES.forEach(a => {
+  selectedNumericPropertyKeys.forEach(a => {
     if (
       f.properties.area && // area comes from the district aggregation features
       (f.properties[a] || f.properties[a] === 0) // the value must be aggregated (summed) first from buildings inside
@@ -182,7 +305,7 @@ function assignBsmStatisticsForDistrict(f) {
   });
 }
 
-export function addBsmDataToFeatures(
+export function addCircularityDataToFeatures(
   inputFilePathBuildings: string, // one geometry file per layer
   inputFilePathBSM: string[][], // add several files of BSM data to one layer
   outputFilePath: string, // one output file per layer, to be read by the generate-tiles script
@@ -254,50 +377,26 @@ export function addBsmDataToFeatures(
   // );
 }
 
-export function prepareDataBuildings2018(): FeatureCollection {
-  return addBsmDataToFeatures(
-    './original/GBG_Basemap_2018.json',
-    [
-      [
-        '_climate_2_5', // postfix to properties
-        './original/BSM_Results_DTCC_basemap_2018_climate_2_5.json',
-      ],
-      [
-        '_climate_4_5', // postfix to properties
-        './original/BSM_Results_DTCC_basemap_2018_climate_4_5.json',
-      ],
-      [
-        '_climate_8_5', // postfix to properties
-        './original/BSM_Results_DTCC_basemap_2018_climate_8_5.json',
-      ],
-    ],
-    './prepared/buildings_2018.json',
-    BSM_ATTRIBUTES,
-    BSM_ATTRIBUTE_INDICATORS
+export function prepareCircularityData(): FeatureCollection {
+  const inputFilePathBuildings = 'original/GBG_Basemap_2018.json';
+  const inputFilePathCircularityData = 'circularity/db.json';
+  const buildings = JSON.parse(
+    fs.readFileSync(resolve('../../data/', inputFilePathBuildings), 'utf8')
   );
-}
+  const data = JSON.parse(
+    fs.readFileSync(
+      resolve('../../data/', inputFilePathCircularityData),
+      'utf8'
+    )
+  );
+  // buildings needs an integer id for maplibre
+  addProperty(buildings.features, 'id', () => getNewId());
 
-export function prepareDataBuildings2050(): FeatureCollection {
-  return addBsmDataToFeatures(
-    './original/GBG_Basemap_2050.json',
-    [
-      [
-        '_climate_2_5', // postfix to properties
-        './original/BSM_Results_DTCC_basemap_2050_climate_2_5.json',
-      ],
-      [
-        '_climate_4_5', // postfix to properties
-        './original/BSM_Results_DTCC_basemap_2050_climate_4_5.json',
-      ],
-      [
-        '_climate_8_5', // postfix to properties
-        './original/BSM_Results_DTCC_basemap_2050_climate_8_5.json',
-      ],
-    ],
-    './prepared/buildings_2050.json',
-    BSM_ATTRIBUTES,
-    BSM_ATTRIBUTE_INDICATORS
-  );
+  // todo: find a way to copy data from points to polygons, see if the aggregator can do it
+
+  // todo: assign the statistics and colors for each selectedNumericalPropertyKey
+
+  return buildings;
 }
 
 export function prepareWater(): FeatureCollection {
@@ -330,55 +429,6 @@ export function prepareTrees(): FeatureCollection {
   return projectedTrees;
 }
 
-// This function reads the original data from file and add the additional attributes on the features
-// It will also aggregate some of the attribute values onto the aggregation datasets
-// ! note that this doesn't work for larger files (json.stringify), and requires streaming
-// ! atm it is not used, but it is left here for reference -> use in-memory pipeline from generate-tiles
-export function prepareData() {
-  console.log('prepare and write 2018 to file...');
-  addBsmDataToFeatures(
-    './original/GBG_Basemap_2018.json',
-    [
-      [
-        '_climate_2_5', // prefix to properties
-        './original/BSM_Results_DTCC_basemap_2018_climate_2_5.json',
-      ],
-      [
-        '_climate_4_5', // prefix to properties
-        './original/BSM_Results_DTCC_basemap_2018_climate_4_5.json',
-      ],
-      [
-        '_climate_8_5', // prefix to properties
-        './original/BSM_Results_DTCC_basemap_2018_climate_8_5.json',
-      ],
-    ],
-    './prepared/buildings_2018.json',
-    BSM_ATTRIBUTES,
-    BSM_ATTRIBUTE_INDICATORS
-  );
-  console.log('prepare and write 2050 to file...');
-  addBsmDataToFeatures(
-    './original/GBG_Basemap_2050.json',
-    [
-      [
-        '_climate_2_5', // prefix to properties
-        './original/BSM_Results_DTCC_basemap_2050_climate_2_5.json',
-      ],
-      [
-        '_climate_4_5', // prefix to properties
-        './original/BSM_Results_DTCC_basemap_2050_climate_4_5.json',
-      ],
-      [
-        '_climate_8_5', // prefix to properties
-        './original/BSM_Results_DTCC_basemap_2050_climate_8_5.json',
-      ],
-    ],
-    './prepared/buildings_2050.json',
-    BSM_ATTRIBUTES,
-    BSM_ATTRIBUTE_INDICATORS
-  );
-}
-
 export function prepareAggregatorData(
   featureCollection: FeatureCollection,
   segmentation: string
@@ -387,14 +437,14 @@ export function prepareAggregatorData(
   console.log('Mem: ', process.memoryUsage());
   const data = aggregate(
     featureCollection,
-    ['heatedFloorArea', ...BSM_ATTRIBUTE_INDICATORS_DEGREES],
+    ['heatedFloorArea', ...selectedNumericPropertyKeys],
     {
       segmentation,
     }
   );
   data.features.forEach(f => {
     // dont delete as it can be used in ui
-    // for (const indicator of BSM_ATTRIBUTE_INDICATORS_DEGREES) {
+    // for (const indicator of selectedNumericPropertyKeys) {
     //   delete f.properties[`${indicator}Sum`];
     //   delete f.properties[`${indicator}Count`];
     // }
@@ -409,14 +459,14 @@ export function prepareGrid1Km(cityModelGeoJson: FeatureCollection) {
   console.log('preparing grid 1km');
   const grid1km = aggregate(
     cityModelGeoJson,
-    ['heatedFloorArea', ...BSM_ATTRIBUTE_INDICATORS_DEGREES],
+    ['heatedFloorArea', ...selectedNumericPropertyKeys],
     {
       segmentation: 'grid1km',
     }
   );
   grid1km.features.forEach(f => {
     // dont delete as it can be used in ui
-    // for (const indicator of BSM_ATTRIBUTE_INDICATORS_DEGREES) {
+    // for (const indicator of selectedNumericPropertyKeys) {
     //   delete f.properties[`${indicator}Sum`];
     //   delete f.properties[`${indicator}Count`];
     // }
@@ -432,14 +482,14 @@ export function prepareGrid250m(cityModelGeoJson: FeatureCollection) {
   console.log('preparing grid 250m');
   const grid250m = aggregate(
     cityModelGeoJson,
-    ['heatedFloorArea', ...BSM_ATTRIBUTE_INDICATORS_DEGREES],
+    ['heatedFloorArea', ...selectedNumericPropertyKeys],
     {
       segmentation: 'grid250m',
     }
   );
   grid250m.features.forEach(f => {
     // dont delete as it can be used in ui
-    // for (const indicator of BSM_ATTRIBUTE_INDICATORS_DEGREES) {
+    // for (const indicator of selectedNumericPropertyKeys) {
     //   delete f.properties[`${indicator}Sum`];
     //   delete f.properties[`${indicator}Count`];
     // }
@@ -455,14 +505,14 @@ export function prepareGrid100m(cityModelGeoJson: FeatureCollection) {
   console.log('preparing grid 100m');
   const grid100m = aggregate(
     cityModelGeoJson,
-    ['heatedFloorArea', ...BSM_ATTRIBUTE_INDICATORS_DEGREES],
+    ['heatedFloorArea', ...selectedNumericPropertyKeys],
     {
       segmentation: 'grid100m',
     }
   );
   grid100m.features.forEach(f => {
     // dont delete as it can be used in ui
-    // for (const indicator of BSM_ATTRIBUTE_INDICATORS_DEGREES) {
+    // for (const indicator of selectedNumericPropertyKeys) {
     //   delete f.properties[`${indicator}Sum`];
     //   delete f.properties[`${indicator}Count`];
     // }
@@ -478,14 +528,14 @@ export function prepareCityDistricts(cityModelGeoJson: FeatureCollection) {
   console.log('preparing city districts');
   const cityDistricts = aggregate(
     cityModelGeoJson,
-    ['heatedFloorArea', ...BSM_ATTRIBUTE_INDICATORS_DEGREES],
+    ['heatedFloorArea', ...selectedNumericPropertyKeys],
     {
       segmentation: 'cityDistricts',
     }
   );
   cityDistricts.features.forEach(f => {
     // dont delete as it can be used in ui
-    // for (const indicator of BSM_ATTRIBUTE_INDICATORS_DEGREES) {
+    // for (const indicator of selectedNumericPropertyKeys) {
     //   delete f.properties[`${indicator}Sum`];
     //   delete f.properties[`${indicator}Count`];
     // }
@@ -501,14 +551,14 @@ export function prepareBaseAreas(cityModelGeoJson: FeatureCollection) {
   console.log('preparing base areas');
   const baseAreas = aggregate(
     cityModelGeoJson,
-    ['heatedFloorArea', ...BSM_ATTRIBUTE_INDICATORS_DEGREES],
+    ['heatedFloorArea', ...selectedNumericPropertyKeys],
     {
       segmentation: 'baseAreas',
     }
   );
   baseAreas.features.forEach(f => {
     // dont delete as it can be used in ui
-    // for (const indicator of BSM_ATTRIBUTE_INDICATORS_DEGREES) {
+    // for (const indicator of selectedNumericPropertyKeys) {
     //   delete f.properties[`${indicator}Sum`];
     //   delete f.properties[`${indicator}Count`];
     // }
