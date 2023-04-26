@@ -2,9 +2,6 @@ import { CompositeLayer, COORDINATE_SYSTEM } from '@deck.gl/core';
 import type { CompositeLayerProps } from '@deck.gl/core/typed';
 import { ScatterplotLayer } from '@deck.gl/layers';
 
-export type PoiProps<DataT = any> = _PoiProps & CompositeLayerProps<DataT>;
-type _PoiProps<DataT = any> = {};
-
 const defaultProps = {
   pickable: true,
   opacity: 0.8,
@@ -22,10 +19,7 @@ const defaultProps = {
 
 const HIGHLIGHT_COLOR = [100, 150, 250, 255];
 
-export default class PoiLayer<
-  DataT = any,
-  ExtraProps = {}
-> extends CompositeLayer<Required<_PoiProps<DataT>> & ExtraProps> {
+export default class PoiLayer extends CompositeLayer {
   static defaultProps = defaultProps;
   static layerName = 'PoiLayer';
 

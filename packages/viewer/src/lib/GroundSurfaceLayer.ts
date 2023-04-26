@@ -3,18 +3,11 @@ import type { CompositeLayerProps } from '@deck.gl/core/typed';
 import { SimpleMeshLayer } from '@deck.gl/mesh-layers';
 import { Geometry } from '@luma.gl/engine';
 
-export type GroundSurfaceProps<DataT = any> = _GroundSurfaceProps &
-  CompositeLayerProps<DataT>;
-type _GroundSurfaceProps<DataT = any> = {};
-
 const defaultProps = {};
 
 const HIGHLIGHT_COLOR = [100, 150, 250, 255];
 
-export default class GroundSurfaceLayer<
-  DataT = any,
-  ExtraProps = {}
-> extends CompositeLayer<Required<_GroundSurfaceProps<DataT>> & ExtraProps> {
+export default class GroundSurfaceLayer extends CompositeLayer {
   static defaultProps = defaultProps;
   static layerName = 'GroundSurfaceLayer';
 

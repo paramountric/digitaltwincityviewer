@@ -1,20 +1,12 @@
 import { CompositeLayer, COORDINATE_SYSTEM } from '@deck.gl/core';
-import type { CompositeLayerProps } from '@deck.gl/core/typed';
 import { SolidPolygonLayer } from '@deck.gl/layers';
 import { mat4 } from 'gl-matrix';
-
-export type CityModelProps<DataT = any> = _CityModelProps &
-  CompositeLayerProps<DataT>;
-type _CityModelProps<DataT = any> = {};
 
 const defaultProps = {};
 
 const HIGHLIGHT_COLOR = [100, 150, 250, 255];
 
-export default class CityModelLayer<
-  DataT = any,
-  ExtraProps = {}
-> extends CompositeLayer<Required<_CityModelProps<DataT>> & ExtraProps> {
+export default class CityModelLayer extends CompositeLayer {
   static defaultProps = defaultProps;
   static layerName = 'CityModelLayer';
 
