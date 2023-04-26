@@ -15,33 +15,37 @@ import { mat4, vec3 } from 'gl-matrix';
 import { registerLoaders } from '@loaders.gl/core';
 import { DracoWorkerLoader } from '@loaders.gl/draco';
 import { CesiumIonLoader } from '@loaders.gl/3d-tiles';
+import { Viewer } from './viewer';
+import { ViewerProps } from './viewer-props';
 
-export function getDefaultViewerProps(viewer) {
+// default viewer props is overwritten by application
+export function getDefaultViewerProps(viewer: Viewer) {
+  // viewer is passed in to allow for viewer.bind to be used
+  // however for many cases this is done after maplibre selection in the viewer constructor
   return {
-    debug: false,
     glOptions: {
       antialias: true,
       depth: true,
     },
-    layers: [],
     useDevicePixels: true,
-    getCursor: viewer.getCursor.bind(this),
+    // for the app to control the cursor, the prop.cursor can be set directly where deck will check this function continuously
+    getCursor: viewer.getCursor.bind(viewer),
   };
 }
 
 // Note: deck already registers JSONLoader...
 registerLoaders([DracoWorkerLoader]);
 
-function getLinearScale({ domain }) {
+function getLinearScale({ domain }: any) {
   return scaleLinear().domain(domain);
 }
 
-function getGridMatrix({ size }) {
+function getGridMatrix({ size }: any) {
   const m = getOffsetMatrix({ size });
   return mat4.scale(m, m, vec3.fromValues(size, size, size));
 }
 
-function getOffsetMatrix({ size }) {
+function getOffsetMatrix({ size }: any) {
   const half = size * 0.5;
   const position = vec3.negate(
     vec3.create(),
@@ -50,7 +54,7 @@ function getOffsetMatrix({ size }) {
   return mat4.fromTranslation(mat4.create(), position);
 }
 
-function getTranslateMatrix({ translate }) {
+function getTranslateMatrix({ translate }: any) {
   return mat4.fromTranslation(
     mat4.create(),
     vec3.fromValues(translate[0] || 0, translate[1] || 0, translate[2] || 0)
@@ -81,3 +85,34 @@ export const defaultViewerPropsJsonConfig = {
     CesiumIonLoader: CesiumIonLoader as any,
   },
 };
+
+// note that any maplibre options sent from app will overwrite these defaults
+// the props sent in is to enable the same api for the viewer for common options like lon, lat, zoom etc
+export function getDefaultMaplibreOptions(props: ViewerProps) {
+  return {
+    container: 'canvas',
+    accessToken: 'wtf',
+    renderWorldCopies: false,
+    antialias: true,
+    style: {
+      id: 'digitaltwincityviewer',
+      layers: [
+        {
+          id: 'background',
+          type: 'background',
+          paint: {
+            'background-color': 'rgba(255, 255, 255, 1)',
+          },
+        },
+      ],
+      sources: {},
+      version: 8,
+    },
+    center: [props.longitude || 0, props.latitude || 0],
+    zoom: props.zoom || props.zoom === 0 ? props.zoom : 14, // starting zoom
+    minZoom: props.minZoom || props.minZoom === 0 ? props.minZoom : 10,
+    maxZoom: props.maxZoom || props.maxZoom === 0 ? props.maxZoom : 18,
+    pitch: props.pitch || props.pitch === 0 ? props.pitch : 60,
+    attributionControl: false,
+  };
+}

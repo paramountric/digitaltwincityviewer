@@ -11,6 +11,11 @@ const nextConfig = {
   },
   experimental: {
     outputFileTracingRoot: path.join(__dirname, '../../'),
+    esmExternals: 'loose',
+  },
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    config.experiments = { ...config.experiments, topLevelAwait: true };
+    return config;
   },
 };
 

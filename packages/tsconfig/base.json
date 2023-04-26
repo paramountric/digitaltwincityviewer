@@ -1,5 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Default",
   "compilerOptions": {
     "composite": false,
     "declaration": true,
@@ -13,16 +14,7 @@
     "noUnusedParameters": false,
     "preserveWatchOutput": true,
     "skipLibCheck": true,
-    "strict": true,
-    "target": "ESNext",
-    "lib": ["esnext", "dom"],
-    "allowJs": true,
-    "noEmit": true,
-    "outDir": "dist",
-    "module": "esnext",
-    "resolveJsonModule": true,
-    "jsx": "preserve"
+    "strict": true
   },
-  "include": ["src", "index.d.ts"],
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["node_modules"]
 }

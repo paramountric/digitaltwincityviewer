@@ -2,22 +2,33 @@
 // https://github.com/visgl/deck.gl/tree/master/examples/playground/src
 
 import { Viewer } from './viewer';
-import { defaultViewerPropsConfig } from './default-viewer-props-config';
+import { defaultViewerPropsJsonConfig } from './default-viewer-props-config';
 export type ViewerProps = {
+  container?: HTMLElement;
+  height?: number;
+  width?: number;
+  longitude?: number;
+  latitude?: number;
+  zoom?: number;
+  minZoom?: number;
+  maxZoom?: number;
+  pitch?: number;
+  // return the viewer instance to the app on load
+  onLoad?: (viewer: Viewer) => void;
   // Needed on init: this is dependency injection for the JSON props parser and will override the default if same name
   classes?: {
     [className: string]: any;
   };
   // Needed on init: this is dependency injection for the JSON props parser and will override the default if same name
-  functions: {
+  functions?: {
     [functionName: string]: (d: any) => any;
   };
   // Needed on init: this is dependency injection for the JSON props parser and will override the default if same name
-  enumerations: {
+  enumerations?: {
     [enumerationName: string]: any;
   };
   // Needed on init: this is dependency injection for the JSON props parser and will override the default if same name
-  constants: {
+  constants?: {
     [constantName: string]: any;
   };
 };
@@ -29,26 +40,26 @@ export function getJsonConfig({
   constants = {},
 }: ViewerProps) {
   // note: some logic is anticipated here, but for the moment any props will
-  return Object.assign({}, defaultViewerPropsConfig, {
-    classes: Object.assign(defaultViewerPropsConfig.classes, classes),
-    functions: Object.assign(defaultViewerPropsConfig.functions, functions),
+  return Object.assign({}, defaultViewerPropsJsonConfig, {
+    classes: Object.assign(defaultViewerPropsJsonConfig.classes, classes),
+    functions: Object.assign(defaultViewerPropsJsonConfig.functions, functions),
     enumerations: Object.assign(
-      defaultViewerPropsConfig.enumerations,
+      defaultViewerPropsJsonConfig.enumerations,
       enumerations
     ),
-    constants: Object.assign(defaultViewerPropsConfig.constants, constants),
+    constants: Object.assign(defaultViewerPropsJsonConfig.constants, constants),
   });
 }
 
-function isFunctionObject(value) {
+function isFunctionObject(value: any) {
   return typeof value === 'object' && '@@function' in value;
 }
 
-function addUpdateTriggersForAccessors(newProps) {
+function addUpdateTriggersForAccessors(newProps: any) {
   if (!newProps || !newProps.layers) return;
 
   for (const layer of newProps.layers) {
-    const updateTriggers = {};
+    const updateTriggers = {} as any;
     for (const [key, value] of Object.entries(layer)) {
       if (
         (key.startsWith('get') && typeof value === 'string') ||

@@ -1,6 +1,8 @@
 // Copyright (C) 2022 Andreas Rudenå
 // Licensed under the MIT License
 
+// @ts-nocheck
+
 import { Deck } from '@deck.gl/core';
 import {
   JSONConverter,

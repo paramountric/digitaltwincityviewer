@@ -1,12 +1,12 @@
-import {useState, useEffect, useCallback} from 'react';
-import {useQuery} from '@tanstack/react-query';
-import {Viewer, JsonProps} from '@dtcv/viewer';
-import {cities} from '@dtcv/cities';
-import {Feature, FeatureCollection} from '@dtcv/geojson';
-import {useUserInfo} from './use-user';
-import {useSelectedFeature} from './use-selected-feature';
-import {getColorFromScale} from '../lib/colorScales';
-import {useUi} from './use-ui';
+import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Viewer } from '@dtcv/viewer';
+import { cities } from '@dtcv/cities';
+import { Feature, FeatureCollection } from '@dtcv/geojson';
+import { useUserInfo } from './use-user';
+import { useSelectedFeature } from './use-selected-feature';
+import { getColorFromScale } from '../lib/colorScales';
+import { useUi } from './use-ui';
 
 const DEFAULT_BUILDING_COLOR = 'rgb(200, 200, 200)';
 const DEFAULT_BUILDING_FUTURE_COLOR = 'rgb(230, 200, 200)';
@@ -56,9 +56,8 @@ if (typeof window !== 'undefined') {
 const maplibreOptions = {
   minZoom: 10,
   maxZoom: 17,
-  longitude: gothenburg.lng,
   // adjust camera since the official center is not the expected center
-  latitude: gothenburg.lat + 0.03,
+  center: [gothenburg.lng, gothenburg.lat + 0.03],
   style: {
     id: 'digitaltwincityviewer',
     aggregationZoomLevels,
@@ -416,14 +415,14 @@ export const useViewer = (): {
     combinationIsSelected,
   } = useUi();
   const {
-    actions: {setSelectedFeature},
+    actions: { setSelectedFeature },
   } = useSelectedFeature();
 
   useEffect(() => {
     if (viewer) {
       const key = getCombinedKey();
       const showColor = combinationIsSelected();
-      const {selectedYearKey, selectedAggregator} = uiState;
+      const { selectedYearKey, selectedAggregator } = uiState;
       const buildingLayer =
         selectedYearKey === '18' || selectedYearKey === 'year'
           ? 'building'
@@ -517,7 +516,7 @@ export const useViewer = (): {
           sourceLayer: sourceLayer,
           id: lastHoveredObject.id,
         },
-        {hover: false}
+        { hover: false }
       );
       viewer.cursor = 'grab';
     }
@@ -530,7 +529,7 @@ export const useViewer = (): {
           sourceLayer: sourceLayer,
           id: hoveredObject.id,
         },
-        {hover: true}
+        { hover: true }
       );
       viewer.cursor = 'pointer';
     }
@@ -551,16 +550,17 @@ export const useViewer = (): {
         new Viewer(
           {
             container: ref,
-            onDragEnd: ({longitude, latitude, zoom}: any) => {
-              setExtent([longitude, latitude, zoom]);
-            },
-            onLoad: (maplibreMap: any) => {
+            // onDragEnd: ({ longitude, latitude, zoom }: any) => {
+            //   setExtent([longitude, latitude, zoom]);
+            // },
+            onLoad: v => {
+              const maplibreMap = v.maplibreMap;
               if (!maplibreMap || viewer) {
                 return;
               }
               // ON CLICK
               maplibreMap.on('click', (e: any) => {
-                const {point} = e;
+                const { point } = e;
                 const features = maplibreMap.queryRenderedFeatures(
                   point,
                   undefined
