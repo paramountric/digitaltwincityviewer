@@ -400,7 +400,7 @@ importers:
       '@dtcv/cities': ^1.0.18
       '@dtcv/citymodel': ^1.0.18
       '@dtcv/geojson': ^1.2.2
-      '@dtcv/viewer': ^1.2.5
+      '@dtcv/viewer': workspace:*
       '@headlessui/react': ^1.6.6
       '@heroicons/react': ^2.0.10
       '@tanstack/react-query': ^4.16.1
@@ -423,6 +423,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0
       tailwindcss: ^3.1.8
+      tsconfig: workspace:*
       typescript: 4.7.4
     dependencies:
       '@aws-sdk/client-s3': 3.319.0
@@ -453,6 +454,7 @@ importers:
       eslint-config-next: 12.2.5_4rv7y5c6xz3vfxwhbrcxxi73bq
       postcss: 8.4.23
       tailwindcss: 3.3.2
+      tsconfig: link:../../packages/tsconfig
       typescript: 4.7.4
 
   projects/dtcc-file-viewer:
