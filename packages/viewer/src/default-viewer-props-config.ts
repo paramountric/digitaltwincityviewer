@@ -90,7 +90,6 @@ export const defaultViewerPropsJsonConfig = {
 // the props sent in is to enable the same api for the viewer for common options like lon, lat, zoom etc
 export function getDefaultMaplibreOptions(props: ViewerProps) {
   return {
-    container: 'canvas',
     accessToken: 'wtf',
     renderWorldCopies: false,
     antialias: true,
