@@ -1,7 +1,7 @@
 import { saveToFolderStructure } from '../index.js';
 import {
-  prepareDataBuildings2018,
-  prepareDataBuildings2050,
+  // prepareDataBuildings2018,
+  // prepareDataBuildings2050,
   prepareWater,
   prepareRoads,
   prepareAggregatorData,
