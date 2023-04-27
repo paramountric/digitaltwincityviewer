@@ -14,7 +14,7 @@
     "dtcc-task-flow-dev": "turbo run dev --filter dtcc-task-flow...",
     "dtcc-file-viewer-dev": "turbo run dev --filter dtcc-file-viewer...",
     "dev:dte": "turbo run dev --filter dte-digital-twin-energy...",
-    "dtcc-circularity-viewer-dev": "turbo run dev --filter dtcc-circularity-viewer...",
+    "dev:circularity": "turbo run dev --filter dtcc-circularity-viewer...",
     "trecim-dev": "turbo run dev --filter trecim...",
     "dtcv-website-dev": "turbo run dev --filter dtcv-website...",
     "publish-packages": "turbo run build && changeset version && changeset publish"
