@@ -1,11 +1,13 @@
-import {useRef, useState, useEffect} from 'react';
-import {useViewer} from '../hooks/use-viewer';
-import {useUi} from '../hooks/use-ui';
-import {useSelectedFeature} from '../hooks/use-selected-feature';
+import { useRef, useState, useEffect } from 'react';
+import { useViewer } from '../hooks/use-viewer';
+import { useUi } from '../hooks/use-ui';
+import { useSelectedFeature } from '../hooks/use-selected-feature';
 import Legend from './legend';
 import ActionPanel from './action-panel';
-import RightMenu from './right-menu';
+import FilterMenu from './filter-menu';
 import BottomPanel from './bottom-panel';
+import LeftMenu from './left-menu';
+import InfoMenu from './info-menu';
 // import {
 //   useClimateScenarioData,
 //   useContextData,
@@ -16,9 +18,9 @@ type ViewportProps = {};
 
 const Viewport: React.FC<ViewportProps> = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const {initViewer} = useViewer();
-  const {combinationIsSelected} = useUi();
-  const {state: selectedFeatureId} = useSelectedFeature();
+  const { initViewer } = useViewer();
+  const { combinationIsSelected } = useUi();
+  const { state: selectedFeatureId } = useSelectedFeature();
   // const climateScenarioData = useClimateScenarioData();
   // const contextData = useContextData();
   // const baseMapData = useBaseMapData();
@@ -41,12 +43,14 @@ const Viewport: React.FC<ViewportProps> = () => {
       ) : null}
       <div
         id="viewport"
-        style={{background: '#eee', width: '100%', height: '400px'}}
+        style={{ background: '#eee', width: '100%', height: '400px' }}
         ref={canvasRef}
       ></div>
-      {selectedFeatureId && <RightMenu></RightMenu>}
+      <LeftMenu />
+      {/* {selectedFeatureId && <RightMenu></RightMenu>} */}
+      <FilterMenu />
+      <InfoMenu />
       {combinationIsSelected() && <Legend></Legend>}
-      <BottomPanel></BottomPanel>
     </>
   );
 };

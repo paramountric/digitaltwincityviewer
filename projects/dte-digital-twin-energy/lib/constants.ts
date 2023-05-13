@@ -186,6 +186,36 @@ const aggregatorOptions = Object.keys(aggregatorLabels).map(key => ({
   label: aggregatorLabels[key],
 }));
 
+const filterBuildingOptions = [
+  {
+    key: 'all',
+    label: 'All buildings',
+  },
+  {
+    key: 'selection',
+    label: 'A specific selection',
+  },
+  {
+    key: 'one',
+    label: 'Only one building',
+  },
+];
+
+const filterGridOptions = [
+  {
+    key: 'grid1km',
+    label: 'Grid 1km',
+  },
+  {
+    key: 'grid250m',
+    label: 'Grid 250m',
+  },
+  {
+    key: 'grid100m',
+    label: 'Grid 100m',
+  },
+];
+
 export {
   propertyLabels,
   units,
@@ -197,4 +227,6 @@ export {
   degreeOptions,
   aggregatorLabels,
   aggregatorOptions,
+  filterBuildingOptions,
+  filterGridOptions,
 };

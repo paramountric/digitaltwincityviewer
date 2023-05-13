@@ -2,8 +2,8 @@ import Head from 'next/head';
 import Image from 'next/image';
 import React from 'react';
 import logo from '../public/dtcc-logo.png';
-import {useUserInfo} from '../hooks/use-user';
-import {useSignOut} from '../hooks/use-signout';
+import { useUserInfo } from '../hooks/use-user';
+import { useSignOut } from '../hooks/use-signout';
 
 type HeaderProps = {};
 

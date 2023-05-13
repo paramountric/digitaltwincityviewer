@@ -1,6 +1,18 @@
-import {useState, useEffect, useMemo} from 'react';
-import {Observable} from '../lib/Observable';
-import {propertyKeyOptions, yearOptions, degreeOptions} from '../lib/constants';
+import { useState, useEffect, useMemo } from 'react';
+import { Observable } from '../lib/Observable';
+import {
+  propertyKeyOptions,
+  yearOptions,
+  degreeOptions,
+} from '../lib/constants';
+
+type ScenarioKeys = 'energy' | 'solar' | 'renovation';
+type FilterButtons =
+  | 'buildings'
+  | 'districts'
+  | 'baseAreas'
+  | 'primaryAreas'
+  | 'grid';
 
 export type UiStore = {
   selectedPropertyKey: string;
@@ -8,6 +20,14 @@ export type UiStore = {
   selectedDegreeKey: string;
   showTimelinePerM2: boolean;
   selectedAggregator: string;
+  showScenario: boolean;
+  showPins: boolean;
+  scenarioKey: ScenarioKeys;
+  filterButton: FilterButtons;
+  selectedFilterBuildingOption: string;
+  selectedFilterGridOption: string;
+  showLayerPlannedDevelopment: boolean;
+  showLayerSatelliteMap: boolean;
 };
 
 const uiStore = new Observable<UiStore>({
@@ -16,6 +36,14 @@ const uiStore = new Observable<UiStore>({
   selectedDegreeKey: 'degrees', //degreeOptions[0].key,
   showTimelinePerM2: false,
   selectedAggregator: 'none',
+  showScenario: false,
+  showPins: false,
+  scenarioKey: 'energy',
+  filterButton: 'buildings',
+  selectedFilterBuildingOption: 'all',
+  selectedFilterGridOption: 'grid1km',
+  showLayerPlannedDevelopment: false,
+  showLayerSatelliteMap: false,
 });
 
 export const useUi = () => {
@@ -28,15 +56,38 @@ export const useUi = () => {
   const actions = useMemo(() => {
     return {
       setSelectedPropertyKey: (selectedPropertyKey: string) =>
-        uiStore.set({...uiState, selectedPropertyKey}),
+        uiStore.set({ ...uiState, selectedPropertyKey }),
       setSelectedYearKey: (selectedYearKey: string) =>
-        uiStore.set({...uiState, selectedYearKey}),
+        uiStore.set({ ...uiState, selectedYearKey }),
       setSelectedBaseMapKey: (selectedDegreeKey: string) =>
-        uiStore.set({...uiState, selectedDegreeKey}),
+        uiStore.set({ ...uiState, selectedDegreeKey }),
       setShowTimelinePerM2: (showTimelinePerM2: boolean) =>
-        uiStore.set({...uiState, showTimelinePerM2}),
+        uiStore.set({ ...uiState, showTimelinePerM2 }),
       setSelectedAggregator: (selectedAggregator: string) =>
-        uiStore.set({...uiState, selectedAggregator}),
+        uiStore.set({ ...uiState, selectedAggregator }),
+      setShowScenario: (showScenario: boolean) =>
+        uiStore.set({ ...uiState, showScenario }),
+      setScenario: (scenarioKey: ScenarioKeys) =>
+        uiStore.set({ ...uiState, scenarioKey }),
+      setShowPins: (showPins: boolean) => uiStore.set({ ...uiState, showPins }),
+      setFilterButton: (filterButton: FilterButtons) =>
+        uiStore.set({ ...uiState, filterButton }),
+      setSelectedFilterBuildingOption: (selectedFilterBuildingOption: string) =>
+        uiStore.set({
+          ...uiState,
+          filterButton: 'buildings',
+          selectedFilterBuildingOption,
+        }),
+      setSelectedFilterGridOption: (selectedFilterGridOption: string) =>
+        uiStore.set({
+          ...uiState,
+          filterButton: 'grid',
+          selectedFilterGridOption,
+        }),
+      setShowLayerPlannedDevelopment: (showLayerPlannedDevelopment: boolean) =>
+        uiStore.set({ ...uiState, showLayerPlannedDevelopment }),
+      setShowLayerSatelliteMap: (showLayerSatelliteMap: boolean) =>
+        uiStore.set({ ...uiState, showLayerSatelliteMap }),
     };
   }, [uiState]);
 
@@ -51,11 +102,8 @@ export const useUi = () => {
       );
     },
     getCombinedKey: () => {
-      const {selectedPropertyKey, selectedDegreeKey, selectedYearKey} = uiState;
-
-      console.log('selectedPropertyKey', selectedPropertyKey);
-      console.log('selectedDegreeKey', selectedDegreeKey);
-      console.log('selectedYearKey', selectedYearKey);
+      const { selectedPropertyKey, selectedDegreeKey, selectedYearKey } =
+        uiState;
 
       // all the 18 keys are the same for all the degrees
       if (selectedDegreeKey === '0' || selectedDegreeKey === 'degrees') {
@@ -69,7 +117,8 @@ export const useUi = () => {
       return `${selectedPropertyKey}50_${selectedDegreeKey}`;
     },
     combinationIsSelected: () => {
-      const {selectedPropertyKey, selectedYearKey, selectedDegreeKey} = uiState;
+      const { selectedPropertyKey, selectedYearKey, selectedDegreeKey } =
+        uiState;
       if (
         selectedPropertyKey === 'energy' ||
         selectedYearKey === 'year' ||
