@@ -1,2 +1,2 @@
-export { Viewer } from './viewer.js';
-export type { ViewerProps } from './viewer-props.js';
+export { Viewer } from './Viewer';
+export type { ViewerProps } from './viewer-props';
