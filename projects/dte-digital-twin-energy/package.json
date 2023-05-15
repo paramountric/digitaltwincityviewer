@@ -10,9 +10,6 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.157.0",
-    "@dtcv/cities": "^1.0.18",
-    "@dtcv/citymodel": "^1.0.18",
-    "@dtcv/geojson": "^1.2.2",
     "@dtcv/viewer": "workspace:*",
     "@headlessui/react": "^1.6.6",
     "@heroicons/react": "^2.0.10",
