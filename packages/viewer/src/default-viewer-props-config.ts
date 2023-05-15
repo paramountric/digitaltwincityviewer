@@ -15,7 +15,7 @@ import { mat4, vec3 } from 'gl-matrix';
 import { registerLoaders } from '@loaders.gl/core';
 import { DracoWorkerLoader } from '@loaders.gl/draco';
 import { CesiumIonLoader } from '@loaders.gl/3d-tiles';
-import { Viewer } from './viewer';
+import { Viewer } from './Viewer';
 import { ViewerProps } from './viewer-props';
 
 // default viewer props is overwritten by application
