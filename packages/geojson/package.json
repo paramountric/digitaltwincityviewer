@@ -49,6 +49,7 @@
   "dependencies": {
     "@dtcv/convert": "^1.2.1",
     "@types/geojson": "^7946.0.8",
+    "fs-extra": "^11.1.0",
     "geojson-vt": "^3.2.1",
     "gl-matrix": "^3.4.3",
     "proj4": "^2.8.0"
