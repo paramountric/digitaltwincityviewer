@@ -336,6 +336,9 @@ importers:
       '@loaders.gl/draco': ^3.3.3
       '@luma.gl/constants': ^8.5.19
       '@luma.gl/core': ^8.5.19
+      '@types/d3-axis': ^3.0.2
+      '@types/d3-scale': ^4.0.3
+      '@types/d3-selection': ^3.0.5
       d3-scale: ^4.0.2
       gl-matrix: ^3.4.3
       maplibre-gl: ^2.4.0
@@ -353,6 +356,9 @@ importers:
       gl-matrix: 3.4.3
       maplibre-gl: 2.4.0
     devDependencies:
+      '@types/d3-axis': 3.0.2
+      '@types/d3-scale': 4.0.3
+      '@types/d3-selection': 3.0.5
       tsup: 6.7.0
 
   projects/dtcc-circularity-viewer:
@@ -421,9 +427,6 @@ importers:
   projects/dte-digital-twin-energy:
     specifiers:
       '@aws-sdk/client-s3': ^3.157.0
-      '@dtcv/cities': ^1.0.18
-      '@dtcv/citymodel': ^1.0.18
-      '@dtcv/geojson': ^1.2.2
       '@dtcv/viewer': workspace:*
       '@headlessui/react': ^1.6.6
       '@heroicons/react': ^2.0.10
@@ -455,9 +458,6 @@ importers:
       typescript: 4.9.5
     dependencies:
       '@aws-sdk/client-s3': 3.332.0
-      '@dtcv/cities': link:../../packages/cities
-      '@dtcv/citymodel': link:../../packages/citymodel
-      '@dtcv/geojson': link:../../packages/geojson
       '@dtcv/viewer': link:../../packages/viewer
       '@headlessui/react': 1.7.14_biqbaboplfbrettd7655fr4n2y
       '@heroicons/react': 2.0.18_react@18.2.0
@@ -3292,7 +3292,6 @@ packages:
     resolution: {integrity: sha512-uGC7DBh0TZrU/LY43Fd8Qr+2ja1FKmH07q2FoZFHo1eYl8aj87GhfVoY1saJVJiq24rp1+wpI6BvQJMKgQm8oA==}
     dependencies:
       '@types/d3-selection': 3.0.5
-    dev: false
 
   /@types/d3-brush/3.0.2:
     resolution: {integrity: sha512-2TEm8KzUG3N7z0TrSKPmbxByBx54M+S9lHoP2J55QuLU0VSQ9mE96EJSAOVNEqd1bbynMjeTS9VHmz8/bSw8rA==}
@@ -3391,11 +3390,9 @@ packages:
     resolution: {integrity: sha512-PATBiMCpvHJSMtZAMEhc2WyL+hnzarKzI6wAHYjhsonjWJYGq5BXTzQjv4l8m2jO183/4wZ90rKvSeT7o72xNQ==}
     dependencies:
       '@types/d3-time': 3.0.0
-    dev: false
 
   /@types/d3-selection/3.0.5:
     resolution: {integrity: sha512-xCB0z3Hi8eFIqyja3vW8iV01+OHGYR2di/+e+AiOcXIOrY82lcvWW8Ke1DYE/EUVMsBl4Db9RppSBS3X1U6J0w==}
-    dev: false
 
   /@types/d3-shape/3.1.1:
     resolution: {integrity: sha512-6Uh86YFF7LGg4PQkuO2oG6EMBRLuW9cbavUW46zkIO5kuS2PfTqo2o9SkgtQzguBHbLgNnU90UNsITpsX1My+A==}
@@ -3409,7 +3406,6 @@ packages:
 
   /@types/d3-time/3.0.0:
     resolution: {integrity: sha512-sZLCdHvBUcNby1cB6Fd3ZBrABbjz3v1Vm90nysCQ6Vt7vd6e/h9Lt7SiJUoEX0l4Dzc7P5llKyhqSi1ycSf1Hg==}
-    dev: false
 
   /@types/d3-timer/3.0.0:
     resolution: {integrity: sha512-HNB/9GHqu7Fo8AQiugyJbv6ZxYz58wef0esl4Mv828w1ZKpAshw/uFWVDUcIB9KKFeFKoxS3cHY07FFgtTRZ1g==}
