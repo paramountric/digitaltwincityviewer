@@ -1,16 +1,16 @@
-import {useState} from 'react';
-import {useSignIn} from '../hooks/use-signin';
+import { useState } from 'react';
+import { useSignIn } from '../../hooks/use-signin';
 
 //
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const {signIn, signInError, signInLoading} = useSignIn();
+  const { signIn, signInError, signInLoading } = useSignIn();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    signIn({email, password});
+    signIn({ email, password });
   };
 
   return (
@@ -25,7 +25,7 @@ const Login: React.FC = () => {
               type="email"
               required
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </label>
           <label>
@@ -35,7 +35,7 @@ const Login: React.FC = () => {
               type="password"
               required
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </label>
           {signInError && <p className="text-red-600">Invalid credentials</p>}

@@ -1,14 +1,14 @@
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
+import { Menu, Transition } from '@headlessui/react';
 import { CheckIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon } from '@heroicons/react/20/solid';
 
 type MenuOption = {
   key: string;
   label: string;
 };
 
-type ActionPanelMenuProps = {
+type DropdownProps = {
   name: string;
   options: MenuOption[];
   selectedKey: string;
@@ -21,22 +21,22 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-const ActionPanelMenu: React.FC<ActionPanelMenuProps> = props => {
+const Dropdown: React.FC<DropdownProps> = (props) => {
   return (
-    <Menu as="div" className="relative inline-block text-left m-1">
+    <Menu as="div" className="text-left">
       <div>
         <Menu.Button
           className={classNames(
             props.checkIcon
-              ? 'bg-gray-700 text-white'
-              : 'bg-white text-gray-900',
+              ? 'bg-gray-700 text-white hover:bg-gray-500'
+              : 'bg-white text-gray-900 hover:bg-gray-50',
             props.roundedClass || '',
-            'inline-flex w-full justify-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 focus:outline-none'
+            'inline-flex w-full justify-center border border-gray-300 px-4 py-2 text-sm font-medium shadow-sm focus:outline-none'
           )}
         >
           {props.checkIcon && <CheckIcon className="-ml-0.5 mr-2 h-5 w-5" />}
           {props.name}
-          <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+          <ChevronDownIcon className="w-5 h-5 ml-2 -mr-1" aria-hidden="true" />
         </Menu.Button>
       </div>
 
@@ -49,9 +49,9 @@ const ActionPanelMenu: React.FC<ActionPanelMenuProps> = props => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute z-10 mt-2 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <Menu.Items className="absolute z-[60] mt-2 origin-top-left bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           <div className="py-1">
-            {props.options.map(option => (
+            {props.options.map((option) => (
               <Menu.Item key={option.key}>
                 <a
                   href="#"
@@ -74,4 +74,4 @@ const ActionPanelMenu: React.FC<ActionPanelMenuProps> = props => {
   );
 };
 
-export default ActionPanelMenu;
+export default Dropdown;

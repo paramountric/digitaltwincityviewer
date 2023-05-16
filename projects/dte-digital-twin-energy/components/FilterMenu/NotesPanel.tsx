@@ -1,6 +1,6 @@
 import { Disclosure, Switch } from '@headlessui/react';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
-import { useUi } from '../hooks/use-ui';
+import { useUi } from '../../hooks/use-ui';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -12,7 +12,7 @@ export default function NotesPanel() {
     <Disclosure>
       {({ open }) => (
         <>
-          <Disclosure.Button className="flex w-full bg-gray-100 justify-between rounded-md p-2 mt-2 text-left text-sm text-gray-700 font-medium hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75">
+          <Disclosure.Button className="flex justify-between w-full p-2 mt-2 text-sm font-medium text-left text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75">
             <span>Notes</span>
             <span>(34)</span>
 

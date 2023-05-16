@@ -1,13 +1,12 @@
-import { useRef, useState, useEffect } from 'react';
-import { useViewer } from '../hooks/use-viewer';
-import { useUi } from '../hooks/use-ui';
-import { useSelectedFeature } from '../hooks/use-selected-feature';
-import Legend from './legend';
-import ActionPanel from './action-panel';
-import FilterMenu from './filter-menu';
-import BottomPanel from './bottom-panel';
-import LeftMenu from './left-menu';
-import InfoMenu from './info-menu';
+import { useRef, useEffect } from 'react';
+import { useViewer } from '../../hooks/use-viewer';
+import { useUi } from '../../hooks/use-ui';
+import { useSelectedFeature } from '../../hooks/use-selected-feature';
+import Legend from '../Legend/Legend';
+import FilterMenu from '../FilterMenu/FilterMenu';
+import BottomPanel from '../BottomPanel';
+import LeftMenu from '../LeftMenu/LeftMenu';
+import InfoMenu from '../InfoMenu/InfoMenu';
 // import {
 //   useClimateScenarioData,
 //   useContextData,
@@ -33,11 +32,11 @@ const Viewport: React.FC<ViewportProps> = () => {
 
   return (
     <>
-      <ActionPanel></ActionPanel>
+      {/* <ActionPanel /> */}
       {false ? (
         <div className="absolute z-10 w-full h-full">
-          <div className="relative flex justify-center items-center h-screen">
-            <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
+          <div className="relative flex items-center justify-center h-screen">
+            <div className="w-32 h-32 ease-linear border-8 border-t-8 border-gray-200 rounded-full loader"></div>
           </div>
         </div>
       ) : null}
@@ -50,7 +49,7 @@ const Viewport: React.FC<ViewportProps> = () => {
       {/* {selectedFeatureId && <RightMenu></RightMenu>} */}
       <FilterMenu />
       <InfoMenu />
-      {combinationIsSelected() && <Legend></Legend>}
+      {combinationIsSelected() && <Legend />}
     </>
   );
 };
