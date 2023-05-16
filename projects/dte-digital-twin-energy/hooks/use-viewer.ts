@@ -2,8 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Viewer } from '@dtcv/viewer';
 import { cities } from '@dtcv/cities';
-import { Feature, FeatureCollection } from '@dtcv/geojson';
-import { useUserInfo } from './use-user';
 import { useSelectedFeature } from './use-selected-feature';
 import { getColorFromScale } from '../lib/colorScales';
 import { useUi } from './use-ui';
@@ -407,7 +405,6 @@ export const useViewer = (): {
   // state needs to find objects for changing back the colors due to shift between states
   const [lastHoveredObject, setLastHoveredObject] = useState<any | null>(null);
 
-  const userInfo = useUserInfo();
   const {
     state: uiState,
     actions: uiActions,
