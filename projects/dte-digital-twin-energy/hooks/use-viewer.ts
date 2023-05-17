@@ -547,6 +547,7 @@ export const useViewer = (): {
         new Viewer(
           {
             container: ref,
+            // layers: [{ '@@type': 'Tile3DLayer' }],
             // onDragEnd: ({ longitude, latitude, zoom }: any) => {
             //   setExtent([longitude, latitude, zoom]);
             // },

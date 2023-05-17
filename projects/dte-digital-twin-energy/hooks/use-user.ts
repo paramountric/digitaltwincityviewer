@@ -22,8 +22,9 @@ const userStore = new Observable<User>({});
 
 export function useUser() {
   const [user, setUser] = useState<User>(userStore.get());
-  const userInfo = useUserInfo();
+  const userSession = useSession();
   const signOut = useSignOut();
+  const signIn = useSignIn();
 
   useEffect(() => {
     // subscribe to the observable
