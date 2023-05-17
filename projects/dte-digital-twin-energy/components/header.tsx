@@ -2,13 +2,13 @@ import Head from 'next/head';
 import Image from 'next/image';
 import React from 'react';
 import logo from '../public/dtcc-logo.png';
-import { useUserInfo } from '../hooks/use-user';
+import { useUser } from '../hooks/use-user';
 import { useSignOut } from '../hooks/use-signout';
 
 type HeaderProps = {};
 
 const Header: React.FC<HeaderProps> = () => {
-  const userInfo = useUserInfo();
+  const userInfo = useUser();
   const signOut = useSignOut();
   return (
     <div className="absolute w-full z-50 overflow-hidden">
@@ -32,9 +32,7 @@ const Header: React.FC<HeaderProps> = () => {
           </div>
           {userInfo ? (
             <div className="flex space-x-4 items-center">
-              <div className="text-gray-600 cursor-pointer">
-                {userInfo.userName}
-              </div>
+              <div className="text-gray-600 cursor-pointer">Log in</div>
               <button
                 onClick={signOut}
                 className="border border-gray-500 text-gray-700 bg-white rounded-md px-2 cursor-pointer hover:bg-gray-100"

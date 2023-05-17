@@ -1,12 +1,12 @@
-import type {NextPage} from 'next';
+import type { NextPage } from 'next';
 import React from 'react';
 import Header from '../components/header';
 import Viewport from '../components/viewport';
 import Login from '../components/login';
-import {useUserInfo} from '../hooks/use-user';
+import { useUser } from '../hooks/use-user';
 
 const StartPage: NextPage = () => {
-  const userInfo = useUserInfo();
+  const userInfo = useUser();
   return (
     <div>
       <main>
