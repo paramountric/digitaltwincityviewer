@@ -1,12 +1,12 @@
-import {useLayoutEffect, useRef, useState} from 'react';
-import {Disclosure} from '@headlessui/react';
-import {ChevronUpIcon} from '@heroicons/react/20/solid';
-import {select} from 'd3-selection';
-import {scaleBand, scaleLinear} from 'd3-scale';
-import {axisBottom, axisLeft} from 'd3-axis';
-import {getColorFromScale} from '../lib/colorScales';
-import {propertyLabels, units, rounding} from '../lib/constants';
-import {useUi} from '../hooks/use-ui';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { Disclosure } from '@headlessui/react';
+import { ChevronUpIcon } from '@heroicons/react/20/solid';
+import { select } from 'd3-selection';
+import { scaleBand, scaleLinear } from 'd3-scale';
+import { axisBottom, axisLeft } from 'd3-axis';
+import { getColorFromScale } from '../../lib/colorScales';
+import { propertyLabels, units, rounding } from '../../lib/constants';
+import { useUi } from '../../hooks/use-ui';
 
 type BuildingFeatureEnergyDisplayProps = {
   feature: any;
@@ -59,7 +59,7 @@ function applyChart(
 
   const degrees: string[] = ['+0°C', '+2.5°C', '+4.5°C', '+8.5°C'];
 
-  const margin = {top: 20, right: 0, bottom: 20, left: 60};
+  const margin = { top: 20, right: 0, bottom: 20, left: 60 };
   const width = 250 - margin.left - margin.right;
   const height = 80 - margin.top - margin.bottom;
   const x = scaleBand().domain(degrees).range([0, width]).padding(0.6);
@@ -79,7 +79,7 @@ function applyChart(
     .data(timelineValues)
     .enter()
     .append('rect')
-    .attr('fill', d => getColorFromScale(d, scaleKey, true))
+    .attr('fill', (d) => getColorFromScale(d, scaleKey, true))
     .attr('stroke', '#aaa')
     .attr('stroke-width', '0.5px')
     .attr('class', 'bar')
@@ -148,7 +148,7 @@ function applyChart(
 
 const BuildingFeatureEnergyDisplay: React.FC<
   BuildingFeatureEnergyDisplayProps
-> = props => {
+> = (props) => {
   const deliveredEnergyRef = useRef<HTMLDivElement>(null);
   const finalEnergyRef = useRef<HTMLDivElement>(null);
   const ghgEmissionsRef = useRef<HTMLDivElement>(null);
@@ -156,7 +156,7 @@ const BuildingFeatureEnergyDisplay: React.FC<
   const coolDemandRef = useRef<HTMLDivElement>(null);
   const primaryEnergyRef = useRef<HTMLDivElement>(null);
   const [trigger, setTrigger] = useState(-1);
-  const {state: uiState} = useUi();
+  const { state: uiState } = useUi();
   useLayoutEffect(() => {
     if (deliveredEnergyRef.current) {
       applyChart(deliveredEnergyRef.current, props.feature.properties, 'de');
@@ -179,11 +179,11 @@ const BuildingFeatureEnergyDisplay: React.FC<
   }, [props.feature.properties, trigger, uiState.selectedDegreeKey]);
   return (
     <Disclosure>
-      {({open}) => (
+      {({ open }) => (
         <>
           <Disclosure.Button
             onClick={() => setTrigger(trigger + 1)}
-            className="flex w-full bg-gray-100 justify-between rounded-md p-2 mt-2 text-left text-sm text-gray-700 font-medium hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75"
+            className="flex justify-between w-full p-2 mt-2 text-sm font-medium text-left text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75"
           >
             <span>Energy</span>
             <ChevronUpIcon
@@ -221,7 +221,7 @@ const BuildingFeatureEnergyDisplay: React.FC<
               id="primary-energy-chart"
               ref={primaryEnergyRef}
             ></div>
-            <div className="tooltip p-1 bg-white border shadow-md absolute left-0 top-0 z-50">
+            <div className="absolute top-0 left-0 z-50 p-1 bg-white border shadow-md tooltip">
               {/* this is replaced with tooltip text */}
             </div>
           </Disclosure.Panel>

@@ -1,13 +1,13 @@
-import {XMarkIcon} from '@heroicons/react/20/solid';
-import BuildingFeatureGeneralDisplay from './building-feature-general-display';
-import BuildingFeatureEnergyDisplay from './building-feature-energy-display';
-import {useSelectedFeature} from '../hooks/use-selected-feature';
+import { XMarkIcon } from '@heroicons/react/20/solid';
+import BuildingFeatureGeneralDisplay from './BuildingFeature/building-feature-general-display';
+import BuildingFeatureEnergyDisplay from './BuildingFeature/building-feature-energy-display';
+import { useSelectedFeature } from '../hooks/use-selected-feature';
 
 type RightMenuProps = {};
 
 const RightMenu: React.FC<RightMenuProps> = () => {
   const {
-    actions: {getSelectedFeature, setSelectedFeature},
+    actions: { getSelectedFeature, setSelectedFeature },
   } = useSelectedFeature();
 
   const feature = getSelectedFeature();
@@ -17,7 +17,7 @@ const RightMenu: React.FC<RightMenuProps> = () => {
   }
 
   return (
-    <div className="absolute right-1 top-16 bg-white z-30 rounded-md p-2 border text-m text-gray-700 border-gray-300">
+    <div className="absolute z-30 p-2 text-gray-700 bg-white border border-gray-300 rounded-md right-1 top-16 text-m">
       <div className="flex justify-between w-full">
         <div className="">
           {feature.properties?.name ||
@@ -26,7 +26,7 @@ const RightMenu: React.FC<RightMenuProps> = () => {
             'Selected building'}
         </div>
         <div onClick={() => setSelectedFeature(null)} className="ml-1">
-          <XMarkIcon className="h-5 w-5 cursor-pointer hover:bg-gray-100 rounded-md" />
+          <XMarkIcon className="w-5 h-5 rounded-md cursor-pointer hover:bg-gray-100" />
         </div>
       </div>
       <BuildingFeatureGeneralDisplay

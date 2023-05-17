@@ -1,8 +1,8 @@
 import { Switch } from '@headlessui/react';
-import { useUi } from '../hooks/use-ui';
-import ActionPanelMenu from './action-panel-menu';
+import { useUi } from '../../hooks/use-ui';
+import Dropdown from '../Dropdown';
 import { CheckIcon } from '@heroicons/react/24/outline';
-import { filterBuildingOptions, filterGridOptions } from '../lib/constants';
+import { filterBuildingOptions, filterGridOptions } from '../../lib/constants';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -28,16 +28,16 @@ export default function FilterMenuActionPanel(
   );
 
   return (
-    <div className="">
-      <ActionPanelMenu
+    <div className="flex">
+      <Dropdown
         onSelect={uiActions.setSelectedFilterBuildingOption}
         name={filterLabels[uiState.selectedFilterBuildingOption]}
         selectedKey={uiState.selectedFilterBuildingOption}
         options={filterBuildingOptions}
         roundedClass="rounded-l-md"
         checkIcon={uiState.filterButton === 'buildings'}
-      ></ActionPanelMenu>
-      <span className="isolate inline-flex">
+      />
+      <span className="inline-flex isolate">
         <button
           onClick={() => uiActions.setFilterButton('districts')}
           type="button"
@@ -84,14 +84,14 @@ export default function FilterMenuActionPanel(
           Renovation
         </button>
       </span>
-      <ActionPanelMenu
+      <Dropdown
         onSelect={uiActions.setSelectedFilterGridOption}
         name={filterLabels[uiState.selectedFilterGridOption]}
         selectedKey={uiState.selectedFilterGridOption}
         options={filterGridOptions}
         roundedClass="rounded-r-md"
         checkIcon={uiState.filterButton === 'grid'}
-      ></ActionPanelMenu>
+      />
     </div>
   );
 }

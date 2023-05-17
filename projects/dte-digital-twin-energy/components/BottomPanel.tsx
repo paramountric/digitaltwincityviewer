@@ -1,11 +1,11 @@
-import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
-import {select, selectAll} from 'd3-selection';
-import {scaleBand, scaleLinear} from 'd3-scale';
-import {axisBottom, axisLeft} from 'd3-axis';
-import {useViewer} from '../hooks/use-viewer';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { select, selectAll } from 'd3-selection';
+import { scaleBand, scaleLinear } from 'd3-scale';
+import { axisBottom, axisLeft } from 'd3-axis';
+import { useViewer } from '../hooks/use-viewer';
 // import {useClimateScenarioData} from '../hooks/data';
 // import {useIndicators} from '../hooks/indicators';
-import {propertyLabels, units} from '../lib/constants';
+import { propertyLabels, units } from '../lib/constants';
 
 function renderChart(
   el: HTMLDivElement | null,
@@ -24,7 +24,7 @@ function renderChart(
   }
   const min = Math.min(...timelineValues);
 
-  const margin = {top: 20, right: 20, bottom: 45, left: 100};
+  const margin = { top: 20, right: 20, bottom: 45, left: 100 };
   const width = elWidth - margin.left - margin.right;
   const height = elHeight - margin.top - margin.bottom;
 
@@ -64,7 +64,7 @@ function renderChart(
     .data(timelineValues)
     .enter()
     .append('rect')
-    .attr('fill', d => colorScale(d))
+    .attr('fill', (d) => colorScale(d))
     .attr('stroke', '#999')
     .attr('class', 'bar')
     .attr('x', (d, i) => {
@@ -108,7 +108,7 @@ function renderChart(
 
 type BottomPanelProps = {};
 
-const BottomPanel: React.FC<BottomPanelProps> = props => {
+const BottomPanel: React.FC<BottomPanelProps> = (props) => {
   const chartRef = useRef<HTMLDivElement>(null);
   // const {state: indicatorState} = useIndicators();
   // const {state: dataState, isLoading} = useClimateScenarioData();
@@ -137,10 +137,10 @@ const BottomPanel: React.FC<BottomPanelProps> = props => {
 
   return null;
   // dataState.timelineData && (
-  //   <div className="absolute left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-md border border-gray-300 bottom-2 w-1/2 h-44">
+  //   <div className="absolute z-50 w-1/2 transform -translate-x-1/2 bg-white border border-gray-300 rounded-md left-1/2 bottom-2 h-44">
   //     {isLoading ? (
-  //       <div className="relative flex justify-center items-center">
-  //         <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8 mt-16"></div>
+  //       <div className="relative flex items-center justify-center">
+  //         <div className="w-8 h-8 mt-16 ease-linear border-4 border-t-4 border-gray-200 rounded-full loader"></div>
   //       </div>
   //     ) : dataState.timelineData ? (
   //       <div className="h-44" ref={chartRef}></div>

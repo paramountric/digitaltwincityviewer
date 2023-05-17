@@ -1,9 +1,10 @@
-import type { NextPage } from 'next';
-import React from 'react';
-import Header from '../components/header';
-import Viewport from '../components/viewport';
-import Login from '../components/login';
 import { useUser } from '../hooks/use-user';
+import React from 'react';
+import type { NextPage } from 'next';
+import Header from '../components/Header';
+import Viewport from '../components/Viewport/Viewport';
+import Login from '../components/Login/Login';
+import ActionPanel from '../components/ActionPanel/ActionPanel';
 
 const StartPage: NextPage = () => {
   const userInfo = useUser();
@@ -12,7 +13,9 @@ const StartPage: NextPage = () => {
       <main>
         {/* Use a wrapper for the app UI to keep the canvas fixed */}
         <React.StrictMode>
-          <Header></Header>
+          <Header>
+            <ActionPanel />
+          </Header>
         </React.StrictMode>
 
         {userInfo ? <Viewport /> : <Login />}

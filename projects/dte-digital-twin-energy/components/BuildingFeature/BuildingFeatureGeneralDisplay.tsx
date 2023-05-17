@@ -1,6 +1,6 @@
-import {Fragment} from 'react';
-import {Disclosure} from '@headlessui/react';
-import {ChevronUpIcon} from '@heroicons/react/20/solid';
+import { Fragment } from 'react';
+import { Disclosure } from '@headlessui/react';
+import { ChevronUpIcon } from '@heroicons/react/20/solid';
 
 type BuildingFeatureGeneralDisplayProps = {
   feature: any;
@@ -55,7 +55,7 @@ function formatValue(properties: any, propertyKey: string) {
 
 const BuildingFeatureGeneralDisplay: React.FC<
   BuildingFeatureGeneralDisplayProps
-> = props => {
+> = (props) => {
   const propertySelection = displayProperties.reduce((memo, key) => {
     const item = {
       property: key,
@@ -68,9 +68,9 @@ const BuildingFeatureGeneralDisplay: React.FC<
   }, [] as any);
   return (
     <Disclosure>
-      {({open}) => (
+      {({ open }) => (
         <>
-          <Disclosure.Button className="flex w-full bg-gray-100 justify-between rounded-md p-2 mt-2 text-left text-sm text-gray-700 font-medium hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75">
+          <Disclosure.Button className="flex justify-between w-full p-2 mt-2 text-sm font-medium text-left text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75">
             <span>General</span>
             <ChevronUpIcon
               className={`${open ? 'rotate-180 transform' : ''} h-5 w-5`}
@@ -85,7 +85,7 @@ const BuildingFeatureGeneralDisplay: React.FC<
                 );
                 return (
                   <Fragment key={i}>
-                    <div className="col-span-2 p-1 mr-1 mb-1 font-semibold">
+                    <div className="col-span-2 p-1 mb-1 mr-1 font-semibold">
                       {item.label || 'fixme'}:
                     </div>
                     <div className="col-span-3">

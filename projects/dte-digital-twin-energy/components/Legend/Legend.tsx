@@ -1,6 +1,6 @@
-import {Fragment} from 'react';
-import {useUi} from '../hooks/use-ui';
-import {getColorFromScale, getScaleRanges} from '../lib/colorScales';
+import { Fragment } from 'react';
+import { useUi } from '../../hooks/use-ui';
+import { getColorFromScale, getScaleRanges } from '../../lib/colorScales';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -9,7 +9,7 @@ function classNames(...classes: string[]) {
 type LegendProps = {};
 
 const Legend: React.FC<LegendProps> = () => {
-  const {getPropertyLabel, getPropertyUnit, state: indicatorState} = useUi();
+  const { getPropertyLabel, getPropertyUnit, state: indicatorState } = useUi();
 
   const selectedProperty = 'energyDeclaration' as string;
   const isGhg = selectedProperty === 'ghgEmissions';
@@ -18,14 +18,14 @@ const Legend: React.FC<LegendProps> = () => {
   const scaleRanges = getScaleRanges(scaleKey);
 
   return (
-    <div className="absolute w-36 px-2 pt-1 pb-2 right-2 bottom-2 bg-white rounded-md border border-gray-300">
-      <div className="text-s w-full text-center">{getPropertyLabel()}</div>
-      <div className="text-xs w-full text-center mb-3">
+    <div className="absolute px-2 pt-1 pb-2 bg-white border border-gray-300 rounded-md w-36 right-2 bottom-2">
+      <div className="w-full text-center text-s">{getPropertyLabel()}</div>
+      <div className="w-full mb-3 text-xs text-center">
         ({getPropertyUnit()})
       </div>
       {scaleRanges.map((range, i) => {
         return (
-          <div className="flex text-xs px-2" key={`r-${i}`}>
+          <div className="flex px-2 text-xs" key={`r-${i}`}>
             <div
               className={classNames(
                 `bg-energy${scaleRanges.length - i}`,
