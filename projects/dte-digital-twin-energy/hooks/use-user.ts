@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSession } from './use-session';
-import { useSignOut } from '../hooks/use-signout';
-import { useSignIn } from '../hooks/use-signin';
+import { useSignIn } from './use-signin';
+import { useSignOut } from './use-signout';
 import { Observable } from '../lib/Observable';
 import getConfig from 'next/config';
+
+// ! note that due to fast prototyping and changing requirements there are several auth mechanisms in place
+// ! this is a temporary solution to get the app running
 
 const APP_ID = 'dte';
 
@@ -23,9 +25,8 @@ const userStore = new Observable<User>({});
 
 export function useUser() {
   const [user, setUser] = useState<User>(userStore.get());
-  const userSession = useSession();
+  const { signIn, signInError, signInLoading } = useSignIn();
   const signOut = useSignOut();
-  const signIn = useSignIn();
 
   useEffect(() => {
     // subscribe to the observable
@@ -42,6 +43,38 @@ export function useUser() {
       loadUser(storedToken);
     }
   }, []);
+
+  // useEffect(() => {
+  //   console.log('user changed', user);
+  //   if (!user.token) {
+  //     const fetchToken = async () => {
+  //       try {
+  //         const randomId = Math.random().toString(36).substring(7);
+  //         const userData = {
+  //           ...userSession,
+  //           id: `user-${randomId}`,
+  //           appId: APP_ID,
+  //         };
+  //         const url = `${tokenUrl}?${objectToQueryString(userData)}`;
+  //         // Fetch a new token from the backend API
+  //         const response = await fetch(url);
+  //         const data = await response.json();
+  //         const newToken = data.token;
+
+  //         // Store the new token in the local storage
+  //         localStorage.setItem(APP_ID, newToken);
+  //         // Store the token in the observable
+  //         const embeddedUserData = await fetchUser(newToken);
+  //         userStore.set({ ...embeddedUserData, token: newToken });
+  //       } catch (error) {
+  //         console.error('Failed to fetch token:', error);
+  //       }
+  //     };
+  //     fetchToken();
+  //   } else if (user.token) {
+  //     localStorage.removeItem(APP_ID);
+  //   }
+  // }, [user]);
 
   function objectToQueryString(obj: any) {
     const params = new URLSearchParams();
@@ -70,15 +103,22 @@ export function useUser() {
     }
   };
 
+  const isSignedIn = useMemo(() => {
+    return Boolean(user.token);
+  }, [user.token]);
+
   const userActions = useMemo(() => {
     return {
-      setUser: async (initialUserData: User) => {
+      signIn: async (name: string, email: string, password: string) => {
+        await signIn({ name, email, password });
         try {
           const randomId = Math.random().toString(36).substring(7);
-          const userData = Object.assign({}, initialUserData, {
+          const userData = {
+            name,
+            email,
             id: `user-${randomId}`,
             appId: APP_ID,
-          });
+          };
           const url = `${tokenUrl}?${objectToQueryString(userData)}`;
           // Fetch a new token from the backend API
           const response = await fetch(url);
@@ -94,12 +134,19 @@ export function useUser() {
           console.error('Failed to fetch token:', error);
         }
       },
-      removeUser: () => {
+      signOut: async () => {
+        await signOut();
         localStorage.removeItem(APP_ID);
         userStore.set({});
       },
     };
-  }, [user]);
+  }, [signIn, signOut]);
 
-  return { state: user, actions: userActions };
+  return {
+    actions: userActions,
+    state: user,
+    isSignedIn,
+    signInError,
+    signInLoading,
+  };
 }

@@ -394,7 +394,7 @@ const maplibreOptions = {
 };
 
 export const useViewer = (): {
-  initViewer: (ref: HTMLElement) => void;
+  initViewer: (ref?: HTMLElement) => void;
   viewer: Viewer | null;
   viewerLoading: boolean;
   //getVisibleFeatures: () => Feature[];
@@ -533,20 +533,22 @@ export const useViewer = (): {
   }, [hoveredObject]);
 
   return {
-    initViewer: ref => {
+    initViewer: (ref?) => {
       if (viewer) {
         return;
       }
-      ref.style.width = '100%'; //window.innerWidth;
-      ref.style.height = '100%'; //window.innerHeight;
-      ref.style.position = 'absolute';
-      ref.style.top = '0px';
-      ref.style.left = '0px';
+      if (ref) {
+        ref.style.width = '100%'; //window.innerWidth;
+        ref.style.height = '100%'; //window.innerHeight;
+        ref.style.position = 'absolute';
+        ref.style.top = '0px';
+        ref.style.left = '0px';
+      }
       //ref.style.background = '#100';
       setViewer(
         new Viewer(
           {
-            container: ref,
+            // container: ref,
             // layers: [{ '@@type': 'Tile3DLayer' }],
             // onDragEnd: ({ longitude, latitude, zoom }: any) => {
             //   setExtent([longitude, latitude, zoom]);
@@ -592,7 +594,9 @@ export const useViewer = (): {
               }
             },
           },
-          maplibreOptions
+          Object.assign({}, maplibreOptions, {
+            container: ref,
+          })
         )
       );
     },

@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 
-interface UserInfo {
-  userName: string;
-  userEmail: string;
-}
+type UserInfo = {
+  id: string;
+  name: string;
+  email: string;
+};
 
 export function useSession() {
   const userUrl = '/api/user';

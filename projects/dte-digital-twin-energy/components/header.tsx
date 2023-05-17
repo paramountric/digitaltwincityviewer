@@ -3,15 +3,16 @@ import Image from 'next/image';
 import React, { ReactNode } from 'react';
 import logo from '../public/dtcc-logo.png';
 import { useUser } from '../hooks/use-user';
-import { useSignOut } from '../hooks/use-signout';
 
 type HeaderProps = {
   children: ReactNode;
 };
 
 const Header: React.FC<HeaderProps> = ({ children }) => {
-  const userInfo = useUser();
-  const signOut = useSignOut();
+  const { isSignedIn, actions: userActions } = useUser();
+
+  console.log('isSignedIn header', isSignedIn);
+
   return (
     <div className="absolute z-50 w-full">
       <Head>
@@ -32,20 +33,22 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
               Digital Twin Energy
             </div> */}
           </div>
-          {children}
-          {userInfo ? (
+          {isSignedIn && children}
+          {isSignedIn && (
             <div className="flex items-center ml-auto space-x-4">
               {/* <div className="text-gray-600 cursor-pointer">
                 {userInfo.userName}
               </div> */}
               <button
-                onClick={signOut}
+                onClick={() => {
+                  userActions.signOut();
+                }}
                 className="px-2 text-gray-700 bg-white border border-gray-500 rounded-md cursor-pointer hover:bg-gray-100"
               >
                 Log out
               </button>
             </div>
-          ) : null}
+          )}
         </div>
       </div>
     </div>

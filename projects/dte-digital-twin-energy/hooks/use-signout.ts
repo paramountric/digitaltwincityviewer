@@ -1,4 +1,4 @@
-import {useMutation, useQueryClient} from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export function useSignOut() {
   const queryClient = useQueryClient();
@@ -6,12 +6,13 @@ export function useSignOut() {
   const mutation = useMutation(async () => {
     const res = await fetch(signoutUrl);
     if (!res.ok) {
-      throw new Error('Sign in failed');
+      throw new Error('Sign out failed');
     }
     return await res.json();
   });
   return async () => {
     await mutation.mutateAsync();
     queryClient.setQueryData(['user'], undefined);
+    return true;
   };
 }

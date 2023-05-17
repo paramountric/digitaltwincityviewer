@@ -1,20 +1,17 @@
 import { useState } from 'react';
-import { useSignIn } from '../../hooks/use-signin';
 import { useUser } from '../../hooks/use-user';
-
-//
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('Demo User');
-  const { signIn, signInError, signInLoading } = useSignIn();
-  const { state: userState, actions: userActions } = useUser();
+  const { actions: userActions, signInError, signInLoading } = useUser();
+
+  console.log('render login');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    signIn({ email, password });
-    userActions.setUser({ name });
+    userActions.signIn(name, email, password);
   };
 
   return (

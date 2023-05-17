@@ -7,18 +7,15 @@ import Login from '../components/Login/Login';
 import ActionPanel from '../components/ActionPanel/ActionPanel';
 
 const StartPage: NextPage = () => {
-  const { state: userState } = useUser();
+  const { isSignedIn } = useUser();
+  console.log('isSignedIn', isSignedIn);
   return (
     <div>
       <main>
-        {/* Use a wrapper for the app UI to keep the canvas fixed */}
-        <React.StrictMode>
-          <Header>
-            <ActionPanel />
-          </Header>
-        </React.StrictMode>
-
-        {userState.token ? <Viewport /> : <Login />}
+        <Header>
+          <ActionPanel />
+        </Header>
+        {isSignedIn ? <Viewport /> : <Login />}
       </main>
     </div>
   );

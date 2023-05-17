@@ -1,22 +1,23 @@
-import {useMutation, useQueryClient} from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface SignIn {
+  name: string;
   email: string;
   password: string;
 }
 
 export const useSignIn = (): {
-  signIn: ({email, password}: SignIn) => Promise<boolean>;
+  signIn: ({ name, email, password }: SignIn) => Promise<boolean>;
   signInError: boolean;
   signInLoading: boolean;
 } => {
   const queryClient = useQueryClient();
   const signInUrl = '/api/signin';
-  const mutation = useMutation(async ({email, password}: SignIn) => {
+  const mutation = useMutation(async ({ name, email, password }: SignIn) => {
     const res = await fetch(signInUrl, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({email, password}),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password }),
     });
     if (!res.ok) {
       throw new Error('Sign in failed');
@@ -24,9 +25,9 @@ export const useSignIn = (): {
     return await res.json();
   });
   return {
-    signIn: async ({email, password}: SignIn): Promise<boolean> => {
+    signIn: async ({ name, email, password }: SignIn): Promise<boolean> => {
       try {
-        const user = await mutation.mutateAsync({email, password});
+        const user = await mutation.mutateAsync({ name, email, password });
         queryClient.setQueryData(['user'], user);
         return true;
       } catch (err) {

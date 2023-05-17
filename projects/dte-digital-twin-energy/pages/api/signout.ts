@@ -1,4 +1,4 @@
-import type {NextApiRequest, NextApiResponse} from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import cookie from 'cookie';
 
 function handleSignOut(req: NextApiRequest, res: NextApiResponse) {
@@ -6,7 +6,7 @@ function handleSignOut(req: NextApiRequest, res: NextApiResponse) {
     .status(200)
     .setHeader(
       'Set-Cookie',
-      cookie.serialize('token', '', {
+      cookie.serialize('dte-token', '', {
         path: '/api',
         expires: new Date(0),
       })
