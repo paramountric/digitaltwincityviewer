@@ -1,8 +1,8 @@
 import { useUi } from '../../hooks/use-ui';
 import FilterMenuActionPanel from './FilterMenuActionPanel';
 import FilterResultPanel from './FilterResultPanel';
-import NotesPanel from './NotesPanel';
-import PredictionPanel from './PredictionPanel';
+import PanelNotes from './PanelNotes';
+import PanelPredictions from './PanelPredictions';
 
 type FilterMenuProps = {};
 
@@ -16,8 +16,8 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
       </div>
       <FilterMenuActionPanel />
       <FilterResultPanel />
-      <PredictionPanel />
-      <NotesPanel />
+      <PanelPredictions />
+      <PanelNotes />
     </div>
   );
 };
