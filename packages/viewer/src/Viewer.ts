@@ -21,11 +21,14 @@ export class Viewer {
       configuration: new JSONConfiguration(getJsonConfig(props)),
     });
 
+    const parsedProps = this.jsonConverter.convert(props);
+
     const resolvedProps: ViewerProps = Object.assign(
       {},
       getDefaultViewerProps(this),
-      props
+      parsedProps
     );
+
     this.props = resolvedProps;
 
     if (maplibreOptions) {
@@ -37,7 +40,7 @@ export class Viewer {
       // note: the viewer props is directly passed to deck to allow for convenient mapping
       // however this might not be the best way as the ViewerProps are an abstraction layer on top of DeckProps
       // after init, the getProps method is used which is selective, so some props will only be set here on init (or later added explicitly to getProps...)
-      this.deck = new Deck(resolvedProps as DeckProps);
+      this.deck = new Deck(this.props as DeckProps);
     }
   }
 
@@ -54,10 +57,14 @@ export class Viewer {
   }
 
   setProps(props: ViewerProps) {
-    const needsUpdate = setProps(this, props);
+    const parsedProps = this.jsonConverter.convert(props);
+    const needsUpdate = setProps(this, parsedProps);
+    this.props = props;
+    console.log('props', props);
     if (needsUpdate) {
       this._update();
     }
+    return props;
   }
 
   getViews() {

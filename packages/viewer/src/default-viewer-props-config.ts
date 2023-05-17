@@ -9,13 +9,14 @@ import {
   SolidPolygonLayer,
   PointCloudLayer,
 } from '@deck.gl/layers/typed';
+import { Tile3DLayer } from '@deck.gl/geo-layers/typed';
 import GL from '@luma.gl/constants';
 import { scaleLinear } from 'd3-scale';
 import { mat4, vec3 } from 'gl-matrix';
 import { registerLoaders } from '@loaders.gl/core';
 import { DracoWorkerLoader } from '@loaders.gl/draco';
-import { CesiumIonLoader } from '@loaders.gl/3d-tiles';
-import { Viewer } from './Viewer';
+import { CesiumIonLoader, Tiles3DLoader } from '@loaders.gl/3d-tiles';
+import { Viewer } from './viewer';
 import { ViewerProps } from './viewer-props';
 
 // default viewer props is overwritten by application
@@ -71,6 +72,7 @@ export const defaultViewerPropsJsonConfig = {
     GeoJsonLayer,
     SolidPolygonLayer,
     PointCloudLayer,
+    Tile3DLayer,
   },
   functions: {
     getLinearScale,
@@ -82,7 +84,8 @@ export const defaultViewerPropsJsonConfig = {
     GL,
   },
   constants: {
-    CesiumIonLoader: CesiumIonLoader as any,
+    Tiles3DLoader,
+    CesiumIonLoader,
   },
 };
 

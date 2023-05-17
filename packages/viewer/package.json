@@ -17,7 +17,7 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts",
-    "dev": "pnpm run build -- --watch"
+    "dev": "tsup src/index.ts --format esm --dts --watch"
   },
   "author": "andreasrudena <andreas@rudena.se>",
   "license": "MIT",
@@ -25,20 +25,31 @@
     "url": "https://github.com/paramountric/digitaltwincityviewer/issues"
   },
   "devDependencies": {
-    "tsup": "^6.7.0",
     "@types/d3-axis": "^3.0.2",
     "@types/d3-scale": "^4.0.3",
-    "@types/d3-selection": "^3.0.5"
+    "@types/d3-selection": "^3.0.5",
+    "tsup": "^6.7.0"
   },
   "dependencies": {
-    "@deck.gl/core": "^8.9.10",
-    "@deck.gl/json": "^8.9.10",
-    "@deck.gl/layers": "^8.9.10",
-    "@loaders.gl/3d-tiles": "^3.3.3",
-    "@loaders.gl/core": "^3.3.3",
-    "@loaders.gl/draco": "^3.3.3",
-    "@luma.gl/constants": "^8.5.19",
-    "@luma.gl/core": "^8.5.19",
+    "@deck.gl/core": "^8.9.15",
+    "@deck.gl/extensions": "^8.9.15",
+    "@deck.gl/geo-layers": "^8.9.15",
+    "@deck.gl/json": "^8.9.15",
+    "@deck.gl/layers": "^8.9.15",
+    "@deck.gl/mesh-layers": "^8.9.15",
+    "@loaders.gl/3d-tiles": "^3.4.0",
+    "@loaders.gl/core": "^3.4.0",
+    "@loaders.gl/draco": "^3.4.0",
+    "@loaders.gl/gltf": "^3.4.0",
+    "@loaders.gl/images": "^3.4.0",
+    "@luma.gl/constants": "^8.5.20",
+    "@luma.gl/core": "^8.5.20",
+    "@luma.gl/engine": "^8.5.20",
+    "@luma.gl/gltools": "^8.5.20",
+    "@luma.gl/shadertools": "^8.5.20",
+    "@luma.gl/webgl": "^8.5.20",
+    "@math.gl/core": "^3.6.3",
+    "@math.gl/web-mercator": "^3.6.3",
     "d3-scale": "^4.0.2",
     "gl-matrix": "^3.4.3",
     "maplibre-gl": "^2.4.0"

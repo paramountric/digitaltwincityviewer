@@ -1,25 +1,34 @@
 // This code is derived from Deck.gl. Copyright MIT, 2020 Urban Computing Foundation
 // Here Maplibre is used.
-import { Deck, WebMercatorViewport, MapView, Layer } from '@deck.gl/core';
+import { Deck, WebMercatorViewport, MapView, Layer } from '@deck.gl/core/typed';
+import { Map as MaplibreMap } from 'maplibre-gl';
 
-function getDeckInstance({ map, gl, deck }) {
+function getDeckInstance({
+  map,
+  gl,
+  deck,
+}: {
+  map: MaplibreMap;
+  gl: WebGLRenderingContext;
+  deck: Deck;
+}) {
   // Only create one deck instance per context
   if (map.__deck) {
     return map.__deck;
   }
 
-  const customRender = deck && deck.props._customRender;
+  // const customRender = deck && deck.props._customRender;
 
   const deckProps = {
     useDevicePixels: true,
-    _customRender: () => {
-      map.triggerRepaint();
-      if (customRender) {
-        // customRender may be subscribed by DeckGL React component to update child props
-        // make sure it is still called
-        customRender();
-      }
-    },
+    // _customRender: () => {
+    //   map.triggerRepaint();
+    //   if (customRender) {
+    //     // customRender may be subscribed by DeckGL React component to update child props
+    //     // make sure it is still called
+    //     customRender();
+    //   }
+    // },
     // TODO: import these defaults from a single source of truth
     parameters: {
       depthMask: true,
@@ -43,7 +52,8 @@ function getDeckInstance({ map, gl, deck }) {
   };
 
   if (!deck || deck.props.gl === gl) {
-    // deck is using the WebGLContext created by mapbox
+    console.warn('dont use maplibre gl context');
+    // deck is using the WebGLContext created by maplibre
     // block deck from setting the canvas size
     Object.assign(deckProps, {
       gl,
@@ -59,16 +69,20 @@ function getDeckInstance({ map, gl, deck }) {
 
   if (deck) {
     deck.setProps(deckProps);
+    // @ts-ignore
     deck.props.userData.isExternal = true;
   } else {
     deck = new Deck(deckProps);
     map.on('remove', () => {
       deck.finalize();
+      // @ts-ignore
       map.__deck = null;
     });
   }
 
+  // @ts-ignore
   deck.props.userData.mapboxVersion = getMapboxVersion(map);
+  // @ts-ignore
   map.__deck = deck;
   map.on('render', () => {
     if (deck.layerManager) afterRender(deck, map);
@@ -77,40 +91,45 @@ function getDeckInstance({ map, gl, deck }) {
   return deck;
 }
 
-function addLayer(deck, layer) {
+function addLayer(deck: Deck, layer: Layer) {
+  // @ts-ignore
   deck.props.userData.maplibreLayers.add(layer);
-  updateLayers(deck);
+  // updateLayers(deck);
 }
 
-function removeLayer(deck, layer) {
+function removeLayer(deck: Deck, layer: Layer) {
+  // @ts-ignore
   deck.props.userData.maplibreLayers.delete(layer);
-  updateLayers(deck);
+  // updateLayers(deck);
 }
 
-function updateLayer(deck, layer) {
-  updateLayers(deck);
-}
+// function updateLayer(deck, layer) {
+//   updateLayers(deck);
+// }
 
-function drawLayer(deck, map, layer) {
+function drawLayer(deck: Deck, map: MaplibreMap, layer: Layer) {
+  // @ts-ignore
   let { currentViewport } = deck.props.userData;
   if (!currentViewport) {
     // This is the first layer drawn in this render cycle.
     // Generate viewport from the current map state.
     currentViewport = getViewport(deck, map, true);
+    // @ts-ignore
     deck.props.userData.currentViewport = currentViewport;
   }
+  // @ts-ignore
   if (!deck.layerManager) {
     return;
   }
 
   deck._drawLayers('mapbox-repaint', {
     viewports: [currentViewport],
-    layerFilter: ({ layer: deckLayer }) => layer.id === deckLayer.id,
+    layerFilter: ({ layer: deckLayer }: any) => layer.id === deckLayer.id,
     clearCanvas: false,
   });
 }
 
-function getViewState(map) {
+function getViewState(map: MaplibreMap) {
   const { lng, lat } = map.getCenter();
   return {
     longitude: lng,
@@ -122,7 +141,7 @@ function getViewState(map) {
   };
 }
 
-function getMapboxVersion(map) {
+function getMapboxVersion(map: MaplibreMap) {
   // parse mapbox version string
   let major = 0;
   let minor = 0;
@@ -132,7 +151,8 @@ function getMapboxVersion(map) {
   return { major, minor };
 }
 
-function getViewport(deck, map, useMapboxProjection = true) {
+function getViewport(deck: Deck, map: MaplibreMap, useMapboxProjection = true) {
+  // @ts-ignore
   const { mapboxVersion } = deck.props.userData;
 
   return new WebMercatorViewport(
@@ -164,7 +184,7 @@ function getViewport(deck, map, useMapboxProjection = true) {
   );
 }
 
-function afterRender(deck, map) {
+function afterRender(deck: Deck, map: MaplibreMap) {
   const { maplibreLayers, isExternal } = deck.props.userData;
 
   if (isExternal) {
@@ -174,7 +194,7 @@ function afterRender(deck, map) {
       (layer: Layer) => layer.id
     );
     const hasNonmaplibreLayers = deck.props.layers.some(
-      layer => !mapboxLayerIds.includes(layer.id)
+      (layer: Layer) => !mapboxLayerIds.includes(layer.id)
     );
     let viewports = deck.getViewports();
     const mapboxViewportIdx = viewports.findIndex(vp => vp.id === 'mapbox');
@@ -188,7 +208,7 @@ function afterRender(deck, map) {
 
       deck._drawLayers('mapbox-repaint', {
         viewports,
-        layerFilter: params =>
+        layerFilter: (params: any) =>
           (!deck.props.layerFilter || deck.props.layerFilter(params)) &&
           (params.viewport.id !== 'mapbox' ||
             !mapboxLayerIds.includes(params.layer.id)),
@@ -198,10 +218,11 @@ function afterRender(deck, map) {
   }
 
   // End of render cycle, clear generated viewport
+  // @ts-ignore
   deck.props.userData.currentViewport = null;
 }
 
-function onMapMove(deck, map) {
+function onMapMove(deck: Deck, map: MaplibreMap) {
   deck.setProps({
     viewState: getViewState(map),
   });
@@ -211,30 +232,30 @@ function onMapMove(deck, map) {
   deck.needsRedraw({ clearRedrawFlags: true });
 }
 
-function updateLayers(deck) {
-  if (deck.props.userData.isExternal) {
-    return;
-  }
+// function updateLayers(deck) {
+//   if (deck.props.userData.isExternal) {
+//     return;
+//   }
 
-  const layers: Layer[] = [];
-  let layerIndex = 0;
-  deck.props.userData.maplibreLayers.forEach(deckLayer => {
-    const LayerType = deckLayer.props.type;
-    const layer = new LayerType(deckLayer.props, { _offset: layerIndex++ });
-    layers.push(layer);
-  });
-  deck.setProps({ layers });
-}
+//   const layers: Layer[] = [];
+//   let layerIndex = 0;
+//   deck.props.userData.maplibreLayers.forEach(deckLayer => {
+//     const LayerType = deckLayer.props.type;
+//     const layer = new LayerType(deckLayer.props, { _offset: layerIndex++ });
+//     layers.push(layer);
+//   });
+//   deck.setProps({ layers });
+// }
 
 export default class MaplibreWrapper {
   id: string;
   type: string;
   renderingMode: string;
   map: maplibregl.Map | null;
-  deck: Deck;
+  deck: Deck | null;
   props: any;
   /* eslint-disable no-this-before-super */
-  constructor(props) {
+  constructor(props: any) {
     if (!props.id) {
       throw new Error('Layer must have an unique id');
     }
@@ -249,7 +270,10 @@ export default class MaplibreWrapper {
 
   /* Mapbox custom layer methods */
 
-  onAdd(map, gl) {
+  onAdd(map: MaplibreMap, gl: WebGL2RenderingContext) {
+    if (this.deck === null) {
+      return;
+    }
     this.map = map;
     this.deck = getDeckInstance({ map, gl, deck: this.props.deck });
     addLayer(this.deck, this);
@@ -259,16 +283,19 @@ export default class MaplibreWrapper {
     removeLayer(this.deck, this);
   }
 
-  setProps(props) {
-    // id cannot be changed
-    Object.assign(this.props, props, { id: this.id });
-    // safe guard in case setProps is called before onAdd
-    if (this.deck) {
-      updateLayer(this.deck, this);
-    }
-  }
+  // setProps(props) {
+  //   // id cannot be changed
+  //   Object.assign(this.props, props, { id: this.id });
+  //   // safe guard in case setProps is called before onAdd
+  //   if (this.deck) {
+  //     updateLayer(this.deck, this);
+  //   }
+  // }
 
-  render(gl, matrix) {
+  render(gl: WebGL2RenderingContext) {
+    if (!this.deck || !this.map) {
+      return;
+    }
     drawLayer(this.deck, this.map, this);
   }
 }

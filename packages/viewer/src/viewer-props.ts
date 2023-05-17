@@ -1,7 +1,7 @@
 // Part of this code is derived from deck.gl under MIT license:
 // https://github.com/visgl/deck.gl/tree/master/examples/playground/src
 
-import { Viewer } from './Viewer';
+import { Viewer } from './viewer';
 import { defaultViewerPropsJsonConfig } from './default-viewer-props-config';
 export type ViewerProps = {
   container?: HTMLElement;
@@ -13,21 +13,22 @@ export type ViewerProps = {
   minZoom?: number;
   maxZoom?: number;
   pitch?: number;
+  layers?: any[];
   // return the viewer instance to the app on load
   onLoad?: (viewer: Viewer) => void;
-  // Needed on init: this is dependency injection for the JSON props parser and will override the default if same name
+  // Needed on init for JSON config: this is dependency injection for the JSON props parser and will override the default if same name
   classes?: {
     [className: string]: any;
   };
-  // Needed on init: this is dependency injection for the JSON props parser and will override the default if same name
+  // Needed on init for JSON config: this is dependency injection for the JSON props parser and will override the default if same name
   functions?: {
     [functionName: string]: (d: any) => any;
   };
-  // Needed on init: this is dependency injection for the JSON props parser and will override the default if same name
+  // Needed on init for JSON config: this is dependency injection for the JSON props parser and will override the default if same name
   enumerations?: {
     [enumerationName: string]: any;
   };
-  // Needed on init: this is dependency injection for the JSON props parser and will override the default if same name
+  // Needed on init for JSON config: this is dependency injection for the JSON props parser and will override the default if same name
   constants?: {
     [constantName: string]: any;
   };
