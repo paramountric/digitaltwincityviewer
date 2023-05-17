@@ -21,7 +21,7 @@ export class Viewer {
       configuration: new JSONConfiguration(getJsonConfig(props)),
     });
 
-    const parsedProps = this.jsonConverter.convert(props);
+    const parsedProps = props; // this.jsonConverter.convert(props);
 
     const resolvedProps: ViewerProps = Object.assign(
       {},
