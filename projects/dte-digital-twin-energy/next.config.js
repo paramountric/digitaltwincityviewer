@@ -8,6 +8,8 @@ const nextConfig = {
   publicRuntimeConfig: {
     domain: process.env.DOMAIN,
     protocol: process.env.PROTOCOL,
+    tokenUrl: process.env.TOKEN_URL,
+    authUrl: process.env.AUTH_URL,
   },
   experimental: {
     outputFileTracingRoot: path.join(__dirname, '../../'),

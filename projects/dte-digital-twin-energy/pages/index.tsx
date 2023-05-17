@@ -7,7 +7,7 @@ import Login from '../components/Login/Login';
 import ActionPanel from '../components/ActionPanel/ActionPanel';
 
 const StartPage: NextPage = () => {
-  const userInfo = useUser();
+  const { state: userState } = useUser();
   return (
     <div>
       <main>
@@ -18,7 +18,7 @@ const StartPage: NextPage = () => {
           </Header>
         </React.StrictMode>
 
-        {userInfo ? <Viewport /> : <Login />}
+        {userState.token ? <Viewport /> : <Login />}
       </main>
     </div>
   );

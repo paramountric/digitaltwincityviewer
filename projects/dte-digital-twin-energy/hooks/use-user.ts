@@ -16,6 +16,7 @@ type User = {
   id?: string;
   name?: string;
   token?: string;
+  email?: string;
 };
 
 const userStore = new Observable<User>({});
