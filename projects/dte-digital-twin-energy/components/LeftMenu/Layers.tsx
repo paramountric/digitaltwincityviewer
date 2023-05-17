@@ -62,7 +62,7 @@ export default function Layer() {
                       uiState.showLayerPlannedDevelopment
                         ? 'translate-x-5 bg-gray-500 '
                         : 'translate-x-0 bg-gray-200 ',
-                      'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+                      'pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out'
                     )}
                   />
                 </Switch>

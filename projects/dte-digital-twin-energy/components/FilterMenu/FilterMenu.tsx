@@ -10,7 +10,7 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
   const { state, actions } = useUi();
 
   return (
-    <div className="absolute z-30 p-2 text-gray-700 bg-white border border-gray-300 rounded-md right-1 top-28 text-m">
+    <div className="absolute right-0 z-30 p-2 text-gray-700 bg-white border border-gray-300 rounded-l-md top-28 text-m">
       <div className="flex justify-between w-full">
         <div className="text-xs">See data for...</div>
       </div>
