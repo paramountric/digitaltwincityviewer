@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Viewer } from '@dtcv/viewer';
 import { cities } from '@dtcv/cities';
 import { useSelectedFeature } from './use-selected-feature';

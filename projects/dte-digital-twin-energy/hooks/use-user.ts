@@ -17,6 +17,7 @@ const tokenUrl = publicRuntimeConfig.tokenUrl;
 type User = {
   id?: string;
   name?: string;
+  initials?: string;
   token?: string;
   email?: string;
 };
@@ -28,10 +29,10 @@ export function useUser() {
   const { signIn, signInError, signInLoading } = useSignIn();
   const signOut = useSignOut();
 
-  useEffect(() => {
-    // subscribe to the observable
-    userStore.subscribe(setUser);
+  // subscribe to the observable
+  userStore.subscribe(setUser);
 
+  useEffect(() => {
     // load user if token is already in local storage
     const storedToken = localStorage.getItem(APP_ID);
 
@@ -92,7 +93,6 @@ export function useUser() {
     try {
       const res = await fetch(authUrl, {
         method: 'GET',
-        credentials: 'include',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -107,14 +107,27 @@ export function useUser() {
     return Boolean(user.token);
   }, [user.token]);
 
+  const getFirstAndLastNameInitials = (name: string) => {
+    const nameParts = name.split(' ');
+    let initials = nameParts[0].toUpperCase()[0];
+    if (nameParts[1]) {
+      initials += nameParts[1].toUpperCase()[0];
+    }
+    return initials;
+  };
+
   const userActions = useMemo(() => {
     return {
       signIn: async (name: string, email: string, password: string) => {
+        if (!name || !email || !password) {
+          return;
+        }
         await signIn({ name, email, password });
         try {
           const randomId = Math.random().toString(36).substring(7);
           const userData = {
             name,
+            initials: getFirstAndLastNameInitials(name),
             email,
             id: `user-${randomId}`,
             appId: APP_ID,
