@@ -7,7 +7,7 @@ const { publicRuntimeConfig } = getConfig();
 
 const wsUrl = publicRuntimeConfig.wsUrl;
 
-const NODES_EVENT = 'dte-notes';
+const NODES_EVENT = 'comments';
 const CURSOR_EVENT = 'dte-cursor';
 const ROOM_ID = 'dte-demo';
 
@@ -29,6 +29,9 @@ export const useWs = () => {
 
     socketRef.current.on(NODES_EVENT, (notesData: any) => {
       console.log('incoming notesData', notesData);
+      if (!notesData || !notesData.body) {
+        return;
+      }
 
       const note = notesData.body || {};
     });
@@ -55,7 +58,7 @@ export const useWs = () => {
       userId: user.id,
       userName: user.name,
       featureId,
-      note,
+      comment: note,
     };
     console.log('sendNote', noteData);
     socketRef.current.emit(NODES_EVENT, {
@@ -79,7 +82,7 @@ export const useWs = () => {
       lat,
     };
     console.log('sendCursor', cursorData);
-    socketRef.current.emit(CURSOR_EVENT, {
+    socketRef.current?.emit(CURSOR_EVENT, {
       ROOM_ID,
       body: cursorData,
       userId: user.id,
