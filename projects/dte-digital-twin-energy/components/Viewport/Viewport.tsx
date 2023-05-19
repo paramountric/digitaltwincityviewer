@@ -30,8 +30,6 @@ const Viewport: React.FC<ViewportProps> = () => {
     }
   }, [initViewer]);
 
-  console.log('render viewport');
-
   return (
     <>
       <div

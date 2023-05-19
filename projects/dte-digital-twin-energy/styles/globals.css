@@ -12,6 +12,9 @@
     --color-energy-6: 164 36 207;
     --color-energy-7: 88 0 237;
   }
+  .action-panel div {
+    @apply first:rounded-l-full last:rounded-r-full;
+  }
 }
 
 .loader {
@@ -21,11 +24,19 @@
 }
 
 @-webkit-keyframes spinner {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
 
 @keyframes spinner {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

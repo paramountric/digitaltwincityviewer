@@ -1,9 +1,15 @@
 import Layers from './Layers';
+import LeftMenuItem from './LeftMenuItem';
 
 export default function LeftMenu() {
   return (
-    <div className="absolute z-30 py-8 rounded-md top-20 text-m">
-      <Layers />
+    <div className="absolute z-30 flex flex-col gap-4 py-8 rounded-md top-20 text-m">
+      <LeftMenuItem label="Layers">
+        <Layers />
+      </LeftMenuItem>
+      <LeftMenuItem label="Bayers">
+        <Layers />
+      </LeftMenuItem>
     </div>
   );
 }

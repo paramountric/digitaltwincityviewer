@@ -1,19 +1,18 @@
 import { useUser } from '../hooks/use-user';
 import React from 'react';
 import type { NextPage } from 'next';
-import Header from '../components/Header';
+import Header from '../components/Header/Header';
+import HeaderActionPanel from '../components/Header/HeaderActionPanel';
 import Viewport from '../components/Viewport/Viewport';
 import Login from '../components/Login/Login';
-import ActionPanel from '../components/ActionPanel/ActionPanel';
 
 const StartPage: NextPage = () => {
   const { isSignedIn } = useUser();
-  console.log('isSignedIn', isSignedIn);
   return (
     <div>
       <main>
         <Header>
-          <ActionPanel />
+          <HeaderActionPanel />
         </Header>
         {isSignedIn ? <Viewport /> : <Login />}
       </main>
