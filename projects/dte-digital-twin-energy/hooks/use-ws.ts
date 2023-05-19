@@ -41,12 +41,15 @@ export const useWs = () => {
   const sendNote = (featureId: string, note: string) => {
     if (!note || !featureId) {
       console.warn('missing required data');
+      return;
     }
     if (!socketRef.current) {
       console.warn('no socket connected');
+      return;
     }
     if (!user.token || !user.name) {
       console.warn('user is not ok');
+      return;
     }
     const noteData = {
       userId: user.id,
