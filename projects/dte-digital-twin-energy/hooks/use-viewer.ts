@@ -3,6 +3,7 @@ import { Viewer } from '@dtcv/viewer';
 import { cities } from '@dtcv/cities';
 import { getColorFromScale } from '../lib/colorScales';
 import { useUi } from './use-ui';
+import { useNotes } from './use-notes';
 import { useSelectedFeature } from './use-selected-feature';
 import { useFilteredFeatures } from './use-filtered-features';
 
@@ -415,6 +416,8 @@ export const useViewer = (): {
     actions: { setSelectedFeature },
   } = useSelectedFeature();
   const { state: filteredFeatures } = useFilteredFeatures();
+  const { state: notes, actions: notesActions } = useNotes();
+  // todo: if filteredFeatures is used, the notes could use that to be filtered as well
 
   useEffect(() => {
     if (viewer) {
@@ -447,7 +450,7 @@ export const useViewer = (): {
           : `${selectedAggregator}2050`;
 
       if (hasFilter) {
-        viewer.maplibreMap.setPaintProperty(
+        viewer.maplibreMap?.setPaintProperty(
           buildingLayer,
           'fill-extrusion-opacity',
           ['has', 'UUID', filteredFeatures]
@@ -455,31 +458,31 @@ export const useViewer = (): {
       } else {
         if (showColor) {
           console.log('show color', key);
-          viewer.maplibreMap.setPaintProperty(
+          viewer.maplibreMap?.setPaintProperty(
             buildingLayer,
             'fill-extrusion-color',
             ['get', `${key}_bcol`]
           );
           if (aggregationLayer) {
-            viewer.maplibreMap.setPaintProperty(
+            viewer.maplibreMap?.setPaintProperty(
               aggregationLayer,
               'fill-extrusion-color',
               ['get', `${key}_bcol`]
             );
           }
         } else {
-          viewer.maplibreMap.setPaintProperty(
+          viewer.maplibreMap?.setPaintProperty(
             'building',
             'fill-extrusion-color',
             BUILDING_PAINT_PROPERTY
           );
-          viewer.maplibreMap.setPaintProperty(
+          viewer.maplibreMap?.setPaintProperty(
             'building-future',
             'fill-extrusion-color',
             BUILDING_FUTURE_PAINT_PROPERTY
           );
           for (const gridKey of GRID_LAYERS) {
-            viewer.maplibreMap.setPaintProperty(
+            viewer.maplibreMap?.setPaintProperty(
               gridKey,
               'fill-extrusion-color',
               BUILDING_PAINT_PROPERTY
@@ -487,27 +490,27 @@ export const useViewer = (): {
           }
         }
 
-        viewer.maplibreMap.setLayoutProperty(
+        viewer.maplibreMap?.setLayoutProperty(
           'building',
           'visibility',
           buildingLayer === 'building' ? 'visible' : 'none'
         );
-        viewer.maplibreMap.setLayoutProperty(
+        viewer.maplibreMap?.setLayoutProperty(
           'building-future',
           'visibility',
           buildingLayer === 'building-future' ? 'visible' : 'none'
         );
 
         for (const gridKey of GRID_LAYERS) {
-          viewer.maplibreMap.setLayoutProperty(gridKey, 'visibility', 'none');
-          viewer.maplibreMap.setFilter(gridKey, [
+          viewer.maplibreMap?.setLayoutProperty(gridKey, 'visibility', 'none');
+          viewer.maplibreMap?.setFilter(gridKey, [
             '!=',
             `${key}_bcol`,
             'rgb(100, 100, 100)',
           ]);
         }
         if (aggregationLayer) {
-          viewer.maplibreMap.setLayoutProperty(
+          viewer.maplibreMap?.setLayoutProperty(
             aggregationLayer,
             'visibility',
             'visible'
@@ -528,10 +531,34 @@ export const useViewer = (): {
   }, [viewer]);
 
   useEffect(() => {
+    if (!viewer) {
+      return;
+    }
+    if (uiState.showPins) {
+      const pinData = notes.filter(n => n.center);
+      viewer.setIconLayerProps({
+        id: 'pin-icon-layer',
+        data: pinData,
+        iconAtlas:
+          'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/icon-atlas.png',
+        iconMapping: {
+          marker: { x: 0, y: 0, width: 128, height: 128, mask: true },
+        },
+        getIcon: (d: any) => 'marker',
+        // sizeMinPixels: 10,
+        // sizeMaxPixels: 20,
+        getPosition: (d: any) => [...d.center, d.elevation || 10],
+        getSize: (d: any) => 30,
+        getColor: (d: any) => [0, 140, 0],
+      });
+    }
+  }, [uiState.showPins]);
+
+  useEffect(() => {
     if (viewer?.maplibreMap && lastHoveredObject) {
       const sourceLayer = lastHoveredObject.layer['source-layer'];
       const sourceId = lastHoveredObject.layer['source'];
-      viewer.maplibreMap.setFeatureState(
+      viewer.maplibreMap?.setFeatureState(
         {
           source: sourceId,
           sourceLayer: sourceLayer,
@@ -544,7 +571,7 @@ export const useViewer = (): {
     if (viewer?.maplibreMap && hoveredObject) {
       const sourceLayer = hoveredObject.layer['source-layer'];
       const sourceId = hoveredObject.layer['source'];
-      viewer.maplibreMap.setFeatureState(
+      viewer.maplibreMap?.setFeatureState(
         {
           source: sourceId,
           sourceLayer: sourceLayer,
@@ -620,7 +647,7 @@ export const useViewer = (): {
           },
           Object.assign({}, maplibreOptions, {
             container: ref,
-          })
+          }) as any
         )
       );
     },

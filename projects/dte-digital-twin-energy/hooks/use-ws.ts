@@ -35,13 +35,15 @@ export const useWs = () => {
         return;
       }
       const {
+        _id,
         comment,
         userId,
         userName,
         entityId,
         entityName,
         createdAt,
-        _id,
+        center,
+        elevation,
       } = noteData;
 
       const note: Note = {
@@ -52,6 +54,8 @@ export const useWs = () => {
         userName,
         entityId,
         entityName,
+        center,
+        elevation,
       };
 
       noteListActions.addNote?.(note);
@@ -67,7 +71,9 @@ export const useWs = () => {
     featureUUID: string,
     featureName: string,
     comment: string,
-    userName?: string
+    userName?: string,
+    center?: [number, number],
+    elevation?: number
   ) => {
     if (!comment || !featureUUID || !featureName) {
       console.warn('missing required data');
@@ -86,6 +92,8 @@ export const useWs = () => {
       entityId: featureUUID,
       entityName: featureName,
       comment,
+      center,
+      elevation,
     };
     console.log('sendNote', noteData);
     socketRef.current.emit(NOTES_EVENT, {

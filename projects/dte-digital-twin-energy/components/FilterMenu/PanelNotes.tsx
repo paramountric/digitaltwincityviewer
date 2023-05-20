@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Disclosure, Switch } from '@headlessui/react';
 import { ChevronUpIcon, MapPinIcon } from '@heroicons/react/20/solid';
+import { default as calculateCenter } from '@turf/center';
 import { useUi } from '../../hooks/use-ui';
 import ButtonSwitch from '../ButtonSwitch';
 import { useSelectedFeature } from '../../hooks/use-selected-feature';
@@ -55,11 +56,14 @@ export default function PanelNotes() {
 
   const handleSendNote = () => {
     if (selectedFeature?.properties?.UUID && note) {
+      const center = calculateCenter(selectedFeature);
       sendNote(
         selectedFeature.properties.UUID,
-        selectedFeature?.properties?.addr || 'Unknown address',
+        selectedFeature.properties.addr || 'Unknown address',
         note,
-        name
+        name,
+        [center.geometry.coordinates[0], center.geometry.coordinates[1]],
+        selectedFeature.properties.hgt
       );
     }
   };

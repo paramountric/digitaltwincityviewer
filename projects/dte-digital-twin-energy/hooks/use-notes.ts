@@ -11,6 +11,8 @@ export type Note = {
   entityId: string;
   entityName: string;
   createdAt: string;
+  center?: number[];
+  elevation?: number;
 };
 
 const { publicRuntimeConfig } = getConfig();
@@ -48,6 +50,8 @@ export const useNotes = () => {
                 entityId: n.entityId,
                 entityName: n.entityName,
                 createdAt: n.createdAt,
+                center: n.center,
+                elevation: n.elevation,
               } as Note)
           )
         );
