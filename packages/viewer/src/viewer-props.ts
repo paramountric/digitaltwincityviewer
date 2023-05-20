@@ -79,8 +79,8 @@ function addUpdateTriggersForAccessors(newProps: any) {
 
 export function setProps(viewer: Viewer, newProps: ViewerProps): boolean {
   // todo: apply logic for all props in ViewerProps
-  const needsUpdate = false;
+  const needsUpdate = true;
 
-  addUpdateTriggersForAccessors(newProps);
+  // addUpdateTriggersForAccessors(newProps);
   return needsUpdate;
 }
