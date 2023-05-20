@@ -392,6 +392,7 @@ importers:
       '@heroicons/react': ^2.0.10
       '@next/font': 13.1.6
       '@tanstack/react-query': ^4.16.1
+      '@turf/center': ^6.5.0
       '@types/cookie': ^0.5.1
       '@types/d3': ^7.4.0
       '@types/d3-axis': ^3.0.2
@@ -425,6 +426,7 @@ importers:
       '@heroicons/react': 2.0.18_react@18.2.0
       '@next/font': 13.1.6
       '@tanstack/react-query': 4.29.7_biqbaboplfbrettd7655fr4n2y
+      '@turf/center': 6.5.0
       '@types/cookie': 0.5.1
       '@types/d3': 7.4.0
       '@types/d3-axis': 3.0.2
@@ -3299,6 +3301,13 @@ packages:
     dependencies:
       '@turf/helpers': 6.5.0
       '@turf/invariant': 6.5.0
+    dev: false
+
+  /@turf/center/6.5.0:
+    resolution: {integrity: sha512-T8KtMTfSATWcAX088rEDKjyvQCBkUsLnK/Txb6/8WUXIeOZyHu42G7MkdkHRoHtwieLdduDdmPLFyTdG5/e7ZQ==}
+    dependencies:
+      '@turf/bbox': 6.5.0
+      '@turf/helpers': 6.5.0
     dev: false
 
   /@turf/clone/5.1.5:
