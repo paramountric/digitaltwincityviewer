@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Viewer } from '@dtcv/viewer';
 import { cities } from '@dtcv/cities';
-import { useSelectedFeature } from './use-selected-feature';
 import { getColorFromScale } from '../lib/colorScales';
 import { useUi } from './use-ui';
+import { useSelectedFeature } from './use-selected-feature';
+import { useFilteredFeatures } from './use-filtered-features';
 
 const DEFAULT_BUILDING_COLOR = 'rgb(200, 200, 200)';
 const DEFAULT_BUILDING_FUTURE_COLOR = 'rgb(230, 200, 200)';
@@ -413,9 +414,24 @@ export const useViewer = (): {
   const {
     actions: { setSelectedFeature },
   } = useSelectedFeature();
+  const { state: filteredFeatures } = useFilteredFeatures();
 
   useEffect(() => {
     if (viewer) {
+      // todo: refactor
+      // scenario on or off shows the selection with colors
+      // selection is all, filteredFeatures, selectedFeature, district or grid
+      // building or building-future layer must be selected depending on selectedYearKey
+
+      // we know: showColor, selection, yearLayer
+      // if selection, all other buildings will be transparent
+      // if showcolor, all selected buildings will be colored
+
+      // selection 'all' is default
+      // selection 'filteredFeatures' or 'selectedFeature' -> how to do this?
+      // selection aggregator, use the filter for property
+
+      const hasFilter = false; //Object.values(filteredFeatures).length > 0;
       const key = getCombinedKey();
       const showColor = combinationIsSelected();
       const { selectedYearKey, selectedAggregator } = uiState;
@@ -430,65 +446,73 @@ export const useViewer = (): {
           ? `${selectedAggregator}2018`
           : `${selectedAggregator}2050`;
 
-      if (showColor) {
-        console.log('show color', key);
+      if (hasFilter) {
         viewer.maplibreMap.setPaintProperty(
           buildingLayer,
-          'fill-extrusion-color',
-          ['get', `${key}_bcol`]
+          'fill-extrusion-opacity',
+          ['has', 'UUID', filteredFeatures]
         );
-        if (aggregationLayer) {
+      } else {
+        if (showColor) {
+          console.log('show color', key);
           viewer.maplibreMap.setPaintProperty(
-            aggregationLayer,
+            buildingLayer,
             'fill-extrusion-color',
             ['get', `${key}_bcol`]
           );
-        }
-      } else {
-        viewer.maplibreMap.setPaintProperty(
-          'building',
-          'fill-extrusion-color',
-          BUILDING_PAINT_PROPERTY
-        );
-        viewer.maplibreMap.setPaintProperty(
-          'building-future',
-          'fill-extrusion-color',
-          BUILDING_FUTURE_PAINT_PROPERTY
-        );
-        for (const gridKey of GRID_LAYERS) {
+          if (aggregationLayer) {
+            viewer.maplibreMap.setPaintProperty(
+              aggregationLayer,
+              'fill-extrusion-color',
+              ['get', `${key}_bcol`]
+            );
+          }
+        } else {
           viewer.maplibreMap.setPaintProperty(
-            gridKey,
+            'building',
             'fill-extrusion-color',
             BUILDING_PAINT_PROPERTY
           );
+          viewer.maplibreMap.setPaintProperty(
+            'building-future',
+            'fill-extrusion-color',
+            BUILDING_FUTURE_PAINT_PROPERTY
+          );
+          for (const gridKey of GRID_LAYERS) {
+            viewer.maplibreMap.setPaintProperty(
+              gridKey,
+              'fill-extrusion-color',
+              BUILDING_PAINT_PROPERTY
+            );
+          }
         }
-      }
 
-      viewer.maplibreMap.setLayoutProperty(
-        'building',
-        'visibility',
-        buildingLayer === 'building' ? 'visible' : 'none'
-      );
-      viewer.maplibreMap.setLayoutProperty(
-        'building-future',
-        'visibility',
-        buildingLayer === 'building-future' ? 'visible' : 'none'
-      );
-
-      for (const gridKey of GRID_LAYERS) {
-        viewer.maplibreMap.setLayoutProperty(gridKey, 'visibility', 'none');
-        viewer.maplibreMap.setFilter(gridKey, [
-          '!=',
-          `${key}_bcol`,
-          'rgb(100, 100, 100)',
-        ]);
-      }
-      if (aggregationLayer) {
         viewer.maplibreMap.setLayoutProperty(
-          aggregationLayer,
+          'building',
           'visibility',
-          'visible'
+          buildingLayer === 'building' ? 'visible' : 'none'
         );
+        viewer.maplibreMap.setLayoutProperty(
+          'building-future',
+          'visibility',
+          buildingLayer === 'building-future' ? 'visible' : 'none'
+        );
+
+        for (const gridKey of GRID_LAYERS) {
+          viewer.maplibreMap.setLayoutProperty(gridKey, 'visibility', 'none');
+          viewer.maplibreMap.setFilter(gridKey, [
+            '!=',
+            `${key}_bcol`,
+            'rgb(100, 100, 100)',
+          ]);
+        }
+        if (aggregationLayer) {
+          viewer.maplibreMap.setLayoutProperty(
+            aggregationLayer,
+            'visibility',
+            'visible'
+          );
+        }
       }
     }
   }, [
@@ -496,6 +520,7 @@ export const useViewer = (): {
     uiState.selectedYearKey,
     uiState.selectedDegreeKey,
     uiState.selectedAggregator,
+    filteredFeatures,
   ]);
 
   useEffect(() => {

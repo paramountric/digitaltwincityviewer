@@ -13,6 +13,8 @@ type FilterButtons =
   | 'baseAreas'
   | 'primaryAreas'
   | 'grid';
+type BuildingFilterOptions = 'all' | 'selection' | 'single';
+type GridFilterOptions = 'grid1km' | 'grid500m' | 'grid250m';
 
 export type UiStore = {
   selectedPropertyKey: string;
@@ -24,10 +26,13 @@ export type UiStore = {
   showPins: boolean;
   scenarioKey: ScenarioKeys;
   filterButton: FilterButtons;
-  selectedFilterBuildingOption: string;
-  selectedFilterGridOption: string;
+  selectedFilterBuildingOption: BuildingFilterOptions;
+  selectedFilterGridOption: GridFilterOptions;
   showLayerPlannedDevelopment: boolean;
   showLayerSatelliteMap: boolean;
+  showLayerWater: boolean;
+  showLayerStreets: boolean;
+  showLayerTrees: boolean;
 };
 
 const uiStore = new Observable<UiStore>({
@@ -44,6 +49,9 @@ const uiStore = new Observable<UiStore>({
   selectedFilterGridOption: 'grid1km',
   showLayerPlannedDevelopment: false,
   showLayerSatelliteMap: false,
+  showLayerWater: false,
+  showLayerStreets: false,
+  showLayerTrees: false,
 });
 
 export const useUi = () => {
@@ -72,13 +80,17 @@ export const useUi = () => {
       setShowPins: (showPins: boolean) => uiStore.set({ ...uiState, showPins }),
       setFilterButton: (filterButton: FilterButtons) =>
         uiStore.set({ ...uiState, filterButton }),
-      setSelectedFilterBuildingOption: (selectedFilterBuildingOption: string) =>
+      setSelectedFilterBuildingOption: (
+        selectedFilterBuildingOption: BuildingFilterOptions
+      ) =>
         uiStore.set({
           ...uiState,
           filterButton: 'buildings',
           selectedFilterBuildingOption,
         }),
-      setSelectedFilterGridOption: (selectedFilterGridOption: string) =>
+      setSelectedFilterGridOption: (
+        selectedFilterGridOption: GridFilterOptions
+      ) =>
         uiStore.set({
           ...uiState,
           filterButton: 'grid',
@@ -88,6 +100,12 @@ export const useUi = () => {
         uiStore.set({ ...uiState, showLayerPlannedDevelopment }),
       setShowLayerSatelliteMap: (showLayerSatelliteMap: boolean) =>
         uiStore.set({ ...uiState, showLayerSatelliteMap }),
+      setShowLayerWater: (showLayerWater: boolean) =>
+        uiStore.set({ ...uiState, showLayerWater }),
+      setShowLayerStreets: (showLayerStreets: boolean) =>
+        uiStore.set({ ...uiState, showLayerStreets }),
+      setShowLayerTrees: (showLayerTrees: boolean) =>
+        uiStore.set({ ...uiState, showLayerTrees }),
     };
   }, [uiState]);
 

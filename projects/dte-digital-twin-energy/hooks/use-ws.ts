@@ -2,18 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import socketIOClient, { Socket } from 'socket.io-client';
 import getConfig from 'next/config';
 import { useUser } from './use-user';
+import { Note, useNotes } from './use-notes';
 
 const { publicRuntimeConfig } = getConfig();
 
 const wsUrl = publicRuntimeConfig.wsUrl;
 
-const NODES_EVENT = 'comments';
+const NOTES_EVENT = 'comments';
 const CURSOR_EVENT = 'dte-cursor';
 const ROOM_ID = 'dte-demo';
 
 export const useWs = () => {
   const socketRef = useRef<Socket | null>();
   const { state: user } = useUser();
+  const { actions: noteListActions } = useNotes();
 
   useEffect(() => {
     if (!ROOM_ID || !user.token) {
@@ -27,13 +29,32 @@ export const useWs = () => {
 
     socketRef.current.emit('joinRoom', ROOM_ID);
 
-    socketRef.current.on(NODES_EVENT, (notesData: any) => {
-      console.log('incoming notesData', notesData);
-      if (!notesData || !notesData.body) {
+    socketRef.current.on(NOTES_EVENT, (noteData: any) => {
+      console.log('incoming noteData', noteData);
+      if (!noteData) {
         return;
       }
+      const {
+        comment,
+        userId,
+        userName,
+        entityId,
+        entityName,
+        createdAt,
+        _id,
+      } = noteData;
 
-      const note = notesData.body || {};
+      const note: Note = {
+        id: _id,
+        comment,
+        createdAt,
+        userId,
+        userName,
+        entityId,
+        entityName,
+      };
+
+      noteListActions.addNote?.(note);
     });
 
     return () => {
@@ -41,8 +62,14 @@ export const useWs = () => {
     };
   }, [user.token]);
 
-  const sendNote = (featureId: string, note: string) => {
-    if (!note || !featureId) {
+  // userName can be sent in if the user wants another name than in session
+  const sendNote = (
+    featureUUID: string,
+    featureName: string,
+    comment: string,
+    userName?: string
+  ) => {
+    if (!comment || !featureUUID || !featureName) {
       console.warn('missing required data');
       return;
     }
@@ -55,13 +82,13 @@ export const useWs = () => {
       return;
     }
     const noteData = {
-      userId: user.id,
-      userName: user.name,
-      featureId,
-      comment: note,
+      userName: userName || user.name,
+      entityId: featureUUID,
+      entityName: featureName,
+      comment,
     };
     console.log('sendNote', noteData);
-    socketRef.current.emit(NODES_EVENT, {
+    socketRef.current.emit(NOTES_EVENT, {
       ROOM_ID,
       body: noteData,
       userId: user.id,

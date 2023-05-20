@@ -1,31 +1,81 @@
 import { useState, useEffect, useMemo } from 'react';
+import getConfig from 'next/config';
 import { Observable } from '../lib/Observable';
+import { useUser } from './use-user';
 
 export type Note = {
+  id: string;
   comment: string;
+  userId: string;
+  userName: string;
+  entityId: string;
+  entityName: string;
+  createdAt: string;
 };
 
-const notesListStore = new Observable<Note[]>([]);
+const { publicRuntimeConfig } = getConfig();
+const notesUrl = publicRuntimeConfig.notesUrl;
 
-export const useNotesList = () => {
-  const [notesListState, setEntityState] = useState<Note[]>(
-    notesListStore.get()
-  );
+const noteListStore = new Observable<Note[]>([]);
+
+export const useNotes = () => {
+  const [noteList, setNoteList] = useState<Note[]>(noteListStore.get());
+  const [isCached, setIsCached] = useState(false);
+  const { state: user } = useUser();
 
   useEffect(() => {
-    return notesListStore.subscribe(setEntityState);
+    return noteListStore.subscribe(setNoteList);
   }, []);
 
-  const notesListActions = useMemo(() => {
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const notesRes = await fetch(notesUrl, {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        });
+        const notes = await notesRes.json();
+
+        noteListStore.set(
+          notes.map(
+            (n: any) =>
+              ({
+                id: n._id,
+                comment: n.comment,
+                userId: n.userId,
+                userName: n.userName,
+                entityId: n.entityId,
+                entityName: n.entityName,
+                createdAt: n.createdAt,
+              } as Note)
+          )
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    if (user.token && !isCached) {
+      fetchNotes();
+      setIsCached(true);
+    }
+    return;
+  }, [user.token]);
+
+  const noteListActions = useMemo(() => {
     return {
       addNote: (note: Note) => {
-        notesListStore.set([...notesListStore.get(), note]);
+        noteListStore.set([...noteListStore.get(), note]);
+      },
+      getFilteredNotes: (key: string, value: string) => {
+        const notes = noteListStore.get();
+        return notes.filter((note: any) => note[key] === value);
       },
     };
-  }, []);
+  }, [noteList]);
 
   return {
-    actions: notesListActions,
-    state: notesListState,
+    actions: noteListActions,
+    state: noteList,
   };
 };

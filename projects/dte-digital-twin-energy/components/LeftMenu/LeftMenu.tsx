@@ -7,7 +7,13 @@ export default function LeftMenu() {
       <LeftMenuItem label="Layers">
         <Layers />
       </LeftMenuItem>
-      <LeftMenuItem label="Bayers">
+      <LeftMenuItem label="Import">
+        <Layers />
+      </LeftMenuItem>
+      <LeftMenuItem label="Export">
+        <Layers />
+      </LeftMenuItem>
+      <LeftMenuItem label="Save">
         <Layers />
       </LeftMenuItem>
     </div>

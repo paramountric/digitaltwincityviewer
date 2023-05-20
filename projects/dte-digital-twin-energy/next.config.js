@@ -11,6 +11,7 @@ const nextConfig = {
     tokenUrl: process.env.TOKEN_URL,
     authUrl: process.env.AUTH_URL,
     wsUrl: process.env.WS_URL,
+    notesUrl: process.env.NOTES_URL,
   },
   experimental: {
     outputFileTracingRoot: path.join(__dirname, '../../'),
