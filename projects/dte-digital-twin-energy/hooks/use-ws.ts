@@ -6,7 +6,7 @@ import { Note, useNotes } from './use-notes';
 
 const { publicRuntimeConfig } = getConfig();
 
-const wsUrl = publicRuntimeConfig.wsUrl;
+const { wsDomain, wsPath } = publicRuntimeConfig;
 
 const NOTES_EVENT = 'comments';
 const CURSOR_EVENT = 'dte-cursor';
@@ -21,7 +21,8 @@ export const useWs = () => {
     if (!ROOM_ID || !user.token) {
       return;
     }
-    socketRef.current = socketIOClient(wsUrl, {
+    socketRef.current = socketIOClient(wsDomain, {
+      path: wsPath,
       auth: {
         token: user.token,
       },

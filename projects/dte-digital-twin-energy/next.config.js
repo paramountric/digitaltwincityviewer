@@ -10,8 +10,10 @@ const nextConfig = {
     protocol: process.env.PROTOCOL,
     tokenUrl: process.env.TOKEN_URL,
     authUrl: process.env.AUTH_URL,
-    wsUrl: process.env.WS_URL,
+    wsDomain: process.env.WS_DOMAIN,
+    wsPath: process.env.WS_PATH,
     notesUrl: process.env.NOTES_URL,
+    dtcvFilesUrl: process.env.DTCV_FILES_URL,
   },
   experimental: {
     outputFileTracingRoot: path.join(__dirname, '../../'),

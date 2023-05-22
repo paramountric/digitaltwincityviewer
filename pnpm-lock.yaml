@@ -396,6 +396,7 @@ importers:
       '@types/cookie': ^0.5.1
       '@types/d3': ^7.4.0
       '@types/d3-axis': ^3.0.2
+      '@types/d3-ease': ^3.0.0
       '@types/d3-scale': ^4.0.3
       '@types/d3-selection': ^3.0.5
       '@types/jsonwebtoken': ^8.5.9
@@ -405,6 +406,7 @@ importers:
       autoprefixer: ^10.4.8
       cookie: ^0.5.0
       d3-axis: ^3.0.0
+      d3-ease: ^3.0.1
       d3-scale: ^4.0.2
       d3-selection: ^3.0.0
       eslint: 8.22.0
@@ -430,11 +432,13 @@ importers:
       '@types/cookie': 0.5.1
       '@types/d3': 7.4.0
       '@types/d3-axis': 3.0.2
+      '@types/d3-ease': 3.0.0
       '@types/d3-scale': 4.0.3
       '@types/d3-selection': 3.0.5
       '@types/jsonwebtoken': 8.5.9
       cookie: 0.5.0
       d3-axis: 3.0.0
+      d3-ease: 3.0.1
       d3-scale: 4.0.2
       d3-selection: 3.0.0
       jsonwebtoken: 8.5.1
@@ -4507,6 +4511,11 @@ packages:
       commander: 2.20.3
       iconv-lite: 0.4.24
       rw: 1.3.3
+    dev: false
+
+  /d3-ease/3.0.1:
+    resolution: {integrity: sha512-wR/XK3D3XcLIZwpbvQwQ5fK+8Ykds1ip7A2Txe0yxncXSdq1L9skcG7blcedkOX+ZcgxGAmLX1FrRGbADwzi0w==}
+    engines: {node: '>=12'}
     dev: false
 
   /d3-format/3.1.0:

@@ -1,11 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Viewer } from '@dtcv/viewer';
 import { cities } from '@dtcv/cities';
-import { getColorFromScale } from '../lib/colorScales';
+import getConfig from 'next/config';
+import { easeCubicIn } from 'd3-ease';
 import { useUi } from './use-ui';
 import { useNotes } from './use-notes';
 import { useSelectedFeature } from './use-selected-feature';
 import { useFilteredFeatures } from './use-filtered-features';
+
+const { publicRuntimeConfig } = getConfig();
+
+const { dtcvFilesUrl } = publicRuntimeConfig;
 
 const DEFAULT_BUILDING_COLOR = 'rgb(200, 200, 200)';
 const DEFAULT_BUILDING_FUTURE_COLOR = 'rgb(230, 200, 200)';
@@ -385,9 +390,7 @@ const maplibreOptions = {
         promoteId: 'id',
         //tiles: [`http://localhost:9000/tiles/{z}/{x}/{y}`],
         //tiles: [`${tileServerUrl}/api/tiles?z={z}&x={x}&y={y}`],
-        tiles: [
-          'https://digitaltwincityviewer.s3.amazonaws.com/tiles/{z}/{x}/{y}.mvt',
-        ],
+        tiles: [`${dtcvFilesUrl}/tiles/{z}/{x}/{y}.mvt`],
       },
     },
     version: 8,
@@ -535,24 +538,48 @@ export const useViewer = (): {
       return;
     }
     if (uiState.showPins) {
-      const pinData = notes.filter(n => n.center);
+      const pinData = notes
+        .filter(n => n.center)
+        .filter(
+          (obj, index, self) => index === self.findIndex(o => o.id === obj.id)
+        );
       viewer.setIconLayerProps({
         id: 'pin-icon-layer',
         data: pinData,
-        iconAtlas:
-          'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/icon-atlas.png',
-        iconMapping: {
-          marker: { x: 0, y: 0, width: 128, height: 128, mask: true },
-        },
-        getIcon: (d: any) => 'marker',
+        visible: true,
+        // iconAtlas:
+        //   'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/icon-atlas.png',
+        // iconMapping: {
+        //   marker: { x: 0, y: 0, width: 128, height: 128, mask: true },
+        // },
+        getIcon: () => ({
+          url: `${dtcvFilesUrl}/location-pin.png`,
+          width: 128,
+          height: 128,
+          anchorY: 128,
+        }), //(d: any) => 'marker',
         // sizeMinPixels: 10,
         // sizeMaxPixels: 20,
-        getPosition: (d: any) => [...d.center, d.elevation || 10],
+        getPosition: (d: any) => {
+          console.log(d);
+          return [...d.center, d.elevation || 0];
+        },
         getSize: (d: any) => 30,
         getColor: (d: any) => [0, 140, 0],
+        transitions: {
+          getPositions: {
+            duration: 800,
+            easing: easeCubicIn,
+            enter: (value: any) => [value[0], value[1], 1000, 1], // fade in
+          },
+        },
+      });
+    } else {
+      viewer.setIconLayerProps({
+        visible: false,
       });
     }
-  }, [uiState.showPins]);
+  }, [uiState.showPins, notes]);
 
   useEffect(() => {
     if (viewer?.maplibreMap && lastHoveredObject) {
