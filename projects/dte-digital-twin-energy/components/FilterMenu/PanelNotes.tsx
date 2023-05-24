@@ -66,6 +66,7 @@ export default function PanelNotes() {
         [center.geometry.coordinates[0], center.geometry.coordinates[1]],
         selectedFeature.properties.hgt
       );
+      setNote('');
     }
   };
 
@@ -102,6 +103,9 @@ export default function PanelNotes() {
                       </p>
                       <p className="mt-1 truncate text-xs leading-5 text-gray-500">
                         {note.entityName}
+                      </p>
+                      <p className="mt-1 truncate text-sm leading-5 text-gray-900">
+                        {note.comment}
                       </p>
                     </div>
                   </div>

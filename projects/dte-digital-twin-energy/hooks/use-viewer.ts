@@ -543,6 +543,7 @@ export const useViewer = (): {
         .filter(
           (obj, index, self) => index === self.findIndex(o => o.id === obj.id)
         );
+      console.log('add icon layer');
       viewer.setIconLayerProps({
         id: 'pin-icon-layer',
         data: pinData,
@@ -576,6 +577,8 @@ export const useViewer = (): {
       });
     } else {
       viewer.setIconLayerProps({
+        id: 'pin-icon-layer',
+        _animate: true,
         visible: false,
       });
     }
@@ -626,6 +629,7 @@ export const useViewer = (): {
       setViewer(
         new Viewer(
           {
+            // _animate: true,
             // container: ref,
             // layers: [{ '@@type': 'Tile3DLayer' }],
             // onDragEnd: ({ longitude, latitude, zoom }: any) => {
