@@ -193,7 +193,7 @@ export default function PanelNotes() {
                   type="submit"
                   disabled={!selectedFeature || !name || !note}
                   onClick={handleSendNote}
-                  className="py-2 px-7 button-rounded"
+                  className="py-2 px-7 button-rounded hover:bg-lime-700"
                 >
                   Send
                 </button>
