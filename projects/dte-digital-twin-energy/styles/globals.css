@@ -15,6 +15,35 @@
   .action-panel div {
     @apply first:rounded-l-full last:rounded-r-full;
   }
+  .button-rounded {
+    @apply flex items-center gap-1 py-2.5 pl-4 pr-6 text-sm text-left text-white bg-gray-700 border border-gray-300 rounded-full disabled:bg-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 hover:bg-gray-500;
+  }
+  body::-webkit-scrollbar,
+  textarea::-webkit-scrollbar,
+  .scroll-child::-webkit-scrollbar {
+    @apply w-2.5;
+  }
+  body::-webkit-scrollbar-track,
+  textarea::-webkit-scrollbar-track,
+  .scroll-child::-webkit-scrollbar-track {
+    @apply bg-gray-200;
+  }
+  body::-webkit-scrollbar-thumb,
+  textarea::-webkit-scrollbar-thumb,
+  .scroll-child::-webkit-scrollbar-thumb {
+    @apply border-2 border-gray-200 border-solid rounded-md bg-gray-500;
+  }
+  input[type='text'] {
+    @apply bg-transparent;
+  }
+}
+
+html,
+textarea,
+.card-child {
+  scroll-behavior: smooth !important;
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.gray.500') white;
 }
 
 .loader {

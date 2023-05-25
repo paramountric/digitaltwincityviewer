@@ -12,7 +12,7 @@ type DropdownProps = {
   name: string;
   options: MenuOption[];
   selectedKey: string;
-  onSelect: (key: string) => void;
+  onSelect: (key: any) => void;
   roundedClass?: 'rounded-l-md' | 'rounded-r-md' | 'rounded-md';
   checkIcon?: boolean;
 };

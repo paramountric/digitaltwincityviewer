@@ -1,5 +1,4 @@
 import { useUi } from '../../hooks/use-ui';
-import { CheckIcon } from '@heroicons/react/24/outline';
 import ButtonSwitch from '../ButtonSwitch';
 import ScenarioEnergy from './ScenarioEnergy';
 import ButtonSelect from '../ButtonSelect';

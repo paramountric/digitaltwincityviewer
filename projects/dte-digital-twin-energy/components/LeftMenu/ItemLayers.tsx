@@ -4,7 +4,7 @@ import { useUi } from '../../hooks/use-ui';
 import { Fragment } from 'react';
 import ButtonSwitch from '../ButtonSwitch';
 
-export default function Layer() {
+export default function ItemLayer() {
   const { state: uiState, actions: uiActions } = useUi();
 
   const classNames = (...classes: string[]) => {
@@ -17,6 +17,7 @@ export default function Layer() {
         label={'Planned developments'}
         actions={uiActions.setShowLayerPlannedDevelopment}
         state={uiState.showLayerPlannedDevelopment}
+        size={'small'}
         dark={true}
         labelBefore={true}
       />
@@ -24,6 +25,7 @@ export default function Layer() {
         label={'Satellite map'}
         actions={uiActions.setShowLayerSatelliteMap}
         state={uiState.showLayerSatelliteMap}
+        size={'small'}
         dark={true}
         labelBefore={true}
       />
@@ -31,6 +33,7 @@ export default function Layer() {
         label={'Water'}
         actions={uiActions.setShowLayerWater}
         state={uiState.showLayerWater}
+        size={'small'}
         dark={true}
         labelBefore={true}
       />
@@ -38,6 +41,7 @@ export default function Layer() {
         label={'Streets'}
         actions={uiActions.setShowLayerStreets}
         state={uiState.showLayerStreets}
+        size={'small'}
         dark={true}
         labelBefore={true}
       />
@@ -45,6 +49,7 @@ export default function Layer() {
         label={'Trees'}
         actions={uiActions.setShowLayerTrees}
         state={uiState.showLayerTrees}
+        size={'small'}
         dark={true}
         labelBefore={true}
       />

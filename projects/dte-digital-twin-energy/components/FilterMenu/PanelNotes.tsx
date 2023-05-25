@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Disclosure, Switch } from '@headlessui/react';
-import { ChevronUpIcon, MapPinIcon } from '@heroicons/react/20/solid';
+import { useState, useEffect, ChangeEvent } from 'react';
+import {
+  MapPinIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+} from '@heroicons/react/20/solid';
 import { default as calculateCenter } from '@turf/center';
 import { useUi } from '../../hooks/use-ui';
 import ButtonSwitch from '../ButtonSwitch';
@@ -45,8 +48,10 @@ export default function PanelNotes() {
   const { state: userState } = useUser();
   const { state: notesListState } = useNotes();
   const { sendNote } = useWs();
+
   const [name, setName] = useState(userState.name || '');
   const [note, setNote] = useState('');
+  const [search, setSearch] = useState('');
   const [showAddNewNote, setShowAddNewNote] = useState(false);
 
   useEffect(() => {
@@ -70,147 +75,142 @@ export default function PanelNotes() {
     }
   };
 
-  return (
-    <Disclosure>
-      {({ open }) => (
-        <>
-          <Disclosure.Button className="flex w-full gap-2 p-2 mt-2 text-sm font-medium text-left text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75">
-            <span>Notes</span>
-            <span>({notesListState.length})</span>
+  function handleSearch(event: ChangeEvent<HTMLInputElement>) {
+    const { value } = event.target;
+    setSearch(value);
+  }
 
-            <ChevronUpIcon
-              className={`${
-                open ? 'rotate-180 transform' : ''
-              } ml-auto h-5 w-5`}
-            />
-          </Disclosure.Button>
-          <Disclosure.Panel className="p-3 text-xs text-gray-500">
-            <div>
-              <ButtonSwitch
-                label={uiState.showPins ? 'MAP PINS ON' : 'MAP PINS OFF'}
-                actions={uiActions.setShowPins}
-                state={uiState.showPins}
-              />
+  return (
+    <div className=" max-w-prose">
+      {/*Pins*/}
+      <div>
+        <ButtonSwitch
+          label={uiState.showPins ? 'MAP PINS ON' : 'MAP PINS OFF'}
+          actions={uiActions.setShowPins}
+          state={uiState.showPins}
+          size="small"
+        />
+      </div>
+
+      {/*Search*/}
+      <div>
+        <div className="relative mt-4">
+          <input
+            type="text"
+            value={search}
+            onChange={handleSearch}
+            placeholder="Search"
+            className="block w-full py-3 text-gray-700 peer focus:outline-0"
+          />
+          <div
+            className="absolute inset-x-0 bottom-0 border-t border-gray-500 "
+            aria-hidden="true"
+          />
+          {/* <MagnifyingGlassIcon className="absolute w-5 h-5 text-gray-300 top-1/2 peer-focus:hidden" /> */}
+        </div>
+      </div>
+
+      {/*Notes*/}
+      <ul role="list" className="w-full divide-y divide-gray-100">
+        {notesListState.map((note) => (
+          <li
+            key={note.id}
+            className="flex justify-between py-5 text-gray-900 gap-x-6"
+          >
+            <div className="flex w-full gap-x-4">
+              <div className="flex-auto">
+                <div className="flex items-center justify-between">
+                  <p className="font-bold text-normal ">{note.userName}</p>
+                  <p className="text-xs text-gray-500 capitalize">
+                    <time dateTime={note.createdAt}>
+                      {formatDate(note.createdAt)}
+                    </time>
+                  </p>
+                </div>
+                <p className="flex items-center gap-1 text-xs text-gray-500 truncate">
+                  <MapPinIcon className="w-2 h-2" />
+                  {note.entityName}
+                </p>
+                <p className="mt-3 text-sm ">{note.comment}</p>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {/*Post note*/}
+      <div className="mt-8">
+        {showAddNewNote ? (
+          <div className="border-t-2 border-gray-700">
+            <p className="flex my-4 text-sm text-gray-600">
+              <MapPinIcon className="w-6 h-6 mr-2" />
+              {selectedFeature?.properties?.addr || (
+                <span className="italic">Select a building on the screen</span>
+              )}
+            </p>
+
+            <div className="mt-2">
+              <div className="flex w-full rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-600">
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoComplete="name"
+                  className="block w-full border-0 bg-transparent py-1.5 px-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
+                  placeholder="Your name"
+                />
+              </div>
+
+              <div className="mt-3">
+                <textarea
+                  id="note"
+                  name="note"
+                  value={note}
+                  placeholder="Your note"
+                  onChange={(e) => setNote(e.target.value)}
+                  rows={3}
+                  className="block px-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm"
+                />
+              </div>
             </div>
 
-            <ul role="list" className="divide-y divide-gray-100">
-              {notesListState.map(note => (
-                <li key={note.id} className="flex justify-between gap-x-6 py-5">
-                  <div className="flex gap-x-4">
-                    <div className="min-w-0 flex-auto">
-                      <p className="text-sm font-semibold leading-6 text-gray-900">
-                        {note.userName}
-                      </p>
-                      <p className="mt-1 truncate text-xs leading-5 text-gray-500">
-                        {note.entityName}
-                      </p>
-                      <p className="mt-1 truncate text-sm leading-5 text-gray-900">
-                        {note.comment}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="hidden sm:flex sm:flex-col sm:items-end">
-                    <p className="mt-1 text-xs leading-5 text-gray-500">
-                      <time dateTime={note.createdAt}>
-                        {formatDate(note.createdAt)}
-                      </time>
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-
-            {showAddNewNote ? (
-              <div className="border-t-2">
-                <p className="flex my-4 text-sm leading-6 text-gray-600">
-                  <MapPinIcon className="w-6 h-6 mr-2" />{' '}
-                  {selectedFeature?.properties?.addr || (
-                    <span className="italic">
-                      Select a building on the screen
-                    </span>
-                  )}
-                </p>
-
-                <div className="mt-2 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
-                  <div className="sm:col-span-full">
-                    <label
-                      htmlFor="first-name"
-                      className="block text-sm font-medium leading-6 text-gray-900"
-                    >
-                      Name
-                    </label>
-                    <div className="mt-2">
-                      <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-600 sm:max-w-md">
-                        <input
-                          type="text"
-                          name="name"
-                          id="name"
-                          value={name}
-                          onChange={e => setName(e.target.value)}
-                          autoComplete="name"
-                          className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                          placeholder="Your name"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="col-span-full">
-                    <label
-                      htmlFor="first-name"
-                      className="block text-sm font-medium leading-6 text-gray-900"
-                    >
-                      Note
-                    </label>
-                    <div>
-                      <textarea
-                        id="note"
-                        name="note"
-                        value={note}
-                        placeholder="Your note"
-                        onChange={e => setNote(e.target.value)}
-                        rows={3}
-                        className="block p-1 w-full max-w-xs rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-                      />
-                    </div>
-                    <p className="mt-3 text-sm leading-6 text-gray-600">
-                      By pressing send you acknowledge awareness that this note
-                      will be available to the public.
-                    </p>
-                  </div>
-
-                  <div className="mt-6 flex items-center justify-end gap-x-6">
-                    <button
-                      onClick={() => setShowAddNewNote(false)}
-                      type="button"
-                      className="text-sm font-semibold leading-6 text-gray-900"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={!selectedFeature || !name || !note}
-                      onClick={handleSendNote}
-                      className="rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
-                    >
-                      Send
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="w-full flex justify-end">
+            <div className="flex w-full gap-8 my-4 mt-6">
+              <p className="text-xs text-gray-600">
+                By pressing send you acknowledge awareness that this note will
+                be available to the public.
+              </p>
+              <div className="flex items-center gap-x-6">
                 <button
-                  className="text-left border rounded-full px-2 p-1 border-gray-300 text-xs font-sm focus:outline-none bg-gray-700 text-white hover:bg-gray-500"
-                  onClick={() => setShowAddNewNote(true)}
+                  onClick={() => setShowAddNewNote(false)}
+                  type="button"
+                  className="p-2 text-sm font-semibold text-gray-900"
                 >
-                  Add new note
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!selectedFeature || !name || !note}
+                  onClick={handleSendNote}
+                  className="py-2 px-7 button-rounded"
+                >
+                  Send
                 </button>
               </div>
-            )}
-          </Disclosure.Panel>
-        </>
-      )}
-    </Disclosure>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-end w-full">
+            <button
+              className="button-rounded"
+              onClick={() => setShowAddNewNote(true)}
+            >
+              <PlusIcon className="w-5 h-5" /> Add new note
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
