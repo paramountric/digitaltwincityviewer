@@ -121,7 +121,7 @@ const propertyKeyOptions: PropertyKeyOption[] = [
   'de',
   'ge',
   'cd',
-].map((key) => ({
+].map(key => ({
   key: key as SelectablePropertyKey,
   label: propertyLabels[key],
   unit: units[key],
@@ -150,7 +150,7 @@ const yearLabels: {
   '50': 'The city of tomorrow (2050)',
 };
 
-const yearOptions = Object.keys(yearLabels).map((key) => ({
+const yearOptions = Object.keys(yearLabels).map(key => ({
   key,
   label: yearLabels[key],
 }));
@@ -159,12 +159,12 @@ const degreeLabels: {
   [key: string]: string;
 } = {
   '0': '0°',
-  '25': '2.5°',
-  '45': '4.5°',
-  '85': '8.5°',
+  '25': '1°',
+  '45': '1.5°',
+  '85': '2°',
 };
 
-const degreeOptions = Object.keys(degreeLabels).map((key) => ({
+const degreeOptions = Object.keys(degreeLabels).map(key => ({
   key,
   label: degreeLabels[key],
 }));
@@ -181,7 +181,7 @@ const aggregatorLabels: {
   primaryAreas: 'Primary Areas',
 };
 
-const aggregatorOptions = Object.keys(aggregatorLabels).map((key) => ({
+const aggregatorOptions = Object.keys(aggregatorLabels).map(key => ({
   key,
   label: aggregatorLabels[key],
 }));

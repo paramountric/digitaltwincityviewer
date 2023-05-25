@@ -1,4 +1,10 @@
-import { Deck, DeckProps, FilterContext, MapView } from '@deck.gl/core/typed';
+import {
+  Deck,
+  DeckProps,
+  FilterContext,
+  MapView,
+  Layer,
+} from '@deck.gl/core/typed';
 import { JSONConverter, JSONConfiguration } from '@deck.gl/json/typed';
 import maplibreGl from 'maplibre-gl';
 import { ViewerProps, getJsonConfig, setProps } from './viewer-props';
@@ -6,7 +12,8 @@ import {
   getDefaultViewerProps,
   getDefaultMaplibreOptions,
 } from './default-viewer-props-config';
-import MaplibreWrapper from './utils/MaplibreWrapper.js';
+import MaplibreLayer from './utils/maplibre-layer';
+import { IconLayer, ScatterplotLayer, ArcLayer } from '@deck.gl/layers/typed';
 
 export class Viewer {
   gl: WebGLRenderingContext | null = null;
@@ -14,11 +21,14 @@ export class Viewer {
   props: ViewerProps;
   jsonConverter: JSONConverter;
   maplibreMap?: maplibregl.Map;
+  iconLayer?: MaplibreLayer<IconLayer>;
   // the cursor can be controlled this way, not sure if this is the best way
   public cursor: string | null = null;
   constructor(props: ViewerProps, maplibreOptions?: maplibregl.MapOptions) {
+    const jsonConfig = getJsonConfig(props);
+    console.log(jsonConfig);
     this.jsonConverter = new JSONConverter({
-      configuration: new JSONConfiguration(getJsonConfig(props)),
+      configuration: new JSONConfiguration(jsonConfig),
     });
 
     const parsedProps = props; // this.jsonConverter.convert(props);
@@ -45,26 +55,63 @@ export class Viewer {
   }
 
   getProps(): DeckProps {
-    return {
-      viewState: this.getViewStates(),
-      views: this.getViews(),
-      onViewStateChange: this.onViewStateChange.bind(this),
-      onInteractionStateChange: this.onInteractionStateChange.bind(this),
-      onWebGLInitialized: this.onWebGLInitialized.bind(this),
-      layerFilter: this.layerFilter.bind(this),
-      layers: this.getLayers(),
-    };
+    if (this.maplibreMap) {
+      console.log('get props for maplibre');
+      return {
+        layers: this.getLayers(),
+      };
+    } else {
+      return {
+        viewState: this.getViewStates(),
+        views: this.getViews(),
+        onViewStateChange: this.onViewStateChange.bind(this),
+        onInteractionStateChange: this.onInteractionStateChange.bind(this),
+        onWebGLInitialized: this.onWebGLInitialized.bind(this),
+        layerFilter: this.layerFilter.bind(this),
+        layers: this.getLayers(),
+      };
+    }
   }
 
   setProps(props: ViewerProps) {
     const parsedProps = this.jsonConverter.convert(props);
-    const needsUpdate = setProps(this, parsedProps);
-    this.props = props;
-    console.log('props', props);
-    if (needsUpdate) {
+    // todo: figure out helper functions for other props
+    // const needsUpdate = setProps(this, parsedProps);
+    this.props = parsedProps;
+    // if (needsUpdate) {
+
+    if (this.maplibreMap) {
+      const layers = this.getLayers();
+
+      for (const layer of layers) {
+        console.log(layer);
+        // const layerProps = Object.assign({}, layer.props};
+        // layerProps.type = layer.constructor;
+        this.maplibreMap.addLayer(
+          layer
+          // new MaplibreLayer<IconLayer>({
+          //   ...layer.props,
+          //   type: layer.constructor,
+          // })
+        );
+      }
+    } else {
       this._update();
     }
     return props;
+  }
+
+  setIconLayerProps(props: any) {
+    if (!this.maplibreMap) {
+      return;
+    }
+    if (!this.iconLayer) {
+      props.type = IconLayer;
+      this.iconLayer = new MaplibreLayer<IconLayer>(props);
+      this.maplibreMap.addLayer(this.iconLayer);
+    } else {
+      this.iconLayer.setProps(props);
+    }
   }
 
   getViews() {
@@ -142,8 +189,9 @@ export class Viewer {
   }
 
   getLayers() {
-    // todo: this have to sync with the json config so that the concepts of specifying layers and abstraction options can be combined
-    return [];
+    const layerInstances = this.props.layers?.filter(l => l instanceof Layer);
+    // todo: add layers from other config objects if any
+    return layerInstances || [];
   }
 
   getCursor({ isDragging, isHovering }: any) {
@@ -184,19 +232,79 @@ export class Viewer {
       if (!this.maplibreMap) {
         return;
       }
-      const gl = this.maplibreMap.painter.context.gl;
-      this.deck = new Deck(
-        Object.assign({
-          gl,
-        })
-      );
+      // const gl = this.maplibreMap.painter.context.gl;
+      // this.deck = new Deck(
+      //   Object.assign({
+      //     gl,
+      //   })
+      // );
 
-      this.maplibreMap.addLayer(
-        new MaplibreWrapper({
-          id: 'viewer',
-          deck: this.deck,
-        }) as maplibregl.LayerSpecification
-      );
+      // this.maplibreMap.addLayer(
+      //   new MaplibreLayer({
+      //     id: 'viewer',
+      //     deck: this.deck,
+      //   })
+      // );
+
+      // console.log(maplibreOptions.center);
+
+      // this.maplibreMap.addLayer(
+      //   new MaplibreLayer({
+      //     id: 'deckgl-circle',
+      //     type: ScatterplotLayer,
+      //     data: [
+      //       {
+      //         position: maplibreOptions.center,
+      //         color: [255, 0, 0],
+      //         radius: 1000,
+      //       },
+      //     ],
+      //     getPosition: (d: any) => d.position,
+      //     getFillColor: (d: any) => d.color,
+      //     getRadius: (d: any) => d.radius,
+      //     opacity: 0.3,
+      //   })
+      // );
+
+      // this.maplibreMap.addLayer(
+      //   new MaplibreLayer<IconLayer>({
+      //     id: 'icons',
+      //     type: IconLayer,
+      //     data: [
+      //       {
+      //         coordinates: maplibreOptions.center,
+      //       },
+      //     ],
+      //     iconAtlas:
+      //       'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/icon-atlas.png',
+      //     iconMapping: {
+      //       marker: { x: 0, y: 0, width: 128, height: 128, mask: true },
+      //     },
+      //     getIcon: (d: any) => 'marker',
+      //     sizeScale: 15,
+      //     getPosition: (d: any) => d.coordinates,
+      //     getSize: (d: any) => 5,
+      //     getColor: (d: any) => [Math.sqrt(d.exits), 140, 0],
+      //   })
+      // );
+
+      // this.maplibreMap.addLayer(
+      //   new MaplibreLayer({
+      //     id: 'deckgl-arc',
+      //     type: ArcLayer,
+      //     data: [
+      //       {
+      //         source: maplibreOptions.center,
+      //         target: [-122.400068, 37.7900503],
+      //       },
+      //     ],
+      //     getSourcePosition: d => d.source,
+      //     getTargetPosition: d => d.target,
+      //     getSourceColor: [255, 208, 0],
+      //     getTargetColor: [0, 128, 255],
+      //     getWidth: 8,
+      //   })
+      // );
 
       if (this.props.onLoad) {
         this.props.onLoad(this);

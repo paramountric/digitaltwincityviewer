@@ -27,6 +27,27 @@ export default function Layer() {
         dark={true}
         labelBefore={true}
       />
+      <ButtonSwitch
+        label={'Water'}
+        actions={uiActions.setShowLayerWater}
+        state={uiState.showLayerWater}
+        dark={true}
+        labelBefore={true}
+      />
+      <ButtonSwitch
+        label={'Streets'}
+        actions={uiActions.setShowLayerStreets}
+        state={uiState.showLayerStreets}
+        dark={true}
+        labelBefore={true}
+      />
+      <ButtonSwitch
+        label={'Trees'}
+        actions={uiActions.setShowLayerTrees}
+        state={uiState.showLayerTrees}
+        dark={true}
+        labelBefore={true}
+      />
     </>
   );
 }

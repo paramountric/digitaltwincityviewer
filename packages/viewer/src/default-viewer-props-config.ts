@@ -8,6 +8,7 @@ import {
   GeoJsonLayer,
   SolidPolygonLayer,
   PointCloudLayer,
+  IconLayer,
 } from '@deck.gl/layers/typed';
 import { Tile3DLayer } from '@deck.gl/geo-layers/typed';
 import GL from '@luma.gl/constants';
@@ -72,6 +73,7 @@ export const defaultViewerPropsJsonConfig = {
     GeoJsonLayer,
     SolidPolygonLayer,
     PointCloudLayer,
+    IconLayer,
     Tile3DLayer,
   },
   functions: {
