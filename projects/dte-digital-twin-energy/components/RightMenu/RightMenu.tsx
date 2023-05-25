@@ -1,7 +1,7 @@
 import { XMarkIcon } from '@heroicons/react/20/solid';
-import BuildingFeatureGeneralDisplay from './BuildingFeature/building-feature-general-display';
-import BuildingFeatureEnergyDisplay from './BuildingFeature/building-feature-energy-display';
-import { useSelectedFeature } from '../hooks/use-selected-feature';
+import BuildingFeatureGeneralDisplay from '../BuildingFeature/BuildingFeatureGeneralDisplay';
+import BuildingFeatureEnergyDisplay from '../BuildingFeature/BuildingFeatureEnergyDisplay';
+import { useSelectedFeature } from '../../hooks/use-selected-feature';
 
 type RightMenuProps = {};
 

@@ -4,7 +4,7 @@ import { useUi } from '../../hooks/use-ui';
 import { useSelectedFeature } from '../../hooks/use-selected-feature';
 import Legend from '../Legend/Legend';
 import FilterMenu from '../FilterMenu/FilterMenu';
-import BottomPanel from '../BottomPanel';
+import BottomPanel from '../InfoMenu/BottomPanel';
 import LeftMenu from '../LeftMenu/LeftMenu';
 import InfoMenu from '../InfoMenu/InfoMenu';
 // import {

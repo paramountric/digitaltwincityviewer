@@ -2,10 +2,10 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { select, selectAll } from 'd3-selection';
 import { scaleBand, scaleLinear } from 'd3-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
-import { useViewer } from '../hooks/use-viewer';
+import { useViewer } from '../../hooks/use-viewer';
 // import {useClimateScenarioData} from '../hooks/data';
 // import {useIndicators} from '../hooks/indicators';
-import { propertyLabels, units } from '../lib/constants';
+import { propertyLabels, units } from '../../lib/constants';
 
 function renderChart(
   el: HTMLDivElement | null,

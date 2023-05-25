@@ -10,6 +10,7 @@ function classNames(...classes: string[]) {
 }
 
 type FilterMenuActionPanelProps = {};
+
 export default function FilterMenuActionPanel(
   props: FilterMenuActionPanelProps
 ) {

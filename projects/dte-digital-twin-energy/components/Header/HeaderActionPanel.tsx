@@ -9,6 +9,7 @@ function classNames(...classes: string[]) {
 }
 
 type ActionPanelProps = {};
+
 const ActionPanel: React.FC<ActionPanelProps> = () => {
   const { actions: uiActions, state: uiState } = useUi();
 

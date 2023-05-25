@@ -1,4 +1,3 @@
-import { Fragment } from 'react';
 import { useUi } from '../../hooks/use-ui';
 import { getColorFromScale, getScaleRanges } from '../../lib/colorScales';
 
