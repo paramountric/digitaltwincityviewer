@@ -16,12 +16,16 @@ const Legend: React.FC<LegendProps> = () => {
 
   const scaleRanges = getScaleRanges(scaleKey);
 
+  // a hack because it looks at selected indicator in top menu, and that is not /m2/year
+  let propertyUnit = getPropertyUnit();
+  if (propertyUnit === 'kWh') {
+    propertyUnit = 'kWh/m2/year';
+  }
+
   return (
     <div className="absolute px-2 pt-1 pb-2 bg-white border border-gray-300 rounded-md w-36 right-2 bottom-2">
       <div className="w-full text-center text-s">{getPropertyLabel()}</div>
-      <div className="w-full mb-3 text-xs text-center">
-        ({getPropertyUnit()})
-      </div>
+      <div className="w-full mb-3 text-xs text-center">({propertyUnit})</div>
       {scaleRanges.map((range, i) => {
         return (
           <div className="flex px-2 text-xs" key={`r-${i}`}>

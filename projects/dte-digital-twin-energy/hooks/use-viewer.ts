@@ -439,8 +439,9 @@ export const useViewer = (): {
 
       const hasFilter = false; //Object.values(filteredFeatures).length > 0;
       const key = getCombinedKey();
-      const showColor = combinationIsSelected();
-      const { selectedYearKey, selectedAggregator } = uiState;
+      const { selectedYearKey, selectedAggregator, showScenario } = uiState;
+      const showColor = combinationIsSelected() && showScenario;
+
       const buildingLayer =
         selectedYearKey === '18' || selectedYearKey === 'year'
           ? 'building'
@@ -526,6 +527,7 @@ export const useViewer = (): {
     uiState.selectedYearKey,
     uiState.selectedDegreeKey,
     uiState.selectedAggregator,
+    uiState.showScenario,
     filteredFeatures,
   ]);
 

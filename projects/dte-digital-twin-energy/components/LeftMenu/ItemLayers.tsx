@@ -15,8 +15,12 @@ export default function ItemLayer() {
     <>
       <ButtonSwitch
         label={'Planned developments'}
-        actions={uiActions.setShowLayerPlannedDevelopment}
-        state={uiState.showLayerPlannedDevelopment}
+        actions={() =>
+          uiActions.setSelectedYearKey(
+            uiState.selectedYearKey === '50' ? '18' : '50'
+          )
+        }
+        state={uiState.selectedYearKey === '50'}
         size={'small'}
         dark={true}
         labelBefore={true}
