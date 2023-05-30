@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Observable } from '../lib/Observable';
 
 type FeatureFilter = {
-  [featureId: string]: boolean;
+  [featureId: string]: any; // feature
 };
 const filteredFeaturesStore = new Observable<FeatureFilter>({});
 

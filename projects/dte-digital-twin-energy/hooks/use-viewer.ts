@@ -1,17 +1,22 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Viewer } from '@dtcv/viewer';
 import { cities } from '@dtcv/cities';
 import getConfig from 'next/config';
 import { easeCubicIn } from 'd3-ease';
+import { Observable } from '../lib/Observable';
 import { useUi } from './use-ui';
 import { useNotes } from './use-notes';
 import { useSelectedFeature } from './use-selected-feature';
 import { useFilteredFeatures } from './use-filtered-features';
 
+const viewerStore = new Observable<Viewer | null>(null);
+
 const { publicRuntimeConfig } = getConfig();
 
 const { dtcvFilesUrl } = publicRuntimeConfig;
 
+const DEFAULT_BUILDING_COLOR_LIGHT = 'rgb(255, 255, 255)';
+const DEFAULT_BUILDING_COLOR_HOVER_LIGHT = 'rgb(245, 245, 245)';
 const DEFAULT_BUILDING_COLOR = 'rgb(200, 200, 200)';
 const DEFAULT_BUILDING_FUTURE_COLOR = 'rgb(230, 200, 200)';
 const DEFAULT_BUILDING_HOVER_COLOR = 'rgb(100, 100, 100)';
@@ -26,6 +31,12 @@ const BUILDING_FUTURE_PAINT_PROPERTY = [
   ['boolean', ['feature-state', 'hover'], false],
   DEFAULT_BUILDING_HOVER_COLOR,
   DEFAULT_BUILDING_FUTURE_COLOR,
+];
+const BUILDING_PAINT_PROPERTY_LIGHT = [
+  'case',
+  ['boolean', ['feature-state', 'hover'], false],
+  DEFAULT_BUILDING_COLOR_LIGHT,
+  DEFAULT_BUILDING_COLOR_HOVER_LIGHT,
 ];
 
 const GRID_LAYERS = [
@@ -397,17 +408,25 @@ const maplibreOptions = {
   },
 };
 
-export const useViewer = (): {
+export type UseViewerProps = {
   initViewer: (ref?: HTMLElement) => void;
   viewer: Viewer | null;
   viewerLoading: boolean;
+  getFeatureCategories: () => any;
   //getVisibleFeatures: () => Feature[];
-} => {
-  const [viewer, setViewer] = useState<Viewer | null>(null);
+};
+
+export const useViewer = (): UseViewerProps => {
+  // const [viewer, setViewer] = useState<Viewer | null>(null);
   const [extent, setExtent] = useState<number[]>([]);
   const [hoveredObject, setHoveredObject] = useState<any | null>(null);
+  const [viewer, setViewer] = useState<Viewer | null>(viewerStore.get());
   // state needs to find objects for changing back the colors due to shift between states
   const [lastHoveredObject, setLastHoveredObject] = useState<any | null>(null);
+
+  useEffect(() => {
+    return viewerStore.subscribe(setViewer);
+  }, []);
 
   const {
     state: uiState,
@@ -422,6 +441,7 @@ export const useViewer = (): {
   const { state: notes, actions: notesActions } = useNotes();
   // todo: if filteredFeatures is used, the notes could use that to be filtered as well
 
+  // this shows result from the top bar
   useEffect(() => {
     if (viewer) {
       // todo: refactor
@@ -437,9 +457,14 @@ export const useViewer = (): {
       // selection 'filteredFeatures' or 'selectedFeature' -> how to do this?
       // selection aggregator, use the filter for property
 
-      const hasFilter = false; //Object.values(filteredFeatures).length > 0;
+      const hasFilter = Object.values(filteredFeatures).length > 0;
       const key = getCombinedKey();
-      const { selectedYearKey, selectedAggregator, showScenario } = uiState;
+      const {
+        selectedYearKey,
+        selectedAggregator,
+        showScenario,
+        selectedRenovationOption,
+      } = uiState;
       const showColor = combinationIsSelected() && showScenario;
 
       const buildingLayer =
@@ -455,10 +480,39 @@ export const useViewer = (): {
 
       if (hasFilter) {
         viewer.maplibreMap?.setPaintProperty(
+          'building',
+          'fill-extrusion-color',
+          BUILDING_PAINT_PROPERTY_LIGHT
+        );
+        viewer.maplibreMap?.setPaintProperty(
+          'building-future',
+          'fill-extrusion-color',
+          BUILDING_PAINT_PROPERTY_LIGHT
+        );
+        const filteredFeatureArray = Object.values(filteredFeatures);
+        // set the filteredFeatures to selected using setFeatureState
+        for (const feature of filteredFeatureArray) {
+          viewer.maplibreMap?.setFeatureState(
+            {
+              source: 'vectorTiles',
+              sourceLayer: buildingLayer,
+              id: feature.properties.id,
+            },
+            { selected: true }
+          );
+        }
+        const filterExpression = ['==', 'selected', true];
+        viewer.maplibreMap?.setPaintProperty(
           buildingLayer,
           'fill-extrusion-opacity',
-          ['has', 'UUID', filteredFeatures]
+          ['case', filterExpression, 1, 0.7]
         );
+
+        // viewer.maplibreMap?.setPaintProperty(
+        //   buildingLayer,
+        //   'fill-extrusion-opacity',
+        //   ['has', 'UUID', filteredFeatures]
+        // );
       } else {
         if (showColor) {
           console.log('show color', key);
@@ -528,6 +582,7 @@ export const useViewer = (): {
     uiState.selectedDegreeKey,
     uiState.selectedAggregator,
     uiState.showScenario,
+    uiState.selectedRenovationOption,
     filteredFeatures,
   ]);
 
@@ -615,84 +670,108 @@ export const useViewer = (): {
     }
   }, [hoveredObject]);
 
-  return {
-    initViewer: (ref?) => {
-      if (viewer) {
-        return;
-      }
-      if (ref) {
-        ref.style.width = '100%'; //window.innerWidth;
-        ref.style.height = '100%'; //window.innerHeight;
-        ref.style.position = 'absolute';
-        ref.style.top = '0px';
-        ref.style.left = '0px';
-      }
-      //ref.style.background = '#100';
-      setViewer(
-        new Viewer(
-          {
-            // _animate: true,
-            // container: ref,
-            // layers: [{ '@@type': 'Tile3DLayer' }],
-            // onDragEnd: ({ longitude, latitude, zoom }: any) => {
-            //   setExtent([longitude, latitude, zoom]);
-            // },
-            onLoad: v => {
-              const maplibreMap = v.maplibreMap;
-              if (!maplibreMap || viewer) {
-                return;
-              }
-              // ON CLICK
-              maplibreMap.on('click', (e: any) => {
-                const { point } = e;
-                const features = maplibreMap.queryRenderedFeatures(
-                  point,
-                  undefined
-                );
-                if (features.length > 0) {
-                  setSelectedFeature(null);
-                  const clickedFeature = features[0];
-                  // if layer needed:
-                  // const sourceLayer = `${clickedFeature.layer.id}`;
-                  if (clickedFeature.properties) {
-                    setSelectedFeature(clickedFeature);
-                  }
-                } else {
-                  setSelectedFeature(null);
+  return useMemo(() => {
+    return {
+      initViewer: (ref?: any) => {
+        if (viewer) {
+          return;
+        }
+        if (ref) {
+          ref.style.width = '100%'; //window.innerWidth;
+          ref.style.height = '100%'; //window.innerHeight;
+          ref.style.position = 'absolute';
+          ref.style.top = '0px';
+          ref.style.left = '0px';
+        }
+        //ref.style.background = '#100';
+        viewerStore.set(
+          new Viewer(
+            {
+              // _animate: true,
+              // container: ref,
+              // layers: [{ '@@type': 'Tile3DLayer' }],
+              // onDragEnd: ({ longitude, latitude, zoom }: any) => {
+              //   setExtent([longitude, latitude, zoom]);
+              // },
+              onLoad: v => {
+                const maplibreMap = v.maplibreMap;
+                if (!maplibreMap || viewer) {
+                  return;
                 }
-              });
-
-              // ON HOVER
-              const hoverLayers = ['building', 'building-future'];
-
-              for (const hoverLayer of hoverLayers) {
-                maplibreMap.on('mouseenter', hoverLayer, (e: any) => {
-                  if (e.features.length > 0) {
-                    setLastHoveredObject(e.features[0]);
-                    setHoveredObject(e.features[0]);
+                // ON CLICK
+                maplibreMap.on('click', (e: any) => {
+                  const { point } = e;
+                  const features = maplibreMap.queryRenderedFeatures(
+                    point,
+                    undefined
+                  );
+                  if (features.length > 0) {
+                    setSelectedFeature(null);
+                    const clickedFeature = features[0];
+                    // if layer needed:
+                    // const sourceLayer = `${clickedFeature.layer.id}`;
+                    if (clickedFeature.properties) {
+                      console.log(clickedFeature.properties);
+                      setSelectedFeature(clickedFeature);
+                    }
+                  } else {
+                    setSelectedFeature(null);
                   }
                 });
-                maplibreMap.on('mouseleave', hoverLayer, () => {
-                  setHoveredObject(null);
-                });
-              }
+
+                // ON HOVER
+                const hoverLayers = ['building', 'building-future'];
+
+                for (const hoverLayer of hoverLayers) {
+                  maplibreMap.on('mouseenter', hoverLayer, (e: any) => {
+                    if (e.features.length > 0) {
+                      setLastHoveredObject(e.features[0]);
+                      setHoveredObject(e.features[0]);
+                    }
+                  });
+                  maplibreMap.on('mouseleave', hoverLayer, () => {
+                    setHoveredObject(null);
+                  });
+                }
+              },
             },
-          },
-          Object.assign({}, maplibreOptions, {
-            container: ref,
-          }) as any
-        )
-      );
-    },
-    viewer,
-    viewerLoading: false,
-    // getVisibleFeatures: () => {
-    //   if (viewer) {
-    //     return viewer.getVisibleObjects(['bsm-layer']);
-    //   }
-    //   return [];
-    // },
-  };
+            Object.assign({}, maplibreOptions, {
+              container: ref,
+            }) as any
+          )
+        );
+      },
+      viewer,
+      viewerLoading: false,
+      getFeatureCategories: () => {
+        if (viewer) {
+          const features = viewer.maplibreMap?.queryRenderedFeatures(
+            undefined,
+            { layers: ['building'] }
+          );
+          const categories = features?.reduce((acc, feature) => {
+            console.log('feature', feature);
+            const { properties } = feature;
+            if (properties.bt) {
+              acc['Building Type'] = acc['Building Type'] || {};
+              acc['Building Type'][properties.bt] =
+                acc['Building Type'][properties.bt] || [];
+              acc['Building Type'][properties.bt].push(feature.properties.id);
+            }
+            return acc;
+          }, [] as any);
+          return categories;
+        }
+        return [];
+      },
+    };
+  }, [viewer]);
+  // getVisibleFeatures: () => {
+  //   if (viewer) {
+  //     return viewer.getVisibleObjects(['bsm-layer']);
+  //   }
+  //   return [];
+  // },
 };
 
 // ! kept for reference

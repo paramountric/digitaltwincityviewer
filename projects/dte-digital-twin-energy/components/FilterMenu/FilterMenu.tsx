@@ -7,6 +7,7 @@ import FilterResultPanel from './FilterResultPanel';
 import PanelNotes from './PanelNotes';
 import PanelPredictions from './PanelPredictions';
 import PanelBuilding from './PanelBuilding';
+import PanelSelection from './PanelSelection';
 
 type FilterMenuProps = {};
 
@@ -26,10 +27,15 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
         <FilterMenuActionPanel />
       </div>
       <div className="py-2">
-        {selectedFilterBuildingOption === 'one' && selectedFeature ? (
+        {selectedFilterBuildingOption === 'single' && selectedFeature ? (
           <PanelBuilding />
         ) : null}
       </div>
+      {selectedFilterBuildingOption === 'selection' && (
+        <FilterResultPanel label="Select buildings">
+          <PanelSelection />
+        </FilterResultPanel>
+      )}
       <FilterResultPanel label="Predictions">
         <PanelPredictions />
       </FilterResultPanel>

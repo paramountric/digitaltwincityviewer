@@ -13,5 +13,7 @@ export default function PanelBuilding() {
   const { state: selectedFeature } = useSelectedFeature();
   const { state: userState } = useUser();
 
+  console.log('selectedFeature', selectedFeature);
+
   return <div className=" max-w-prose">Building info</div>;
 }

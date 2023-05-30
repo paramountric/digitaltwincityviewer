@@ -15,6 +15,7 @@ type FilterButtons =
   | 'grid';
 type BuildingFilterOptions = 'all' | 'selection' | 'single';
 type GridFilterOptions = 'grid1km' | 'grid500m' | 'grid250m';
+type RenovationOptions = 'reference' | 'deep' | 'envelope' | 'hvac';
 
 export type UiStore = {
   selectedPropertyKey: string;
@@ -28,6 +29,7 @@ export type UiStore = {
   filterButton: FilterButtons;
   selectedFilterBuildingOption: BuildingFilterOptions;
   selectedFilterGridOption: GridFilterOptions;
+  selectedRenovationOption: RenovationOptions;
   showLayerPlannedDevelopment: boolean;
   showLayerSatelliteMap: boolean;
   showLayerWater: boolean;
@@ -47,6 +49,7 @@ const uiStore = new Observable<UiStore>({
   filterButton: 'buildings',
   selectedFilterBuildingOption: 'all',
   selectedFilterGridOption: 'grid1km',
+  selectedRenovationOption: 'reference',
   showLayerPlannedDevelopment: false,
   showLayerSatelliteMap: false,
   showLayerWater: false,
@@ -120,19 +123,37 @@ export const useUi = () => {
       );
     },
     getCombinedKey: () => {
-      const { selectedPropertyKey, selectedDegreeKey, selectedYearKey } =
-        uiState;
+      const {
+        selectedPropertyKey,
+        selectedDegreeKey,
+        selectedYearKey,
+        selectedRenovationOption,
+      } = uiState;
+
+      const renovationOptionKey =
+        selectedRenovationOption === 'reference'
+          ? '_ref'
+          : selectedRenovationOption === 'deep'
+          ? '_dr'
+          : selectedRenovationOption === 'envelope'
+          ? '_er'
+          : '_hr';
 
       // all the 18 keys are the same for all the degrees
       if (selectedDegreeKey === '0' || selectedDegreeKey === 'degrees') {
-        return `${selectedPropertyKey}18_25`;
+        return `${selectedPropertyKey}18_25${renovationOptionKey}`;
       }
 
       if (selectedYearKey === '18' || selectedYearKey === 'year') {
-        return `${selectedPropertyKey}18_${selectedDegreeKey}`;
+        return `${selectedPropertyKey}18_${selectedDegreeKey}${renovationOptionKey}`;
       }
+
+      console.log(
+        'combined key',
+        `${selectedPropertyKey}50_${selectedDegreeKey}${renovationOptionKey}`
+      );
       // for all the other degrees the 50 is used
-      return `${selectedPropertyKey}50_${selectedDegreeKey}`;
+      return `${selectedPropertyKey}50_${selectedDegreeKey}${renovationOptionKey}`;
     },
     combinationIsSelected: () => {
       const { selectedPropertyKey, selectedYearKey, selectedDegreeKey } =
