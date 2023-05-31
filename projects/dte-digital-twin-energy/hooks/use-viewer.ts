@@ -432,6 +432,7 @@ export const useViewer = (): UseViewerProps => {
     state: uiState,
     actions: uiActions,
     getCombinedKey,
+    getAggregation,
     combinationIsSelected,
   } = useUi();
   const {
@@ -457,26 +458,33 @@ export const useViewer = (): UseViewerProps => {
       // selection 'filteredFeatures' or 'selectedFeature' -> how to do this?
       // selection aggregator, use the filter for property
 
-      const hasFilter = Object.values(filteredFeatures).length > 0;
-      const key = getCombinedKey();
       const {
         selectedYearKey,
-        selectedAggregator,
+        selectedDegreeKey,
+        filterButton,
         showScenario,
         selectedRenovationOption,
       } = uiState;
+
+      // the filtered features should already be in state
+      const hasFilter = Object.values(filteredFeatures).length > 0;
+      // this is the setting from the top bar
+      const key = getCombinedKey();
+      // this is to mark outline, if truthy
+      const aggregation = getAggregation();
+
       const showColor = combinationIsSelected() && showScenario;
 
       const buildingLayer =
         selectedYearKey === '18' || selectedYearKey === 'year'
           ? 'building'
           : 'building-future';
-      const aggregationLayer =
-        selectedAggregator === 'none'
-          ? null
-          : selectedYearKey === '18' || selectedYearKey === 'year'
-          ? `${selectedAggregator}2018`
-          : `${selectedAggregator}2050`;
+
+      const aggregationLayer = !aggregation
+        ? null
+        : selectedYearKey === '18' || selectedYearKey === 'year'
+        ? `${aggregation}2018`
+        : `${aggregation}2050`;
 
       if (hasFilter) {
         viewer.maplibreMap?.setPaintProperty(
@@ -568,6 +576,7 @@ export const useViewer = (): UseViewerProps => {
           ]);
         }
         if (aggregationLayer) {
+          console.log('aggregationLayer', aggregationLayer);
           viewer.maplibreMap?.setLayoutProperty(
             aggregationLayer,
             'visibility',
@@ -577,14 +586,56 @@ export const useViewer = (): UseViewerProps => {
       }
     }
   }, [
-    uiState.selectedPropertyKey,
-    uiState.selectedYearKey,
-    uiState.selectedDegreeKey,
-    uiState.selectedAggregator,
-    uiState.showScenario,
-    uiState.selectedRenovationOption,
+    // uiState.selectedPropertyKey,
+    // uiState.selectedYearKey,
+    // uiState.selectedDegreeKey,
+    // uiState.filterButton,
+    // uiState.showScenario,
+    // uiState.selectedRenovationOption,
     filteredFeatures,
   ]);
+
+  useEffect(() => {
+    if (!viewer) {
+      return;
+    }
+    const { filterButton } = uiState;
+    if (filterButton === 'buildings') {
+      // use the selectedFilterBuildingOption effect
+      return;
+    }
+    console.log('for aggregation', filterButton);
+  }, [uiState.filterButton]);
+
+  useEffect(() => {
+    if (!viewer) {
+      return;
+    }
+    const { selectedFilterBuildingOption, filterButton } = uiState;
+    if (filterButton !== 'buildings') {
+      // another button trigg
+      return;
+    }
+    console.log(
+      'now the filter building option should be used',
+      selectedFilterBuildingOption
+    );
+  }, [uiState.selectedFilterBuildingOption]);
+
+  useEffect(() => {
+    if (!viewer) {
+      return;
+    }
+    const { selectedFilterGridOption, filterButton } = uiState;
+    if (filterButton !== 'grid') {
+      // another button trigg
+      return;
+    }
+    console.log(
+      'now the filter grid option should be used',
+      selectedFilterGridOption
+    );
+  }, [uiState.selectedFilterGridOption]);
 
   useEffect(() => {
     //render();

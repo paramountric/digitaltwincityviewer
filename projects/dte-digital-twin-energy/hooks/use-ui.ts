@@ -14,7 +14,7 @@ type FilterButtons =
   | 'primaryAreas'
   | 'grid';
 type BuildingFilterOptions = 'all' | 'selection' | 'single';
-type GridFilterOptions = 'grid1km' | 'grid500m' | 'grid250m';
+type GridFilterOptions = 'grid1km' | 'grid250m' | 'grid100m';
 type RenovationOptions = 'reference' | 'deep' | 'envelope' | 'hvac';
 
 export type UiStore = {
@@ -154,6 +154,20 @@ export const useUi = () => {
       );
       // for all the other degrees the 50 is used
       return `${selectedPropertyKey}50_${selectedDegreeKey}${renovationOptionKey}`;
+    },
+    getAggregation: () => {
+      if (uiState.filterButton === 'buildings') {
+        return '';
+      }
+      if (uiState.filterButton === 'districts') {
+        return 'cityDistricts';
+      }
+      if (uiState.filterButton === 'baseAreas') {
+        return 'baseAreas';
+      }
+      if (uiState.filterButton === 'grid') {
+        return uiState.selectedFilterGridOption;
+      }
     },
     combinationIsSelected: () => {
       const { selectedPropertyKey, selectedYearKey, selectedDegreeKey } =
