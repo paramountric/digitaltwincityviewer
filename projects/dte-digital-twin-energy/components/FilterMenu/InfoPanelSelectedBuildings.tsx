@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 
-type BuildingFeatureGeneralDisplayProps = {
+type InfoPanelSelectdedBuildingsProps = {
   feature: any;
 };
 
@@ -9,15 +9,22 @@ type DisplayDict = {
 };
 
 const displayProperties: string[] = [
-  'UUID',
+  // 'UUID',
   'addr',
-  'hgt',
-  'bp',
-  'bps',
-  'hfa',
-  'hgt',
-  'pco',
-  'ppl',
+  'bt',
+  'cy',
+  'hs',
+  'ech',
+  'vs',
+  'wsc',
+  'wpv',
+  // 'hgt',
+  // 'bp',
+  // 'bps',
+  // 'hfa',
+  // 'hgt',
+  // 'pco',
+  // 'ppl',
 ];
 
 const propertyLabels: DisplayDict = {
@@ -29,6 +36,13 @@ const propertyLabels: DisplayDict = {
   hgt: 'Height',
   hfa: 'Heated floor area',
   UUID: 'UUID',
+  bt: 'Building type',
+  cy: 'construction year',
+  hs: 'Main heating system',
+  ech: 'Energy carrier of the main heating system',
+  vs: 'Ventilation system',
+  wsc: 'Solar collector on the roof',
+  wpv: 'Solar cells on the roof',
 };
 
 const units: DisplayDict = {
@@ -51,8 +65,8 @@ function formatValue(properties: any, propertyKey: string) {
   return val;
 }
 
-const BuildingFeatureGeneralDisplay: React.FC<
-  BuildingFeatureGeneralDisplayProps
+const InfoPanelSelectdedBuildings: React.FC<
+  InfoPanelSelectdedBuildingsProps
 > = props => {
   const propertySelection = displayProperties.reduce((memo, key) => {
     const item = {
@@ -83,4 +97,4 @@ const BuildingFeatureGeneralDisplay: React.FC<
   );
 };
 
-export default BuildingFeatureGeneralDisplay;
+export default InfoPanelSelectdedBuildings;

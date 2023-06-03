@@ -9,7 +9,7 @@ import { propertyLabels, units, rounding } from '../../lib/constants';
 import { useUi } from '../../hooks/use-ui';
 
 type FilterPredictionsSelectionPanelProps = {
-  featureData: any;
+  feature: any;
 };
 
 function formatValue(properties: any, propertyKey: string) {
@@ -27,10 +27,10 @@ function getIndicatorDegreeValues(
 ) {
   console.log(properties);
   // todo: refactor the property names, since they are not named in a good way -> the 18 year has the same values and are all the degZero
-  const deg0 = properties[`${selectedIndicatorKey}18_25_ban`];
-  const deg25 = properties[`${selectedIndicatorKey}50_25_ban`];
-  const deg45 = properties[`${selectedIndicatorKey}50_45_ban`];
-  const deg85 = properties[`${selectedIndicatorKey}50_85_ban`];
+  const deg0 = properties[`${selectedIndicatorKey}18_25_ref_ban`];
+  const deg25 = properties[`${selectedIndicatorKey}50_25_ref_ban`];
+  const deg45 = properties[`${selectedIndicatorKey}50_45_ref_ban`];
+  const deg85 = properties[`${selectedIndicatorKey}50_85_ref_ban`];
   return [deg0, deg25, deg45, deg85];
   // return ['18', '50'].map(year => {
   //   const keyAddM2 = `${selectedIndicatorKey}${year}_${selectedDegreeKey}_ban`; // building area normalized
@@ -43,7 +43,8 @@ function applyChart(
   properties: any,
   selectedIndicatorKey: string
 ) {
-  const isGhg = selectedIndicatorKey === 'ghgEmissions';
+  // take the two first characters of the combinedKey to get the selectedIndicatorKey
+  const isGhg = selectedIndicatorKey === 'ge';
   const scaleKey = isGhg ? 'buildingGhg' : 'energyDeclaration';
   const unit = units[`${selectedIndicatorKey}M2`];
   select(el).selectAll('svg').remove();
@@ -57,20 +58,26 @@ function applyChart(
     return;
   }
 
-  const degrees: string[] = ['+0°C', '+2.5°C', '+4.5°C', '+8.5°C'];
+  const degrees: string[] = ['2018', '+1°C', '+1.5°C', '+2°C'];
 
   const margin = { top: 20, right: 0, bottom: 20, left: 60 };
-  const width = 250 - margin.left - margin.right;
-  const height = 80 - margin.top - margin.bottom;
-  const x = scaleBand().domain(degrees).range([0, width]).padding(0.6);
-  const y = scaleLinear().domain([0, max]).range([height, 0]);
+  const width = 500 - margin.left - margin.right;
+  const height = 220 - margin.top - margin.bottom;
+  // const x = scaleBand().domain(degrees).range([0, width]).padding(0.6);
+  const x = scaleLinear()
+    .domain([0, max] as any)
+    .range([0, width]); //.padding(0.6);
+  const y = scaleBand()
+    .domain(degrees as any)
+    .range([height, 0])
+    .padding(0.3);
 
   const svg = select(el)
     .append('svg')
     .attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.top + margin.bottom)
     .append('g')
-    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+    .attr('transform', `translate(${margin.left},${margin.top})`);
 
   const tooltip = select('.tooltip');
 
@@ -83,18 +90,14 @@ function applyChart(
     .attr('stroke', '#aaa')
     .attr('stroke-width', '0.5px')
     .attr('class', 'bar')
-    .attr('x', (d, i): number => {
-      return x(degrees[i]) as number;
-    })
-    .attr('width', x.bandwidth())
-    .attr('y', function (d) {
-      return y(d);
-    })
-    .attr('height', function (d) {
-      return height - y(d);
-    })
+    .attr('x', 0)
+    .attr('y', (d, i) => y(degrees[i]) as number)
+    .attr('width', d => x(d))
+    .attr('height', y.bandwidth())
+    .attr('fill', d => getColorFromScale(d, scaleKey, true))
+    .attr('stroke', '#aaa')
+    .attr('stroke-width', '0.5px')
     .on('mouseover', function (d) {
-      console.log(d);
       tooltip
         .text(d.target.__data__.toFixed(1) + ' ' + unit)
         .style('left', d.offsetX + 'px')
@@ -124,26 +127,27 @@ function applyChart(
     .attr('text-anchor', 'middle')
     .style('font-size', '12px')
     //.style('text-decoration', 'underline')
-    .text(propertyLabels[selectedIndicatorKey]);
+    .text(`${propertyLabels[selectedIndicatorKey]} (${unit})`);
+
+  svg.append('g').attr('class', 'axis').call(axisLeft(y));
 
   svg
     .append('g')
-    .attr('transform', 'translate(0,' + height + ')')
-    .call(axisBottom(x));
-
-  svg.append('g').call(axisLeft(y).ticks(2));
+    .attr('class', 'axis')
+    .attr('transform', `translate(0,${height})`)
+    .call(axisBottom(x).ticks(5));
 
   // text label for the y axis
-  svg
-    .append('text')
-    .attr('transform', 'rotate(-90)')
-    .attr('y', 0 - margin.left)
-    .attr('x', 0 - height / 2)
-    .attr('dy', '1em')
-    .style('text-anchor', 'middle')
-    .style('font-size', '10px')
-    .style('fill', '#999')
-    .text(unit);
+  // svg
+  //   .append('text')
+  //   .attr('transform', 'rotate(-90)')
+  //   .attr('y', 0 - margin.left)
+  //   .attr('x', 0 - height / 2)
+  //   .attr('dy', '1em')
+  //   .style('text-anchor', 'middle')
+  //   .style('font-size', '10px')
+  //   .style('fill', '#999')
+  //   .text(unit);
 }
 
 const FilterPredictionsSelectionPanel: React.FC<
@@ -156,29 +160,31 @@ const FilterPredictionsSelectionPanel: React.FC<
   const coolDemandRef = useRef<HTMLDivElement>(null);
   const primaryEnergyRef = useRef<HTMLDivElement>(null);
   const [trigger, setTrigger] = useState(-1);
-  const { state: uiState } = useUi();
+  const { state: uiState, getCombinedKey } = useUi();
+
   useLayoutEffect(() => {
-    if (deliveredEnergyRef.current) {
-      applyChart(deliveredEnergyRef.current, props.feature.properties, 'de');
-    }
     if (finalEnergyRef.current) {
       applyChart(finalEnergyRef.current, props.feature.properties, 'fe');
     }
-    if (ghgEmissionsRef.current) {
-      applyChart(ghgEmissionsRef.current, props.feature.properties, 'ge');
-    }
     if (heatDemandRef.current) {
-      applyChart(heatDemandRef.current, props.feature.properties, 'cd');
-    }
-    if (coolDemandRef.current) {
-      applyChart(coolDemandRef.current, props.feature.properties, 'hd');
+      applyChart(heatDemandRef.current, props.feature.properties, 'hd');
     }
     if (primaryEnergyRef.current) {
       applyChart(primaryEnergyRef.current, props.feature.properties, 'pe');
     }
+    if (deliveredEnergyRef.current) {
+      applyChart(deliveredEnergyRef.current, props.feature.properties, 'de');
+    }
+    if (ghgEmissionsRef.current) {
+      applyChart(ghgEmissionsRef.current, props.feature.properties, 'ge');
+    }
+    if (coolDemandRef.current) {
+      applyChart(coolDemandRef.current, props.feature.properties, 'cd');
+    }
   }, [props.feature.properties, trigger, uiState.selectedDegreeKey]);
   return (
     <div>
+      <div>Annual values in climate scenarios</div>
       <div
         className="mt-3"
         id="delivered-energy-bar-chart"

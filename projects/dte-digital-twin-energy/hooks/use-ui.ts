@@ -118,7 +118,8 @@ export const useUi = () => {
         'Select indicator'
       );
     },
-    getCombinedKey: () => {
+    // send in an indicator key to get the label for that indicator, otherwise the active one in the top bar is used
+    getCombinedKey: (indicatorKey?: string) => {
       const {
         selectedPropertyKey,
         selectedDegreeKey,
@@ -135,21 +136,23 @@ export const useUi = () => {
           ? '_er'
           : '_hr';
 
+      const indicatorKeyToUse = indicatorKey || selectedPropertyKey;
+
       // all the 18 keys are the same for all the degrees
       if (selectedDegreeKey === '0' || selectedDegreeKey === 'degrees') {
-        return `${selectedPropertyKey}18_25${renovationOptionKey}`;
+        return `${indicatorKeyToUse}18_25${renovationOptionKey}`;
       }
 
       if (selectedYearKey === '18' || selectedYearKey === 'year') {
-        return `${selectedPropertyKey}18_${selectedDegreeKey}${renovationOptionKey}`;
+        return `${indicatorKeyToUse}18_${selectedDegreeKey}${renovationOptionKey}`;
       }
 
       console.log(
         'combined key',
-        `${selectedPropertyKey}50_${selectedDegreeKey}${renovationOptionKey}`
+        `${indicatorKeyToUse}50_${selectedDegreeKey}${renovationOptionKey}`
       );
       // for all the other degrees the 50 is used
-      return `${selectedPropertyKey}50_${selectedDegreeKey}${renovationOptionKey}`;
+      return `${indicatorKeyToUse}50_${selectedDegreeKey}${renovationOptionKey}`;
     },
     getAggregation: () => {
       if (uiState.filterButton === 'buildings') {

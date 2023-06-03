@@ -7,18 +7,25 @@ import {
 import FilterResultPanel from './FilterResultPanel';
 import { useViewer } from '../../hooks/use-viewer';
 import { useUi } from '../../hooks/use-ui';
+import { useFilteredFeatures } from '../../hooks/use-filtered-features';
 
 export default function PanelBuilding() {
-  const { viewer, getFeatureCategories, setSelectedFeatures } = useViewer();
+  const { viewer, getFeatureCategories } = useViewer();
   const { actions: uiActions, state: uiState } = useUi();
+  const {
+    state: filteredFeatures,
+    actions: { setFilteredFeatures },
+  } = useFilteredFeatures();
+  const [selectionCategories, setSelectionCategories] = useState<any>({});
 
   const { showScenario } = uiState;
 
-  const selectionCategories = useMemo(() => {
+  useEffect(() => {
+    if (!viewer) return;
     const cat = getFeatureCategories();
     console.log('cat', cat);
-    return cat;
-  }, [viewer]);
+    setSelectionCategories(cat);
+  }, []);
 
   // todo: move this to constants
   const selectionLabels = {
@@ -27,9 +34,9 @@ export default function PanelBuilding() {
     bt: 'Building Type',
   } as any;
 
-  const handleSetSelectedFeatures = (featureIds: any) => {
-    console.log('featureIds', featureIds);
-    setSelectedFeatures(featureIds);
+  const handleSetSelectedFeatures = (selectionCategory: any) => {
+    console.log('selectionCategory', selectionCategory);
+    setFilteredFeatures(selectionCategory);
   };
 
   return (
