@@ -4,18 +4,12 @@ import {
   propertyKeyOptions,
   yearOptions,
   degreeOptions,
+  ScenarioKeys,
+  FilterButtons,
+  BuildingFilterOptions,
+  GridFilterOptions,
+  RenovationKeys,
 } from '../lib/constants';
-
-type ScenarioKeys = 'energy' | 'solar' | 'renovation';
-type FilterButtons =
-  | 'buildings'
-  | 'districts'
-  | 'baseAreas'
-  | 'primaryAreas'
-  | 'grid';
-type BuildingFilterOptions = 'all' | 'selection' | 'single';
-type GridFilterOptions = 'grid1km' | 'grid250m' | 'grid100m';
-type RenovationOptions = 'reference' | 'deep' | 'envelope' | 'hvac';
 
 export type UiStore = {
   selectedPropertyKey: string;
@@ -29,7 +23,7 @@ export type UiStore = {
   filterButton: FilterButtons;
   selectedFilterBuildingOption: BuildingFilterOptions;
   selectedFilterGridOption: GridFilterOptions;
-  selectedRenovationOption: RenovationOptions;
+  selectedRenovationOption: RenovationKeys;
   showLayerPlannedDevelopment: boolean;
   showLayerSatelliteMap: boolean;
   showLayerWater: boolean;
@@ -38,9 +32,9 @@ export type UiStore = {
 };
 
 const uiStore = new Observable<UiStore>({
-  selectedPropertyKey: 'energy', //propertyKeyOptions[0].key,
-  selectedYearKey: 'year', //yearOptions[0].key,
-  selectedDegreeKey: 'degrees', //degreeOptions[0].key,
+  selectedPropertyKey: propertyKeyOptions[0].key,
+  selectedYearKey: yearOptions[0].key,
+  selectedDegreeKey: degreeOptions[0].key,
   showTimelinePerM2: false,
   selectedAggregator: 'none',
   showScenario: false,
@@ -109,6 +103,8 @@ export const useUi = () => {
         uiStore.set({ ...uiState, showLayerStreets }),
       setShowLayerTrees: (showLayerTrees: boolean) =>
         uiStore.set({ ...uiState, showLayerTrees }),
+      setSelectedRenovationKey: (selectedRenovationOption: RenovationKeys) =>
+        uiStore.set({ ...uiState, selectedRenovationOption }),
     };
   }, [uiState]);
 

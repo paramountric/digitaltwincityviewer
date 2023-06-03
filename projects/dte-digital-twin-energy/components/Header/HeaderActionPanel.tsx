@@ -1,6 +1,7 @@
 import { useUi } from '../../hooks/use-ui';
 import ButtonSwitch from '../ButtonSwitch';
 import ScenarioEnergy from './ScenarioEnergy';
+import ScenarioRenovation from './ScenarioRenovation';
 import ButtonSelect from '../ButtonSelect';
 
 function classNames(...classes: string[]) {
@@ -14,14 +15,14 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
 
   const sectionBaseStyle = 'flex items-center justify-center px-4 gap-2';
 
-  const dispalyScenario = () => {
+  const displayScenario = () => {
     switch (uiState.scenarioKey) {
       case 'energy':
         return <ScenarioEnergy />;
       case 'solar':
         return <div>Solar</div>;
       case 'renovation':
-        return <div>Renovation</div>;
+        return <ScenarioRenovation />;
       default:
         return <ScenarioEnergy />;
     }
@@ -48,7 +49,7 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
           />
         </span>
       </div>
-      <div className={`${sectionBaseStyle}`}>{dispalyScenario()}</div>
+      <div className={`${sectionBaseStyle}`}>{displayScenario()}</div>
       <div className={`${sectionBaseStyle} `}>
         <ButtonSwitch
           label={'SCENARIO OFF'}

@@ -270,20 +270,25 @@ const maplibreOptions = {
       {
         id: 'primaryAreas2018',
         name: 'Primary areas 2018 extruded',
-        type: 'fill-extrusion',
+        type: 'fill',
         source: 'vectorTiles',
         'source-layer': 'primaryAreas2018',
         maxzoom: 18,
         minzoom: 10, //aggregationZoomLevels[3],
-        layout: {
-          visibility: 'none',
-        },
+        // layout: {
+        //   visibility: 'none',
+        // },
         paint: {
-          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-          'fill-extrusion-height': 1,
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 1,
+          'fill-color': '#fff',
+          'fill-opacity': 0.5,
+          'fill-outline-color': '#000',
         },
+        // paint: {
+        //   'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+        //   'fill-extrusion-height': 1,
+        //   'fill-extrusion-base': 0,
+        //   'fill-extrusion-opacity': 1,
+        // },
       },
       {
         id: 'primaryAreas2050',
@@ -303,6 +308,18 @@ const maplibreOptions = {
           'fill-extrusion-opacity': 1,
         },
       },
+
+      // {
+      //   id: 'primaryAreas2018Outline',
+      //   type: 'fill',
+      //   source: 'vectorTiles',
+      //   'source-layer': 'primaryAreas2018',
+      //   paint: {
+      //     'fill-color': '#fff',
+      //     'fill-opacity': 0.5,
+      //     'fill-outline-color': '#000',
+      //   },
+      // },
 
       {
         id: 'water',
@@ -413,6 +430,7 @@ export type UseViewerProps = {
   viewer: Viewer | null;
   viewerLoading: boolean;
   getFeatureCategories: () => any;
+  setSelectedFeatures: (features: string[]) => void;
   //getVisibleFeatures: () => Feature[];
 };
 
@@ -423,6 +441,9 @@ export const useViewer = (): UseViewerProps => {
   const [viewer, setViewer] = useState<Viewer | null>(viewerStore.get());
   // state needs to find objects for changing back the colors due to shift between states
   const [lastHoveredObject, setLastHoveredObject] = useState<any | null>(null);
+  const [lastSelectedFeature, setLastSelectedFeature] = useState<any | null>(
+    null
+  );
 
   useEffect(() => {
     return viewerStore.subscribe(setViewer);
@@ -436,6 +457,7 @@ export const useViewer = (): UseViewerProps => {
     combinationIsSelected,
   } = useUi();
   const {
+    state: selectedFeature,
     actions: { setSelectedFeature },
   } = useSelectedFeature();
   const { state: filteredFeatures } = useFilteredFeatures();
@@ -443,185 +465,320 @@ export const useViewer = (): UseViewerProps => {
   // todo: if filteredFeatures is used, the notes could use that to be filtered as well
 
   // this shows result from the top bar
+  // useEffect(() => {
+  //   if (viewer) {
+  //     // todo: refactor
+  //     // scenario on or off shows the selection with colors
+  //     // selection is all, filteredFeatures, selectedFeature, district or grid
+  //     // building or building-future layer must be selected depending on selectedYearKey
+
+  //     // we know: showColor, selection, yearLayer
+  //     // if selection, all other buildings will be transparent
+  //     // if showcolor, all selected buildings will be colored
+
+  //     // selection 'all' is default
+  //     // selection 'filteredFeatures' or 'selectedFeature' -> how to do this?
+  //     // selection aggregator, use the filter for property
+
+  //     const {
+  //       selectedYearKey,
+  //       selectedDegreeKey,
+  //       filterButton,
+  //       showScenario,
+  //       selectedRenovationOption,
+  //     } = uiState;
+
+  //     // the filtered features should already be in state
+  //     const hasFilter = Object.values(filteredFeatures).length > 0;
+  //     // this is the setting from the top bar
+  //     const key = getCombinedKey();
+  //     // this is to mark outline, if truthy
+  //     const aggregation = getAggregation();
+
+  //     const showColor = combinationIsSelected() && showScenario;
+
+  //     const buildingLayer =
+  //       selectedYearKey === '18' || selectedYearKey === 'year'
+  //         ? 'building'
+  //         : 'building-future';
+
+  //     const aggregationLayer = !aggregation
+  //       ? null
+  //       : selectedYearKey === '18' || selectedYearKey === 'year'
+  //       ? `${aggregation}2018`
+  //       : `${aggregation}2050`;
+
+  //     if (hasFilter) {
+  //       viewer.maplibreMap?.setPaintProperty(
+  //         'building',
+  //         'fill-extrusion-color',
+  //         BUILDING_PAINT_PROPERTY_LIGHT
+  //       );
+  //       viewer.maplibreMap?.setPaintProperty(
+  //         'building-future',
+  //         'fill-extrusion-color',
+  //         BUILDING_PAINT_PROPERTY_LIGHT
+  //       );
+  //       const filteredFeatureArray = Object.values(filteredFeatures);
+  //       // set the filteredFeatures to selected using setFeatureState
+  //       for (const feature of filteredFeatureArray) {
+  //         viewer.maplibreMap?.setFeatureState(
+  //           {
+  //             source: 'vectorTiles',
+  //             sourceLayer: buildingLayer,
+  //             id: feature.properties.id,
+  //           },
+  //           { selected: true }
+  //         );
+  //       }
+  //       const filterExpression = ['==', 'selected', true];
+  //       viewer.maplibreMap?.setPaintProperty(
+  //         buildingLayer,
+  //         'fill-extrusion-opacity',
+  //         ['case', filterExpression, 1, 0.7]
+  //       );
+
+  //       // viewer.maplibreMap?.setPaintProperty(
+  //       //   buildingLayer,
+  //       //   'fill-extrusion-opacity',
+  //       //   ['has', 'UUID', filteredFeatures]
+  //       // );
+  //     } else {
+  //       if (showColor) {
+  //         console.log('show color', key);
+  //         viewer.maplibreMap?.setPaintProperty(
+  //           buildingLayer,
+  //           'fill-extrusion-color',
+  //           ['get', `${key}_bcol`]
+  //         );
+  //         if (aggregationLayer) {
+  //           viewer.maplibreMap?.setPaintProperty(
+  //             aggregationLayer,
+  //             'fill-extrusion-color',
+  //             ['get', `${key}_bcol`]
+  //           );
+  //         }
+  //       } else {
+  //         viewer.maplibreMap?.setPaintProperty(
+  //           'building',
+  //           'fill-extrusion-color',
+  //           BUILDING_PAINT_PROPERTY
+  //         );
+  //         viewer.maplibreMap?.setPaintProperty(
+  //           'building-future',
+  //           'fill-extrusion-color',
+  //           BUILDING_FUTURE_PAINT_PROPERTY
+  //         );
+  //         for (const gridKey of GRID_LAYERS) {
+  //           viewer.maplibreMap?.setPaintProperty(
+  //             gridKey,
+  //             'fill-extrusion-color',
+  //             BUILDING_PAINT_PROPERTY
+  //           );
+  //         }
+  //       }
+
+  //       viewer.maplibreMap?.setLayoutProperty(
+  //         'building',
+  //         'visibility',
+  //         buildingLayer === 'building' ? 'visible' : 'none'
+  //       );
+  //       viewer.maplibreMap?.setLayoutProperty(
+  //         'building-future',
+  //         'visibility',
+  //         buildingLayer === 'building-future' ? 'visible' : 'none'
+  //       );
+
+  //       for (const gridKey of GRID_LAYERS) {
+  //         viewer.maplibreMap?.setLayoutProperty(gridKey, 'visibility', 'none');
+  //         viewer.maplibreMap?.setFilter(gridKey, [
+  //           '!=',
+  //           `${key}_bcol`,
+  //           'rgb(100, 100, 100)',
+  //         ]);
+  //       }
+  //       if (aggregationLayer) {
+  //         console.log('aggregationLayer', aggregationLayer);
+  //         viewer.maplibreMap?.setLayoutProperty(
+  //           aggregationLayer,
+  //           'visibility',
+  //           'visible'
+  //         );
+  //       }
+  //     }
+  //   }
+  // }, [
+  //   // uiState.selectedPropertyKey,
+  //   // uiState.selectedYearKey,
+  //   // uiState.selectedDegreeKey,
+  //   // uiState.filterButton,
+  //   // uiState.showScenario,
+  //   // uiState.selectedRenovationOption,
+  //   filteredFeatures,
+  // ]);
+
+  // TOP BAR EFFECTS (select indicator)
   useEffect(() => {
-    if (viewer) {
-      // todo: refactor
-      // scenario on or off shows the selection with colors
-      // selection is all, filteredFeatures, selectedFeature, district or grid
-      // building or building-future layer must be selected depending on selectedYearKey
-
-      // we know: showColor, selection, yearLayer
-      // if selection, all other buildings will be transparent
-      // if showcolor, all selected buildings will be colored
-
-      // selection 'all' is default
-      // selection 'filteredFeatures' or 'selectedFeature' -> how to do this?
-      // selection aggregator, use the filter for property
-
-      const {
-        selectedYearKey,
-        selectedDegreeKey,
-        filterButton,
-        showScenario,
-        selectedRenovationOption,
-      } = uiState;
-
-      // the filtered features should already be in state
-      const hasFilter = Object.values(filteredFeatures).length > 0;
-      // this is the setting from the top bar
-      const key = getCombinedKey();
-      // this is to mark outline, if truthy
-      const aggregation = getAggregation();
-
-      const showColor = combinationIsSelected() && showScenario;
-
-      const buildingLayer =
-        selectedYearKey === '18' || selectedYearKey === 'year'
-          ? 'building'
-          : 'building-future';
-
-      const aggregationLayer = !aggregation
-        ? null
-        : selectedYearKey === '18' || selectedYearKey === 'year'
-        ? `${aggregation}2018`
-        : `${aggregation}2050`;
-
-      if (hasFilter) {
-        viewer.maplibreMap?.setPaintProperty(
-          'building',
-          'fill-extrusion-color',
-          BUILDING_PAINT_PROPERTY_LIGHT
-        );
-        viewer.maplibreMap?.setPaintProperty(
-          'building-future',
-          'fill-extrusion-color',
-          BUILDING_PAINT_PROPERTY_LIGHT
-        );
-        const filteredFeatureArray = Object.values(filteredFeatures);
-        // set the filteredFeatures to selected using setFeatureState
-        for (const feature of filteredFeatureArray) {
-          viewer.maplibreMap?.setFeatureState(
-            {
-              source: 'vectorTiles',
-              sourceLayer: buildingLayer,
-              id: feature.properties.id,
-            },
-            { selected: true }
-          );
-        }
-        const filterExpression = ['==', 'selected', true];
-        viewer.maplibreMap?.setPaintProperty(
-          buildingLayer,
-          'fill-extrusion-opacity',
-          ['case', filterExpression, 1, 0.7]
-        );
-
-        // viewer.maplibreMap?.setPaintProperty(
-        //   buildingLayer,
-        //   'fill-extrusion-opacity',
-        //   ['has', 'UUID', filteredFeatures]
-        // );
-      } else {
-        if (showColor) {
-          console.log('show color', key);
-          viewer.maplibreMap?.setPaintProperty(
-            buildingLayer,
-            'fill-extrusion-color',
-            ['get', `${key}_bcol`]
-          );
-          if (aggregationLayer) {
-            viewer.maplibreMap?.setPaintProperty(
-              aggregationLayer,
-              'fill-extrusion-color',
-              ['get', `${key}_bcol`]
-            );
-          }
-        } else {
-          viewer.maplibreMap?.setPaintProperty(
-            'building',
-            'fill-extrusion-color',
-            BUILDING_PAINT_PROPERTY
-          );
-          viewer.maplibreMap?.setPaintProperty(
-            'building-future',
-            'fill-extrusion-color',
-            BUILDING_FUTURE_PAINT_PROPERTY
-          );
-          for (const gridKey of GRID_LAYERS) {
-            viewer.maplibreMap?.setPaintProperty(
-              gridKey,
-              'fill-extrusion-color',
-              BUILDING_PAINT_PROPERTY
-            );
-          }
-        }
-
-        viewer.maplibreMap?.setLayoutProperty(
-          'building',
-          'visibility',
-          buildingLayer === 'building' ? 'visible' : 'none'
-        );
-        viewer.maplibreMap?.setLayoutProperty(
-          'building-future',
-          'visibility',
-          buildingLayer === 'building-future' ? 'visible' : 'none'
-        );
-
-        for (const gridKey of GRID_LAYERS) {
-          viewer.maplibreMap?.setLayoutProperty(gridKey, 'visibility', 'none');
-          viewer.maplibreMap?.setFilter(gridKey, [
-            '!=',
-            `${key}_bcol`,
-            'rgb(100, 100, 100)',
-          ]);
-        }
-        if (aggregationLayer) {
-          console.log('aggregationLayer', aggregationLayer);
-          viewer.maplibreMap?.setLayoutProperty(
-            aggregationLayer,
-            'visibility',
-            'visible'
-          );
-        }
-      }
+    if (!viewer || !uiState.showScenario) {
+      return;
     }
+    setAddBuildingsIndicatorColor();
   }, [
-    // uiState.selectedPropertyKey,
-    // uiState.selectedYearKey,
-    // uiState.selectedDegreeKey,
-    // uiState.filterButton,
-    // uiState.showScenario,
-    // uiState.selectedRenovationOption,
-    filteredFeatures,
+    uiState.selectedPropertyKey,
+    uiState.selectedYearKey,
+    uiState.selectedDegreeKey,
+    uiState.selectedRenovationOption,
   ]);
 
   useEffect(() => {
     if (!viewer) {
       return;
     }
-    const { filterButton } = uiState;
-    if (filterButton === 'buildings') {
-      // use the selectedFilterBuildingOption effect
-      return;
-    }
-    console.log('for aggregation', filterButton);
-  }, [uiState.filterButton]);
+    const { selectedYearKey } = uiState;
+    viewer.maplibreMap?.setLayoutProperty(
+      'building',
+      'visibility',
+      selectedYearKey === '18' ? 'visible' : 'none'
+    );
+    viewer.maplibreMap?.setLayoutProperty(
+      'building-future',
+      'visibility',
+      selectedYearKey === '50' ? 'visible' : 'none'
+    );
+  }, [uiState.selectedYearKey]);
 
+  // Toggle scenario
   useEffect(() => {
     if (!viewer) {
       return;
     }
-    const { selectedFilterBuildingOption, filterButton } = uiState;
-    if (filterButton !== 'buildings') {
-      // another button trigg
+    const { showScenario } = uiState;
+    if (showScenario) {
+      setAddBuildingsIndicatorColor();
+    } else {
+      setAllBuildingsGray();
+    }
+  }, [uiState.showScenario]);
+
+  // Query features on the map EFFECTS
+  useEffect(() => {
+    if (!viewer) {
       return;
     }
-    console.log(
-      'now the filter building option should be used',
-      selectedFilterBuildingOption
-    );
+    if (lastSelectedFeature) {
+      viewer.maplibreMap?.setPaintProperty('building', 'fill-extrusion-color', [
+        'get',
+        BUILDING_PAINT_PROPERTY,
+      ]);
+      // viewer.maplibreMap?.setFeatureState(
+      //   {
+      //     source: 'vectorTiles',
+      //     sourceLayer: 'building',
+      //     id: lastSelectedFeature.properties.id,
+      //   },
+      //   { selected: false }
+      // );
+      // viewer.maplibreMap?.setFeatureState(
+      //   {
+      //     source: 'vectorTiles',
+      //     sourceLayer: 'building-future',
+      //     id: lastSelectedFeature.properties.id,
+      //   },
+      //   { selected: false }
+      // );
+    }
+    if (selectedFeature) {
+      const key = getCombinedKey();
+      // viewer.maplibreMap?.setPaintProperty('building', 'fill-extrusion-color', [
+      //   'get',
+      //   key + '_bcol',
+      // ]);
+      // viewer.maplibreMap?.setFeatureState(
+      //   {
+      //     source: 'vectorTiles',
+      //     sourceLayer: 'building',
+      //     id: selectedFeature.properties.id,
+      //   },
+      //   { selected: true }
+      // );
+      // viewer.maplibreMap?.setFeatureState(
+      //   {
+      //     source: 'vectorTiles',
+      //     sourceLayer: 'building-future',
+      //     id: selectedFeature.properties.id,
+      //   },
+      //   { selected: true }
+      // );
+      setLastSelectedFeature(selectedFeature);
+    }
+  }, [selectedFeature]);
+
+  // useEffect(() => {
+  //   if (!viewer) {
+  //     return;
+  //   }
+  //   const features = viewer.maplibreMap?.queryRenderedFeatures(undefined, {
+  //     layers: ['building'],
+  //   });
+  //   if (!features) {
+  //     return;
+  //   }
+  //   for (const feature of features) {
+  //     viewer.maplibreMap?.setFeatureState(
+  //       {
+  //         source: 'vectorTiles',
+  //         sourceLayer: 'building',
+  //         id: feature.properties.id,
+  //       },
+  //       { selected: true }
+  //     );
+  //     viewer.maplibreMap?.setFeatureState(
+  //       {
+  //         source: 'vectorTiles',
+  //         sourceLayer: 'building-future',
+  //         id: feature.properties.id,
+  //       },
+  //       { selected: true }
+  //     );
+  //   }
+  // }, [selectedFeature]);
+
+  // DISTRICT QUERY
+  useEffect(() => {
+    // if (!viewer) {
+    //   return;
+    // }
+    // const { filterButton } = uiState;
+    // if (filterButton === 'buildings') {
+    //   // use the selectedFilterBuildingOption effect
+    //   // set back any district or grid
+    //   return;
+    // }
+    // console.log('for aggregation', filterButton);
+  }, [uiState.filterButton]);
+
+  // filter of buildings (all, selection, one)
+  useEffect(() => {
+    // if (!viewer) {
+    //   return;
+    // }
+    // const { selectedFilterBuildingOption, filterButton } = uiState;
+    // if (filterButton !== 'buildings') {
+    //   // another button trigg
+    //   return;
+    // }
+    // if (selectedFilterBuildingOption === 'all') {
+    //   setAllBuildingsTransparency(1);
+    //   return;
+    // }
+    // setAllBuildingsTransparency(0.6);
+    // console.log(
+    //   'now the filter building option should be used',
+    //   selectedFilterBuildingOption
+    // );
   }, [uiState.selectedFilterBuildingOption]);
 
+  // GRID QUERY
   useEffect(() => {
     if (!viewer) {
       return;
@@ -637,10 +794,7 @@ export const useViewer = (): UseViewerProps => {
     );
   }, [uiState.selectedFilterGridOption]);
 
-  useEffect(() => {
-    //render();
-  }, [viewer]);
-
+  // TOGGLE PINS
   useEffect(() => {
     if (!viewer) {
       return;
@@ -651,7 +805,6 @@ export const useViewer = (): UseViewerProps => {
         .filter(
           (obj, index, self) => index === self.findIndex(o => o.id === obj.id)
         );
-      console.log('add icon layer');
       viewer.setIconLayerProps({
         id: 'pin-icon-layer',
         data: pinData,
@@ -692,34 +845,112 @@ export const useViewer = (): UseViewerProps => {
     }
   }, [uiState.showPins, notes]);
 
-  useEffect(() => {
-    if (viewer?.maplibreMap && lastHoveredObject) {
-      const sourceLayer = lastHoveredObject.layer['source-layer'];
-      const sourceId = lastHoveredObject.layer['source'];
-      viewer.maplibreMap?.setFeatureState(
-        {
-          source: sourceId,
-          sourceLayer: sourceLayer,
-          id: lastHoveredObject.id,
-        },
-        { hover: false }
-      );
-      viewer.cursor = 'grab';
+  // useEffect(() => {
+  //   if (viewer?.maplibreMap && lastHoveredObject) {
+  //     const sourceLayer = lastHoveredObject.layer['source-layer'];
+  //     const sourceId = lastHoveredObject.layer['source'];
+  //     viewer.maplibreMap?.setFeatureState(
+  //       {
+  //         source: sourceId,
+  //         sourceLayer: sourceLayer,
+  //         id: lastHoveredObject.id,
+  //       },
+  //       { hover: false }
+  //     );
+  //     viewer.cursor = 'grab';
+  //   }
+  //   if (viewer?.maplibreMap && hoveredObject) {
+  //     const sourceLayer = hoveredObject.layer['source-layer'];
+  //     const sourceId = hoveredObject.layer['source'];
+  //     viewer.maplibreMap?.setFeatureState(
+  //       {
+  //         source: sourceId,
+  //         sourceLayer: sourceLayer,
+  //         id: hoveredObject.id,
+  //       },
+  //       { hover: true }
+  //     );
+  //     viewer.cursor = 'pointer';
+  //   }
+  // }, [hoveredObject]);
+
+  // const addStrokeToFeature = (feature: any) => {
+  //   if (!viewer) {
+  //     return;
+  //   }
+  //   // Style the polygon based on its feature state
+  //   viewer.maplibreMap?.setPaintProperty(
+  //     'my-polygon-layer',
+  //     'fill-outline-color',
+  //     ['case', ['boolean', ['feature-state', 'hover'], false], '#00f', '#000']
+  //   );
+  // };
+
+  const getActiveBuildingLayer = () => {
+    const buildingLayer =
+      uiState.selectedYearKey === '18' || uiState.selectedYearKey === 'year'
+        ? 'building'
+        : 'building-future';
+
+    return buildingLayer;
+  };
+
+  const setAddBuildingsIndicatorColor = () => {
+    if (!viewer) {
+      return;
     }
-    if (viewer?.maplibreMap && hoveredObject) {
-      const sourceLayer = hoveredObject.layer['source-layer'];
-      const sourceId = hoveredObject.layer['source'];
-      viewer.maplibreMap?.setFeatureState(
-        {
-          source: sourceId,
-          sourceLayer: sourceLayer,
-          id: hoveredObject.id,
-        },
-        { hover: true }
-      );
-      viewer.cursor = 'pointer';
+    if (!uiState.showScenario) {
+      console.log('a scenrio combination should be selected first');
+      return;
     }
-  }, [hoveredObject]);
+    const key = getCombinedKey();
+    viewer.maplibreMap?.setPaintProperty('building', 'fill-extrusion-color', [
+      'get',
+      `${key}_bcol`,
+    ]);
+    viewer.maplibreMap?.setPaintProperty(
+      'building-future',
+      'fill-extrusion-color',
+      ['get', `${key}_bcol`]
+    );
+  };
+
+  const setAllBuildingsGray = () => {
+    if (!viewer) {
+      return;
+    }
+    // const buildingLayer = getActiveBuildingLayer();
+    // const filterExpression = ['==', 'selected', 'yes'];
+    viewer.maplibreMap?.setPaintProperty(
+      'building',
+      'fill-extrusion-color',
+      BUILDING_PAINT_PROPERTY
+    );
+    viewer.maplibreMap?.setPaintProperty(
+      'building-future',
+      'fill-extrusion-color',
+      BUILDING_PAINT_PROPERTY
+    );
+  };
+
+  const setAllBuildingsTransparency = (transparency: number) => {
+    if (!viewer) {
+      return;
+    }
+    const buildingLayer = getActiveBuildingLayer();
+    const filterExpression = ['==', 'selected', 'yes'];
+    // viewer.maplibreMap?.setPaintProperty(
+    //   buildingLayer,
+    //   'fill-extrusion-color',
+    //   BUILDING_PAINT_PROPERTY_LIGHT
+    // );
+    viewer.maplibreMap?.setPaintProperty(
+      buildingLayer,
+      'fill-extrusion-opacity',
+      0.5
+      // ['case', filterExpression, 1, 0.3]
+    );
+  };
 
   return useMemo(() => {
     return {
@@ -757,6 +988,24 @@ export const useViewer = (): UseViewerProps => {
                     undefined
                   );
                   if (features.length > 0) {
+                    // if (selectedFeature) {
+                    //   maplibreMap.setFeatureState(
+                    //     {
+                    //       source: 'vectorTiles',
+                    //       sourceLayer: 'building',
+                    //       id: selectedFeature.properties.id,
+                    //     },
+                    //     { selected: false }
+                    //   );
+                    //   maplibreMap.setFeatureState(
+                    //     {
+                    //       source: 'vectorTiles',
+                    //       sourceLayer: 'building-future',
+                    //       id: selectedFeature.properties.id,
+                    //     },
+                    //     { selected: false }
+                    //   );
+                    // }
                     setSelectedFeature(null);
                     const clickedFeature = features[0];
                     // if layer needed:
@@ -764,6 +1013,22 @@ export const useViewer = (): UseViewerProps => {
                     if (clickedFeature.properties) {
                       console.log(clickedFeature.properties);
                       setSelectedFeature(clickedFeature);
+                      // maplibreMap.setFeatureState(
+                      //   {
+                      //     source: 'vectorTiles',
+                      //     sourceLayer: 'building',
+                      //     id: clickedFeature.properties.id,
+                      //   },
+                      //   { selected: true }
+                      // );
+                      // maplibreMap.setFeatureState(
+                      //   {
+                      //     source: 'vectorTiles',
+                      //     sourceLayer: 'building-future',
+                      //     id: clickedFeature.properties.id,
+                      //   },
+                      //   { selected: true }
+                      // );
                     }
                   } else {
                     setSelectedFeature(null);
@@ -771,19 +1036,103 @@ export const useViewer = (): UseViewerProps => {
                 });
 
                 // ON HOVER
+
                 const hoverLayers = ['building', 'building-future'];
 
-                for (const hoverLayer of hoverLayers) {
-                  maplibreMap.on('mouseenter', hoverLayer, (e: any) => {
-                    if (e.features.length > 0) {
-                      setLastHoveredObject(e.features[0]);
-                      setHoveredObject(e.features[0]);
-                    }
-                  });
-                  maplibreMap.on('mouseleave', hoverLayer, () => {
-                    setHoveredObject(null);
-                  });
-                }
+                // maplibreMap.setPaintProperty(
+                //   'primaryAreas2018Outline',
+                //   'fill-outline-color',
+                //   [
+                //     'case',
+                //     ['boolean', ['feature-state', 'hover'], false],
+                //     '#00f',
+                //     '#000',
+                //   ]
+                // );
+
+                // for (const hoverLayer of hoverLayers) {
+                //   maplibreMap.on('mouseenter', hoverLayer, (e: any) => {
+                //     console.log('mouseenter');
+                //     if (hoveredObjectId) {
+                //       maplibreMap?.setFeatureState(
+                //         {
+                //           source: 'vectorTiles',
+                //           sourceLayer: 'building',
+                //           id: lastHoveredObject.id,
+                //         },
+                //         { hover: false }
+                //       );
+                //       maplibreMap?.setFeatureState(
+                //         {
+                //           source: 'vectorTiles',
+                //           sourceLayer: 'building-future',
+                //           id: lastHoveredObject.id,
+                //         },
+                //         { hover: false }
+                //       );
+                //       v.cursor = 'grab';
+                //       hoveredObjectId = null;
+                //     }
+                //     if (e.features.length > 0) {
+                //       if (hoveredObjectId) {
+                //         maplibreMap?.setFeatureState(
+                //           {
+                //             source: 'vectorTiles',
+                //             sourceLayer: 'building',
+                //             id: e.features[0].id,
+                //           },
+                //           { hover: true }
+                //         );
+                //         maplibreMap?.setFeatureState(
+                //           {
+                //             source: 'vectorTiles',
+                //             sourceLayer: 'building-future',
+                //             id: e.features[0].id,
+                //           },
+                //           { hover: true }
+                //         );
+                //         v.cursor = 'grab';
+                //         hoveredObjectId = null;
+                //       }
+                //     }
+                //   });
+                //   maplibreMap.on('mouseleave', () => {
+                //     if (hoveredObjectId) {
+                //       maplibreMap?.setFeatureState(
+                //         {
+                //           source: 'vectorTiles',
+                //           sourceLayer: 'building',
+                //           id: lastHoveredObject.id,
+                //         },
+                //         { hover: false }
+                //       );
+                //       maplibreMap?.setFeatureState(
+                //         {
+                //           source: 'vectorTiles',
+                //           sourceLayer: 'building-future',
+                //           id: lastHoveredObject.id,
+                //         },
+                //         { hover: false }
+                //       );
+                //       v.cursor = 'grab';
+                //       hoveredObjectId = null;
+                //     }
+                //   });
+                // }
+
+                // Style the fill-extrusion based on its feature state
+                // maplibreMap.setPaintProperty(
+                //   'building',
+                //   'fill-extrusion-opacity',
+                //   [
+                //     'case',
+                //     ['boolean', ['feature-state', 'selected'], false],
+                //     0.3, // default opacity
+                //     ['boolean', ['feature-state', 'hover'], false],
+                //     0.6, // opacity on hover
+                //     1, // opacity when selected
+                //   ]
+                // );
               },
             },
             Object.assign({}, maplibreOptions, {
@@ -798,22 +1147,93 @@ export const useViewer = (): UseViewerProps => {
         if (viewer) {
           const features = viewer.maplibreMap?.queryRenderedFeatures(
             undefined,
-            { layers: ['building'] }
+            { layers: ['building', 'building-future'] }
           );
           const categories = features?.reduce((acc, feature) => {
             console.log('feature', feature);
             const { properties } = feature;
             if (properties.bt) {
-              acc['Building Type'] = acc['Building Type'] || {};
-              acc['Building Type'][properties.bt] =
-                acc['Building Type'][properties.bt] || [];
-              acc['Building Type'][properties.bt].push(feature.properties.id);
+              acc['building_purpose'] = acc['building_purpose'] || {};
+              acc['building_purpose'][properties.bt] =
+                acc['building_purpose'][properties.bt] || [];
+              acc['building_purpose'][properties.bt].push(
+                feature.properties.id
+              );
+            } else if (properties.hs) {
+              acc['hs'] = acc['hs'] || {};
+              acc['hs'][properties.hs] = acc['hs'][properties.hs] || [];
+              acc['hs'][properties.hs].push(feature.properties.id);
+            } else if (properties.own) {
+              acc['own'] = acc['own'] || {};
+              acc['own'][properties.own] = acc['own'][properties.own] || [];
+              acc['own'][properties.own].push(feature.properties.id);
             }
             return acc;
-          }, [] as any);
+          }, {} as any);
           return categories;
         }
         return [];
+      },
+      setSelectedFeatures: (ids: string[]) => {
+        if (!viewer) return;
+        const features = viewer.maplibreMap?.queryRenderedFeatures(undefined, {
+          layers: ['building', 'building-future'],
+        });
+
+        const key = getCombinedKey();
+
+        const paintProperty = [
+          'case',
+          ['boolean', ['feature-state', 'selected'], false],
+          DEFAULT_BUILDING_HOVER_COLOR,
+          ['get', `${key}_bcol`],
+        ];
+
+        viewer.maplibreMap?.setPaintProperty(
+          'building',
+          'fill-extrusion-color',
+          paintProperty
+        );
+
+        // set all to selecded: false
+
+        for (const feature of features || []) {
+          viewer?.maplibreMap?.setFeatureState(
+            {
+              source: 'vectorTiles',
+              sourceLayer: 'building',
+              id: feature.id,
+            },
+            { selected: false }
+          );
+          viewer?.maplibreMap?.setFeatureState(
+            {
+              source: 'vectorTiles',
+              sourceLayer: 'building-future',
+              id: feature.id,
+            },
+            { selected: false }
+          );
+        }
+
+        for (const id of ids) {
+          viewer?.maplibreMap?.setFeatureState(
+            {
+              source: 'vectorTiles',
+              sourceLayer: 'building',
+              id,
+            },
+            { selected: true }
+          );
+          viewer?.maplibreMap?.setFeatureState(
+            {
+              source: 'vectorTiles',
+              sourceLayer: 'building-future',
+              id,
+            },
+            { selected: true }
+          );
+        }
       },
     };
   }, [viewer]);

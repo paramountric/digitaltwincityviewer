@@ -1,3 +1,31 @@
+export type ScenarioKeys = 'energy' | 'solar' | 'renovation';
+export type FilterButtons =
+  | 'buildings'
+  | 'districts'
+  | 'baseAreas'
+  | 'primaryAreas'
+  | 'grid';
+export type BuildingFilterOptions = 'all' | 'selection' | 'single';
+export type GridFilterOptions = 'grid1km' | 'grid250m' | 'grid100m';
+export type RenovationKeys = 'reference' | 'deep' | 'envelope' | 'hvac';
+export type SelectablePropertyKey = 'fe' | 'hd' | 'pe' | 'de' | 'ge' | 'cd';
+
+export type PropertyKeyOption = {
+  key: SelectablePropertyKey;
+  label: string;
+  unit: string;
+  rounding: number;
+};
+
+const renovationKeys: RenovationKeys[] = [
+  'reference',
+  'deep',
+  'envelope',
+  'hvac',
+];
+
+const buildingFilterKeys = ['all', 'selection', 'single'];
+
 // *** Settings for labels, units and rounding for the keys of various options
 const propertyLabels: {
   [key: string]: string;
@@ -26,6 +54,19 @@ const propertyLabels: {
   cd18: 'Cooling demand 2020',
   cd30: 'Cooling demand 2030',
   cd50: 'Cooling demand 2050',
+};
+
+const filterLabels: {
+  [key: string]: string;
+} = {
+  energy: 'Energy',
+  reference: 'No renovation',
+  deep: 'All',
+  envelope: 'Envelope',
+  hvac: 'HVAC systems',
+  all: 'All',
+  selection: 'Selection',
+  single: 'Single',
 };
 
 // these are the units, but could be done with enum instead
@@ -104,15 +145,6 @@ const rounding: {
 
 // **** Settings for selecting properties/indicator ***** //
 
-export type SelectablePropertyKey = 'fe' | 'hd' | 'pe' | 'de' | 'ge' | 'cd';
-
-export type PropertyKeyOption = {
-  key: SelectablePropertyKey;
-  label: string;
-  unit: string;
-  rounding: number;
-};
-
 // this is shown in the top action menu
 const propertyKeyOptions: PropertyKeyOption[] = [
   'fe',
@@ -122,6 +154,13 @@ const propertyKeyOptions: PropertyKeyOption[] = [
   'ge',
   'cd',
 ].map(key => ({
+  key: key as SelectablePropertyKey,
+  label: propertyLabels[key],
+  unit: units[key],
+  rounding: rounding[key],
+}));
+
+const renovationOptions: PropertyKeyOption[] = renovationKeys.map(key => ({
   key: key as SelectablePropertyKey,
   label: propertyLabels[key],
   unit: units[key],
@@ -146,8 +185,8 @@ const propertyKeyOptions: PropertyKeyOption[] = [
 const yearLabels: {
   [key: string]: string;
 } = {
-  '18': 'The city of today (2020)',
-  '50': 'The city of tomorrow (2050)',
+  '18': 'today (2020)',
+  '50': 'tomorrow (2050)',
 };
 
 const yearOptions = Object.keys(yearLabels).map(key => ({
@@ -186,20 +225,10 @@ const aggregatorOptions = Object.keys(aggregatorLabels).map(key => ({
   label: aggregatorLabels[key],
 }));
 
-const filterBuildingOptions = [
-  {
-    key: 'all',
-    label: 'All buildings',
-  },
-  {
-    key: 'selection',
-    label: 'A specific selection',
-  },
-  {
-    key: 'one',
-    label: 'Only one building',
-  },
-];
+const filterBuildingOptions = buildingFilterKeys.map(key => ({
+  key,
+  label: filterLabels[key],
+}));
 
 const filterGridOptions = [
   {
@@ -216,6 +245,13 @@ const filterGridOptions = [
   },
 ];
 
+const renovationLabels = {
+  reference: 'No renovation',
+  deep: 'All',
+  envelope: 'Envelope',
+  hvac: 'HVAC systems',
+};
+
 export {
   propertyLabels,
   units,
@@ -229,4 +265,6 @@ export {
   aggregatorOptions,
   filterBuildingOptions,
   filterGridOptions,
+  renovationLabels,
+  renovationOptions,
 };

@@ -35,7 +35,7 @@ export default function ScenarioEnergy() {
         roundedClass="rounded-md"
       />
       <div className="inline-flex text-sm font-medium text-gray-700 justify-centerbg-white focus:outline-none">
-        given the temperature rise of
+        given a temperature rise of
       </div>
       <Dropdown
         onSelect={uiActions.setSelectedBaseMapKey}
