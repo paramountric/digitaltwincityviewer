@@ -460,7 +460,7 @@ export const useViewer = (): UseViewerProps => {
     actions: uiActions,
     getCombinedKey,
     getAggregation,
-    combinationIsSelected,
+    getScenarioPostfix,
   } = useUi();
   const [lastUiState, setLastUiState] = useState<UiStore>(uiState);
   const {
@@ -469,7 +469,7 @@ export const useViewer = (): UseViewerProps => {
   } = useSelectedFeature();
   const {
     state: filteredFeatures,
-    actions: { setFilteredFeatures },
+    actions: { addFilteredFeatures, updateFilteredFeatures },
   } = useFilteredFeatures();
   const { state: notes, actions: notesActions } = useNotes();
   const {
@@ -511,84 +511,120 @@ export const useViewer = (): UseViewerProps => {
         selectedYearKey === '50' ? 'visible' : 'none'
       );
 
-      // UPDATE AVAILABLE CATEGORY OPTIONS FOR FILTER
-      const shouldFindAllCategories = Boolean(
-        filterButton === 'buildings' &&
-          selectedFilterBuildingOption === 'selection' &&
-          lastUiState.selectedFilterBuildingOption !==
-            uiState.selectedFilterBuildingOption
-      );
-
-      console.log('shouldFindAllCategories', shouldFindAllCategories);
-
-      // Prepare object: categories by key, value and a map of uuids
-      const categories: FilterCategories = filterCategoryKeys.reduce(
-        (acc: any, category: string) => {
-          acc[category] = {}; // store the category values with a map of uuid of the feature, since id is an int
-          return acc;
-        },
-        {}
-      );
-
-      // collect an aggregated ALL feature for the predictions (only once!)
-      const aggregatedAllFeature = {};
-
-      // ASSIGN SELECTED STATE AND ADD TO FILTER
-      const mapFeatures = viewer.maplibreMap?.queryRenderedFeatures(undefined, {
-        layers: ['building', 'building-future'],
-      });
-      const nothingSelected = Object.keys(featureUUIDs || {}).length === 0;
-      console.log('nothingSelected', nothingSelected);
-
-      // - FEATURE STATE
-      for (const f of mapFeatures || []) {
-        viewer.maplibreMap.setFeatureState(
-          {
-            source: 'vectorTiles',
-            sourceLayer: 'building',
-            id: f.properties.id,
-          },
-          {
-            selected: Boolean(
-              nothingSelected || featureUUIDs[f.properties.UUID]
-            ),
-          }
-        );
-        viewer.maplibreMap.setFeatureState(
-          {
-            source: 'vectorTiles',
-            sourceLayer: 'building-future',
-            id: f.properties.id,
-          },
-          {
-            selected: Boolean(
-              nothingSelected || featureUUIDs[f.properties.UUID]
-            ),
-          }
+      // START SHOW SCENARIO BLOCK
+      if (uiState.showScenario) {
+        // UPDATE AVAILABLE CATEGORY OPTIONS FOR FILTER
+        const shouldFindAllCategories = Boolean(
+          filterButton === 'buildings' &&
+            selectedFilterBuildingOption === 'selection' &&
+            lastUiState.selectedFilterBuildingOption !==
+              uiState.selectedFilterBuildingOption
         );
 
-        // - CATEGORIES
+        console.log('shouldFindAllCategories', shouldFindAllCategories);
 
-        if (shouldFindAllCategories) {
-          for (const key of filterCategoryKeys) {
-            // check if value exists
-            if (!f.properties[key]) {
-              continue;
+        // Prepare object: categories by key, value and a map of uuids
+        const categories: FilterCategories = filterCategoryKeys.reduce(
+          (acc: any, category: string) => {
+            acc[category] = {}; // store the category values with a map of uuid of the feature, since id is an int
+            return acc;
+          },
+          {}
+        );
+
+        // ASSIGN SELECTED STATE AND ADD TO FILTER
+        const MAP_FEATURES = viewer.maplibreMap?.queryRenderedFeatures(
+          undefined,
+          {
+            layers: ['building', 'building-future'],
+          }
+        );
+        const nothingSelected = Object.keys(featureUUIDs || {}).length === 0;
+        console.log('nothingSelected', nothingSelected);
+
+        // - FEATURE STATE
+        for (const f of MAP_FEATURES || []) {
+          viewer.maplibreMap.setFeatureState(
+            {
+              source: 'vectorTiles',
+              sourceLayer: 'building',
+              id: f.properties.id,
+            },
+            {
+              showScenario: Boolean(
+                nothingSelected || featureUUIDs[f.properties.UUID]
+              ),
             }
-            // for each key, the value is another key, and its value is the UUID feature map
-            categories[key][f.properties[key]] =
-              categories[key][f.properties[key]] || {};
-            categories[key][f.properties[key]][f.properties.UUID] = f;
+          );
+          viewer.maplibreMap.setFeatureState(
+            {
+              source: 'vectorTiles',
+              sourceLayer: 'building-future',
+              id: f.properties.id,
+            },
+            {
+              showScenario: Boolean(
+                nothingSelected || featureUUIDs[f.properties.UUID]
+              ),
+            }
+          );
+
+          // - CATEGORIES
+
+          if (shouldFindAllCategories) {
+            for (const key of filterCategoryKeys) {
+              // check if value exists
+              if (!f.properties[key]) {
+                continue;
+              }
+              // for each key, the value is another key, and its value is the UUID feature map
+              categories[key][f.properties[key]] =
+                categories[key][f.properties[key]] || {};
+              categories[key][f.properties[key]][f.properties.UUID] = f;
+            }
+            setFilterCategories(categories);
           }
-          setFilterCategories(categories);
+        }
+
+        // if scenario turned on, the aggregated feature should be updated for the predictions (since map may be moved)
+        const scenarioTurnedOn =
+          uiState.showScenario &&
+          lastUiState.showScenario !== uiState.showScenario;
+
+        // if any of degree, year and renovation has changed the aggregation should be updated for each of the indicators
+        // note: this is not triggered if indicator is changed since aggregation use all indicators
+        const scenarioHasChanged =
+          uiState.selectedYearKey !== lastUiState.selectedYearKey ||
+          uiState.selectedDegreeKey !== lastUiState.selectedDegreeKey ||
+          uiState.selectedRenovationOption !==
+            lastUiState.selectedRenovationOption;
+
+        // for all buildings, add new features from query to the aggregation
+        if (scenarioHasChanged && selectedFilterBuildingOption === 'all') {
+          // all buildings aggregations goes into the filter as well
+          addFilteredFeatures(MAP_FEATURES, uiState.selectedRenovationOption);
+        } else if (
+          scenarioHasChanged &&
+          selectedFilterBuildingOption === 'selection'
+        ) {
+          // this is for the existing selection if the scenario is changed (the values needs to be recalculated)
+          updateFilteredFeatures(uiState.selectedRenovationOption);
+        } else if (
+          !filteredFeatures.aggregatedFeature &&
+          selectedFilterBuildingOption !== 'selection'
+        ) {
+          // something must be in predictions if scenario is turned on (except for "selection", because that will display the extra disclosure)
+          addFilteredFeatures(MAP_FEATURES, uiState.selectedRenovationOption);
         }
       }
+      // END SHOW SCENARIO BLOCK
 
+      // AFTER ASSIGNING THE COLORS - UPDATE VARIOUS STATE
       // then assign paint property
       // ASSIGN COLORS
       assignMapColors(viewer.maplibreMap, uiState);
 
-      // update the uistate if changed
+      // LASTLY update the local "last uistate" - since it has changed
       setLastUiState(uiState);
     }
   }, [uiState]);

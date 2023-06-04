@@ -18,7 +18,9 @@ type ViewportProps = {};
 const Viewport: React.FC<ViewportProps> = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const { initViewer } = useViewer();
-  const { combinationIsSelected } = useUi();
+  const {
+    state: { showScenario },
+  } = useUi();
   const { state: selectedFeatureId } = useSelectedFeature();
   // const climateScenarioData = useClimateScenarioData();
   // const contextData = useContextData();
@@ -40,7 +42,7 @@ const Viewport: React.FC<ViewportProps> = () => {
       <LeftMenu />
       <FilterMenu />
       <InfoMenu />
-      {combinationIsSelected() && <Legend />}
+      {showScenario && <Legend />}
     </>
   );
 };

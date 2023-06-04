@@ -7,8 +7,10 @@ export type FilterButtons =
   | 'grid';
 export type BuildingFilterOptions = 'all' | 'selection' | 'single';
 export type GridFilterOptions = 'grid1km' | 'grid250m' | 'grid100m';
-export type RenovationKeys = 'reference' | 'deep' | 'envelope' | 'hvac';
+export type RenovationKeys = 'ref' | 'dr' | 'er' | 'hr';
 export type SelectablePropertyKey = 'fe' | 'hd' | 'pe' | 'de' | 'ge' | 'cd';
+export type DegreeKey = '0' | '25' | '45' | '85';
+export type YearKey = '18' | '30' | '50';
 
 export type PropertyKeyOption = {
   key: SelectablePropertyKey;
@@ -17,14 +19,22 @@ export type PropertyKeyOption = {
   rounding: number;
 };
 
-const renovationKeys: RenovationKeys[] = [
-  'reference',
-  'deep',
-  'envelope',
-  'hvac',
+const propertyKeys: SelectablePropertyKey[] = [
+  'fe',
+  'hd',
+  'pe',
+  'de',
+  'ge',
+  'cd',
 ];
+const yearKeys: YearKey[] = ['18', '50'];
 
+// note that zero is the year 18 in property keys, all other keys have year 50 for the degrees
+const degreeKeys: DegreeKey[] = ['0', '25', '45', '85'];
+
+const renovationKeys: RenovationKeys[] = ['ref', 'dr', 'er', 'hr'];
 const buildingFilterKeys = ['all', 'selection', 'single'];
+const filterCategoryKeys = ['bt', 'hs', 'own', 'vs', 'ot', 'ech'];
 
 // *** Settings for labels, units and rounding for the keys of various options
 const propertyLabels: {
@@ -78,10 +88,6 @@ const filterLabels: {
   [key: string]: string;
 } = {
   energy: 'Energy',
-  reference: 'No renovation',
-  deep: 'All',
-  envelope: 'Envelope',
-  hvac: 'HVAC systems',
   all: 'All',
   selection: 'Selection',
   single: 'Single',
@@ -172,21 +178,7 @@ const rounding: {
 // **** Settings for selecting properties/indicator ***** //
 
 // this is shown in the top action menu
-const propertyKeyOptions: PropertyKeyOption[] = [
-  'fe',
-  'hd',
-  'pe',
-  'de',
-  'ge',
-  'cd',
-].map(key => ({
-  key: key as SelectablePropertyKey,
-  label: propertyLabels[key],
-  unit: units[key],
-  rounding: rounding[key],
-}));
-
-const renovationOptions: PropertyKeyOption[] = renovationKeys.map(key => ({
+const propertyKeyOptions: PropertyKeyOption[] = propertyKeys.map(key => ({
   key: key as SelectablePropertyKey,
   label: propertyLabels[key],
   unit: units[key],
@@ -212,6 +204,7 @@ const yearLabels: {
   [key: string]: string;
 } = {
   '18': 'today (2020)',
+  // '30': 'in 10 years (2030)',
   '50': 'tomorrow (2050)',
 };
 
@@ -223,7 +216,7 @@ const yearOptions = Object.keys(yearLabels).map(key => ({
 const degreeLabels: {
   [key: string]: string;
 } = {
-  '0': '0°',
+  '0': '0°', // note that this is the year 18 in property keys, the degrees are year 50
   '25': '1°',
   '45': '1.5°',
   '85': '2°',
@@ -282,27 +275,35 @@ const filterCategoryLabels: {
   ech: 'Economic sector',
 };
 
-const filterCategoryKeys = ['bt', 'hs', 'own', 'vs', 'ot', 'ech'];
-
 const filterCategoryOptions = filterCategoryKeys.map(key => ({
   key,
   label: filterCategoryLabels[key],
 }));
 
 const renovationLabels = {
-  reference: 'No renovation',
-  deep: 'All',
-  envelope: 'Envelope',
-  hvac: 'HVAC systems',
+  ref: 'No renovation',
+  dr: 'All',
+  er: 'Envelope',
+  hr: 'HVAC systems',
 };
+
+const renovationOptions: PropertyKeyOption[] = renovationKeys.map(key => ({
+  key: key as SelectablePropertyKey,
+  label: renovationLabels[key],
+  unit: units[key],
+  rounding: rounding[key],
+}));
 
 export {
   propertyLabels,
   units,
   rounding,
+  propertyKeys,
   propertyKeyOptions,
+  yearKeys,
   yearLabels,
   yearOptions,
+  degreeKeys,
   degreeLabels,
   degreeOptions,
   aggregatorLabels,

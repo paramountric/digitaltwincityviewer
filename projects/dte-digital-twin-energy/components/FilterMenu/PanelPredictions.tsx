@@ -31,10 +31,13 @@ export default function PanelPredictions() {
     ? selectedFilterGridOption
     : filterButton;
 
+  console.log('aggregateFeature', aggregatedFeature);
+
   return (
     <div>
       <FilterPredictionsSelectionPanel
         feature={showBuilding ? selectedFeature : aggregatedFeature}
+        renovationKey={uiState.selectedRenovationOption}
       />
       {showBuilding ? (
         <FilterPredictionsSingleBuildingPanel

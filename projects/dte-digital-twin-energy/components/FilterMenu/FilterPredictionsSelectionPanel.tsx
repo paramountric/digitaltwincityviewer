@@ -10,6 +10,7 @@ import { useUi } from '../../hooks/use-ui';
 
 type FilterPredictionsSelectionPanelProps = {
   feature: any;
+  renovationKey: string;
 };
 
 function formatValue(properties: any, propertyKey: string) {
@@ -23,15 +24,22 @@ function formatValue(properties: any, propertyKey: string) {
 // kwh/m2 or total ghg/m2 for each of the years
 function getIndicatorDegreeValues(
   properties: any,
-  selectedIndicatorKey: string
+  selectedIndicatorKey: string,
+  renovationKey: string
 ) {
   console.log(properties);
+  const hfa = properties.hfa || 1;
+  if (renovationKey !== 'ref') {
+    const only1degIsInTheData =
+      properties[`${selectedIndicatorKey}50_25_${renovationKey}`];
+    return [0, only1degIsInTheData / hfa, 0, 0];
+  }
   // todo: refactor the property names, since they are not named in a good way -> the 18 year has the same values and are all the degZero
-  const deg0 = properties[`${selectedIndicatorKey}18_25_ref_ban`];
-  const deg25 = properties[`${selectedIndicatorKey}50_25_ref_ban`];
-  const deg45 = properties[`${selectedIndicatorKey}50_45_ref_ban`];
-  const deg85 = properties[`${selectedIndicatorKey}50_85_ref_ban`];
-  return [deg0, deg25, deg45, deg85];
+  const deg0 = properties[`${selectedIndicatorKey}18_25_${renovationKey}`];
+  const deg25 = properties[`${selectedIndicatorKey}50_25_${renovationKey}`];
+  const deg45 = properties[`${selectedIndicatorKey}50_45_${renovationKey}`];
+  const deg85 = properties[`${selectedIndicatorKey}50_85_${renovationKey}`];
+  return [deg0 / hfa, deg25 / hfa, deg45 / hfa, deg85 / hfa];
   // return ['18', '50'].map(year => {
   //   const keyAddM2 = `${selectedIndicatorKey}${year}_${selectedDegreeKey}_ban`; // building area normalized
   //   return properties[keyAddM2] || 0;
@@ -41,7 +49,8 @@ function getIndicatorDegreeValues(
 function applyChart(
   el: HTMLDivElement,
   properties: any,
-  selectedIndicatorKey: string
+  selectedIndicatorKey: string,
+  renovationKey: string
 ) {
   // take the two first characters of the combinedKey to get the selectedIndicatorKey
   const isGhg = selectedIndicatorKey === 'ge';
@@ -50,7 +59,8 @@ function applyChart(
   select(el).selectAll('svg').remove();
   const timelineValues = getIndicatorDegreeValues(
     properties,
-    selectedIndicatorKey
+    selectedIndicatorKey,
+    renovationKey
   );
   console.log(timelineValues);
   const max = Math.max(...timelineValues);
@@ -162,24 +172,59 @@ const FilterPredictionsSelectionPanel: React.FC<
   const [trigger, setTrigger] = useState(-1);
   const { state: uiState, getCombinedKey } = useUi();
 
+  if (!props.feature || !props.feature.properties) {
+    console.log('no feature or properties, it should have', props);
+    return null;
+  }
+
   useLayoutEffect(() => {
     if (finalEnergyRef.current) {
-      applyChart(finalEnergyRef.current, props.feature.properties, 'fe');
+      applyChart(
+        finalEnergyRef.current,
+        props.feature.properties,
+        'fe',
+        props.renovationKey
+      );
     }
     if (heatDemandRef.current) {
-      applyChart(heatDemandRef.current, props.feature.properties, 'hd');
+      applyChart(
+        heatDemandRef.current,
+        props.feature.properties,
+        'hd',
+        props.renovationKey
+      );
     }
     if (primaryEnergyRef.current) {
-      applyChart(primaryEnergyRef.current, props.feature.properties, 'pe');
+      applyChart(
+        primaryEnergyRef.current,
+        props.feature.properties,
+        'pe',
+        props.renovationKey
+      );
     }
     if (deliveredEnergyRef.current) {
-      applyChart(deliveredEnergyRef.current, props.feature.properties, 'de');
+      applyChart(
+        deliveredEnergyRef.current,
+        props.feature.properties,
+        'de',
+        props.renovationKey
+      );
     }
     if (ghgEmissionsRef.current) {
-      applyChart(ghgEmissionsRef.current, props.feature.properties, 'ge');
+      applyChart(
+        ghgEmissionsRef.current,
+        props.feature.properties,
+        'ge',
+        props.renovationKey
+      );
     }
     if (coolDemandRef.current) {
-      applyChart(coolDemandRef.current, props.feature.properties, 'cd');
+      applyChart(
+        coolDemandRef.current,
+        props.feature.properties,
+        'cd',
+        props.renovationKey
+      );
     }
   }, [props.feature.properties, trigger, uiState.selectedDegreeKey]);
   return (

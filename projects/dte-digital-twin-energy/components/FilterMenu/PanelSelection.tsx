@@ -16,13 +16,13 @@ export default function PanelBuilding() {
   const { actions: uiActions, state: uiState } = useUi();
   const {
     state: filteredFeatures,
-    actions: { setFilteredFeatures },
+    actions: { addFilteredFeatures },
   } = useFilteredFeatures();
   const { state: filterCategories } = useFilterCategories();
 
-  const handleSetSelectedFeatures = (selectionCategory: any) => {
+  const handleAddSelectedFeatures = (selectionCategory: any) => {
     console.log('selectionCategory', selectionCategory);
-    setFilteredFeatures(Object.values(selectionCategory));
+    addFilteredFeatures(Object.values(selectionCategory));
   };
 
   return (
@@ -40,7 +40,7 @@ export default function PanelBuilding() {
                   type="checkbox"
                   value=""
                   onClick={() => {
-                    handleSetSelectedFeatures(filterCategories[category][key]);
+                    handleAddSelectedFeatures(filterCategories[category][key]);
                   }}
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />

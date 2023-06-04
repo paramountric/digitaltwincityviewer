@@ -15,13 +15,15 @@ export function assignMapColors(map: any, uiStore: UiStore) {
     const key = getCombinedKey(uiStore);
     map.setPaintProperty('building', 'fill-extrusion-color', [
       'case',
-      ['boolean', ['feature-state', 'selected'], false],
+      ['boolean', ['feature-state', 'showScenario'], true],
       ['get', `${key}_bcol`],
       BUILDING_COLOR_LIGHT,
     ]);
     map.setPaintProperty('building-future', 'fill-extrusion-color', [
-      'get',
-      `${key}_bcol`,
+      'case',
+      ['boolean', ['feature-state', 'showScenario'], true],
+      ['get', `${key}_bcol`],
+      BUILDING_COLOR_LIGHT,
     ]);
     // below is working
     // map.setPaintProperty('building', 'fill-extrusion-color', [
@@ -32,6 +34,17 @@ export function assignMapColors(map: any, uiStore: UiStore) {
     //   'get',
     //   `${key}_bcol`,
     // ]);
+  } else {
+    map.setPaintProperty(
+      'building',
+      'fill-extrusion-color',
+      DEFAULT_BUILDING_COLOR
+    );
+    map.setPaintProperty(
+      'building-future',
+      'fill-extrusion-color',
+      DEFAULT_BUILDING_COLOR
+    );
   }
 }
 
@@ -42,23 +55,16 @@ function getCombinedKey(uiState: UiStore) {
     selectedYearKey,
     selectedRenovationOption,
   } = uiState;
-  const renovationOptionKey =
-    selectedRenovationOption === 'reference'
-      ? '_ref'
-      : selectedRenovationOption === 'deep'
-      ? '_dr'
-      : selectedRenovationOption === 'envelope'
-      ? '_er'
-      : '_hr';
+  const renovationOptionKey = `_${selectedRenovationOption}`;
 
   const indicatorKeyToUse = selectedPropertyKey;
 
   // all the 18 keys are the same for all the degrees
-  if (selectedDegreeKey === '0' || selectedDegreeKey === 'degrees') {
+  if (selectedDegreeKey === '0') {
     return `${indicatorKeyToUse}18_25${renovationOptionKey}`;
   }
 
-  if (selectedYearKey === '18' || selectedYearKey === 'year') {
+  if (selectedYearKey === '18') {
     return `${indicatorKeyToUse}18_${selectedDegreeKey}${renovationOptionKey}`;
   }
 

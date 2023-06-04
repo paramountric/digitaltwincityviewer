@@ -9,12 +9,15 @@ import {
   BuildingFilterOptions,
   GridFilterOptions,
   RenovationKeys,
+  DegreeKey,
+  YearKey,
+  SelectablePropertyKey,
 } from '../lib/constants';
 
 export type UiStore = {
   selectedPropertyKey: string;
-  selectedYearKey: string;
-  selectedDegreeKey: string;
+  selectedYearKey: YearKey;
+  selectedDegreeKey: DegreeKey;
   showTimelinePerM2: boolean;
   selectedAggregator: string;
   showScenario: boolean;
@@ -33,8 +36,8 @@ export type UiStore = {
 
 const uiStore = new Observable<UiStore>({
   selectedPropertyKey: propertyKeyOptions[0].key,
-  selectedYearKey: yearOptions[0].key,
-  selectedDegreeKey: degreeOptions[0].key,
+  selectedYearKey: yearOptions[0].key as YearKey,
+  selectedDegreeKey: degreeOptions[0].key as DegreeKey,
   showTimelinePerM2: false,
   selectedAggregator: 'none',
   showScenario: false,
@@ -43,7 +46,7 @@ const uiStore = new Observable<UiStore>({
   filterButton: 'buildings',
   selectedFilterBuildingOption: 'all',
   selectedFilterGridOption: 'grid1km',
-  selectedRenovationOption: 'reference',
+  selectedRenovationOption: 'ref',
   showLayerPlannedDevelopment: false,
   showLayerSatelliteMap: false,
   showLayerWater: false,
@@ -60,11 +63,11 @@ export const useUi = () => {
 
   const actions = useMemo(() => {
     return {
-      setSelectedPropertyKey: (selectedPropertyKey: string) =>
+      setSelectedPropertyKey: (selectedPropertyKey: SelectablePropertyKey) =>
         uiStore.set({ ...uiState, selectedPropertyKey }),
-      setSelectedYearKey: (selectedYearKey: string) =>
+      setSelectedYearKey: (selectedYearKey: YearKey) =>
         uiStore.set({ ...uiState, selectedYearKey }),
-      setSelectedBaseMapKey: (selectedDegreeKey: string) =>
+      setSelectedBaseMapKey: (selectedDegreeKey: DegreeKey) =>
         uiStore.set({ ...uiState, selectedDegreeKey }),
       setShowTimelinePerM2: (showTimelinePerM2: boolean) =>
         uiStore.set({ ...uiState, showTimelinePerM2 }),
@@ -127,23 +130,16 @@ export const useUi = () => {
         selectedRenovationOption,
       } = uiState;
 
-      const renovationOptionKey =
-        selectedRenovationOption === 'reference'
-          ? '_ref'
-          : selectedRenovationOption === 'deep'
-          ? '_dr'
-          : selectedRenovationOption === 'envelope'
-          ? '_er'
-          : '_hr';
+      const renovationOptionKey = `_${selectedRenovationOption}`;
 
       const indicatorKeyToUse = indicatorKey || selectedPropertyKey;
 
       // all the 18 keys are the same for all the degrees
-      if (selectedDegreeKey === '0' || selectedDegreeKey === 'degrees') {
+      if (selectedDegreeKey === '0') {
         return `${indicatorKeyToUse}18_25${renovationOptionKey}`;
       }
 
-      if (selectedYearKey === '18' || selectedYearKey === 'year') {
+      if (selectedYearKey === '18') {
         return `${indicatorKeyToUse}18_${selectedDegreeKey}${renovationOptionKey}`;
       }
 
@@ -153,6 +149,28 @@ export const useUi = () => {
       );
       // for all the other degrees the 50 is used
       return `${indicatorKeyToUse}50_${selectedDegreeKey}${renovationOptionKey}`;
+    },
+    getScenarioPostfix: () => {
+      const { selectedDegreeKey, selectedYearKey, selectedRenovationOption } =
+        uiState;
+
+      const renovationOptionKey = `_${selectedRenovationOption}`;
+
+      // all the 18 keys are the same for all the degrees
+      if (selectedDegreeKey === '0') {
+        return `18_25${renovationOptionKey}`;
+      }
+
+      if (selectedYearKey === '18') {
+        return `18_${selectedDegreeKey}${renovationOptionKey}`;
+      }
+
+      console.log(
+        'combined key',
+        `50_${selectedDegreeKey}${renovationOptionKey}`
+      );
+      // for all the other degrees the 50 is used
+      return `50_${selectedDegreeKey}${renovationOptionKey}`;
     },
     getAggregation: () => {
       if (uiState.filterButton === 'buildings') {
@@ -167,18 +185,6 @@ export const useUi = () => {
       if (uiState.filterButton === 'grid') {
         return uiState.selectedFilterGridOption;
       }
-    },
-    combinationIsSelected: () => {
-      const { selectedPropertyKey, selectedYearKey, selectedDegreeKey } =
-        uiState;
-      if (
-        selectedPropertyKey === 'energy' ||
-        selectedYearKey === 'year' ||
-        selectedDegreeKey === 'degrees'
-      ) {
-        return false;
-      }
-      return true;
     },
     getPropertyUnit: (selectKey?: string): string => {
       const key = selectKey || uiState.selectedPropertyKey;
