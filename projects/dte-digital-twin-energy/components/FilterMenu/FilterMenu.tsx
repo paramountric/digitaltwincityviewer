@@ -7,7 +7,7 @@ import FilterResultPanel from './FilterResultPanel';
 import PanelNotes from './PanelNotes';
 import PanelPredictions from './PanelPredictions';
 import InfoPanelSingleBuilding from './InfoPanelSingleBuilding';
-import InfoPanelSelection from './InfoPanelSelectedBuildings';
+import InfoPanelSelectedBuildings from './InfoPanelSelectedBuildings';
 import InfoPanelAllBuildings from './InfoPanelAllBuildings';
 import PanelSelection from './PanelSelection';
 
@@ -45,8 +45,9 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
     selectedFeature &&
     selectedFilterBuildingOption === 'single';
 
-  const showSelection = filterButton === 'buildings' && aggregatedFeature;
-  selectedFilterBuildingOption === 'selection';
+  const showSelection =
+    filterButton === 'buildings' &&
+    selectedFilterBuildingOption === 'selection';
 
   return (
     <div className="flex bg-opacity-95 flex-col absolute right-0 z-30 max-h-[calc(100vh-7rem)] p-2 text-gray-700 bg-white border border-gray-300 rounded-l-md top-28 text-m scroll-child">
@@ -57,13 +58,15 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
       {/* OVERVIEW */}
       <div className="py-2">
         {showBuilding && <InfoPanelSingleBuilding feature={selectedFeature} />}
-        {showSelection && <InfoPanelSelection feature={aggregatedFeature} />}
+        {showSelection && (
+          <InfoPanelSelectedBuildings feature={aggregatedFeature} />
+        )}
         {!showBuilding && !showSelection && (
           <InfoPanelAllBuildings feature={allBuildingsFeature} />
         )}
       </div>
       {/* THIS IS THE EXTRA PANEL WHEN SELECTION FOR FILTER SHOULD BE DONE */}
-      {selectedFilterBuildingOption === 'selection' && (
+      {showSelection && (
         <FilterResultPanel label="Select buildings">
           <PanelSelection />
         </FilterResultPanel>

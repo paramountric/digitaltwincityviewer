@@ -8,6 +8,8 @@ import FilterResultPanel from './FilterResultPanel';
 import { useViewer } from '../../hooks/use-viewer';
 import { useUi } from '../../hooks/use-ui';
 import { useFilteredFeatures } from '../../hooks/use-filtered-features';
+import { useFilterCategories } from '../../hooks/use-filter-categories';
+import { filterCategoryLabels } from '../../lib/constants';
 
 export default function PanelBuilding() {
   const { viewer, getFeatureCategories } = useViewer();
@@ -16,37 +18,21 @@ export default function PanelBuilding() {
     state: filteredFeatures,
     actions: { setFilteredFeatures },
   } = useFilteredFeatures();
-  const [selectionCategories, setSelectionCategories] = useState<any>({});
-
-  const { showScenario } = uiState;
-
-  useEffect(() => {
-    if (!viewer) return;
-    const cat = getFeatureCategories();
-    console.log('cat', cat);
-    setSelectionCategories(cat);
-  }, []);
-
-  // todo: move this to constants
-  const selectionLabels = {
-    hs: 'Heating System',
-    own: 'Owner',
-    bt: 'Building Type',
-  } as any;
+  const { state: filterCategories } = useFilterCategories();
 
   const handleSetSelectedFeatures = (selectionCategory: any) => {
     console.log('selectionCategory', selectionCategory);
-    setFilteredFeatures(selectionCategory);
+    setFilteredFeatures(Object.values(selectionCategory));
   };
 
   return (
     <div className=" max-w-prose">
-      {Object.keys(selectionCategories).map((category: any) => (
+      {Object.keys(filterCategories).map((category: any) => (
         <FilterResultPanel
           key={category}
-          label={selectionLabels[category] || category}
+          label={filterCategoryLabels[category] || category}
         >
-          {Object.keys(selectionCategories[category]).map(
+          {Object.keys(filterCategories[category]).map(
             (key: any, i: number) => (
               <div key={key} className="flex items-center mb-4">
                 <input
@@ -54,17 +40,17 @@ export default function PanelBuilding() {
                   type="checkbox"
                   value=""
                   onClick={() => {
-                    handleSetSelectedFeatures(
-                      selectionCategories[category][key]
-                    );
+                    handleSetSelectedFeatures(filterCategories[category][key]);
                   }}
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />
                 <label
                   htmlFor="default-checkbox"
-                  className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  className="ml-2 text-sm font-medium text-gray-900"
                 >
-                  {key}
+                  {`${key} (${
+                    Object.values(filterCategories[category][key]).length
+                  })`}
                 </label>
               </div>
             )

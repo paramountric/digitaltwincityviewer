@@ -30,6 +30,7 @@ const buildingFilterKeys = ['all', 'selection', 'single'];
 const propertyLabels: {
   [key: string]: string;
 } = {
+  // indicators
   de: 'Delivered energy',
   de18: 'Delivered energy 2020',
   de30: 'Delivered energy 2030',
@@ -54,6 +55,23 @@ const propertyLabels: {
   cd18: 'Cooling demand 2020',
   cd30: 'Cooling demand 2030',
   cd50: 'Cooling demand 2050',
+  // properties
+  addr: 'Address',
+  pco: 'Postal code',
+  ppl: 'City',
+  bp: 'Type',
+  bps: 'Subtype',
+  hgt: 'Height',
+  hfa: 'Heated floor area',
+  UUID: 'UUID',
+  bt: 'Building type',
+  cy: 'construction year',
+  hs: 'Main heating system',
+  ech: 'Energy carrier of the main heating system',
+  vs: 'Ventilation system',
+  wsc: 'Solar collector on the roof',
+  wpv: 'Solar cells on the roof',
+  numFeatures: 'Number of buildings',
 };
 
 const filterLabels: {
@@ -73,7 +91,11 @@ const filterLabels: {
 const units: {
   [key: string]: string;
 } = {
+  // properties
+  hgt: 'm',
+  hfa: 'm²',
   de: 'kWh',
+  // indicators
   deTimeline: 'MWh',
   deM2: 'kWh/m²',
   de18: 'kWh',
@@ -115,6 +137,10 @@ const units: {
 const rounding: {
   [key: string]: number;
 } = {
+  // properties
+  height: 1,
+  heatedFloorArea: 0,
+  // indicators
   hgt: 1,
   hfa: 0,
   de: 0,
@@ -245,6 +271,24 @@ const filterGridOptions = [
   },
 ];
 
+const filterCategoryLabels: {
+  [key: string]: string;
+} = {
+  bt: 'Building type',
+  hs: 'Heating system',
+  own: 'Ownership',
+  vs: 'Vintage',
+  ot: 'Other',
+  ech: 'Economic sector',
+};
+
+const filterCategoryKeys = ['bt', 'hs', 'own', 'vs', 'ot', 'ech'];
+
+const filterCategoryOptions = filterCategoryKeys.map(key => ({
+  key,
+  label: filterCategoryLabels[key],
+}));
+
 const renovationLabels = {
   reference: 'No renovation',
   deep: 'All',
@@ -267,4 +311,7 @@ export {
   filterGridOptions,
   renovationLabels,
   renovationOptions,
+  filterCategoryOptions,
+  filterCategoryKeys,
+  filterCategoryLabels,
 };
