@@ -95,188 +95,188 @@ const maplibreOptions = {
           'background-color': 'rgba(255, 255, 255, 1)',
         },
       },
-      {
-        id: 'grid1km2018',
-        name: 'Grid 1km 2018 extruded',
-        type: 'fill-extrusion',
-        source: 'vectorTiles',
-        'source-layer': 'grid1Km2018',
-        maxzoom: 18,
-        minzoom: 10, //aggregationZoomLevels[3],
-        layout: {
-          visibility: 'none',
-        },
-        paint: {
-          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-          'fill-extrusion-height': 1,
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 1,
-        },
-      },
-      {
-        id: 'grid1km2050',
-        name: 'Grid 1km 2050 extruded',
-        type: 'fill-extrusion',
-        source: 'vectorTiles',
-        'source-layer': 'grid1Km2050',
-        maxzoom: 18,
-        minzoom: 10, //aggregationZoomLevels[3],
-        layout: {
-          visibility: 'none',
-        },
-        paint: {
-          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-          'fill-extrusion-height': 1,
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 1,
-        },
-      },
-      {
-        id: 'grid250m2018',
-        name: 'Grid 250m 2018 extruded',
-        type: 'fill-extrusion',
-        source: 'vectorTiles',
-        'source-layer': 'grid250m2018',
-        maxzoom: 18,
-        minzoom: 10, //aggregationZoomLevels[3],
-        layout: {
-          visibility: 'none',
-        },
-        paint: {
-          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-          'fill-extrusion-height': 1,
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 1,
-        },
-      },
-      {
-        id: 'grid250m2050',
-        name: 'Grid 250m 2050 extruded',
-        type: 'fill-extrusion',
-        source: 'vectorTiles',
-        'source-layer': 'grid250m2050',
-        maxzoom: 18,
-        minzoom: 10, //aggregationZoomLevels[3],
-        layout: {
-          visibility: 'none',
-        },
-        paint: {
-          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-          'fill-extrusion-height': 1,
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 1,
-        },
-      },
-      {
-        id: 'grid100m2018',
-        name: 'Grid 100m 2018 extruded',
-        type: 'fill-extrusion',
-        source: 'vectorTiles',
-        'source-layer': 'grid100m2018',
-        maxzoom: 18,
-        minzoom: 10, //aggregationZoomLevels[3],
-        layout: {
-          visibility: 'none',
-        },
-        paint: {
-          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-          'fill-extrusion-height': 1,
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 1,
-        },
-      },
-      {
-        id: 'grid100m2050',
-        name: 'Grid 100m 2050 extruded',
-        type: 'fill-extrusion',
-        source: 'vectorTiles',
-        'source-layer': 'grid100m2050',
-        maxzoom: 18,
-        minzoom: 10, //aggregationZoomLevels[3],
-        layout: {
-          visibility: 'none',
-        },
-        paint: {
-          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-          'fill-extrusion-height': 1,
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 1,
-        },
-      },
+      // {
+      //   id: 'grid1km2018',
+      //   name: 'Grid 1km 2018 extruded',
+      //   type: 'fill-extrusion',
+      //   source: 'vectorTiles',
+      //   'source-layer': 'grid1Km2018',
+      //   maxzoom: 18,
+      //   minzoom: 10, //aggregationZoomLevels[3],
+      //   layout: {
+      //     visibility: 'none',
+      //   },
+      //   paint: {
+      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+      //     'fill-extrusion-height': 1,
+      //     'fill-extrusion-base': 0,
+      //     'fill-extrusion-opacity': 1,
+      //   },
+      // },
+      // {
+      //   id: 'grid1km2050',
+      //   name: 'Grid 1km 2050 extruded',
+      //   type: 'fill-extrusion',
+      //   source: 'vectorTiles',
+      //   'source-layer': 'grid1Km2050',
+      //   maxzoom: 18,
+      //   minzoom: 10, //aggregationZoomLevels[3],
+      //   layout: {
+      //     visibility: 'none',
+      //   },
+      //   paint: {
+      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+      //     'fill-extrusion-height': 1,
+      //     'fill-extrusion-base': 0,
+      //     'fill-extrusion-opacity': 1,
+      //   },
+      // },
+      // {
+      //   id: 'grid250m2018',
+      //   name: 'Grid 250m 2018 extruded',
+      //   type: 'fill-extrusion',
+      //   source: 'vectorTiles',
+      //   'source-layer': 'grid250m2018',
+      //   maxzoom: 18,
+      //   minzoom: 10, //aggregationZoomLevels[3],
+      //   layout: {
+      //     visibility: 'none',
+      //   },
+      //   paint: {
+      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+      //     'fill-extrusion-height': 1,
+      //     'fill-extrusion-base': 0,
+      //     'fill-extrusion-opacity': 1,
+      //   },
+      // },
+      // {
+      //   id: 'grid250m2050',
+      //   name: 'Grid 250m 2050 extruded',
+      //   type: 'fill-extrusion',
+      //   source: 'vectorTiles',
+      //   'source-layer': 'grid250m2050',
+      //   maxzoom: 18,
+      //   minzoom: 10, //aggregationZoomLevels[3],
+      //   layout: {
+      //     visibility: 'none',
+      //   },
+      //   paint: {
+      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+      //     'fill-extrusion-height': 1,
+      //     'fill-extrusion-base': 0,
+      //     'fill-extrusion-opacity': 1,
+      //   },
+      // },
+      // {
+      //   id: 'grid100m2018',
+      //   name: 'Grid 100m 2018 extruded',
+      //   type: 'fill-extrusion',
+      //   source: 'vectorTiles',
+      //   'source-layer': 'grid100m2018',
+      //   maxzoom: 18,
+      //   minzoom: 10, //aggregationZoomLevels[3],
+      //   layout: {
+      //     visibility: 'none',
+      //   },
+      //   paint: {
+      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+      //     'fill-extrusion-height': 1,
+      //     'fill-extrusion-base': 0,
+      //     'fill-extrusion-opacity': 1,
+      //   },
+      // },
+      // {
+      //   id: 'grid100m2050',
+      //   name: 'Grid 100m 2050 extruded',
+      //   type: 'fill-extrusion',
+      //   source: 'vectorTiles',
+      //   'source-layer': 'grid100m2050',
+      //   maxzoom: 18,
+      //   minzoom: 10, //aggregationZoomLevels[3],
+      //   layout: {
+      //     visibility: 'none',
+      //   },
+      //   paint: {
+      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+      //     'fill-extrusion-height': 1,
+      //     'fill-extrusion-base': 0,
+      //     'fill-extrusion-opacity': 1,
+      //   },
+      // },
 
-      {
-        id: 'cityDistricts2018',
-        name: 'City Districts 2018 extruded',
-        type: 'fill-extrusion',
-        source: 'vectorTiles',
-        'source-layer': 'cityDistricts2018',
-        maxzoom: 18,
-        minzoom: 10, //aggregationZoomLevels[3],
-        layout: {
-          visibility: 'none',
-        },
-        paint: {
-          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-          'fill-extrusion-height': 1,
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 1,
-        },
-      },
-      {
-        id: 'cityDistricts2050',
-        name: 'City Districts 2050 extruded',
-        type: 'fill-extrusion',
-        source: 'vectorTiles',
-        'source-layer': 'cityDistricts2050',
-        maxzoom: 18,
-        minzoom: 10, //aggregationZoomLevels[3],
-        layout: {
-          visibility: 'none',
-        },
-        paint: {
-          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-          'fill-extrusion-height': 1,
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 1,
-        },
-      },
+      // {
+      //   id: 'cityDistricts2018',
+      //   name: 'City Districts 2018 extruded',
+      //   type: 'fill-extrusion',
+      //   source: 'vectorTiles',
+      //   'source-layer': 'cityDistricts2018',
+      //   maxzoom: 18,
+      //   minzoom: 10, //aggregationZoomLevels[3],
+      //   layout: {
+      //     visibility: 'none',
+      //   },
+      //   paint: {
+      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+      //     'fill-extrusion-height': 1,
+      //     'fill-extrusion-base': 0,
+      //     'fill-extrusion-opacity': 1,
+      //   },
+      // },
+      // {
+      //   id: 'cityDistricts2050',
+      //   name: 'City Districts 2050 extruded',
+      //   type: 'fill-extrusion',
+      //   source: 'vectorTiles',
+      //   'source-layer': 'cityDistricts2050',
+      //   maxzoom: 18,
+      //   minzoom: 10, //aggregationZoomLevels[3],
+      //   layout: {
+      //     visibility: 'none',
+      //   },
+      //   paint: {
+      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+      //     'fill-extrusion-height': 1,
+      //     'fill-extrusion-base': 0,
+      //     'fill-extrusion-opacity': 1,
+      //   },
+      // },
 
-      {
-        id: 'baseAreas2018',
-        name: 'Base Areas 2018 extruded',
-        type: 'fill-extrusion',
-        source: 'vectorTiles',
-        'source-layer': 'baseAreas2018',
-        maxzoom: 18,
-        minzoom: 10, //aggregationZoomLevels[3],
-        layout: {
-          visibility: 'none',
-        },
-        paint: {
-          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-          'fill-extrusion-height': 1,
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 1,
-        },
-      },
-      {
-        id: 'baseAreas2050',
-        name: 'Base Areas 2050 extruded',
-        type: 'fill-extrusion',
-        source: 'vectorTiles',
-        'source-layer': 'baseAreas2050',
-        maxzoom: 18,
-        minzoom: 10, //aggregationZoomLevels[3],
-        layout: {
-          visibility: 'none',
-        },
-        paint: {
-          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-          'fill-extrusion-height': 1,
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 1,
-        },
-      },
+      // {
+      //   id: 'baseAreas2018',
+      //   name: 'Base Areas 2018 extruded',
+      //   type: 'fill-extrusion',
+      //   source: 'vectorTiles',
+      //   'source-layer': 'baseAreas2018',
+      //   maxzoom: 18,
+      //   minzoom: 10, //aggregationZoomLevels[3],
+      //   layout: {
+      //     visibility: 'none',
+      //   },
+      //   paint: {
+      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+      //     'fill-extrusion-height': 1,
+      //     'fill-extrusion-base': 0,
+      //     'fill-extrusion-opacity': 1,
+      //   },
+      // },
+      // {
+      //   id: 'baseAreas2050',
+      //   name: 'Base Areas 2050 extruded',
+      //   type: 'fill-extrusion',
+      //   source: 'vectorTiles',
+      //   'source-layer': 'baseAreas2050',
+      //   maxzoom: 18,
+      //   minzoom: 10, //aggregationZoomLevels[3],
+      //   layout: {
+      //     visibility: 'none',
+      //   },
+      //   paint: {
+      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+      //     'fill-extrusion-height': 1,
+      //     'fill-extrusion-base': 0,
+      //     'fill-extrusion-opacity': 1,
+      //   },
+      // },
 
       {
         id: 'primaryAreas2018',
@@ -301,24 +301,24 @@ const maplibreOptions = {
         //   'fill-extrusion-opacity': 1,
         // },
       },
-      {
-        id: 'primaryAreas2050',
-        name: 'Primary areas 2050 extruded',
-        type: 'fill-extrusion',
-        source: 'vectorTiles',
-        'source-layer': 'primaryAreas2050',
-        maxzoom: 18,
-        minzoom: 10, //aggregationZoomLevels[3],
-        layout: {
-          visibility: 'none',
-        },
-        paint: {
-          'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-          'fill-extrusion-height': 1,
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 1,
-        },
-      },
+      // {
+      //   id: 'primaryAreas2050',
+      //   name: 'Primary areas 2050 extruded',
+      //   type: 'fill-extrusion',
+      //   source: 'vectorTiles',
+      //   'source-layer': 'primaryAreas2050',
+      //   maxzoom: 18,
+      //   minzoom: 10, //aggregationZoomLevels[3],
+      //   layout: {
+      //     visibility: 'none',
+      //   },
+      //   paint: {
+      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
+      //     'fill-extrusion-height': 1,
+      //     'fill-extrusion-base': 0,
+      //     'fill-extrusion-opacity': 1,
+      //   },
+      // },
 
       // {
       //   id: 'primaryAreas2018Outline',
@@ -420,6 +420,19 @@ const maplibreOptions = {
           'fill-extrusion-height': ['get', 'hgt'],
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 1,
+        },
+      },
+      {
+        id: 'primaryAreas2018-line',
+        name: 'Primary areas 2018 line',
+        type: 'line',
+        source: 'vectorTiles',
+        'source-layer': 'primaryAreas2018',
+        maxzoom: 18,
+        minzoom: 10,
+        paint: {
+          'line-color': '#f00', // set the line color to red
+          'line-width': 2, // set the line width to 2 pixels
         },
       },
     ],
@@ -599,6 +612,8 @@ export const useViewer = (): UseViewerProps => {
           uiState.selectedRenovationOption !==
             lastUiState.selectedRenovationOption;
 
+        // CHECK IF SCENARIO HAS CHANGED
+
         // for all buildings, add new features from query to the aggregation
         if (scenarioHasChanged && selectedFilterBuildingOption === 'all') {
           // all buildings aggregations goes into the filter as well
@@ -616,6 +631,28 @@ export const useViewer = (): UseViewerProps => {
           // something must be in predictions if scenario is turned on (except for "selection", because that will display the extra disclosure)
           addFilteredFeatures(MAP_FEATURES, uiState.selectedRenovationOption);
         }
+
+        // CHECK IF FILTER SETTINGS HAS CHANGED
+        const filterSettingsHasChanged =
+          uiState.selectedFilterBuildingOption !==
+          lastUiState.selectedFilterBuildingOption;
+
+        if (filterButton === 'buildings' && filterSettingsHasChanged) {
+          if (selectedFilterBuildingOption === 'all') {
+            // turn back to default
+            addFilteredFeatures(MAP_FEATURES, uiState.selectedRenovationOption);
+          } else if (selectedFilterBuildingOption === 'selection') {
+            // now the user need to select filter
+            addFilteredFeatures();
+          } else if (selectedFilterBuildingOption === 'single') {
+            // now the user need to select a building
+            addFilteredFeatures();
+          }
+        }
+      } else {
+        // if scenario is turned off, remove all features from the filter
+        addFilteredFeatures();
+        setSelectedFeature(undefined);
       }
       // END SHOW SCENARIO BLOCK
 
@@ -721,96 +758,125 @@ export const useViewer = (): UseViewerProps => {
 
                 // ON HOVER
 
-                const hoverLayers = ['building', 'building-future'];
+                // Add a hover effect to the primaryAreas2018 layer
+                maplibreMap.on('mousemove', 'building', e => {
+                  if (!e.features || e.features?.length === 0) {
+                    return;
+                  }
+                  // Change the cursor style to a pointer
+                  maplibreMap.getCanvas().style.cursor = 'pointer';
 
-                // maplibreMap.setPaintProperty(
-                //   'primaryAreas2018Outline',
-                //   'fill-outline-color',
-                //   [
-                //     'case',
-                //     ['boolean', ['feature-state', 'hover'], false],
-                //     '#00f',
-                //     '#000',
-                //   ]
-                // );
+                  // Get the feature under the mouse pointer
+                  const feature = e.features[0];
 
-                for (const hoverLayer of hoverLayers) {
-                  maplibreMap.on('mousemove', hoverLayer, (e: any) => {
-                    // if (lastHoveredObject) {
-                    //   maplibreMap?.setFeatureState(
-                    //     {
-                    //       source: 'vectorTiles',
-                    //       sourceLayer: hoverLayer,
-                    //       id: lastHoveredObject.id,
-                    //     },
-                    //     { hover: false }
-                    //   );
-                    //   // maplibreMap?.setFeatureState(
-                    //   //   {
-                    //   //     source: 'vectorTiles',
-                    //   //     sourceLayer: 'building-future',
-                    //   //     id: lastHoveredObject.id,
-                    //   //   },
-                    //   //   { hover: false }
-                    //   // );
-                    //   v.cursor = 'grab';
-                    //   setLastHoveredObject(null);
-                    // }
-                    if (e.features.length > 0) {
-                      if (hoveredObject && hoveredObject.id) {
-                        maplibreMap?.setFeatureState(
-                          {
-                            source: 'vectorTiles',
-                            sourceLayer: hoverLayer,
-                            id: hoveredObject.id,
-                          },
-                          { hover: false }
-                        );
-                        // maplibreMap?.setFeatureState(
-                        //   {
-                        //     source: 'vectorTiles',
-                        //     sourceLayer: 'building-future',
-                        //     id: e.features[0].id,
-                        //   },
-                        //   { hover: true }
-                        // );
-                        setHoveredObject(null);
-                      }
-                      v.cursor = 'pointer';
-                      setHoveredObject(e.features[0]);
-                      maplibreMap?.setFeatureState(
-                        {
-                          source: 'vectorTiles',
-                          sourceLayer: hoverLayer,
-                          id: e.features[0].id,
-                        },
-                        { hover: true }
-                      );
-                    }
-                  });
-                  maplibreMap.on('mouseleave', () => {
-                    if (hoveredObject && hoveredObject.id) {
-                      maplibreMap?.setFeatureState(
-                        {
-                          source: 'vectorTiles',
-                          sourceLayer: 'building',
-                          id: hoveredObject.id,
-                        },
-                        { hover: false }
-                      );
-                      // maplibreMap?.setFeatureState(
-                      //   {
-                      //     source: 'vectorTiles',
-                      //     sourceLayer: 'building-future',
-                      //     id: hoveredObject.id,
-                      //   },
-                      //   { hover: false }
-                      // );
-                      v.cursor = 'grab';
-                      setHoveredObject(null);
-                    }
-                  });
-                }
+                  // Set the fill color of the feature to blue
+                  maplibreMap.setPaintProperty(
+                    'building',
+                    'fill-extrusion-color',
+                    ['case', ['==', ['id'], feature.id], '#00f', '#fff']
+                  );
+                });
+
+                // Reset the cursor style and fill color when the mouse leaves the layer
+                maplibreMap.on('mouseleave', 'building', () => {
+                  maplibreMap.getCanvas().style.cursor = '';
+                  maplibreMap.setPaintProperty(
+                    'building',
+                    'fill-extrusion-color',
+                    '#fff'
+                  );
+                });
+
+                // const hoverLayers = ['building', 'building-future'];
+
+                // // maplibreMap.setPaintProperty(
+                // //   'primaryAreas2018Outline',
+                // //   'fill-outline-color',
+                // //   [
+                // //     'case',
+                // //     ['boolean', ['feature-state', 'hover'], false],
+                // //     '#00f',
+                // //     '#000',
+                // //   ]
+                // // );
+
+                // for (const hoverLayer of hoverLayers) {
+                //   maplibreMap.on('mousemove', hoverLayer, (e: any) => {
+                //     // if (lastHoveredObject) {
+                //     //   maplibreMap?.setFeatureState(
+                //     //     {
+                //     //       source: 'vectorTiles',
+                //     //       sourceLayer: hoverLayer,
+                //     //       id: lastHoveredObject.id,
+                //     //     },
+                //     //     { hover: false }
+                //     //   );
+                //     //   // maplibreMap?.setFeatureState(
+                //     //   //   {
+                //     //   //     source: 'vectorTiles',
+                //     //   //     sourceLayer: 'building-future',
+                //     //   //     id: lastHoveredObject.id,
+                //     //   //   },
+                //     //   //   { hover: false }
+                //     //   // );
+                //     //   v.cursor = 'grab';
+                //     //   setLastHoveredObject(null);
+                //     // }
+                //     if (e.features.length > 0) {
+                //       if (hoveredObject && hoveredObject.id) {
+                //         maplibreMap?.setFeatureState(
+                //           {
+                //             source: 'vectorTiles',
+                //             sourceLayer: hoverLayer,
+                //             id: hoveredObject.id,
+                //           },
+                //           { hover: false }
+                //         );
+                //         // maplibreMap?.setFeatureState(
+                //         //   {
+                //         //     source: 'vectorTiles',
+                //         //     sourceLayer: 'building-future',
+                //         //     id: e.features[0].id,
+                //         //   },
+                //         //   { hover: true }
+                //         // );
+                //         setHoveredObject(null);
+                //       }
+                //       v.cursor = 'pointer';
+                //       setHoveredObject(e.features[0]);
+                //       maplibreMap?.setFeatureState(
+                //         {
+                //           source: 'vectorTiles',
+                //           sourceLayer: hoverLayer,
+                //           id: e.features[0].id,
+                //         },
+                //         { hover: true }
+                //       );
+                //     }
+                //   });
+                //   maplibreMap.on('mouseleave', () => {
+                //     if (hoveredObject && hoveredObject.id) {
+                //       maplibreMap?.setFeatureState(
+                //         {
+                //           source: 'vectorTiles',
+                //           sourceLayer: 'building',
+                //           id: hoveredObject.id,
+                //         },
+                //         { hover: false }
+                //       );
+                //       // maplibreMap?.setFeatureState(
+                //       //   {
+                //       //     source: 'vectorTiles',
+                //       //     sourceLayer: 'building-future',
+                //       //     id: hoveredObject.id,
+                //       //   },
+                //       //   { hover: false }
+                //       // );
+                //       v.cursor = 'grab';
+                //       setHoveredObject(null);
+                //     }
+                //   });
+                // }
 
                 // Style the fill-extrusion based on its feature state
                 // maplibreMap.setPaintProperty(

@@ -27,6 +27,7 @@ export type UiStore = {
   selectedFilterBuildingOption: BuildingFilterOptions;
   selectedFilterGridOption: GridFilterOptions;
   selectedRenovationOption: RenovationKeys;
+  selectedSolarKey: string;
   showLayerPlannedDevelopment: boolean;
   showLayerSatelliteMap: boolean;
   showLayerWater: boolean;
@@ -47,6 +48,7 @@ const uiStore = new Observable<UiStore>({
   selectedFilterBuildingOption: 'all',
   selectedFilterGridOption: 'grid1km',
   selectedRenovationOption: 'ref',
+  selectedSolarKey: 'period',
   showLayerPlannedDevelopment: false,
   showLayerSatelliteMap: false,
   showLayerWater: false,
@@ -108,6 +110,8 @@ export const useUi = () => {
         uiStore.set({ ...uiState, showLayerTrees }),
       setSelectedRenovationKey: (selectedRenovationOption: RenovationKeys) =>
         uiStore.set({ ...uiState, selectedRenovationOption }),
+      setSelectedSolarKey: (selectedSolarKey: string) =>
+        uiStore.set({ ...uiState, selectedSolarKey }),
     };
   }, [uiState]);
 

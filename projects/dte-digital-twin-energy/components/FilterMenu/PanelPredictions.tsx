@@ -31,14 +31,42 @@ export default function PanelPredictions() {
     ? selectedFilterGridOption
     : filterButton;
 
-  console.log('aggregateFeature', aggregatedFeature);
+  let filterMessage = '';
+
+  // any value in the filterMessage will block the prediction panel from showing
+  if (!uiState.showScenario) {
+    filterMessage = 'Turn on scenario to see predictions';
+  } else if (
+    uiState.filterButton === 'buildings' &&
+    uiState.selectedFilterBuildingOption === 'selection' &&
+    !aggregatedFeature
+  ) {
+    filterMessage = 'Chose the buildnings you want to see above';
+  } else if (
+    uiState.filterButton === 'buildings' &&
+    uiState.selectedFilterBuildingOption === 'single' &&
+    !selectedFeature
+  ) {
+    filterMessage = 'Select building on the map to see predictions';
+  } else if (!selectedFeature && !aggregatedFeature) {
+    filterMessage = 'Select some option to see predictions';
+  } else if (
+    uiState.filterButton === 'buildings' &&
+    uiState.selectedFilterBuildingOption === 'single'
+  ) {
+    // todo: validation
+  }
 
   return (
     <div>
-      <FilterPredictionsSelectionPanel
-        feature={showBuilding ? selectedFeature : aggregatedFeature}
-        renovationKey={uiState.selectedRenovationOption}
-      />
+      {filterMessage ? (
+        <div>{filterMessage}</div>
+      ) : (
+        <FilterPredictionsSelectionPanel
+          feature={showBuilding ? selectedFeature : aggregatedFeature}
+          renovationKey={uiState.selectedRenovationOption}
+        />
+      )}
       {showBuilding ? (
         <FilterPredictionsSingleBuildingPanel
           selectionType={selectionType}

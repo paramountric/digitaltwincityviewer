@@ -27,7 +27,7 @@ function getIndicatorDegreeValues(
   selectedIndicatorKey: string,
   renovationKey: string
 ) {
-  console.log(properties);
+  // console.log(properties);
   const hfa = properties.hfa || 1;
   if (renovationKey !== 'ref') {
     const only1degIsInTheData =
@@ -62,7 +62,7 @@ function applyChart(
     selectedIndicatorKey,
     renovationKey
   );
-  console.log(timelineValues);
+  // console.log(timelineValues);
   const max = Math.max(...timelineValues);
   if (max === 0) {
     return;
@@ -163,6 +163,7 @@ function applyChart(
 const FilterPredictionsSelectionPanel: React.FC<
   FilterPredictionsSelectionPanelProps
 > = props => {
+  const { state: uiState, getCombinedKey } = useUi();
   const deliveredEnergyRef = useRef<HTMLDivElement>(null);
   const finalEnergyRef = useRef<HTMLDivElement>(null);
   const ghgEmissionsRef = useRef<HTMLDivElement>(null);
@@ -170,12 +171,6 @@ const FilterPredictionsSelectionPanel: React.FC<
   const coolDemandRef = useRef<HTMLDivElement>(null);
   const primaryEnergyRef = useRef<HTMLDivElement>(null);
   const [trigger, setTrigger] = useState(-1);
-  const { state: uiState, getCombinedKey } = useUi();
-
-  if (!props.feature || !props.feature.properties) {
-    console.log('no feature or properties, it should have', props);
-    return null;
-  }
 
   useLayoutEffect(() => {
     if (finalEnergyRef.current) {
@@ -227,6 +222,7 @@ const FilterPredictionsSelectionPanel: React.FC<
       );
     }
   }, [props.feature.properties, trigger, uiState.selectedDegreeKey]);
+
   return (
     <div>
       <div>Annual values in climate scenarios</div>

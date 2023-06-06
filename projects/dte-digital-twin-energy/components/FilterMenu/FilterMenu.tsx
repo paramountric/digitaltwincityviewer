@@ -71,7 +71,7 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
           <PanelSelection />
         </FilterResultPanel>
       )}
-      {/* RESULT FROM FILTERING (how to do with isOpen??? is there a way to set it dynamically? */}
+      {/* PREDICTIONS - RESULT FROM FILTERING (how to do with isOpen??? is there a way to set it dynamically? */}
       <FilterResultPanel isOpen={uiState.showScenario} label="Predictions">
         <PanelPredictions />
       </FilterResultPanel>

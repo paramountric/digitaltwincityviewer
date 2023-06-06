@@ -11,9 +11,17 @@ export type RenovationKeys = 'ref' | 'dr' | 'er' | 'hr';
 export type SelectablePropertyKey = 'fe' | 'hd' | 'pe' | 'de' | 'ge' | 'cd';
 export type DegreeKey = '0' | '25' | '45' | '85';
 export type YearKey = '18' | '30' | '50';
+export type SolarKeys = 'period';
 
 export type PropertyKeyOption = {
   key: SelectablePropertyKey;
+  label: string;
+  unit: string;
+  rounding: number;
+};
+
+export type SolarKeyOption = {
+  key: SolarKeys;
   label: string;
   unit: string;
   rounding: number;
@@ -33,6 +41,7 @@ const yearKeys: YearKey[] = ['18', '50'];
 const degreeKeys: DegreeKey[] = ['0', '25', '45', '85'];
 
 const renovationKeys: RenovationKeys[] = ['ref', 'dr', 'er', 'hr'];
+const solarKeys: SolarKeys[] = ['period'];
 const buildingFilterKeys = ['all', 'selection', 'single'];
 const filterCategoryKeys = ['bt', 'hs', 'own', 'vs', 'ot', 'ech'];
 
@@ -294,6 +303,19 @@ const renovationOptions: PropertyKeyOption[] = renovationKeys.map(key => ({
   rounding: rounding[key],
 }));
 
+const solarLabels: {
+  [key: string]: string;
+} = {
+  period: 'Period',
+};
+
+const solarOptions: SolarKeyOption[] = solarKeys.map(key => ({
+  key: key as SolarKeys,
+  label: solarLabels[key],
+  unit: units[key],
+  rounding: rounding[key],
+}));
+
 export {
   propertyLabels,
   units,
@@ -312,6 +334,8 @@ export {
   filterGridOptions,
   renovationLabels,
   renovationOptions,
+  solarLabels,
+  solarOptions,
   filterCategoryOptions,
   filterCategoryKeys,
   filterCategoryLabels,

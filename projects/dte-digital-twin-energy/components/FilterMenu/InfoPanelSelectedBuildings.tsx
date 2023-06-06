@@ -8,12 +8,12 @@ type InfoPanelSelectedBuildingsProps = {
 const displayProperties: string[] = [
   'numFeatures',
   'hfa',
-  'de',
-  'fe',
-  'ge',
-  'hd',
-  'cd',
-  'pe',
+  // 'de',
+  // 'fe',
+  // 'ge',
+  // 'hd',
+  // 'cd',
+  // 'pe',
   // 'hgt',
   // 'bp',
   // 'bps',
@@ -35,7 +35,7 @@ const InfoPanelSelectedBuildings: React.FC<
   InfoPanelSelectedBuildingsProps
 > = props => {
   if (!props.feature) {
-    return <div>Please select in the list below</div>;
+    return <div>Choose the buildings you wish to see below</div>;
   }
   const selectedPropertiesToShow = displayProperties.reduce((memo, key) => {
     const item = {

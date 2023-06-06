@@ -12,17 +12,25 @@ import { useFilterCategories } from '../../hooks/use-filter-categories';
 import { filterCategoryLabels } from '../../lib/constants';
 
 export default function PanelBuilding() {
-  const { viewer, getFeatureCategories } = useViewer();
-  const { actions: uiActions, state: uiState } = useUi();
+  const [selections, setSelections] = useState<any>({});
   const {
     state: filteredFeatures,
-    actions: { addFilteredFeatures },
+    actions: { addFilteredFeatures, removeFilteredFeatures },
   } = useFilteredFeatures();
   const { state: filterCategories } = useFilterCategories();
 
-  const handleAddSelectedFeatures = (selectionCategory: any) => {
+  const handleAddSelectedFeatures = (key: string, selectionCategory: any) => {
     console.log('selectionCategory', selectionCategory);
-    addFilteredFeatures(Object.values(selectionCategory));
+    // it's to be turned off
+    if (selections[key]) {
+      removeFilteredFeatures(Object.values(selectionCategory));
+    } else {
+      addFilteredFeatures(Object.values(selectionCategory));
+    }
+    setSelections({
+      ...selections,
+      [key]: !selections[key],
+    });
   };
 
   return (
@@ -39,8 +47,12 @@ export default function PanelBuilding() {
                   id="default-checkbox"
                   type="checkbox"
                   value=""
-                  onClick={() => {
-                    handleAddSelectedFeatures(filterCategories[category][key]);
+                  checked={Boolean(selections[key])}
+                  onChange={() => {
+                    handleAddSelectedFeatures(
+                      key,
+                      filterCategories[category][key]
+                    );
                   }}
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />

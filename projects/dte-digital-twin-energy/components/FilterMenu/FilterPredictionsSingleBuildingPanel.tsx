@@ -24,14 +24,29 @@ function formatValue(properties: any, propertyKey: string) {
 // kwh/m2 or total ghg/m2 for each of the years
 function getIndicatorDegreeValues(
   properties: any,
-  selectedIndicatorKey: string
+  selectedIndicatorKey: string,
+  renovationKey: string
 ) {
   console.log(properties);
+  const hfa = properties.hfa || 1;
+  // if (renovationKey !== 'ref') {
+  //   const only1degIsInTheData =
+  //     properties[`${selectedIndicatorKey}50_25_${renovationKey}`];
+  //   return [0, only1degIsInTheData / hfa, 0, 0];
+  // }
   // todo: refactor the property names, since they are not named in a good way -> the 18 year has the same values and are all the degZero
-  const deg0 = properties[`${selectedIndicatorKey}18_25_ref_ban`];
-  const deg25 = properties[`${selectedIndicatorKey}50_25_ref_ban`];
-  const deg45 = properties[`${selectedIndicatorKey}50_45_ref_ban`];
-  const deg85 = properties[`${selectedIndicatorKey}50_85_ref_ban`];
+  const deg0 = JSON.parse(
+    properties[`m${selectedIndicatorKey}18_25_${renovationKey}`] || '{}'
+  );
+  const deg25 = JSON.parse(
+    properties[`m${selectedIndicatorKey}50_25_${renovationKey}`] || '{}'
+  );
+  const deg45 = JSON.parse(
+    properties[`m${selectedIndicatorKey}50_45_${renovationKey}`] || '{}'
+  );
+  const deg85 = JSON.parse(
+    properties[`m${selectedIndicatorKey}50_85_${renovationKey}`] || '{}'
+  );
   return [deg0, deg25, deg45, deg85];
   // return ['18', '50'].map(year => {
   //   const keyAddM2 = `${selectedIndicatorKey}${year}_${selectedDegreeKey}_ban`; // building area normalized
@@ -51,20 +66,42 @@ function applyChart(
   select(el).selectAll('svg').remove();
   const timelineValues = getIndicatorDegreeValues(
     properties,
-    selectedIndicatorKey
+    selectedIndicatorKey,
+    'ref'
   );
   console.log(timelineValues);
-  const max = Math.max(...timelineValues);
+  // find max of array of array with numbers
+  const max = Math.max(...timelineValues.flat());
   if (max === 0) {
     return;
   }
+
+  const monthlyValues = Array(12)
+    .fill(0)
+    .map((_, i) => {
+      return [
+        timelineValues[0][i],
+        timelineValues[1][i],
+        timelineValues[2][i],
+        timelineValues[3][i],
+      ];
+    });
+
+  console.log(monthlyValues);
 
   const degrees: string[] = ['2018', '+1°C', '+1.5°C', '+2°C'];
 
   const margin = { top: 20, right: 0, bottom: 20, left: 60 };
   const width = 500 - margin.left - margin.right;
   const height = 220 - margin.top - margin.bottom;
-  const x = scaleBand().domain(degrees).range([0, width]).padding(0.6);
+  const x0 = scaleBand()
+    .domain(monthlyValues.map((_, i) => i + 1) as any)
+    .range([0, width])
+    .padding(0.1);
+  const x1 = scaleBand()
+    .domain(degrees)
+    .range([0, x0.bandwidth()])
+    .padding(0.05);
   const y = scaleLinear().domain([0, max]).range([height, 0]);
 
   const svg = select(el)
@@ -77,34 +114,73 @@ function applyChart(
   const tooltip = select('.tooltip');
 
   svg
+    .selectAll('.month')
+    .data(monthlyValues)
+    .enter()
+    .append('g')
+    .attr('class', 'month')
+    .attr('transform', (d, i) => `translate(${x0((i + 1) as any)},0)`)
     .selectAll('.bar')
-    .data(timelineValues)
+    .data(d => d)
     .enter()
     .append('rect')
-    .attr('fill', d => getColorFromScale(d, scaleKey, true))
+    .attr('fill', (d, i) =>
+      getColorFromScale(timelineValues[i], scaleKey, true)
+    )
     .attr('stroke', '#aaa')
     .attr('stroke-width', '0.5px')
     .attr('class', 'bar')
-    .attr('x', (d, i): number => {
-      return x(degrees[i]) as number;
-    })
-    .attr('width', x.bandwidth())
-    .attr('y', function (d) {
-      return y(d);
-    })
-    .attr('height', function (d) {
-      return height - y(d);
-    })
-    .on('mouseover', function (d) {
-      console.log(d);
-      tooltip
-        .text(d.target.__data__.toFixed(1) + ' ' + unit)
-        .style('left', d.offsetX + 'px')
-        .style('top', d.y - 35 + 'px');
-    })
-    .on('mouseout', function (d) {
-      //tooltip.style('opacity', 0);
-    });
+    .attr('x', (d, i) => x1(degrees[i]) as number)
+    .attr('width', x1.bandwidth())
+    .attr('y', d => y(d))
+    .attr('height', d => height - y(d));
+
+  // const degrees: string[] = ['2018', '+1°C', '+1.5°C', '+2°C'];
+
+  // const margin = { top: 20, right: 0, bottom: 20, left: 60 };
+  // const width = 500 - margin.left - margin.right;
+  // const height = 220 - margin.top - margin.bottom;
+  // const x = scaleBand().domain(degrees).range([0, width]).padding(0.6);
+  // const y = scaleLinear().domain([0, max]).range([height, 0]);
+
+  // const svg = select(el)
+  //   .append('svg')
+  //   .attr('width', width + margin.left + margin.right)
+  //   .attr('height', height + margin.top + margin.bottom)
+  //   .append('g')
+  //   .attr('transform', `translate(${margin.left},${margin.top})`);
+
+  // const tooltip = select('.tooltip');
+
+  // svg
+  //   .selectAll('.bar')
+  //   .data(timelineValues)
+  //   .enter()
+  //   .append('rect')
+  //   .attr('fill', d => getColorFromScale(d, scaleKey, true))
+  //   .attr('stroke', '#aaa')
+  //   .attr('stroke-width', '0.5px')
+  //   .attr('class', 'bar')
+  //   .attr('x', (d, i): number => {
+  //     return x(degrees[i]) as number;
+  //   })
+  //   .attr('width', x.bandwidth())
+  //   .attr('y', function (d) {
+  //     return y(d);
+  //   })
+  //   .attr('height', function (d) {
+  //     return height - y(d);
+  //   })
+  //   .on('mouseover', function (d) {
+  //     console.log(d);
+  //     tooltip
+  //       .text(d.target.__data__.toFixed(1) + ' ' + unit)
+  //       .style('left', d.offsetX + 'px')
+  //       .style('top', d.y - 35 + 'px');
+  //   })
+  //   .on('mouseout', function (d) {
+  //     //tooltip.style('opacity', 0);
+  //   });
   // svg
   //   .selectAll('.bar-text')
   //   .data(timelineValues)
@@ -131,7 +207,7 @@ function applyChart(
   svg
     .append('g')
     .attr('transform', 'translate(0,' + height + ')')
-    .call(axisBottom(x));
+    .call(axisBottom(x0));
 
   svg.append('g').call(axisLeft(y).ticks(2));
 

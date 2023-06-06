@@ -2,6 +2,7 @@ import { useUi } from '../../hooks/use-ui';
 import ButtonSwitch from '../ButtonSwitch';
 import ScenarioEnergy from './ScenarioEnergy';
 import ScenarioRenovation from './ScenarioRenovation';
+import ScenarioSolar from './ScenarioSolar';
 import ButtonSelect from '../ButtonSelect';
 
 function classNames(...classes: string[]) {
@@ -20,7 +21,7 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
       case 'energy':
         return <ScenarioEnergy />;
       case 'solar':
-        return <div>Solar</div>;
+        return <ScenarioSolar />;
       case 'renovation':
         return <ScenarioRenovation />;
       default:
