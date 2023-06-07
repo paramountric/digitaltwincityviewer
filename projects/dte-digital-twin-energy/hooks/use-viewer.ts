@@ -50,20 +50,60 @@ const BUILDING_FUTURE_PAINT_PROPERTY = [
 //   DEFAULT_BUILDING_COLOR_HOVER_LIGHT,
 // ];
 
-const GRID_LAYERS = [
-  'grid1km2018',
-  'grid1km2050',
-  'grid250m2018',
-  'grid250m2050',
-  'grid100m2018',
-  'grid100m2050',
-  'cityDistricts2018',
-  'cityDistricts2050',
-  'baseAreas2018',
-  'baseAreas2050',
-  'primaryAreas2018',
-  'primaryAreas2050',
+const AGGREGATION_LAYERS = [
+  'grid1km2018-fill',
+  'grid1km2018-line',
+  'grid1km2050-fill',
+  'grid1km2050-line',
+  'grid250m2018-fill',
+  'grid250m2018-line',
+  'grid250m2050-fill',
+  'grid250m2050-line',
+  'grid100m2018-fill',
+  'grid100m2018-line',
+  'grid100m2050-fill',
+  'grid100m2050-line',
+  'cityDistricts2018-fill',
+  'cityDistricts2018-line',
+  'cityDistricts2050-fill',
+  'cityDistricts2050-line',
+  'baseAreas2018-fill',
+  'baseAreas2018-line',
+  'baseAreas2050-fill',
+  'baseAreas2050-line',
+  'primaryAreas2018-fill',
+  'primaryAreas2018-line',
+  'primaryAreas2050-fill',
+  'primaryAreas2050-line',
 ];
+
+const aggregationLayers = AGGREGATION_LAYERS.map(layerId => {
+  const layer = layerId.split('-')[0];
+  const type = layerId.split('-')[1];
+
+  return {
+    id: layerId,
+    name: layerId,
+    type,
+    source: 'vectorTiles',
+    'source-layer': layer,
+    maxzoom: 18,
+    minzoom: 10,
+    layout: {
+      visibility: 'none',
+    },
+    paint:
+      type === 'line'
+        ? {
+            'line-color': '#000', // set the line color to red
+            'line-width': 4, // set the line width to 2 pixels
+          }
+        : {
+            'fill-color': BUILDING_PAINT_PROPERTY,
+            'fill-opacity': 1,
+          },
+  };
+});
 
 const gothenburg = cities.find((c: any) => c.id === 'gothenburg');
 if (!gothenburg || !gothenburg.x) {
@@ -95,243 +135,7 @@ const maplibreOptions = {
           'background-color': 'rgba(255, 255, 255, 1)',
         },
       },
-      // {
-      //   id: 'grid1km2018',
-      //   name: 'Grid 1km 2018 extruded',
-      //   type: 'fill-extrusion',
-      //   source: 'vectorTiles',
-      //   'source-layer': 'grid1Km2018',
-      //   maxzoom: 18,
-      //   minzoom: 10, //aggregationZoomLevels[3],
-      //   layout: {
-      //     visibility: 'none',
-      //   },
-      //   paint: {
-      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-      //     'fill-extrusion-height': 1,
-      //     'fill-extrusion-base': 0,
-      //     'fill-extrusion-opacity': 1,
-      //   },
-      // },
-      // {
-      //   id: 'grid1km2050',
-      //   name: 'Grid 1km 2050 extruded',
-      //   type: 'fill-extrusion',
-      //   source: 'vectorTiles',
-      //   'source-layer': 'grid1Km2050',
-      //   maxzoom: 18,
-      //   minzoom: 10, //aggregationZoomLevels[3],
-      //   layout: {
-      //     visibility: 'none',
-      //   },
-      //   paint: {
-      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-      //     'fill-extrusion-height': 1,
-      //     'fill-extrusion-base': 0,
-      //     'fill-extrusion-opacity': 1,
-      //   },
-      // },
-      // {
-      //   id: 'grid250m2018',
-      //   name: 'Grid 250m 2018 extruded',
-      //   type: 'fill-extrusion',
-      //   source: 'vectorTiles',
-      //   'source-layer': 'grid250m2018',
-      //   maxzoom: 18,
-      //   minzoom: 10, //aggregationZoomLevels[3],
-      //   layout: {
-      //     visibility: 'none',
-      //   },
-      //   paint: {
-      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-      //     'fill-extrusion-height': 1,
-      //     'fill-extrusion-base': 0,
-      //     'fill-extrusion-opacity': 1,
-      //   },
-      // },
-      // {
-      //   id: 'grid250m2050',
-      //   name: 'Grid 250m 2050 extruded',
-      //   type: 'fill-extrusion',
-      //   source: 'vectorTiles',
-      //   'source-layer': 'grid250m2050',
-      //   maxzoom: 18,
-      //   minzoom: 10, //aggregationZoomLevels[3],
-      //   layout: {
-      //     visibility: 'none',
-      //   },
-      //   paint: {
-      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-      //     'fill-extrusion-height': 1,
-      //     'fill-extrusion-base': 0,
-      //     'fill-extrusion-opacity': 1,
-      //   },
-      // },
-      // {
-      //   id: 'grid100m2018',
-      //   name: 'Grid 100m 2018 extruded',
-      //   type: 'fill-extrusion',
-      //   source: 'vectorTiles',
-      //   'source-layer': 'grid100m2018',
-      //   maxzoom: 18,
-      //   minzoom: 10, //aggregationZoomLevels[3],
-      //   layout: {
-      //     visibility: 'none',
-      //   },
-      //   paint: {
-      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-      //     'fill-extrusion-height': 1,
-      //     'fill-extrusion-base': 0,
-      //     'fill-extrusion-opacity': 1,
-      //   },
-      // },
-      // {
-      //   id: 'grid100m2050',
-      //   name: 'Grid 100m 2050 extruded',
-      //   type: 'fill-extrusion',
-      //   source: 'vectorTiles',
-      //   'source-layer': 'grid100m2050',
-      //   maxzoom: 18,
-      //   minzoom: 10, //aggregationZoomLevels[3],
-      //   layout: {
-      //     visibility: 'none',
-      //   },
-      //   paint: {
-      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-      //     'fill-extrusion-height': 1,
-      //     'fill-extrusion-base': 0,
-      //     'fill-extrusion-opacity': 1,
-      //   },
-      // },
-
-      // {
-      //   id: 'cityDistricts2018',
-      //   name: 'City Districts 2018 extruded',
-      //   type: 'fill-extrusion',
-      //   source: 'vectorTiles',
-      //   'source-layer': 'cityDistricts2018',
-      //   maxzoom: 18,
-      //   minzoom: 10, //aggregationZoomLevels[3],
-      //   layout: {
-      //     visibility: 'none',
-      //   },
-      //   paint: {
-      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-      //     'fill-extrusion-height': 1,
-      //     'fill-extrusion-base': 0,
-      //     'fill-extrusion-opacity': 1,
-      //   },
-      // },
-      // {
-      //   id: 'cityDistricts2050',
-      //   name: 'City Districts 2050 extruded',
-      //   type: 'fill-extrusion',
-      //   source: 'vectorTiles',
-      //   'source-layer': 'cityDistricts2050',
-      //   maxzoom: 18,
-      //   minzoom: 10, //aggregationZoomLevels[3],
-      //   layout: {
-      //     visibility: 'none',
-      //   },
-      //   paint: {
-      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-      //     'fill-extrusion-height': 1,
-      //     'fill-extrusion-base': 0,
-      //     'fill-extrusion-opacity': 1,
-      //   },
-      // },
-
-      // {
-      //   id: 'baseAreas2018',
-      //   name: 'Base Areas 2018 extruded',
-      //   type: 'fill-extrusion',
-      //   source: 'vectorTiles',
-      //   'source-layer': 'baseAreas2018',
-      //   maxzoom: 18,
-      //   minzoom: 10, //aggregationZoomLevels[3],
-      //   layout: {
-      //     visibility: 'none',
-      //   },
-      //   paint: {
-      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-      //     'fill-extrusion-height': 1,
-      //     'fill-extrusion-base': 0,
-      //     'fill-extrusion-opacity': 1,
-      //   },
-      // },
-      // {
-      //   id: 'baseAreas2050',
-      //   name: 'Base Areas 2050 extruded',
-      //   type: 'fill-extrusion',
-      //   source: 'vectorTiles',
-      //   'source-layer': 'baseAreas2050',
-      //   maxzoom: 18,
-      //   minzoom: 10, //aggregationZoomLevels[3],
-      //   layout: {
-      //     visibility: 'none',
-      //   },
-      //   paint: {
-      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-      //     'fill-extrusion-height': 1,
-      //     'fill-extrusion-base': 0,
-      //     'fill-extrusion-opacity': 1,
-      //   },
-      // },
-
-      {
-        id: 'primaryAreas2018',
-        name: 'Primary areas 2018 extruded',
-        type: 'fill',
-        source: 'vectorTiles',
-        'source-layer': 'primaryAreas2018',
-        maxzoom: 18,
-        minzoom: 10, //aggregationZoomLevels[3],
-        // layout: {
-        //   visibility: 'none',
-        // },
-        paint: {
-          'fill-color': '#fff',
-          'fill-opacity': 0.5,
-          'fill-outline-color': '#000',
-        },
-        // paint: {
-        //   'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-        //   'fill-extrusion-height': 1,
-        //   'fill-extrusion-base': 0,
-        //   'fill-extrusion-opacity': 1,
-        // },
-      },
-      // {
-      //   id: 'primaryAreas2050',
-      //   name: 'Primary areas 2050 extruded',
-      //   type: 'fill-extrusion',
-      //   source: 'vectorTiles',
-      //   'source-layer': 'primaryAreas2050',
-      //   maxzoom: 18,
-      //   minzoom: 10, //aggregationZoomLevels[3],
-      //   layout: {
-      //     visibility: 'none',
-      //   },
-      //   paint: {
-      //     'fill-extrusion-color': BUILDING_PAINT_PROPERTY,
-      //     'fill-extrusion-height': 1,
-      //     'fill-extrusion-base': 0,
-      //     'fill-extrusion-opacity': 1,
-      //   },
-      // },
-
-      // {
-      //   id: 'primaryAreas2018Outline',
-      //   type: 'fill',
-      //   source: 'vectorTiles',
-      //   'source-layer': 'primaryAreas2018',
-      //   paint: {
-      //     'fill-color': '#fff',
-      //     'fill-opacity': 0.5,
-      //     'fill-outline-color': '#000',
-      //   },
-      // },
-
+      ...aggregationLayers,
       {
         id: 'water',
         name: 'Water',
@@ -422,19 +226,6 @@ const maplibreOptions = {
           'fill-extrusion-opacity': 1,
         },
       },
-      {
-        id: 'primaryAreas2018-line',
-        name: 'Primary areas 2018 line',
-        type: 'line',
-        source: 'vectorTiles',
-        'source-layer': 'primaryAreas2018',
-        maxzoom: 18,
-        minzoom: 10,
-        paint: {
-          'line-color': '#f00', // set the line color to red
-          'line-width': 2, // set the line width to 2 pixels
-        },
-      },
     ],
     sources: {
       vectorTiles: {
@@ -513,16 +304,34 @@ export const useViewer = (): UseViewerProps => {
     if (hasChanged) {
       // first assign layout property
       // ASSIGN VISIBILITY
-      viewer.maplibreMap?.setLayoutProperty(
-        'building',
-        'visibility',
-        selectedYearKey === '18' ? 'visible' : 'none'
-      );
-      viewer.maplibreMap?.setLayoutProperty(
-        'building-future',
-        'visibility',
-        selectedYearKey === '50' ? 'visible' : 'none'
-      );
+      // hide all aggregation layers (later set any active to visible)
+      AGGREGATION_LAYERS.forEach(layer => {
+        viewer.maplibreMap?.setLayoutProperty(layer, 'visibility', 'none');
+      });
+      if (uiState.filterButton === 'buildings') {
+        viewer.maplibreMap?.setLayoutProperty(
+          'building',
+          'visibility',
+          selectedYearKey === '18' ? 'visible' : 'none'
+        );
+        viewer.maplibreMap?.setLayoutProperty(
+          'building-future',
+          'visibility',
+          selectedYearKey === '50' ? 'visible' : 'none'
+        );
+      } else if (uiState.filterButton === 'primaryAreas') {
+        const primaryAreasName = `primaryAreas${selectedYearKey}`;
+        viewer.maplibreMap?.setLayoutProperty(
+          `${primaryAreasName}-fill`,
+          'visibility',
+          'visible'
+        );
+        viewer.maplibreMap?.setLayoutProperty(
+          `${primaryAreasName}-line`,
+          'visibility',
+          'visible'
+        );
+      }
 
       // START SHOW SCENARIO BLOCK
       if (uiState.showScenario) {
@@ -584,7 +393,12 @@ export const useViewer = (): UseViewerProps => {
 
           // - CATEGORIES
 
-          if (shouldFindAllCategories) {
+          const switchingOnScenario =
+            uiState.showScenario &&
+            !lastUiState.showScenario &&
+            uiState.selectedFilterBuildingOption === 'selection';
+
+          if (shouldFindAllCategories || switchingOnScenario) {
             for (const key of filterCategoryKeys) {
               // check if value exists
               if (!f.properties[key]) {
@@ -709,6 +523,7 @@ export const useViewer = (): UseViewerProps => {
                     undefined
                   );
                   if (features.length > 0) {
+                    console.log(uiState.filterButton);
                     // if (selectedFeature) {
                     //   maplibreMap.setFeatureState(
                     //     {
@@ -759,33 +574,33 @@ export const useViewer = (): UseViewerProps => {
                 // ON HOVER
 
                 // Add a hover effect to the primaryAreas2018 layer
-                maplibreMap.on('mousemove', 'building', e => {
-                  if (!e.features || e.features?.length === 0) {
-                    return;
-                  }
-                  // Change the cursor style to a pointer
-                  maplibreMap.getCanvas().style.cursor = 'pointer';
+                // maplibreMap.on('mousemove', 'building', e => {
+                //   if (!e.features || e.features?.length === 0) {
+                //     return;
+                //   }
+                //   // Change the cursor style to a pointer
+                //   maplibreMap.getCanvas().style.cursor = 'pointer';
 
-                  // Get the feature under the mouse pointer
-                  const feature = e.features[0];
+                //   // Get the feature under the mouse pointer
+                //   const feature = e.features[0];
 
-                  // Set the fill color of the feature to blue
-                  maplibreMap.setPaintProperty(
-                    'building',
-                    'fill-extrusion-color',
-                    ['case', ['==', ['id'], feature.id], '#00f', '#fff']
-                  );
-                });
+                //   // Set the fill color of the feature to blue
+                //   maplibreMap.setPaintProperty(
+                //     'building',
+                //     'fill-extrusion-color',
+                //     ['case', ['==', ['id'], feature.id], '#00f', '#fff']
+                //   );
+                // });
 
-                // Reset the cursor style and fill color when the mouse leaves the layer
-                maplibreMap.on('mouseleave', 'building', () => {
-                  maplibreMap.getCanvas().style.cursor = '';
-                  maplibreMap.setPaintProperty(
-                    'building',
-                    'fill-extrusion-color',
-                    '#fff'
-                  );
-                });
+                // // Reset the cursor style and fill color when the mouse leaves the layer
+                // maplibreMap.on('mouseleave', 'building', () => {
+                //   maplibreMap.getCanvas().style.cursor = '';
+                //   maplibreMap.setPaintProperty(
+                //     'building',
+                //     'fill-extrusion-color',
+                //     '#fff'
+                //   );
+                // });
 
                 // const hoverLayers = ['building', 'building-future'];
 

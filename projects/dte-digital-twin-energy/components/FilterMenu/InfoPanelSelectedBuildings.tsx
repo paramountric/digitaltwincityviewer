@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 import { propertyLabels, units, rounding } from '../../lib/constants';
+import { useUi } from '../../hooks/use-ui';
 
 type InfoPanelSelectedBuildingsProps = {
   feature: any;
@@ -34,6 +35,10 @@ function formatValue(properties: any, propertyKey: string) {
 const InfoPanelSelectedBuildings: React.FC<
   InfoPanelSelectedBuildingsProps
 > = props => {
+  const { state: uiState } = useUi();
+  if (!uiState.showScenario) {
+    return <div>Turn on scenarios to view predictions</div>;
+  }
   if (!props.feature) {
     return <div>Choose the buildings you wish to see below</div>;
   }
