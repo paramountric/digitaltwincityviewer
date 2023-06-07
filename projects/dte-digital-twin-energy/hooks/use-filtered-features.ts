@@ -86,16 +86,12 @@ const useFilteredFeatures = () => {
           return acc;
         }, existingUUIDs || {});
 
-        console.log('existingFeatures', existingFeatures);
-        console.log('newFeatures', newFeatures);
-
         const allFeatures = [...existingFeatures, ...newFeatures];
 
         const aggregatedFeature = aggregateFeatures(
           renovationOption,
           allFeatures
         );
-        console.log(aggregatedFeature, 'aggregatedFeature');
         // add to existing state
         const updatedFilter = {
           featureIds: [...(state.featureIds || []), ...newFeatureIds],
@@ -116,7 +112,6 @@ const useFilteredFeatures = () => {
         }
         const state = filteredFeaturesStore.get();
         const existingFeatures = state.features || [];
-        console.log('existingFeatures', existingFeatures);
         const removeUUIDs = features.reduce((acc: any, feature: any) => {
           acc[feature.properties.UUID] = feature.id;
           return acc;
@@ -124,8 +119,6 @@ const useFilteredFeatures = () => {
         const withoutFeatures = existingFeatures.filter(
           (feature: any) => !removeUUIDs[feature.properties.UUID]
         );
-        console.log('withoutFeatures', withoutFeatures);
-        console.log('feature coming in', features);
         if (!withoutFeatures.length) {
           filteredFeaturesStore.set({});
           return;

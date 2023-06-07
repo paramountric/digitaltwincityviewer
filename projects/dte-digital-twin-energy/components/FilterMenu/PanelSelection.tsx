@@ -18,6 +18,7 @@ export default function PanelBuilding() {
     actions: { addFilteredFeatures, removeFilteredFeatures },
   } = useFilteredFeatures();
   const { state: filterCategories } = useFilterCategories();
+  const { actions: uiActions } = useUi();
 
   const handleAddSelectedFeatures = (key: string, selectionCategory: any) => {
     console.log('selectionCategory', selectionCategory);
@@ -27,6 +28,7 @@ export default function PanelBuilding() {
     } else {
       addFilteredFeatures(Object.values(selectionCategory));
     }
+    uiActions.triggerUpdate();
     setSelections({
       ...selections,
       [key]: !selections[key],

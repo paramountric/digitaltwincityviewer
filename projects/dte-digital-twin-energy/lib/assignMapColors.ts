@@ -1,4 +1,5 @@
 import { UiStore } from '../hooks/use-ui';
+import { AGGREGATION_LAYERS } from '../hooks/use-viewer';
 
 const DEFAULT_BUILDING_COLOR = 'rgb(200, 200, 200)';
 const BUILDING_COLOR_LIGHT = 'rgb(255, 255, 255)';
@@ -10,6 +11,7 @@ export function assignMapColors(map: any, uiStore: UiStore) {
     selectedYearKey,
     selectedDegreeKey,
     selectedRenovationOption,
+    filterButton,
   } = uiStore;
   if (showScenario) {
     const key = getCombinedKey(uiStore);
@@ -25,15 +27,14 @@ export function assignMapColors(map: any, uiStore: UiStore) {
       ['get', `${key}_bcol`],
       BUILDING_COLOR_LIGHT,
     ]);
-    // below is working
-    // map.setPaintProperty('building', 'fill-extrusion-color', [
-    //   'get',
-    //   `${key}_bcol`,
-    // ]);
-    // map.setPaintProperty('building-future', 'fill-extrusion-color', [
-    //   'get',
-    //   `${key}_bcol`,
-    // ]);
+    // AGGREGATION_LAYERS.forEach(layer => {
+    //   map.setPaintProperty(layer, 'fill-color', [
+    //     'case',
+    //     ['boolean', ['feature-state', 'showScenario'], true],
+    //     ['get', `${key}_bcol`],
+    //     BUILDING_COLOR_LIGHT,
+    //   ]);
+    // });
   } else {
     map.setPaintProperty(
       'building',
@@ -45,6 +46,9 @@ export function assignMapColors(map: any, uiStore: UiStore) {
       'fill-extrusion-color',
       DEFAULT_BUILDING_COLOR
     );
+    // AGGREGATION_LAYERS.forEach(layer => {
+    //   map.setPaintProperty(layer, 'fill-color', DEFAULT_BUILDING_COLOR);
+    // });
   }
 }
 
@@ -257,57 +261,6 @@ function getCombinedKey(uiState: UiStore) {
 //   selectedFilterGridOption
 // );
 // }, [uiState.selectedFilterGridOption]);
-
-// TOGGLE PINS
-// useEffect(() => {
-//   if (!viewer) {
-//     return;
-//   }
-//   if (uiState.showPins) {
-//     const pinData = notes
-//       .filter(n => n.center)
-//       .filter(
-//         (obj, index, self) => index === self.findIndex(o => o.id === obj.id)
-//       );
-//     viewer.setIconLayerProps({
-//       id: 'pin-icon-layer',
-//       data: pinData,
-//       visible: true,
-//       // iconAtlas:
-//       //   'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/icon-atlas.png',
-//       // iconMapping: {
-//       //   marker: { x: 0, y: 0, width: 128, height: 128, mask: true },
-//       // },
-//       getIcon: () => ({
-//         url: `${dtcvFilesUrl}/location-pin.png`,
-//         width: 128,
-//         height: 128,
-//         anchorY: 128,
-//       }), //(d: any) => 'marker',
-//       // sizeMinPixels: 10,
-//       // sizeMaxPixels: 20,
-//       getPosition: (d: any) => {
-//         console.log(d);
-//         return [...d.center, d.elevation || 0];
-//       },
-//       getSize: (d: any) => 30,
-//       getColor: (d: any) => [0, 140, 0],
-//       transitions: {
-//         getPositions: {
-//           duration: 800,
-//           easing: easeCubicIn,
-//           enter: (value: any) => [value[0], value[1], 1000, 1], // fade in
-//         },
-//       },
-//     });
-//   } else {
-//     viewer.setIconLayerProps({
-//       id: 'pin-icon-layer',
-//       _animate: true,
-//       visible: false,
-//     });
-//   }
-// }, [uiState.showPins, notes]);
 
 // useEffect(() => {
 //   if (viewer?.maplibreMap && lastHoveredObject) {

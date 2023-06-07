@@ -33,6 +33,7 @@ export type UiStore = {
   showLayerWater: boolean;
   showLayerStreets: boolean;
   showLayerTrees: boolean;
+  trigger: number; // use for triggering tile processing
 };
 
 const uiStore = new Observable<UiStore>({
@@ -54,6 +55,7 @@ const uiStore = new Observable<UiStore>({
   showLayerWater: false,
   showLayerStreets: false,
   showLayerTrees: false,
+  trigger: 0,
 });
 
 export const useUi = () => {
@@ -112,6 +114,8 @@ export const useUi = () => {
         uiStore.set({ ...uiState, selectedRenovationOption }),
       setSelectedSolarKey: (selectedSolarKey: string) =>
         uiStore.set({ ...uiState, selectedSolarKey }),
+      triggerUpdate: () =>
+        uiStore.set({ ...uiState, trigger: uiState.trigger + 1 }),
     };
   }, [uiState]);
 
