@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Observable } from '../lib/Observable';
-import { propertyKeys, degreeKeys } from '../lib/constants';
+import { propertyKeys, degreeKeys, filterCategoryKeys } from '../lib/constants';
 import { UiStore } from './use-ui';
+
+const filteredCategoriesPlusConstructionYear = ['cy', ...filterCategoryKeys];
 
 type FeatureFilter = {
   featureIds?: number[];
@@ -24,13 +26,37 @@ const useFilteredFeatures = () => {
 
   useEffect(() => {}, [filteredFeatures]);
 
+  const aggregateFilterCategoryValue = (aggr: any, key: string, value: any) => {
+    if (!aggr[key]) {
+      aggr[key] = {};
+    }
+    if (key === 'cy') {
+      aggr[key].min = Math.min(aggr[key].min || Infinity, Number(value));
+      aggr[key].max = Math.max(aggr[key].max || -Infinity, Number(value));
+    } else {
+      // store each string value only once
+      aggr[key][value] = true;
+    }
+  };
+
   // must aggregate all properties with all years
   const aggregateFeatures = (renovationOption: string, features: any[]) => {
+    const filterCategoryAggregation = {} as any;
     const aggregatedFeature = features.reduce(
       (acc: any, feature: any) => {
         const { hfa } = feature.properties;
         if (hfa && typeof hfa === 'number') {
           acc.properties.hfa += hfa;
+        }
+        for (const filterCategoryKey of filteredCategoriesPlusConstructionYear) {
+          const filterCategoryValue = feature.properties[filterCategoryKey];
+          if (filterCategoryValue) {
+            aggregateFilterCategoryValue(
+              filterCategoryAggregation,
+              filterCategoryKey,
+              filterCategoryValue
+            );
+          }
         }
         acc.properties.numFeatures += 1;
         propertyKeys.forEach(pKey => {
@@ -61,6 +87,17 @@ const useFilteredFeatures = () => {
         },
       }
     );
+    console.log('filter cat agg', filterCategoryAggregation);
+    for (const key of Object.keys(filterCategoryAggregation)) {
+      if (key === 'cy') {
+        const { min, max } = filterCategoryAggregation[key];
+        aggregatedFeature.properties[key] = `${min}-${max}`;
+      } else {
+        aggregatedFeature.properties[key] = Object.keys(
+          filterCategoryAggregation[key]
+        );
+      }
+    }
     return aggregatedFeature;
   };
 

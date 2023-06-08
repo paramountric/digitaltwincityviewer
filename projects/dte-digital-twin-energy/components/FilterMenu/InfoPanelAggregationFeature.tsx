@@ -8,7 +8,7 @@ import {
 } from '../../lib/constants';
 import { useUi } from '../../hooks/use-ui';
 
-type InfoPanelSelectedBuildingsProps = {
+type InfoPanelAggregationFeatureProps = {
   feature: any;
 };
 
@@ -41,15 +41,15 @@ function formatValue(properties: any, propertyKey: string) {
   return val;
 }
 
-const InfoPanelSelectedBuildings: React.FC<
-  InfoPanelSelectedBuildingsProps
+const InfoPanelAggregationFeature: React.FC<
+  InfoPanelAggregationFeatureProps
 > = props => {
   const { state: uiState } = useUi();
   if (!uiState.showScenario) {
     return <div>Turn on scenarios to view predictions</div>;
   }
   if (!props.feature) {
-    return <div>Choose the buildings you wish to see below</div>;
+    return <div>Select area on the map</div>;
   }
   const selectedPropertiesToShow = displayProperties.reduce((memo, key) => {
     const item = {
@@ -81,4 +81,4 @@ const InfoPanelSelectedBuildings: React.FC<
   );
 };
 
-export default InfoPanelSelectedBuildings;
+export default InfoPanelAggregationFeature;

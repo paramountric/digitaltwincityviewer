@@ -279,9 +279,13 @@ const filterCategoryLabels: {
   bt: 'Building type',
   hs: 'Heating system',
   own: 'Ownership',
-  vs: 'Vintage',
-  ot: 'Other',
-  ech: 'Economic sector',
+  vs: 'Ventilation system',
+  ot: 'Owner type',
+  ech: 'Energy carrier',
+  // "by" buildingyear
+  // "wsc": (Boolean, true if the building has an solar collector on the roof)
+
+  // "wpv": (Boolean, true if the building has solar cells on the roof),
 };
 
 const filterCategoryOptions = filterCategoryKeys.map(key => ({

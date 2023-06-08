@@ -9,6 +9,7 @@ import PanelPredictions from './PanelPredictions';
 import InfoPanelSingleBuilding from './InfoPanelSingleBuilding';
 import InfoPanelSelectedBuildings from './InfoPanelSelectedBuildings';
 import InfoPanelAllBuildings from './InfoPanelAllBuildings';
+import InfoPanelAggregationFeature from './InfoPanelAggregationFeature';
 import PanelSelection from './PanelSelection';
 
 type FilterMenuProps = {};
@@ -21,7 +22,7 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
     state: { aggregatedFeature },
   } = useFilteredFeatures();
 
-  const { selectedFilterBuildingOption, filterButton } = uiState;
+  const { selectedFilterBuildingOption, filterButton, showScenario } = uiState;
 
   const allBuildingsFeature = {
     type: 'Feature',
@@ -49,32 +50,42 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
     filterButton === 'buildings' &&
     selectedFilterBuildingOption === 'selection';
 
+  const showAggregation = filterButton !== 'buildings';
+
   return (
     <div className="flex bg-opacity-95 flex-col absolute right-0 z-30 max-h-[calc(100vh-7rem)] p-2 text-gray-700 bg-white border border-gray-300 rounded-l-md top-28 text-m scroll-child">
-      <div className="flex flex-col w-full gap-1">
-        <div className="ml-2 text-xs">See data for...</div>
-        <FilterMenuActionPanel />
-      </div>
+      {showScenario && (
+        <div className="flex flex-col w-full gap-1">
+          <div className="ml-2 text-xs">See data for...</div>
+          <FilterMenuActionPanel />
+        </div>
+      )}
       {/* OVERVIEW */}
       <div className="py-2">
         {showBuilding && <InfoPanelSingleBuilding feature={selectedFeature} />}
         {showSelection && (
           <InfoPanelSelectedBuildings feature={aggregatedFeature} />
         )}
-        {!showBuilding && !showSelection && (
+        {showAggregation && (
+          <InfoPanelAggregationFeature feature={aggregatedFeature} />
+        )}
+        {/* Default info is the 'all buildings' */}
+        {!showBuilding && !showSelection && !showAggregation && (
           <InfoPanelAllBuildings feature={allBuildingsFeature} />
         )}
       </div>
       {/* THIS IS THE EXTRA PANEL WHEN SELECTION FOR FILTER SHOULD BE DONE */}
-      {showSelection && (
+      {showScenario && showSelection && (
         <FilterResultPanel label="Select buildings">
           <PanelSelection />
         </FilterResultPanel>
       )}
       {/* PREDICTIONS - RESULT FROM FILTERING (how to do with isOpen??? is there a way to set it dynamically? */}
-      <FilterResultPanel isOpen={uiState.showScenario} label="Predictions">
-        <PanelPredictions />
-      </FilterResultPanel>
+      {showScenario && (
+        <FilterResultPanel isOpen={uiState.showScenario} label="Predictions">
+          <PanelPredictions />
+        </FilterResultPanel>
+      )}
       {/* NOTES */}
       <FilterResultPanel
         label={

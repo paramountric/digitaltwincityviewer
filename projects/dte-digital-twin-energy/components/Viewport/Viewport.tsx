@@ -4,7 +4,7 @@ import { useUi } from '../../hooks/use-ui';
 import { useSelectedFeature } from '../../hooks/use-selected-feature';
 import Legend from '../Legend/Legend';
 import FilterMenu from '../FilterMenu/FilterMenu';
-import BottomPanel from '../InfoMenu/BottomPanel';
+import InfoModal from '../InfoMenu/InfoModal';
 import LeftMenu from '../LeftMenu/LeftMenu';
 import InfoMenu from '../InfoMenu/InfoMenu';
 // import {
@@ -19,7 +19,7 @@ const Viewport: React.FC<ViewportProps> = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const { initViewer } = useViewer();
   const {
-    state: { showScenario },
+    state: { showScenario, showInfoModal },
   } = useUi();
   const { state: selectedFeatureId } = useSelectedFeature();
   // const climateScenarioData = useClimateScenarioData();
@@ -42,6 +42,7 @@ const Viewport: React.FC<ViewportProps> = () => {
       <LeftMenu />
       <FilterMenu />
       <InfoMenu />
+      <InfoModal />
       {showScenario && <Legend />}
     </>
   );
