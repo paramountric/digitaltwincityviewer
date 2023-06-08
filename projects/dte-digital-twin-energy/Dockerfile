@@ -10,7 +10,7 @@ ENV PATH="${PATH}:${PNPM_HOME}"
 
 RUN pnpm add turbo --global
 COPY . .
-RUN turbo prune --scope=landing --docker
+RUN turbo prune --scope=dte-digital-twin-energy --docker
 
 # Add lockfile and package.json's of isolated subworkspace
 FROM node:18-alpine AS installer
@@ -32,7 +32,7 @@ RUN pnpm install
 # Build the project
 COPY --from=builder /app/out/full/ .
 COPY turbo.json turbo.json
-RUN pnpm turbo run build --filter=landing...
+RUN pnpm turbo run build --filter=dte-digital-twin-energy...
 
 FROM node:18-alpine AS runner
 WORKDIR /app
