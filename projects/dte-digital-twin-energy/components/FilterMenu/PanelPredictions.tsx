@@ -1,14 +1,14 @@
 import { useUi } from '../../hooks/use-ui';
-import { useSelectedFeature } from '../../hooks/use-selected-feature';
+// import { useSelectedFeature } from '../../hooks/use-selected-feature';
 import { useFilteredFeatures } from '../../hooks/use-filtered-features';
 import FilterPredictionsSingleBuildingPanel from './FilterPredictionsSingleBuildingPanel';
 import FilterPredictionsSelectionPanel from './FilterPredictionsSelectionPanel';
 
 export default function PanelPredictions() {
   const { actions: uiActions, state: uiState } = useUi();
-  const { state: selectedFeature } = useSelectedFeature();
+  // const { state: selectedFeature } = useSelectedFeature();
   const {
-    state: { aggregatedFeature },
+    state: { aggregatedFeature, features },
   } = useFilteredFeatures();
 
   const {
@@ -16,6 +16,8 @@ export default function PanelPredictions() {
     filterButton,
     selectedFilterGridOption,
   } = uiState;
+
+  const selectedFeature = features?.length === 1 ? features[0] : null;
 
   const showBuilding =
     filterButton === 'buildings' &&

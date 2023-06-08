@@ -104,14 +104,43 @@ const useFilteredFeatures = () => {
   const actions = useMemo(() => {
     return {
       // add more features to the store (aggregate more)
-      addFilteredFeatures: (features?: any[], renovationOption = 'ref') => {
+      addFilteredFeatures: (
+        features?: any[],
+        renovationOption = 'ref',
+        removePrevious = false
+      ) => {
         if (!features) {
           filteredFeaturesStore.set({});
           return;
         }
+        if (features.length === 0) {
+          filteredFeaturesStore.set({
+            featureIds: [],
+            aggregatedFeature: null,
+            featureUUIDs: {},
+            features: [],
+          });
+          return;
+        }
+        if (features.length === 1) {
+          console.log('set feature', features[0].id, features[0].properties);
+          filteredFeaturesStore.set({
+            featureIds: [features[0].id],
+            aggregatedFeature: features[0],
+            featureUUIDs: {
+              [features[0].properties.UUID]: features[0].id,
+            },
+            features,
+          });
+          return;
+        }
         const state = filteredFeaturesStore.get();
-        const existingUUIDs = state.featureUUIDs || {};
-        const existingFeatures = state.features || [];
+        const existingUUIDs =
+          state.featureUUIDs && !removePrevious ? state.featureUUIDs : {};
+        const existingFeatures =
+          state.features && !removePrevious ? state.features : [];
+        const existingFeatureIds =
+          state.featureIds && !removePrevious ? state.featureIds : [];
         const newFeatures = features;
         // .filter(
         //   (feature: any) => !existingUUIDs[feature.properties.UUID]
@@ -131,7 +160,7 @@ const useFilteredFeatures = () => {
         );
         // add to existing state
         const updatedFilter = {
-          featureIds: [...(state.featureIds || []), ...newFeatureIds],
+          featureIds: [...existingFeatureIds, ...newFeatureIds],
           aggregatedFeature,
           featureUUIDs: {
             ...(state.featureUUIDs || {}),
@@ -199,8 +228,16 @@ const useFilteredFeatures = () => {
         filteredFeaturesStore.set(updatedFilter);
       },
       getFilteredFeatures: () => filteredFeaturesStore.get(),
+      getSelectedFeature: () => {
+        // if only one feature exist in the store, return it other wise return null
+        const state = filteredFeaturesStore.get();
+        if (state.features && state.features.length === 1) {
+          return state.features[0];
+        }
+        return null;
+      },
     };
-  }, []);
+  }, [filteredFeatures]);
 
   return {
     state: filteredFeatures,

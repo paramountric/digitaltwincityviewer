@@ -29,6 +29,7 @@ function getIndicatorDegreeValues(
 ) {
   console.log(properties);
   const hfa = properties.hfa || 1;
+
   // if (renovationKey !== 'ref') {
   //   const only1degIsInTheData =
   //     properties[`${selectedIndicatorKey}50_25_${renovationKey}`];
@@ -36,18 +37,24 @@ function getIndicatorDegreeValues(
   // }
   // todo: refactor the property names, since they are not named in a good way -> the 18 year has the same values and are all the degZero
   const deg0 = JSON.parse(
-    properties[`m${selectedIndicatorKey}18_25_${renovationKey}`] || '{}'
+    properties[`m${selectedIndicatorKey}18_25_${renovationKey}`] || '[0]'
   );
   const deg25 = JSON.parse(
-    properties[`m${selectedIndicatorKey}50_25_${renovationKey}`] || '{}'
+    properties[`m${selectedIndicatorKey}50_25_${renovationKey}`] || '[0]'
   );
   const deg45 = JSON.parse(
-    properties[`m${selectedIndicatorKey}50_45_${renovationKey}`] || '{}'
+    properties[`m${selectedIndicatorKey}50_45_${renovationKey}`] || '[0]'
   );
   const deg85 = JSON.parse(
-    properties[`m${selectedIndicatorKey}50_85_${renovationKey}`] || '{}'
+    properties[`m${selectedIndicatorKey}50_85_${renovationKey}`] || '[0]'
   );
-  return [deg0, deg25, deg45, deg85];
+  // divide each value in the arrays by hfa to get the values per m2
+  return [
+    deg0.map((v: number) => v / hfa),
+    deg25.map((v: number) => v / hfa),
+    deg45.map((v: number) => v / hfa),
+    deg85.map((v: number) => v / hfa),
+  ];
   // return ['18', '50'].map(year => {
   //   const keyAddM2 = `${selectedIndicatorKey}${year}_${selectedDegreeKey}_ban`; // building area normalized
   //   return properties[keyAddM2] || 0;
@@ -68,8 +75,11 @@ function applyChart(
     properties,
     selectedIndicatorKey,
     'ref'
-  );
+  ) as any;
   console.log(timelineValues);
+  if (!timelineValues[0][0] && !timelineValues[1][0]) {
+    return;
+  }
   // find max of array of array with numbers
   const max = Math.max(...timelineValues.flat());
   if (max === 0) {
@@ -86,8 +96,6 @@ function applyChart(
         timelineValues[3][i],
       ];
     });
-
-  console.log(monthlyValues);
 
   const degrees: string[] = ['2018', '+1°C', '+1.5°C', '+2°C'];
 
@@ -248,7 +256,7 @@ const FilterPredictionsSingleBuildingPanel: React.FC<
   const [trigger, setTrigger] = useState(-1);
   const { state: uiState, getCombinedKey } = useUi();
 
-  const selectedType = useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (finalEnergyRef.current) {
       applyChart(finalEnergyRef.current, props.feature.properties, 'fe');
     }
@@ -279,11 +287,7 @@ const FilterPredictionsSingleBuildingPanel: React.FC<
 
   return (
     <div>
-      <div>{`Monthly ${
-        propertyLabels[uiState.selectedPropertyKey]
-      } in climate scenarios for the selected ${
-        selectionLabels[props.selectionType] || props.selectionType
-      }`}</div>
+      <div>{`Monthly values in climate scenarios for the selected building`}</div>
       <div
         className="mt-3"
         id="delivered-energy-bar-chart"

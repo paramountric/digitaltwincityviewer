@@ -52,6 +52,9 @@ function applyChart(
   selectedIndicatorKey: string,
   renovationKey: string
 ) {
+  if (!properties) {
+    return;
+  }
   // take the two first characters of the combinedKey to get the selectedIndicatorKey
   const isGhg = selectedIndicatorKey === 'ge';
   const scaleKey = isGhg ? 'buildingGhg' : 'energyDeclaration';
@@ -176,7 +179,7 @@ const FilterPredictionsSelectionPanel: React.FC<
     if (finalEnergyRef.current) {
       applyChart(
         finalEnergyRef.current,
-        props.feature.properties,
+        props.feature?.properties,
         'fe',
         props.renovationKey
       );
@@ -184,7 +187,7 @@ const FilterPredictionsSelectionPanel: React.FC<
     if (heatDemandRef.current) {
       applyChart(
         heatDemandRef.current,
-        props.feature.properties,
+        props.feature?.properties,
         'hd',
         props.renovationKey
       );
@@ -192,7 +195,7 @@ const FilterPredictionsSelectionPanel: React.FC<
     if (primaryEnergyRef.current) {
       applyChart(
         primaryEnergyRef.current,
-        props.feature.properties,
+        props.feature?.properties,
         'pe',
         props.renovationKey
       );
@@ -200,7 +203,7 @@ const FilterPredictionsSelectionPanel: React.FC<
     if (deliveredEnergyRef.current) {
       applyChart(
         deliveredEnergyRef.current,
-        props.feature.properties,
+        props.feature?.properties,
         'de',
         props.renovationKey
       );
@@ -208,7 +211,7 @@ const FilterPredictionsSelectionPanel: React.FC<
     if (ghgEmissionsRef.current) {
       applyChart(
         ghgEmissionsRef.current,
-        props.feature.properties,
+        props.feature?.properties,
         'ge',
         props.renovationKey
       );
@@ -216,12 +219,12 @@ const FilterPredictionsSelectionPanel: React.FC<
     if (coolDemandRef.current) {
       applyChart(
         coolDemandRef.current,
-        props.feature.properties,
+        props.feature?.properties,
         'cd',
         props.renovationKey
       );
     }
-  }, [props.feature.properties, trigger, uiState.selectedDegreeKey]);
+  }, [props.feature?.properties, trigger, uiState.selectedDegreeKey]);
 
   return (
     <div>

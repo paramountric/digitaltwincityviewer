@@ -1,6 +1,7 @@
+import { useState, useEffect } from 'react';
 import { useNotes } from '../../hooks/use-notes';
 import { useUi } from '../../hooks/use-ui';
-import { useSelectedFeature } from '../../hooks/use-selected-feature';
+// import { useSelectedFeature } from '../../hooks/use-selected-feature';
 import { useFilteredFeatures } from '../../hooks/use-filtered-features';
 import FilterMenuActionPanel from './FilterMenuActionPanel';
 import FilterResultPanel from './FilterResultPanel';
@@ -17,12 +18,22 @@ type FilterMenuProps = {};
 const FilterMenu: React.FC<FilterMenuProps> = () => {
   const { state: uiState, actions } = useUi();
   const { state: notesListState } = useNotes();
-  const { state: selectedFeature } = useSelectedFeature();
-  const {
-    state: { aggregatedFeature },
-  } = useFilteredFeatures();
+  // const [selectedFeature, setSelectedFeature] = useState(null);
+  // const { state: selectedFeature } = useSelectedFeature();
+  const { state: filteredFeatures } = useFilteredFeatures();
+
+  // useEffect(() => {
+  //   console.log('filteredFeatures', filteredFeatures);
+  //   if (filteredFeatures.features && filteredFeatures.features.length === 1) {
+  //     setSelectedFeature(filteredFeatures.features[0]);
+  //   } else {
+  //     setSelectedFeature(null);
+  //   }
+  // }, [filteredFeatures]);
 
   const { selectedFilterBuildingOption, filterButton, showScenario } = uiState;
+  const { aggregatedFeature, features } = filteredFeatures;
+  const selectedFeature = features?.length === 1 ? features[0] : null;
 
   const allBuildingsFeature = {
     type: 'Feature',
@@ -41,10 +52,12 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
     },
   };
 
+  console.log('selectedFeature', selectedFeature);
+
   const showBuilding =
     filterButton === 'buildings' &&
     selectedFeature &&
-    selectedFilterBuildingOption === 'single';
+    (selectedFilterBuildingOption === 'single' || !showScenario);
 
   const showSelection =
     filterButton === 'buildings' &&

@@ -58,6 +58,9 @@ const rounding: DisplayDict = {
 };
 
 function formatValue(properties: any, propertyKey: string) {
+  if (propertyKey === 'wsc' || propertyKey === 'wpv') {
+    return properties[propertyKey] ? 'Yes' : 'No';
+  }
   let val = properties[propertyKey];
   if (val && (rounding[propertyKey] || rounding[propertyKey] === 0)) {
     val = val.toFixed(rounding[propertyKey]);
