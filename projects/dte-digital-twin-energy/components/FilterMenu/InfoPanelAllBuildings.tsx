@@ -34,7 +34,7 @@ function formatValue(properties: any, propertyKey: string) {
   return val;
 }
 
-const InfoPanelAllBuildings: React.FC<InfoPanelAllBuildingsProps> = props => {
+const InfoPanelAllBuildings: React.FC<InfoPanelAllBuildingsProps> = (props) => {
   const propertySelection = displayProperties.reduce((memo, key) => {
     const item = {
       property: key,
@@ -46,23 +46,21 @@ const InfoPanelAllBuildings: React.FC<InfoPanelAllBuildingsProps> = props => {
     return memo;
   }, [] as any);
   return (
-    <div>
-      <div>{props.feature.properties.name || 'Gothenburg'}</div>
-      <div className="grid grid-cols-3">
-        {propertySelection.map((item: any, i: number) => {
-          const val = formatValue(props.feature.properties, item.property);
-          return (
-            <Fragment key={i}>
-              <div className="col-span-2 p-1 mb-1 mr-1 font-semibold">
-                {item.label || 'fixme'}:
-              </div>
-              <div className="col-span-1">
-                {val || '-'} {units[item.property] || ''}
-              </div>
-            </Fragment>
-          );
-        })}
+    <div className="py-2 overflow-y-auto divide-y divide-dashed scroll-child">
+      <div className="px-2 text-2xl font-bold">
+        {props.feature.properties.name || 'Gothenburg'}
       </div>
+      {propertySelection.map((item: any, i: number) => {
+        const val = formatValue(props.feature.properties, item.property);
+        return (
+          <div key={i} className="flex justify-between gap-2 px-2 py-2 ">
+            <div className="font-semibold w-36">{item.label || 'fixme'}:</div>
+            <div className="overflow-y-auto text-right max-h-48 scroll-child">
+              {val || '-'} {units[item.property] || ''}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };

@@ -36,11 +36,14 @@
   input[type='text'] {
     @apply bg-transparent;
   }
+  .checkmark {
+    @apply transform translate-x-[7px] translate-y-[1px] content-[''] hidden w-2 h-4 border-white border-[3px] border-t-0 border-l-0 rotate-45;
+  }
 }
 
 html,
 textarea,
-.card-child {
+.scroll-child {
   scroll-behavior: smooth !important;
   scrollbar-width: thin;
   scrollbar-color: theme('colors.gray.500') white;
