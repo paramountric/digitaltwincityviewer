@@ -11,7 +11,6 @@ import InfoPanelSelectedBuildings from './InfoPanelSelectedBuildings';
 import InfoPanelAllBuildings from './InfoPanelAllBuildings';
 import InfoPanelAggregationFeature from './InfoPanelAggregationFeature';
 import PanelSelection from './PanelSelection';
-//
 
 type FilterMenuProps = {};
 
