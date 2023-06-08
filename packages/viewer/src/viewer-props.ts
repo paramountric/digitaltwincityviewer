@@ -1,7 +1,7 @@
 // Part of this code is derived from deck.gl under MIT license:
 // https://github.com/visgl/deck.gl/tree/master/examples/playground/src
 
-import { Viewer } from './viewer';
+import { Viewer } from './viewer-new';
 import { defaultViewerPropsJsonConfig } from './default-viewer-props-config';
 export type ViewerProps = {
   container?: HTMLElement;
