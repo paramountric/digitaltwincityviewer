@@ -3,6 +3,7 @@ import Image from 'next/image';
 import React, { ReactNode } from 'react';
 import logo from '../../public/logo-dte.png';
 import { useUser } from '../../hooks/use-user';
+//
 
 type HeaderProps = {
   children: ReactNode;
