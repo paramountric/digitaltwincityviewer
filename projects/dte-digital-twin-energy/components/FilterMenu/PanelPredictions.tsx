@@ -43,13 +43,13 @@ export default function PanelPredictions() {
     uiState.selectedFilterBuildingOption === 'selection' &&
     !aggregatedFeature
   ) {
-    filterMessage = 'Chose the buildnings you want to see above';
+    filterMessage = 'Please select buildings first';
   } else if (
     uiState.filterButton === 'buildings' &&
     uiState.selectedFilterBuildingOption === 'single' &&
     !selectedFeature
   ) {
-    filterMessage = 'Select building on the map to see predictions';
+    filterMessage = 'Please select a building';
   } else if (!selectedFeature && !aggregatedFeature) {
     filterMessage = 'Select some option to see predictions';
   } else if (

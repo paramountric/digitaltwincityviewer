@@ -32,7 +32,7 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
     >
       <Menu.Button className={`inline-flex px-4 py-2`}>
         {checkIcon && <CheckIcon className="-ml-0.5 mr-2 h-5 w-5" />}
-        {name}
+        <span className="truncate">{name}</span>
         <ChevronDownIcon className="w-5 h-5 ml-2 -mr-1" aria-hidden="true" />
       </Menu.Button>
 
@@ -45,17 +45,17 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute z-[60] mt-2 origin-top-left bg-white !rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <Menu.Items className="absolute z-[60] mt-2 origin-top-left bg-gray-700 !rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           <div className="py-1">
             {options.map((option) => (
               <Menu.Item key={option.key}>
                 <a
                   href="#"
                   onClick={() => onSelect(option.key)}
-                  className={`block px-4 py-2 text-sm hover:bg-gray-50 ${
+                  className={`block px-4 py-2 text-sm  text-gray-100  hover:bg-gray-500 ${
                     option.key === selectedKey
-                      ? 'bg-gray-100 text-gray-900'
-                      : 'text-gray-700'
+                      ? 'bg-gray-600 text-gray-100'
+                      : ''
                   }`}
                 >
                   {option.label}

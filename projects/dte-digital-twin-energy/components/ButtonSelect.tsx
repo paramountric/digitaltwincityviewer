@@ -11,13 +11,17 @@ export default function ButtonSelect(props: SelectProps) {
 
   return (
     <div
-      className={`relative text-sm font-semibold ring-1 ring-inset ring-gray-300 focus:z-50 ${
+      className={`relative text-sm font-semibold ring-1 ring-inset w-full ring-gray-300 focus:z-50 ${
         state ? 'bg-gray-700 text-white' : 'bg-white text-gray-900'
       }`}
     >
-      <button onClick={actions} type="button" className="flex px-3 py-2">
-        {state && <CheckIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />}
-        {label}
+      <button
+        onClick={actions}
+        type="button"
+        className="flex items-center justify-center w-full gap-2 px-3 py-2 whitespace-nowrap"
+      >
+        {state && <CheckIcon className="w-5 h-5 -ml-0.5" aria-hidden="true" />}
+        <span>{label}</span>
       </button>
     </div>
   );

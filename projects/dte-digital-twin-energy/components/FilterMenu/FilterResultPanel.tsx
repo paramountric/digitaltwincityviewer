@@ -19,11 +19,11 @@ export default function FilterResultPanel({
             {label}
             <ChevronUpIcon
               className={`${
-                open ? 'rotate-180 transform' : ''
-              } ml-auto h-5 w-5`}
+                open ? 'rotate-180 transform' : 'rotate-90'
+              } ml-auto h-5 w-5 transition`}
             />
           </Disclosure.Button>
-          <Disclosure.Panel className="h-full p-3 overflow-y-auto text-gray-500 shrink scroll-child">
+          <Disclosure.Panel className="h-full p-3 overflow-y-auto text-gray-500 min-h-2 shrink scroll-child">
             {children}
           </Disclosure.Panel>
         </>

@@ -41,9 +41,9 @@ function formatValue(properties: any, propertyKey: string) {
   return val;
 }
 
-const InfoPanelSelectedBuildings: React.FC<
-  InfoPanelSelectedBuildingsProps
-> = props => {
+const InfoPanelSelectedBuildings: React.FC<InfoPanelSelectedBuildingsProps> = (
+  props
+) => {
   const { state: uiState } = useUi();
   if (!uiState.showScenario) {
     return <div>Turn on scenarios to view predictions</div>;
@@ -63,18 +63,16 @@ const InfoPanelSelectedBuildings: React.FC<
   }, [] as any);
 
   return (
-    <div className="grid grid-cols-5">
+    <div className="flex flex-col py-2 overflow-y-auto divide-y divide-dashed scroll-child">
       {selectedPropertiesToShow.map((item: any, i: number) => {
         const val = formatValue(props.feature.properties, item.property);
         return (
-          <Fragment key={i}>
-            <div className="col-span-2 p-1 mb-1 mr-1 font-semibold">
-              {item.label || 'fixme'}:
-            </div>
-            <div className="col-span-3">
+          <div key={i} className="flex justify-between gap-2 px-2 py-2 ">
+            <div className="font-semibold w-36">{item.label || 'fixme'}:</div>
+            <div className="overflow-y-auto text-right max-h-48 scroll-child">
               {val || '-'} {units[item.property] || ''}
             </div>
-          </Fragment>
+          </div>
         );
       })}
     </div>
