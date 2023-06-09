@@ -16,7 +16,9 @@ const viewerStore = new Observable<Viewer | null>(null);
 
 const { publicRuntimeConfig } = getConfig();
 
-const { dtcvFilesUrl } = publicRuntimeConfig;
+// const { dtcvFilesUrl } = publicRuntimeConfig;
+
+const dtcvFilesUrl = 'https://digitaltwincityviewer.s3.amazonaws.com';
 
 // const DEFAULT_BUILDING_COLOR_LIGHT = 'rgb(255, 255, 255)';
 // const DEFAULT_BUILDING_COLOR_HOVER_LIGHT = 'rgb(245, 245, 245)';
