@@ -1,7 +1,7 @@
 import ItemLayers from './ItemLayers';
 import LeftMenuItem from './LeftMenuItem';
 import {
-  Square3Stack3DIcon,
+  Square2StackIcon,
   ArrowUpOnSquareIcon,
   ArrowDownOnSquareIcon,
   ArrowDownTrayIcon,
@@ -46,7 +46,7 @@ export default function LeftMenu() {
     <div className="absolute z-30 flex flex-col gap-4 py-8 rounded-md top-20 text-m">
       <LeftMenuItem
         label="Layers"
-        icon={<Square3Stack3DIcon className="w-6 h-6" />}
+        icon={<Square2StackIcon className="w-6 h-6" />}
       >
         <TempItemLayers />
       </LeftMenuItem>

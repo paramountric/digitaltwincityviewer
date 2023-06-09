@@ -18,15 +18,23 @@ export default function PanelBuilding() {
     actions: { addFilteredFeatures, removeFilteredFeatures },
   } = useFilteredFeatures();
   const { state: filterCategories } = useFilterCategories();
-  const { actions: uiActions } = useUi();
+  const { actions: uiActions, state: uiState } = useUi();
+
+  console.log(filterCategories);
 
   const handleAddSelectedFeatures = (key: string, selectionCategory: any) => {
+    console.log('key', key);
     console.log('selectionCategory', selectionCategory);
+    console.log('selections[key]', selections[key]);
     // it's to be turned off
     if (selections[key]) {
+      console.log('removeFilteredFeatures');
       removeFilteredFeatures(Object.values(selectionCategory));
     } else {
-      addFilteredFeatures(Object.values(selectionCategory));
+      addFilteredFeatures(
+        Object.values(selectionCategory),
+        uiState.selectedRenovationOption
+      );
     }
     uiActions.triggerUpdate();
     setSelections({
@@ -44,20 +52,21 @@ export default function PanelBuilding() {
         >
           <div className="max-h-96 scroll-child">
             {Object.keys(filterCategories[category]).map(
-              (key: any, i: number) => (
-                <div
-                  key={key}
-                  className="flex items-center px-2 text-gray-900 hover:bg-gray-200"
-                >
-                  <label
-                    htmlFor="default-checkbox"
-                    className="w-full py-2 text-sm font-medium cursor-pointer"
+              (key: any, i: number) => {
+                return (
+                  <div
+                    key={key}
+                    className="flex items-center px-2 text-gray-900 "
                   >
-                    {`${key} (${
-                      Object.values(filterCategories[category][key]).length
-                    })`}
-                  </label>
-                  {/* <input
+                    <label
+                      htmlFor="default-checkbox"
+                      className="w-full py-2 text-sm font-medium"
+                    >
+                      {`${key} (${
+                        Object.values(filterCategories[category][key]).length
+                      })`}
+                    </label>
+                    {/* <input
                         id="default-checkbox"
                         type="checkbox"
                         value=""
@@ -70,27 +79,38 @@ export default function PanelBuilding() {
                         }}
                         className="w-8 h-8 border-gray-300 rounded-full "
                       /> */}
-                  <div
-                    className={`
+                    <div
+                      className={`
               relative cursor-pointer mr-3 flex items-center`}
-                    onClick={() => {
-                      handleAddSelectedFeatures(
-                        key,
-                        filterCategories[category][key]
-                      );
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      id="default-checkbox"
-                      value=""
-                      checked={Boolean(selections[key])}
-                      className={`w-0 h-0 opacity-0 checked:bg-primary-500 peer`}
-                    />
-                    <div className="after:checkmark peer-checked:after:block peer-checked:bg-gray-500 border-gray-300 border-[1px] w-6 h-6 rounded-md hover:bg-gray-300" />
+                      onClick={e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('click', key);
+                        handleAddSelectedFeatures(
+                          key,
+                          filterCategories[category][key]
+                        );
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        id="default-checkbox"
+                        value=""
+                        onChange={() => {
+                          console.log('change', key);
+                          // handleAddSelectedFeatures(
+                          //   key,
+                          //   filterCategories[category][key]
+                          // );
+                        }}
+                        checked={Boolean(selections[key])}
+                        className={`w-0 h-0 opacity-0 checked:bg-primary-500 peer`}
+                      />
+                      <div className="after:checkmark peer-checked:after:block peer-checked:bg-gray-500 border-gray-300 border-[1px] w-6 h-6 rounded-md hover:bg-gray-300" />
+                    </div>
                   </div>
-                </div>
-              )
+                );
+              }
             )}
           </div>
         </FilterResultPanel>
