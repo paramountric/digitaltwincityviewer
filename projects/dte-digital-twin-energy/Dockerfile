@@ -2,7 +2,7 @@ FROM node:18-alpine AS builder
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 RUN apk update
-RUN corepack enable && corepack prepare pnpm@7.26.2 --activate 
+RUN corepack enable && corepack prepare pnpm@8.3.1 --activate 
 # Set working directory
 WORKDIR /app
 ENV PNPM_HOME="/root/.local/share/pnpm"
@@ -16,7 +16,7 @@ RUN turbo prune --scope=dte-digital-twin-energy --docker
 FROM node:18-alpine AS installer
 RUN apk add --no-cache libc6-compat
 RUN apk update
-RUN corepack enable && corepack prepare pnpm@7.26.2 --activate 
+RUN corepack enable && corepack prepare pnpm@8.3.1 --activate 
 
 WORKDIR /app
 ENV PNPM_HOME="/root/.local/share/pnpm"
