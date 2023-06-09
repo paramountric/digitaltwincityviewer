@@ -1,14 +1,14 @@
 import { useUi } from '../../hooks/use-ui';
-import { useSelectedFeature } from '../../hooks/use-selected-feature';
+// import { useSelectedFeature } from '../../hooks/use-selected-feature';
 import { useFilteredFeatures } from '../../hooks/use-filtered-features';
 import FilterPredictionsSingleBuildingPanel from './FilterPredictionsSingleBuildingPanel';
 import FilterPredictionsSelectionPanel from './FilterPredictionsSelectionPanel';
 
 export default function PanelPredictions() {
   const { actions: uiActions, state: uiState } = useUi();
-  const { state: selectedFeature } = useSelectedFeature();
+  // const { state: selectedFeature } = useSelectedFeature();
   const {
-    state: { aggregatedFeature },
+    state: { aggregatedFeature, features },
   } = useFilteredFeatures();
 
   const {
@@ -16,6 +16,8 @@ export default function PanelPredictions() {
     filterButton,
     selectedFilterGridOption,
   } = uiState;
+
+  const selectedFeature = features?.length === 1 ? features[0] : null;
 
   const showBuilding =
     filterButton === 'buildings' &&
@@ -41,13 +43,13 @@ export default function PanelPredictions() {
     uiState.selectedFilterBuildingOption === 'selection' &&
     !aggregatedFeature
   ) {
-    filterMessage = 'Chose the buildnings you want to see above';
+    filterMessage = 'Please select buildings first';
   } else if (
     uiState.filterButton === 'buildings' &&
     uiState.selectedFilterBuildingOption === 'single' &&
     !selectedFeature
   ) {
-    filterMessage = 'Select building on the map to see predictions';
+    filterMessage = 'Please select a building';
   } else if (!selectedFeature && !aggregatedFeature) {
     filterMessage = 'Select some option to see predictions';
   } else if (

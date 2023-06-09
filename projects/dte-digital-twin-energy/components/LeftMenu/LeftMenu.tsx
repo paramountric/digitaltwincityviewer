@@ -8,12 +8,16 @@ import {
 } from '@heroicons/react/20/solid';
 
 const TempItemLayers = () => {
-  return <div>Suggested feature: to toggle diffrent map layers</div>;
+  return (
+    <div className="italic text-gray-400">
+      Suggested feature: to toggle diffrent map layers
+    </div>
+  );
 };
 
 const TempItemImport = () => {
   return (
-    <div>
+    <div className="italic text-gray-400">
       Suggested feature: to import data from files, for example Excel and
       Shapefile
     </div>
@@ -21,12 +25,16 @@ const TempItemImport = () => {
 };
 
 const TempItemExport = () => {
-  return <div>Suggested feature: to export data to file</div>;
+  return (
+    <div className="italic text-gray-400">
+      Suggested feature: to export data to file
+    </div>
+  );
 };
 
 const TempItemSave = () => {
   return (
-    <div>
+    <div className="italic text-gray-400">
       Suggested feature: to save different selections/views in the application
       for quick access
     </div>

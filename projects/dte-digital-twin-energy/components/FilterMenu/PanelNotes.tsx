@@ -7,7 +7,8 @@ import {
 import { default as calculateCenter } from '@turf/center';
 import { useUi } from '../../hooks/use-ui';
 import ButtonSwitch from '../ButtonSwitch';
-import { useSelectedFeature } from '../../hooks/use-selected-feature';
+// import { useSelectedFeature } from '../../hooks/use-selected-feature';
+import { useFilteredFeatures } from '../../hooks/use-filtered-features';
 import { useUser } from '../../hooks/use-user';
 import { useWs } from '../../hooks/use-ws';
 import { useNotes } from '../../hooks/use-notes';
@@ -44,7 +45,8 @@ function formatTime(hours: number, minutes: number) {
 
 export default function PanelNotes() {
   const { state: uiState, actions: uiActions } = useUi();
-  const { state: selectedFeature } = useSelectedFeature();
+  // const { state: selectedFeature } = useSelectedFeature();
+  const { state: filteredFeatures } = useFilteredFeatures();
   const { state: userState } = useUser();
   const { state: notesListState } = useNotes();
   const { sendNote } = useWs();
@@ -53,6 +55,11 @@ export default function PanelNotes() {
   const [note, setNote] = useState('');
   const [search, setSearch] = useState('');
   const [showAddNewNote, setShowAddNewNote] = useState(false);
+
+  const selectedFeature =
+    filteredFeatures?.features?.length === 1
+      ? filteredFeatures?.features[0]
+      : null;
 
   useEffect(() => {
     if (userState.name) {
@@ -112,7 +119,7 @@ export default function PanelNotes() {
 
       {/*Notes*/}
       <ul role="list" className="w-full divide-y divide-gray-100">
-        {notesListState.map((note) => (
+        {notesListState.map(note => (
           <li
             key={note.id}
             className="flex justify-between py-5 text-gray-900 gap-x-6"
@@ -156,7 +163,7 @@ export default function PanelNotes() {
                   name="name"
                   id="name"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={e => setName(e.target.value)}
                   autoComplete="name"
                   className="block w-full border-0 bg-transparent py-1.5 px-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
                   placeholder="Your name"
@@ -169,7 +176,7 @@ export default function PanelNotes() {
                   name="note"
                   value={note}
                   placeholder="Your note"
-                  onChange={(e) => setNote(e.target.value)}
+                  onChange={e => setNote(e.target.value)}
                   rows={3}
                   className="block px-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm"
                 />

@@ -36,39 +36,63 @@ export default function PanelBuilding() {
   };
 
   return (
-    <div className=" max-w-prose">
+    <div className="">
       {Object.keys(filterCategories).map((category: any) => (
         <FilterResultPanel
           key={category}
           label={filterCategoryLabels[category] || category}
         >
-          {Object.keys(filterCategories[category]).map(
-            (key: any, i: number) => (
-              <div key={key} className="flex items-center mb-4">
-                <input
-                  id="default-checkbox"
-                  type="checkbox"
-                  value=""
-                  checked={Boolean(selections[key])}
-                  onChange={() => {
-                    handleAddSelectedFeatures(
-                      key,
-                      filterCategories[category][key]
-                    );
-                  }}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                />
-                <label
-                  htmlFor="default-checkbox"
-                  className="ml-2 text-sm font-medium text-gray-900"
+          <div className="max-h-96 scroll-child">
+            {Object.keys(filterCategories[category]).map(
+              (key: any, i: number) => (
+                <div
+                  key={key}
+                  className="flex items-center px-2 text-gray-900 hover:bg-gray-200"
                 >
-                  {`${key} (${
-                    Object.values(filterCategories[category][key]).length
-                  })`}
-                </label>
-              </div>
-            )
-          )}
+                  <label
+                    htmlFor="default-checkbox"
+                    className="w-full py-2 text-sm font-medium cursor-pointer"
+                  >
+                    {`${key} (${
+                      Object.values(filterCategories[category][key]).length
+                    })`}
+                  </label>
+                  {/* <input
+                        id="default-checkbox"
+                        type="checkbox"
+                        value=""
+                        checked={Boolean(selections[key])}
+                        onChange={() => {
+                          handleAddSelectedFeatures(
+                            key,
+                            filterCategories[category][key]
+                          );
+                        }}
+                        className="w-8 h-8 border-gray-300 rounded-full "
+                      /> */}
+                  <div
+                    className={`
+              relative cursor-pointer mr-3 flex items-center`}
+                    onClick={() => {
+                      handleAddSelectedFeatures(
+                        key,
+                        filterCategories[category][key]
+                      );
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      id="default-checkbox"
+                      value=""
+                      checked={Boolean(selections[key])}
+                      className={`w-0 h-0 opacity-0 checked:bg-primary-500 peer`}
+                    />
+                    <div className="after:checkmark peer-checked:after:block peer-checked:bg-gray-500 border-gray-300 border-[1px] w-6 h-6 rounded-md hover:bg-gray-300" />
+                  </div>
+                </div>
+              )
+            )}
+          </div>
         </FilterResultPanel>
       ))}
     </div>

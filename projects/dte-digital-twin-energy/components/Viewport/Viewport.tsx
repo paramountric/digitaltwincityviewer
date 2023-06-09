@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import { useViewer } from '../../hooks/use-viewer';
 import { useUi } from '../../hooks/use-ui';
-import { useSelectedFeature } from '../../hooks/use-selected-feature';
+// import { useSelectedFeature } from '../../hooks/use-selected-feature';
 import Legend from '../Legend/Legend';
 import FilterMenu from '../FilterMenu/FilterMenu';
 import InfoModal from '../InfoMenu/InfoModal';
@@ -21,7 +21,7 @@ const Viewport: React.FC<ViewportProps> = () => {
   const {
     state: { showScenario, showInfoModal },
   } = useUi();
-  const { state: selectedFeatureId } = useSelectedFeature();
+  // const { state: selectedFeatureId } = useSelectedFeature();
   // const climateScenarioData = useClimateScenarioData();
   // const contextData = useContextData();
   // const baseMapData = useBaseMapData();

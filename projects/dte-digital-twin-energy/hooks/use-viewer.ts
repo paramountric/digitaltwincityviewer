@@ -6,7 +6,7 @@ import { easeCubicIn } from 'd3-ease';
 import { Observable } from '../lib/Observable';
 import { UiStore, useUi } from './use-ui';
 import { useNotes } from './use-notes';
-import { useSelectedFeature } from './use-selected-feature';
+// import { useSelectedFeature } from './use-selected-feature';
 import { useFilteredFeatures } from './use-filtered-features';
 import { FilterCategories, useFilterCategories } from './use-filter-categories';
 import { assignMapColors } from '../lib/assignMapColors';
@@ -23,6 +23,7 @@ const { dtcvFilesUrl } = publicRuntimeConfig;
 const DEFAULT_BUILDING_COLOR = 'rgb(200, 200, 200)';
 const SELECTED_BUILDING_COLOR = 'rgb(150, 150, 150)';
 const DEFAULT_DISTRICT_COLOR = 'rgb(255, 255, 255)';
+const SELECTED_DISTRICT_COLOR = 'rgb(235, 235, 235)';
 const DEFAULT_BUILDING_FUTURE_COLOR = 'rgb(230, 200, 200)';
 const DEFAULT_BUILDING_HOVER_COLOR = 'rgb(100, 100, 100)';
 const SELECTED_BUILDING_HOVER_COLOR = 'rgb(50, 50, 50)';
@@ -35,14 +36,8 @@ const BUILDING_PAINT_PROPERTY = [
 const DISTRICT_PAINT_PROPERTY = [
   'case',
   ['boolean', ['feature-state', 'showScenario'], false],
-  DEFAULT_BUILDING_HOVER_COLOR,
+  SELECTED_DISTRICT_COLOR,
   DEFAULT_DISTRICT_COLOR,
-];
-const SELECTED_BUILDING_PAINT_PROPERTY = [
-  'case',
-  ['boolean', ['feature-state', 'showScenario'], false],
-  SELECTED_BUILDING_HOVER_COLOR,
-  SELECTED_BUILDING_COLOR,
 ];
 const BUILDING_FUTURE_PAINT_PROPERTY = [
   'case',
@@ -98,13 +93,12 @@ const aggregationLayers = AGGREGATION_LAYERS.map(layerId => {
     minzoom: 10,
     layout: {
       visibility: 'none',
-      // visibility: 'visible',
     },
     paint:
       type === 'line'
         ? {
-            'line-color': '#000', // set the line color to red
-            'line-width': 4, // set the line width to 2 pixels
+            'line-color': '#000',
+            'line-width': 3,
           }
         : {
             'fill-color': DISTRICT_PAINT_PROPERTY,
@@ -268,10 +262,10 @@ export const useViewer = (): UseViewerProps => {
     getScenarioPostfix,
   } = useUi();
   const [lastUiState, setLastUiState] = useState<UiStore>(uiState);
-  const {
-    state: selectedFeature,
-    actions: { setSelectedFeature },
-  } = useSelectedFeature();
+  // const {
+  //   state: selectedFeature,
+  //   actions: { setSelectedFeature },
+  // } = useSelectedFeature();
   const {
     state: filteredFeatures,
     actions: { addFilteredFeatures, updateFilteredFeatures },
@@ -415,6 +409,34 @@ export const useViewer = (): UseViewerProps => {
         );
       }
 
+      // if (selectedFeature) {
+      //   const RESET_ALL_BUILDING_FEATURES =
+      //     viewer.maplibreMap?.queryRenderedFeatures(undefined, {
+      //       layers: ['building', 'building-future'],
+      //     });
+      //   for (const f of RESET_ALL_BUILDING_FEATURES || []) {
+      //     viewer.maplibreMap.setFeatureState(
+      //       {
+      //         source: 'vectorTiles',
+      //         sourceLayer: f.sourceLayer,
+      //         id: f.properties.id,
+      //       },
+      //       {
+      //         showScenario: false,
+      //       }
+      //     );
+      //     viewer?.maplibreMap?.setFeatureState(
+      //       {
+      //         source: 'vectorTiles',
+      //         sourceLayer: selectedFeature.sourceLayer,
+      //         id: selectedFeature.properties.id,
+      //       },
+      //       {
+      //         showScenario: true,
+      //       }
+      //     );
+      //   }
+      // } else {
       // - create category map
       const categories: FilterCategories = filterCategoryKeys.reduce(
         (acc: any, category: string) => {
@@ -469,67 +491,35 @@ export const useViewer = (): UseViewerProps => {
         if (
           filterButton === 'buildings' &&
           selectedFilterBuildingOption === 'single' &&
-          f.properties.UUID === selectedFeature?.feature?.properties.UUID
+          filteredFeatures.features?.length === 1 &&
+          f.properties.UUID === filteredFeatures.features[0].properties.UUID
         ) {
           return {
             showScenario: true,
           };
         }
 
-        if (
-          filterButton === 'districts' &&
-          selectedFeature?.feature?.properties.id === f.properties.cityDistricts
-        ) {
+        if (filterButton === 'districts') {
           return {
-            showScenario: true,
+            showScenario: Boolean(featureUUIDs[f.properties.UUID]),
           };
         }
 
-        if (
-          filterButton === 'baseAreas' &&
-          selectedFeature?.feature?.properties.id === f.properties.baseAreas
-        ) {
+        if (filterButton === 'baseAreas') {
           return {
-            showScenario: true,
+            showScenario: Boolean(featureUUIDs[f.properties.UUID]),
           };
         }
 
-        if (
-          filterButton === 'primaryAreas' &&
-          selectedFeature?.feature?.properties.id === f.properties.primaryAreas
-        ) {
+        if (filterButton === 'primaryAreas') {
           return {
-            showScenario: true,
+            showScenario: Boolean(featureUUIDs[f.properties.UUID]),
           };
         }
 
-        if (
-          filterButton === 'grid' &&
-          selectedFilterGridOption === 'grid1km' &&
-          selectedFeature?.feature?.properties.id === f.properties.grid1km
-        ) {
+        if (filterButton === 'grid') {
           return {
-            showScenario: true,
-          };
-        }
-
-        if (
-          filterButton === 'grid' &&
-          selectedFilterGridOption === 'grid250m' &&
-          selectedFeature?.feature?.properties.id === f.properties.grid500m
-        ) {
-          return {
-            showScenario: true,
-          };
-        }
-
-        if (
-          filterButton === 'grid' &&
-          selectedFilterGridOption === 'grid100m' &&
-          selectedFeature?.feature?.properties.id === f.properties.grid100m
-        ) {
-          return {
-            showScenario: true,
+            showScenario: Boolean(featureUUIDs[f.properties.UUID]),
           };
         }
 
@@ -579,6 +569,7 @@ export const useViewer = (): UseViewerProps => {
           selectedRenovationOption
         );
       }
+      // }
     } else {
       // else do not show scenario
       // addFilteredFeatures();
@@ -588,7 +579,7 @@ export const useViewer = (): UseViewerProps => {
 
     // LASTLY update the local "last uistate"
     setLastUiState(uiState);
-  }, [uiState, filteredFeatures, selectedFeature]);
+  }, [uiState, filteredFeatures]);
 
   // useEffect(() => {
   //   if (!viewer || !viewer.maplibreMap) {
@@ -877,59 +868,71 @@ export const useViewer = (): UseViewerProps => {
     if (!viewer) {
       return;
     }
+    addFilteredFeatures();
     if (
       uiState.filterButton === 'buildings' &&
-      uiState.selectedFilterBuildingOption === 'single'
+      (uiState.selectedFilterBuildingOption === 'single' ||
+        !uiState.showScenario)
     ) {
       // if filter button is buildings and selected filter is single, then select the building
       if (clickedFeatures && clickedFeatures.length > 0) {
         const feature = clickedFeatures[0];
         if (feature) {
-          setSelectedFeature(feature);
+          console.log('feature to add', feature);
+          // setSelectedFeature(feature);
+          addFilteredFeatures([feature], uiState.selectedRenovationOption);
           uiActions.triggerUpdate();
-          // viewer?.maplibreMap?.setFeatureState(
-          //   {
-          //     source: 'vectorTiles',
-          //     sourceLayer: feature.sourceLayer,
-          //     id: feature.properties.id,
-          //   },
-          //   {
-          //     showScenario: true,
-          //   }
-          // );
         }
       }
-    } else if (uiState.filterButton !== 'buildings') {
-      const getAggregationLayerId = () => {
-        const selectedYearKey = uiState.selectedYearKey;
+    } else if (uiState.filterButton !== 'buildings' && uiState.showScenario) {
+      const getAggregationKey = () => {
         const filterButton = uiState.filterButton;
         if (filterButton === 'grid') {
-          const selectedGrid = uiState.selectedFilterGridOption;
-          const gridLayer = `${selectedGrid}20${selectedYearKey}`;
-          return `${gridLayer}-fill`;
+          return uiState.selectedFilterGridOption;
+        } else if (filterButton === 'districts') {
+          return `cityDistricts`;
+        } else if (filterButton === 'baseAreas') {
+          return filterButton;
+        } else if (filterButton === 'primaryAreas') {
+          return filterButton;
         }
-        const districtLayer = `${filterButton}20${selectedYearKey}`;
-        return `${districtLayer}-fill`;
+        return '';
       };
-      console.log('getAggregationLayerId', getAggregationLayerId());
+
+      const getAggregationLayerId = (aggregationKey: string) => {
+        const selectedYearKey = uiState.selectedYearKey;
+        return `${aggregationKey}20${selectedYearKey}-fill`;
+      };
       // if filter button is aggregation, select the aggregation
       if (clickedFeatures && clickedFeatures.length > 0) {
-        const layerId = getAggregationLayerId();
-        const feature = clickedFeatures.find(f => f.sourceLayer === layerId);
+        const aggregationKey = getAggregationKey();
+        const layerId = getAggregationLayerId(aggregationKey);
+        const feature = clickedFeatures.find(f => f.layer?.id === layerId);
+        console.log('feature', feature);
+        console.log('aggregationKey', aggregationKey);
         if (feature) {
           console.log('found feature', feature);
-          setSelectedFeature(feature);
           uiActions.triggerUpdate();
-          // viewer?.maplibreMap?.setFeatureState(
-          //   {
-          //     source: 'vectorTiles',
-          //     sourceLayer: feature.sourceLayer,
-          //     id: feature.properties.id,
-          //   },
-          //   {
-          //     showScenario: true,
-          //   }
-          // );
+          const ALL_BUILDING_FEATURES =
+            viewer.maplibreMap?.queryRenderedFeatures(undefined, {
+              layers: ['building', 'building-future'],
+            });
+          const filteredFeatures = [];
+          const aggrId = feature.properties.id;
+          console.log('aggrId', aggrId);
+          for (const f of ALL_BUILDING_FEATURES || []) {
+            console.log('ff', f);
+            if (aggrId === f.properties[aggregationKey]) {
+              filteredFeatures.push(f);
+            }
+          }
+          console.log('filteredFeatures', filteredFeatures);
+          addFilteredFeatures(
+            filteredFeatures,
+            uiState.selectedRenovationOption
+          );
+
+          // get all features in the aggregation - for filtered features
         }
       }
     }
