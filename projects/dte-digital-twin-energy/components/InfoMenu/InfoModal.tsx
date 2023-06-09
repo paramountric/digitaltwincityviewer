@@ -52,8 +52,26 @@ export default function InfoModal() {
                       />
                     </div>
                     <p className="text-sm">
-                      Here we have some decent text that is probably going to be
-                      interesting
+                      The Digital Twin Enegy (DTE) Viewer was developed within
+                      the research project "Digital tvilling för att modellera
+                      framtida energibehov i Göteborgs byggnadsbestånd: ett
+                      verktyg för ökad aktörssamverkan, effektivisering och
+                      samordning av energifrågor" funded by the Göteborg Energi
+                      foundation for research and development.
+                    </p>
+                    <p>
+                      In the DTE viewer you can visualize energy demand
+                      scenarios for the building stock of Gothenburg using
+                      climate and building energy modelling.
+                    </p>
+                    <p>
+                      The DTE Viewer is the results of the joint work of
+                      Chalmers University of Technology, the Digital Twin City
+                      Center, Paramountric, and Sinom. Representatives of the
+                      City of Gothenburg through the environmental
+                      administration and city planning office; Göteborg Energi,
+                      and housing company Framtiden have contributed to the
+                      testing phase.
                     </p>
                   </div>
                 </div>
