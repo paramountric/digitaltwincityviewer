@@ -1,5 +1,4 @@
 import { Disclosure, Menu, Switch, Transition } from '@headlessui/react';
-import { ChevronUpIcon, Square3Stack3DIcon } from '@heroicons/react/20/solid';
 import { useUi } from '../../hooks/use-ui';
 import { Fragment } from 'react';
 import ButtonSwitch from '../ButtonSwitch';

@@ -1,7 +1,6 @@
 import { Disclosure, Transition } from '@headlessui/react';
 import {
   ChevronUpIcon,
-  Square3Stack3DIcon,
   ArrowUpOnSquareIcon,
   ArrowDownOnSquareIcon,
   ArrowDownTrayIcon,
