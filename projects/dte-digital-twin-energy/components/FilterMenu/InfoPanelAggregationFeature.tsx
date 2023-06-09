@@ -67,14 +67,6 @@ const InfoPanelAggregationFeature: React.FC<
       {selectedPropertiesToShow.map((item: any, i: number) => {
         const val = formatValue(props.feature.properties, item.property);
         return (
-          // <Fragment key={i}>
-          //   <div className="col-span-2 p-1 mb-1 mr-1 font-semibold">
-          //     {item.label || 'fixme'}:
-          //   </div>
-          //   <div className="col-span-3">
-          //     {val || '-'} {units[item.property] || ''}
-          //   </div>
-          // </Fragment>
           <div
             key={i}
             className="flex justify-between gap-2 px-2 py-0.5 max-h-48 scroll-child overflow-y-auto"
