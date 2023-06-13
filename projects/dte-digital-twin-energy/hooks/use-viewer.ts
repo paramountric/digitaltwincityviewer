@@ -23,6 +23,8 @@ const dtcvFilesUrl = 'https://digitaltwincityviewer.s3.amazonaws.com';
 // const DEFAULT_BUILDING_COLOR_LIGHT = 'rgb(255, 255, 255)';
 // const DEFAULT_BUILDING_COLOR_HOVER_LIGHT = 'rgb(245, 245, 245)';
 const DEFAULT_BUILDING_COLOR = 'rgb(200, 200, 200)';
+const BUILDING_COLOR_LIGHT = 'rgb(255, 255, 255)';
+
 const SELECTED_BUILDING_COLOR = 'rgb(150, 150, 150)';
 const DEFAULT_DISTRICT_COLOR = 'rgb(255, 255, 255)';
 const SELECTED_DISTRICT_COLOR = 'rgb(235, 235, 235)';
@@ -304,6 +306,17 @@ export const useViewer = (): UseViewerProps => {
     if (!uiStateHasChanged) {
       return;
     }
+    viewer.maplibreMap.setPaintProperty(
+      'building',
+      'fill-extrusion-color',
+      BUILDING_COLOR_LIGHT
+    );
+    viewer.maplibreMap.setPaintProperty(
+      'building-future',
+      'fill-extrusion-color',
+      BUILDING_COLOR_LIGHT
+    );
+    console.log('ui state has changed', uiStateHasChanged);
     // if changing to selection mode, reset filtered features and rerun
     // - to select feature or selection
     if (

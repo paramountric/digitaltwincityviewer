@@ -1,5 +1,12 @@
 import { useUi } from '../../hooks/use-ui';
-import { renovationLabels, renovationOptions } from '../../lib/constants';
+import {
+  renovationLabels,
+  renovationOptions,
+  propertyKeyOptions,
+  propertyLabels,
+  degreeLabels,
+  degreeOptions,
+} from '../../lib/constants';
 import Dropdown from '../Dropdown';
 
 export default function ScenarioRenovation() {
@@ -12,21 +19,31 @@ export default function ScenarioRenovation() {
       </div>
       <Dropdown
         onSelect={uiActions.setSelectedPropertyKey}
+        name={propertyLabels[uiState.selectedPropertyKey] || 'energy'}
+        selectedKey={uiState.selectedPropertyKey}
+        options={propertyKeyOptions}
+        roundedClass="rounded-md"
+      />
+      {/* <Dropdown
+        onSelect={uiActions.setSelectedPropertyKey}
         // name={propertyLabels[uiState.selectedPropertyKey] || 'energy'}
         name="Energy"
         selectedKey={'energy'}
         options={[]}
         roundedClass="rounded-md"
-      />
+      /> */}
       <div className="inline-flex justify-center text-sm font-medium text-gray-700 focus:outline-none">
         given a temperature rise of
       </div>
       <Dropdown
-        onSelect={uiActions.setSelectedYearKey}
-        // name={yearLabels[uiState.selectedYearKey] || 'year'}
-        name="1°"
-        selectedKey={'1'}
-        options={[]}
+        onSelect={uiActions.setSelectedBaseMapKey}
+        name={
+          degreeLabels[uiState.selectedDegreeKey] || 0
+            ? `${degreeLabels[uiState.selectedDegreeKey]}`
+            : 'degrees'
+        }
+        selectedKey={uiState.selectedDegreeKey}
+        options={degreeOptions}
         roundedClass="rounded-md"
       />
       <div className="inline-flex text-sm font-medium text-gray-700 justify-centerbg-white focus:outline-none">

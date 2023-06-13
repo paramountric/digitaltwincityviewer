@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNotes } from '../../hooks/use-notes';
 import { useUi } from '../../hooks/use-ui';
+import {
+  degreeLabels,
+  degreeOptions,
+  propertyKeyOptions,
+  propertyLabels,
+  yearLabels,
+  yearOptions,
+} from '../../lib/constants';
 // import { useSelectedFeature } from '../../hooks/use-selected-feature';
 import { useFilteredFeatures } from '../../hooks/use-filtered-features';
 import FilterMenuActionPanel from './FilterMenuActionPanel';
@@ -32,7 +40,13 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
   //   }
   // }, [filteredFeatures]);
 
-  const { selectedFilterBuildingOption, filterButton, showScenario } = uiState;
+  const {
+    selectedFilterBuildingOption,
+    selectedFilterGridOption,
+    filterButton,
+    showScenario,
+    selectedRenovationOption,
+  } = uiState;
   const { aggregatedFeature, features } = filteredFeatures;
   const selectedFeature = features?.length === 1 ? features[0] : null;
 
@@ -66,6 +80,39 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
 
   const showAggregation = filterButton !== 'buildings';
   console.log(showBuilding);
+
+  const renovationLabels = {
+    ref: '',
+    dr: ' (deep renovation)',
+    hr: ' (HVAC renovation)',
+    er: ' (envelope renovation)',
+  };
+
+  const getPredictionText = () => {
+    const renovationLabel = renovationLabels[selectedRenovationOption];
+    if (filterButton === 'buildings') {
+      if (selectedFilterBuildingOption === 'single') {
+        return 'Prediction for the selected building' + renovationLabel;
+      }
+      if (selectedFilterBuildingOption === 'selection') {
+        return 'Predictions for the selection' + renovationLabel;
+      }
+      if (selectedFilterBuildingOption === 'all') {
+        return 'Predictions for all buildings' + renovationLabel;
+      }
+    } else if (filterButton === 'grid') {
+      if (selectedFilterGridOption === 'grid1km') {
+        return 'Prediction for selected 1 km square' + renovationLabel;
+      }
+      if (selectedFilterGridOption === 'grid250m') {
+        return 'Prediction for selected 250 m square' + renovationLabel;
+      }
+      if (selectedFilterGridOption === 'grid100m') {
+        return 'Prediction for selected 100 m square' + renovationLabel;
+      }
+    }
+    return 'Prediction for selected area';
+  };
   return (
     <div className="max-w-[568px] flex bg-opacity-95 flex-col absolute right-0 z-30 max-h-[calc(100vh-7rem)] p-2 text-gray-700 bg-white border border-gray-300 rounded-l-md top-28 text-m scroll-child">
       {showScenario && (
@@ -104,7 +151,10 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
         )}
         {/* PREDICTIONS - RESULT FROM FILTERING (how to do with isOpen??? is there a way to set it dynamically? */}
         {showScenario && (
-          <FilterResultPanel isOpen={uiState.showScenario} label="Predictions">
+          <FilterResultPanel
+            isOpen={uiState.showScenario}
+            label={getPredictionText()}
+          >
             <PanelPredictions />
           </FilterResultPanel>
         )}
