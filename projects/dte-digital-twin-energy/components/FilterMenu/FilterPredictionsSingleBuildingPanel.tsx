@@ -125,7 +125,7 @@ function applyChart(
 
   const colorScale = scaleOrdinal<number>()
     .domain(['0', '1', '2', '3'])
-    .range(schemeSet2);
+    .range(schemeSet2 as any);
 
   svg
     .selectAll('.month')

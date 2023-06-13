@@ -55,11 +55,12 @@ export default function InfoModal() {
                     </div>
                     <p className="text-sm my-5">
                       The Digital Twin Enegy (DTE) Viewer was developed within
-                      the research project "Digital tvilling för att modellera
-                      framtida energibehov i Göteborgs byggnadsbestånd: ett
-                      verktyg för ökad aktörssamverkan, effektivisering och
-                      samordning av energifrågor" funded by the Göteborg Energi
-                      foundation for research and development.
+                      the research project &quot;Digital tvilling för att
+                      modellera framtida energibehov i Göteborgs
+                      byggnadsbestånd: ett verktyg för ökad aktörssamverkan,
+                      effektivisering och samordning av energifrågor&quot;
+                      funded by the Göteborg Energi foundation for research and
+                      development.
                     </p>
                     <p className="text-sm my-5">
                       In the DTE viewer you can visualize energy demand
