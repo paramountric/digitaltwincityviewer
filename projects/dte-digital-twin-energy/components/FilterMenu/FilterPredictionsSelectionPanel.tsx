@@ -83,7 +83,7 @@ function applyChart(
   const y = scaleBand()
     .domain(degrees as any)
     .range([height, 0])
-    .padding(0.3);
+    .padding(0.6);
 
   const svg = select(el)
     .append('svg')

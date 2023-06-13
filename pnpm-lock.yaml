@@ -408,6 +408,7 @@ importers:
       d3-axis: ^3.0.0
       d3-ease: ^3.0.1
       d3-scale: ^4.0.2
+      d3-scale-chromatic: ^3.0.0
       d3-selection: ^3.0.0
       eslint: 8.22.0
       eslint-config-next: 12.2.5
@@ -440,6 +441,7 @@ importers:
       d3-axis: 3.0.0
       d3-ease: 3.0.1
       d3-scale: 4.0.2
+      d3-scale-chromatic: 3.0.0
       d3-selection: 3.0.0
       jsonwebtoken: 8.5.1
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
@@ -4528,6 +4530,14 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       d3-color: 3.1.0
+    dev: false
+
+  /d3-scale-chromatic/3.0.0:
+    resolution: {integrity: sha512-Lx9thtxAKrO2Pq6OO2Ua474opeziKr279P/TKZsMAhYyNDD3EnCffdbgeSYN5O7m2ByQsxtuP2CSDczNUIZ22g==}
+    engines: {node: '>=12'}
+    dependencies:
+      d3-color: 3.1.0
+      d3-interpolate: 3.0.1
     dev: false
 
   /d3-scale/4.0.2:

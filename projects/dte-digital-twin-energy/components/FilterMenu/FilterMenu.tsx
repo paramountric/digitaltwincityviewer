@@ -46,6 +46,7 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
     filterButton,
     showScenario,
     selectedRenovationOption,
+    selectedDegreeKey,
   } = uiState;
   const { aggregatedFeature, features } = filteredFeatures;
   const selectedFeature = features?.length === 1 ? features[0] : null;
@@ -88,30 +89,33 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
     er: ' (envelope renovation)',
   };
 
+  const initialWord =
+    selectedDegreeKey === '0' ? 'Current values ' : 'Predicted values ';
+
   const getPredictionText = () => {
     const renovationLabel = renovationLabels[selectedRenovationOption];
     if (filterButton === 'buildings') {
       if (selectedFilterBuildingOption === 'single') {
-        return 'Prediction for the selected building' + renovationLabel;
+        return `${initialWord} for the selected building ${renovationLabel}`;
       }
       if (selectedFilterBuildingOption === 'selection') {
-        return 'Predictions for the selection' + renovationLabel;
+        return `${initialWord}  for the selection ${renovationLabel}`;
       }
       if (selectedFilterBuildingOption === 'all') {
-        return 'Predictions for all buildings' + renovationLabel;
+        return `${initialWord}  for all buildings ${renovationLabel}`;
       }
     } else if (filterButton === 'grid') {
       if (selectedFilterGridOption === 'grid1km') {
-        return 'Prediction for selected 1 km square' + renovationLabel;
+        return `${initialWord} for selected 1 km square ${renovationLabel}`;
       }
       if (selectedFilterGridOption === 'grid250m') {
-        return 'Prediction for selected 250 m square' + renovationLabel;
+        return `${initialWord} for selected 250 m square ${renovationLabel}`;
       }
       if (selectedFilterGridOption === 'grid100m') {
-        return 'Prediction for selected 100 m square' + renovationLabel;
+        return `${initialWord} for selected 100 m square ${renovationLabel}`;
       }
     }
-    return 'Prediction for selected area';
+    return `${initialWord} for selected area ${renovationLabel}`;
   };
   return (
     <div className="max-w-[568px] flex bg-opacity-95 flex-col absolute right-0 z-30 max-h-[calc(100vh-7rem)] p-2 text-gray-700 bg-white border border-gray-300 rounded-l-md top-28 text-m scroll-child">

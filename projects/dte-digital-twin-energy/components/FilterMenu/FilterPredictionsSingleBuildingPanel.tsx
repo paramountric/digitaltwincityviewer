@@ -2,11 +2,15 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { Disclosure } from '@headlessui/react';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import { select } from 'd3-selection';
-import { scaleBand, scaleLinear } from 'd3-scale';
+import { scaleBand, scaleLinear, scaleOrdinal } from 'd3-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
+import { schemeSet2 } from 'd3-scale-chromatic';
+import { timeFormat } from 'd3-time-format';
 import { getColorFromScale } from '../../lib/colorScales';
 import { propertyLabels, units, rounding } from '../../lib/constants';
 import { useUi } from '../../hooks/use-ui';
+
+const formatMonth = timeFormat('%b');
 
 type FilterPredictionsSingleBuildingPanelProps = {
   selectionType: string;
@@ -27,7 +31,6 @@ function getIndicatorDegreeValues(
   selectedIndicatorKey: string,
   renovationKey: string
 ) {
-  console.log(properties);
   const hfa = properties.hfa || 1;
 
   // if (renovationKey !== 'ref') {
@@ -76,7 +79,6 @@ function applyChart(
     selectedIndicatorKey,
     'ref'
   ) as any;
-  console.log(timelineValues);
   if (!timelineValues[0][0] && !timelineValues[1][0]) {
     return;
   }
@@ -99,7 +101,7 @@ function applyChart(
 
   const degrees: string[] = ['2018', '+1°C', '+1.5°C', '+2°C'];
 
-  const margin = { top: 20, right: 0, bottom: 20, left: 60 };
+  const margin = { top: 20, right: 60, bottom: 20, left: 60 };
   const width = 500 - margin.left - margin.right;
   const height = 220 - margin.top - margin.bottom;
   const x0 = scaleBand()
@@ -121,6 +123,10 @@ function applyChart(
 
   const tooltip = select('.tooltip');
 
+  const colorScale = scaleOrdinal<number>()
+    .domain(['0', '1', '2', '3'])
+    .range(schemeSet2);
+
   svg
     .selectAll('.month')
     .data(monthlyValues)
@@ -132,16 +138,62 @@ function applyChart(
     .data(d => d)
     .enter()
     .append('rect')
-    .attr('fill', (d, i) =>
-      getColorFromScale(timelineValues[i], scaleKey, true)
-    )
+    .attr('fill', (d, i) => colorScale(`${i % 4}`))
+    // .attr('fill', (d, i) =>
+    //   getColorFromScale(timelineValues[i], scaleKey, true)
+    // )
     .attr('stroke', '#aaa')
     .attr('stroke-width', '0.5px')
     .attr('class', 'bar')
     .attr('x', (d, i) => x1(degrees[i]) as number)
     .attr('width', x1.bandwidth())
     .attr('y', d => y(d))
-    .attr('height', d => height - y(d));
+    .attr('height', d => height - y(d))
+    .on('mouseover', function (d) {
+      tooltip
+        .text(d.target.__data__.toFixed(1) + ' ' + unit)
+        .style('left', d.offsetX + 'px')
+        .style('top', d.y - 35 + 'px');
+    })
+    .on('mouseout', function (d) {
+      //tooltip.style('opacity', 0);
+    });
+
+  const legend = svg
+    .append('g')
+    .attr('class', 'legend')
+    .attr('transform', `translate(${width + 20}, 0)`);
+
+  const legendItems = [
+    { label: '2018', color: colorScale('0') },
+    { label: '1°', color: colorScale('1') },
+    { label: '1.5°', color: colorScale('2') },
+    { label: '2°', color: colorScale('3') },
+  ];
+
+  legend
+    .selectAll('.legend-item')
+    .data(legendItems)
+    .enter()
+    .append('rect')
+    .attr('class', 'legend-item')
+    .attr('x', 0)
+    .attr('y', (d, i) => i * 20)
+    .attr('width', 10)
+    .attr('height', 10)
+    .attr('fill', d => d.color);
+
+  legend
+    .selectAll('.legend-label')
+    .data(legendItems)
+    .enter()
+    .append('text')
+    .attr('class', 'legend-label')
+    .attr('x', 15)
+    .attr('y', (d, i) => i * 20 + 10)
+    .style('font-size', '9px')
+    .style('fill', 'gray')
+    .text(d => d.label);
 
   // const degrees: string[] = ['2018', '+1°C', '+1.5°C', '+2°C'];
 
@@ -215,7 +267,11 @@ function applyChart(
   svg
     .append('g')
     .attr('transform', 'translate(0,' + height + ')')
-    .call(axisBottom(x0));
+    .call(
+      axisBottom(x0).tickFormat(d =>
+        formatMonth(new Date(2022, Number(d) - 1, 1))
+      )
+    );
 
   svg.append('g').call(axisLeft(y).ticks(2));
 
