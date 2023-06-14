@@ -151,11 +151,6 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
     setTitle(getTitle());
   }, [filterButton, selectedFilterGridOption, selectedFilterBuildingOption]);
 
-  useEffect(() => {
-    console.log('ag, feat', aggregatedFeature);
-    console.log('feat', features);
-  }, [aggregatedFeature, features]);
-
   return (
     <div className="max-w-[568px] flex bg-opacity-95 flex-col absolute right-0 z-30 max-h-[calc(100vh-7rem)] p-2 text-gray-700 bg-white border border-gray-300 rounded-l-md top-28 text-m scroll-child">
       {showScenario && (
