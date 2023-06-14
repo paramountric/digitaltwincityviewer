@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Observable } from '../lib/Observable';
 import { propertyKeys, degreeKeys, filterCategoryKeys } from '../lib/constants';
-import { UiStore } from './use-ui';
 
 const filteredCategoriesPlusConstructionYear = ['cy', ...filterCategoryKeys];
 
@@ -59,8 +58,8 @@ const useFilteredFeatures = () => {
           }
         }
         acc.properties.numFeatures += 1;
-        propertyKeys.forEach((pKey) => {
-          degreeKeys.forEach((dKey) => {
+        propertyKeys.forEach(pKey => {
+          degreeKeys.forEach(dKey => {
             const yearKey = dKey === '0' ? '18' : '50';
             // note that zero is for year 18, that has the same values for all degrees - 25 is used here
             const degreeKey = dKey === '0' ? '25' : dKey;
@@ -87,7 +86,6 @@ const useFilteredFeatures = () => {
         },
       }
     );
-    console.log('filter cat agg', filterCategoryAggregation);
     for (const key of Object.keys(filterCategoryAggregation)) {
       if (key === 'cy') {
         const { min, max } = filterCategoryAggregation[key];
@@ -107,9 +105,9 @@ const useFilteredFeatures = () => {
       addFilteredFeatures: (
         features?: any[],
         renovationOption = 'ref',
-        removePrevious = false
+        removePrevious = false,
+        featureToMerge?: any // optional feature to merge with aggregated feature (just name for now)
       ) => {
-        console.log('addFilteredFeatures', features);
         if (!features) {
           filteredFeaturesStore.set({});
           return;
@@ -124,7 +122,6 @@ const useFilteredFeatures = () => {
           return;
         }
         if (features.length === 1) {
-          console.log('set feature', features[0].id, features[0].properties);
           filteredFeaturesStore.set({
             featureIds: [features[0].id],
             aggregatedFeature: features[0],
@@ -159,6 +156,9 @@ const useFilteredFeatures = () => {
           renovationOption,
           allFeatures
         );
+        if (featureToMerge) {
+          aggregatedFeature.properties.name = featureToMerge.properties.name;
+        }
         // add to existing state
         const updatedFilter = {
           featureIds: [...existingFeatureIds, ...newFeatureIds],

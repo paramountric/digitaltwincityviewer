@@ -68,9 +68,9 @@ function formatValue(properties: any, propertyKey: string) {
   return val;
 }
 
-const InfoPanelSingleBuilding: React.FC<InfoPanelSingleBuildingProps> = (
-  props
-) => {
+const InfoPanelSingleBuilding: React.FC<
+  InfoPanelSingleBuildingProps
+> = props => {
   const propertySelection = displayProperties.reduce((memo, key) => {
     const item = {
       property: key,
@@ -78,7 +78,6 @@ const InfoPanelSingleBuilding: React.FC<InfoPanelSingleBuildingProps> = (
       unit: units[key],
       decimals: rounding[key],
     };
-    memo.push(item);
     return memo;
   }, [] as any);
   return (

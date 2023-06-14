@@ -32,7 +32,7 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
   // const { state: selectedFeature } = useSelectedFeature();
   const { state: filteredFeatures } = useFilteredFeatures();
 
-  const [title, setTitle] = useState('Gothenburg');
+  // const [title, setTitle] = useState('Gothenburg');
 
   // useEffect(() => {
   //   console.log('filteredFeatures', filteredFeatures);
@@ -58,6 +58,10 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
     type: 'Feature',
     properties: {
       name: 'Gothenburg',
+      size: '447,8 km²',
+      population: '631,000',
+      empty: '',
+      heightAboveSeaLevel: '12 m',
     },
     geometry: {
       type: 'Polygon',
@@ -71,8 +75,6 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
     },
   };
 
-  console.log('selectedFeature', selectedFeature);
-
   const showBuilding =
     filterButton === 'buildings' &&
     (selectedFilterBuildingOption === 'single' || !showScenario);
@@ -82,7 +84,6 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
     selectedFilterBuildingOption === 'selection';
 
   const showAggregation = filterButton !== 'buildings';
-  console.log(showBuilding);
 
   const renovationLabels = {
     ref: '',
@@ -97,7 +98,7 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
   const getTitle = () => {
     if (filterButton === 'buildings') {
       if (selectedFilterBuildingOption === 'single') {
-        return selectedFeature.properties.addr || `Selected building`;
+        return selectedFeature?.properties.addr || `Selected building`;
       } else if (selectedFilterBuildingOption === 'selection') {
         return `Selected buildings`;
       } else if (selectedFilterBuildingOption === 'all') {
@@ -147,9 +148,9 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
     return `${initialWord} for selected area ${renovationLabel}`;
   };
 
-  useEffect(() => {
-    setTitle(getTitle());
-  }, [filterButton, selectedFilterGridOption, selectedFilterBuildingOption]);
+  // useEffect(() => {
+  //   setTitle(getTitle());
+  // }, [filterButton, selectedFilterGridOption, selectedFilterBuildingOption]);
 
   return (
     <div className="max-w-[568px] flex bg-opacity-95 flex-col absolute right-0 z-30 max-h-[calc(100vh-7rem)] p-2 text-gray-700 bg-white border border-gray-300 rounded-l-md top-28 text-m scroll-child">
@@ -162,7 +163,7 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
 
       {/* OVERVIEW */}
       <div className="overflow-y-auto scroll-child scroll-px-4">
-        <div className="px-2 pb-2 text-xl font-bold">{title}</div>
+        <div className="px-2 pb-2 text-xl font-bold">{getTitle()}</div>
 
         {/* Default info is the 'all buildings' */}
         {!showBuilding && !showSelection && !showAggregation && (
@@ -172,7 +173,7 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
         {/* SELECTION */}
         {showSelection && (
           <>
-            {aggregatedFeature?.feature ? (
+            {aggregatedFeature ? (
               <FilterResultPanel isOpen={showSelection} label="Info">
                 <InfoPanelSelectedBuildings feature={aggregatedFeature} />
               </FilterResultPanel>
@@ -187,7 +188,7 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
         {/* SINGLE BUILDING */}
         {showBuilding && (
           <>
-            {selectedFeature?.feature ? (
+            {selectedFeature ? (
               <FilterResultPanel isOpen={showBuilding} label="Info">
                 <InfoPanelSingleBuilding feature={selectedFeature} />
               </FilterResultPanel>
