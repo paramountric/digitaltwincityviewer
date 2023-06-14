@@ -60,7 +60,7 @@ export default function PanelBuilding() {
                   >
                     <label
                       htmlFor="default-checkbox"
-                      className="w-full py-2 text-sm font-medium"
+                      className="w-full py-2 text-xs font-medium"
                     >
                       {`${key} (${
                         Object.values(filterCategories[category][key]).length
@@ -82,7 +82,7 @@ export default function PanelBuilding() {
                     <div
                       className={`
               relative cursor-pointer mr-3 flex items-center`}
-                      onClick={e => {
+                      onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         console.log('click', key);

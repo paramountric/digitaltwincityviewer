@@ -14,7 +14,7 @@ export default function ScenarioEnergy() {
 
   return (
     <>
-      <div className="inline-flex justify-center text-sm font-medium text-gray-700 focus:outline-none">
+      <div className="inline-flex justify-center text-xs font-medium text-gray-700 focus:outline-none">
         See the
       </div>
       <Dropdown
@@ -24,7 +24,7 @@ export default function ScenarioEnergy() {
         options={propertyKeyOptions}
         roundedClass="rounded-md"
       />
-      <div className="inline-flex justify-center text-sm font-medium text-gray-700 focus:outline-none">
+      <div className="inline-flex justify-center text-xs font-medium text-gray-700 focus:outline-none">
         for the city of
       </div>
       <Dropdown
@@ -34,7 +34,7 @@ export default function ScenarioEnergy() {
         options={yearOptions}
         roundedClass="rounded-md"
       />
-      <div className="inline-flex text-sm font-medium text-gray-700 justify-centerbg-white focus:outline-none">
+      <div className="inline-flex text-xs font-medium text-gray-700 justify-centerbg-white focus:outline-none">
         given a temperature rise of
       </div>
       <Dropdown

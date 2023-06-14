@@ -59,8 +59,8 @@ const useFilteredFeatures = () => {
           }
         }
         acc.properties.numFeatures += 1;
-        propertyKeys.forEach(pKey => {
-          degreeKeys.forEach(dKey => {
+        propertyKeys.forEach((pKey) => {
+          degreeKeys.forEach((dKey) => {
             const yearKey = dKey === '0' ? '18' : '50';
             // note that zero is for year 18, that has the same values for all degrees - 25 is used here
             const degreeKey = dKey === '0' ? '25' : dKey;
@@ -109,6 +109,7 @@ const useFilteredFeatures = () => {
         renovationOption = 'ref',
         removePrevious = false
       ) => {
+        console.log('addFilteredFeatures', features);
         if (!features) {
           filteredFeaturesStore.set({});
           return;

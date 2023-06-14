@@ -98,8 +98,8 @@ const filterLabels: {
 } = {
   energy: 'Energy',
   all: 'All',
-  selection: 'Selection',
-  single: 'Single',
+  selection: 'A specific collection',
+  single: 'Only one building',
 };
 
 // these are the units, but could be done with enum instead
@@ -187,7 +187,7 @@ const rounding: {
 // **** Settings for selecting properties/indicator ***** //
 
 // this is shown in the top action menu
-const propertyKeyOptions: PropertyKeyOption[] = propertyKeys.map(key => ({
+const propertyKeyOptions: PropertyKeyOption[] = propertyKeys.map((key) => ({
   key: key as SelectablePropertyKey,
   label: propertyLabels[key],
   unit: units[key],
@@ -217,7 +217,7 @@ const yearLabels: {
   '50': 'tomorrow (2050)',
 };
 
-const yearOptions = Object.keys(yearLabels).map(key => ({
+const yearOptions = Object.keys(yearLabels).map((key) => ({
   key,
   label: yearLabels[key],
 }));
@@ -231,7 +231,7 @@ const degreeLabels: {
   '85': '2°',
 };
 
-const degreeOptions = Object.keys(degreeLabels).map(key => ({
+const degreeOptions = Object.keys(degreeLabels).map((key) => ({
   key,
   label: degreeLabels[key],
 }));
@@ -248,12 +248,12 @@ const aggregatorLabels: {
   primaryAreas: 'Primary Areas',
 };
 
-const aggregatorOptions = Object.keys(aggregatorLabels).map(key => ({
+const aggregatorOptions = Object.keys(aggregatorLabels).map((key) => ({
   key,
   label: aggregatorLabels[key],
 }));
 
-const filterBuildingOptions = buildingFilterKeys.map(key => ({
+const filterBuildingOptions = buildingFilterKeys.map((key) => ({
   key,
   label: filterLabels[key],
 }));
@@ -288,7 +288,7 @@ const filterCategoryLabels: {
   // "wpv": (Boolean, true if the building has solar cells on the roof),
 };
 
-const filterCategoryOptions = filterCategoryKeys.map(key => ({
+const filterCategoryOptions = filterCategoryKeys.map((key) => ({
   key,
   label: filterCategoryLabels[key],
 }));
@@ -300,7 +300,7 @@ const renovationLabels = {
   hr: 'HVAC systems',
 };
 
-const renovationOptions: PropertyKeyOption[] = renovationKeys.map(key => ({
+const renovationOptions: PropertyKeyOption[] = renovationKeys.map((key) => ({
   key: key as SelectablePropertyKey,
   label: renovationLabels[key],
   unit: units[key],
@@ -313,7 +313,7 @@ const solarLabels: {
   period: 'Period',
 };
 
-const solarOptions: SolarKeyOption[] = solarKeys.map(key => ({
+const solarOptions: SolarKeyOption[] = solarKeys.map((key) => ({
   key: key as SolarKeys,
   label: solarLabels[key],
   unit: units[key],

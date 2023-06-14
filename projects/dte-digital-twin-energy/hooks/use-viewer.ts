@@ -83,7 +83,7 @@ export const AGGREGATION_LAYERS = [
   'primaryAreas2050-line',
 ];
 
-const aggregationLayers = AGGREGATION_LAYERS.map(layerId => {
+const aggregationLayers = AGGREGATION_LAYERS.map((layerId) => {
   const layer = layerId.split('-')[0];
   const type = layerId.split('-')[1];
 
@@ -141,7 +141,7 @@ const maplibreOptions = {
           'background-color': 'rgba(255, 255, 255, 1)',
         },
       },
-      ...aggregationLayers.filter(l => l.type === 'fill'),
+      ...aggregationLayers.filter((l) => l.type === 'fill'),
       {
         id: 'water',
         name: 'Water',
@@ -196,7 +196,7 @@ const maplibreOptions = {
           'circle-color': 'rgb(150, 200, 150)',
         },
       },
-      ...aggregationLayers.filter(l => l.type === 'line'),
+      ...aggregationLayers.filter((l) => l.type === 'line'),
       {
         id: 'building',
         name: 'Buildings extruded',
@@ -366,7 +366,7 @@ export const useViewer = (): UseViewerProps => {
       //   lastUiState.selectedFilterGridOption !== selectedFilterGridOption
       // ) {
       //   console.log('hide all aggregation layers');
-      AGGREGATION_LAYERS.forEach(layer => {
+      AGGREGATION_LAYERS.forEach((layer) => {
         viewer.maplibreMap?.setLayoutProperty(layer, 'visibility', 'none');
       });
       // }
@@ -922,7 +922,7 @@ export const useViewer = (): UseViewerProps => {
       if (clickedFeatures && clickedFeatures.length > 0) {
         const aggregationKey = getAggregationKey();
         const layerId = getAggregationLayerId(aggregationKey);
-        const feature = clickedFeatures.find(f => f.layer?.id === layerId);
+        const feature = clickedFeatures.find((f) => f.layer?.id === layerId);
         console.log('feature', feature);
         console.log('aggregationKey', aggregationKey);
         if (feature) {
@@ -936,7 +936,7 @@ export const useViewer = (): UseViewerProps => {
           const aggrId = feature.properties.id;
           console.log('aggrId', aggrId);
           for (const f of ALL_BUILDING_FEATURES || []) {
-            console.log('ff', f);
+            //console.log('ff', f);
             if (aggrId === f.properties[aggregationKey]) {
               filteredFeatures.push(f);
             }
@@ -977,9 +977,9 @@ export const useViewer = (): UseViewerProps => {
     }
     if (uiState.showPins) {
       const pinData = notes
-        .filter(n => n.center)
+        .filter((n) => n.center)
         .filter(
-          (obj, index, self) => index === self.findIndex(o => o.id === obj.id)
+          (obj, index, self) => index === self.findIndex((o) => o.id === obj.id)
         );
       viewer.setIconLayerProps({
         id: 'pin-icon-layer',

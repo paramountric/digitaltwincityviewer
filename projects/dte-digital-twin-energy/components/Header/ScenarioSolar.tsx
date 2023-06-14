@@ -7,7 +7,7 @@ export default function ScenarioSolar() {
 
   return (
     <>
-      <div className="inline-flex justify-center text-sm font-medium text-gray-700 focus:outline-none">
+      <div className="inline-flex justify-center text-xs font-medium text-gray-700 focus:outline-none">
         Estimate solar power potential of roofs for
       </div>
       <Dropdown

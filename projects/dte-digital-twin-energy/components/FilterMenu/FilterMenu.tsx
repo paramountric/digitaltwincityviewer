@@ -20,6 +20,7 @@ import InfoPanelSelectedBuildings from './InfoPanelSelectedBuildings';
 import InfoPanelAllBuildings from './InfoPanelAllBuildings';
 import InfoPanelAggregationFeature from './InfoPanelAggregationFeature';
 import PanelSelection from './PanelSelection';
+import { select } from 'd3-selection';
 //
 
 type FilterMenuProps = {};
@@ -30,6 +31,8 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
   // const [selectedFeature, setSelectedFeature] = useState(null);
   // const { state: selectedFeature } = useSelectedFeature();
   const { state: filteredFeatures } = useFilteredFeatures();
+
+  const [title, setTitle] = useState('Gothenburg');
 
   // useEffect(() => {
   //   console.log('filteredFeatures', filteredFeatures);
@@ -72,7 +75,6 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
 
   const showBuilding =
     filterButton === 'buildings' &&
-    selectedFeature &&
     (selectedFilterBuildingOption === 'single' || !showScenario);
 
   const showSelection =
@@ -91,6 +93,33 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
 
   const initialWord =
     selectedDegreeKey === '0' ? 'Current values ' : 'Predicted values ';
+
+  const getTitle = () => {
+    if (filterButton === 'buildings') {
+      if (selectedFilterBuildingOption === 'single') {
+        return selectedFeature.properties.addr || `Selected building`;
+      } else if (selectedFilterBuildingOption === 'selection') {
+        return `Selected buildings`;
+      } else if (selectedFilterBuildingOption === 'all') {
+        return selectedFeature?.properties?.name || 'Gothenburg';
+      }
+    } else if (filterButton === 'grid') {
+      if (selectedFilterGridOption === 'grid1km') {
+        return `Selected 1 km square`;
+      } else if (selectedFilterGridOption === 'grid250m') {
+        return `Selected 250 m square`;
+      } else if (selectedFilterGridOption === 'grid100m') {
+        return `Selected 100 m square`;
+      }
+    } else if (filterButton === 'districts') {
+      return `Selected district`;
+    } else if (filterButton === 'baseAreas') {
+      return `Selected base area`;
+    } else if (filterButton === 'primaryAreas') {
+      return `Selected primary area`;
+    }
+    return 'Gothenburg';
+  };
 
   const getPredictionText = () => {
     const renovationLabel = renovationLabels[selectedRenovationOption];
@@ -117,6 +146,16 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
     }
     return `${initialWord} for selected area ${renovationLabel}`;
   };
+
+  useEffect(() => {
+    setTitle(getTitle());
+  }, [filterButton, selectedFilterGridOption, selectedFilterBuildingOption]);
+
+  useEffect(() => {
+    console.log('ag, feat', aggregatedFeature);
+    console.log('feat', features);
+  }, [aggregatedFeature, features]);
+
   return (
     <div className="max-w-[568px] flex bg-opacity-95 flex-col absolute right-0 z-30 max-h-[calc(100vh-7rem)] p-2 text-gray-700 bg-white border border-gray-300 rounded-l-md top-28 text-m scroll-child">
       {showScenario && (
@@ -125,26 +164,64 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
           <FilterMenuActionPanel />
         </div>
       )}
+
       {/* OVERVIEW */}
       <div className="overflow-y-auto scroll-child scroll-px-4">
-        {showBuilding && (
-          <FilterResultPanel isOpen={showBuilding} label="Info">
-            <InfoPanelSingleBuilding feature={selectedFeature} />
-          </FilterResultPanel>
-        )}
-        {showSelection && (
-          <FilterResultPanel isOpen={showSelection} label="Info">
-            <InfoPanelSelectedBuildings feature={aggregatedFeature} />
-          </FilterResultPanel>
-        )}
-        {showAggregation && (
-          <FilterResultPanel isOpen={showAggregation} label="Info">
-            <InfoPanelAggregationFeature feature={aggregatedFeature} />
-          </FilterResultPanel>
-        )}
+        <div className="px-2 pb-2 text-xl font-bold">{title}</div>
+
         {/* Default info is the 'all buildings' */}
         {!showBuilding && !showSelection && !showAggregation && (
           <InfoPanelAllBuildings feature={allBuildingsFeature} />
+        )}
+
+        {/* SELECTION */}
+        {showSelection && (
+          <>
+            {aggregatedFeature?.feature ? (
+              <FilterResultPanel isOpen={showSelection} label="Info">
+                <InfoPanelSelectedBuildings feature={aggregatedFeature} />
+              </FilterResultPanel>
+            ) : (
+              <div className="px-2 mb-6 text-xs italic text-gray-500">
+                Select the buildings you wish to see the data for below
+              </div>
+            )}
+          </>
+        )}
+
+        {/* SINGLE BUILDING */}
+        {showBuilding && (
+          <>
+            {selectedFeature?.feature ? (
+              <FilterResultPanel isOpen={showBuilding} label="Info">
+                <InfoPanelSingleBuilding feature={selectedFeature} />
+              </FilterResultPanel>
+            ) : (
+              <div className="px-2 mb-6 text-sm italic text-gray-500">
+                Select a building on the map that you wish to see the data for
+                below
+              </div>
+            )}
+          </>
+        )}
+
+        {/* AGGREGATION */}
+        {showAggregation && (
+          <>
+            {aggregatedFeature?.feature || aggregatedFeature?.properties ? (
+              <FilterResultPanel isOpen={showAggregation} label="Info">
+                <InfoPanelAggregationFeature feature={aggregatedFeature} />
+              </FilterResultPanel>
+            ) : (
+              <div className="px-2 mb-6 text-sm italic text-gray-500">
+                {filterButton === 'districts'
+                  ? 'Select a city district on the map'
+                  : filterButton === 'grid'
+                  ? 'Select a tile on the map'
+                  : 'Select an area on the map'}
+              </div>
+            )}
+          </>
         )}
 
         {/* THIS IS THE EXTRA PANEL WHEN SELECTION FOR FILTER SHOULD BE DONE */}

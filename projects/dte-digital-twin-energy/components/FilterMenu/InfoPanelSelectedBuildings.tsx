@@ -49,7 +49,7 @@ const InfoPanelSelectedBuildings: React.FC<InfoPanelSelectedBuildingsProps> = (
     return <div>Turn on scenarios to view predictions</div>;
   }
   if (!props.feature) {
-    return <div>Choose the buildings you wish to see below</div>;
+    return <></>; //<div>Select the buildings you wish to see the data for below</div>;
   }
   const selectedPropertiesToShow = displayProperties.reduce((memo, key) => {
     const item = {
@@ -63,11 +63,11 @@ const InfoPanelSelectedBuildings: React.FC<InfoPanelSelectedBuildingsProps> = (
   }, [] as any);
 
   return (
-    <div className="flex flex-col py-2 overflow-y-auto divide-y divide-dashed scroll-child">
+    <div className="flex flex-col overflow-y-auto divide-y bg-4 divide-dashed scroll-child">
       {selectedPropertiesToShow.map((item: any, i: number) => {
         const val = formatValue(props.feature.properties, item.property);
         return (
-          <div key={i} className="flex justify-between gap-2 px-2 py-2 ">
+          <div key={i} className="flex justify-between gap-2 px-2 py-2 text-xs">
             <div className="font-semibold w-36">{item.label || 'fixme'}:</div>
             <div className="overflow-y-auto text-right max-h-48 scroll-child">
               {val || '-'} {units[item.property] || ''}

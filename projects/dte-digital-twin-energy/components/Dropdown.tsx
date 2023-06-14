@@ -24,16 +24,16 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
   return (
     <Menu
       as="div"
-      className={`text-left border border-gray-300 text-sm font-medium focus:outline-none ${
+      className={`text-left border border-gray-300 text-xs font-medium focus:outline-none ${
         checkIcon
           ? 'bg-gray-700 text-white hover:bg-gray-500'
           : 'bg-white text-gray-900 hover:bg-gray-50'
       } ${roundedClass && roundedClass}`}
     >
       <Menu.Button className={`inline-flex px-4 py-2`}>
-        {checkIcon && <CheckIcon className="-ml-0.5 mr-2 h-5 w-5" />}
+        {checkIcon && <CheckIcon className="-ml-0.5 mr-2 h-4 w-4" />}
         <span className="truncate">{name}</span>
-        <ChevronDownIcon className="w-5 h-5 ml-2 -mr-1" aria-hidden="true" />
+        <ChevronDownIcon className="w-4 h-4 ml-2 -mr-1" aria-hidden="true" />
       </Menu.Button>
 
       <Transition

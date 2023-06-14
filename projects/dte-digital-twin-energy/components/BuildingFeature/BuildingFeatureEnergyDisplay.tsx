@@ -190,7 +190,7 @@ const BuildingFeatureEnergyDisplay: React.FC<
               className={`${open ? 'rotate-180 transform' : ''} h-5 w-5`}
             />
           </Disclosure.Button>
-          <Disclosure.Panel className="p-2 text-sm text-gray-500">
+          <Disclosure.Panel className="p-2 text-xs text-gray-500">
             <div
               className="mt-3"
               id="delivered-energy-bar-chart"

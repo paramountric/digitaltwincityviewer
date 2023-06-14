@@ -44,7 +44,7 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
                 onClick={() => {
                   userActions.signOut();
                 }}
-                className="px-2 text-gray-700 bg-white border border-gray-500 rounded-md cursor-pointer hover:bg-gray-100"
+                className="px-2 font-semibold text-gray-700 bg-white border border-gray-500 rounded-md cursor-pointer hover:bg-gray-100"
               >
                 Log out
               </button>

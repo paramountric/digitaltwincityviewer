@@ -82,11 +82,11 @@ const InfoPanelSingleBuilding: React.FC<InfoPanelSingleBuildingProps> = (
     return memo;
   }, [] as any);
   return (
-    <div className="flex flex-col py-2 overflow-y-auto divide-y divide-dashed scroll-child">
+    <div className="flex flex-col overflow-y-auto divide-y bg-4 divide-dashed scroll-child">
       {propertySelection.map((item: any, i: number) => {
         const val = formatValue(props.feature.properties, item.property);
         return (
-          <div key={i} className="flex justify-between gap-2 px-2 py-2 ">
+          <div key={i} className="flex justify-between gap-2 px-2 py-2 text-xs">
             <div className="font-semibold w-36">{item.label || 'fixme'}:</div>
             <div className="overflow-y-auto text-right max-h-48 scroll-child">
               {val || '-'} {units[item.property] || ''}

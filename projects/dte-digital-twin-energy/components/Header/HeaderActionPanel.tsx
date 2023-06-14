@@ -53,7 +53,7 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
       <div className={`${sectionBaseStyle}`}>{displayScenario()}</div>
       <div className={`${sectionBaseStyle} `}>
         <ButtonSwitch
-          label={'SCENARIO OFF'}
+          label={uiState.showScenario ? 'SCENARIO ON' : 'SCENARIO OFF'}
           actions={uiActions.setShowScenario}
           state={uiState.showScenario}
         />

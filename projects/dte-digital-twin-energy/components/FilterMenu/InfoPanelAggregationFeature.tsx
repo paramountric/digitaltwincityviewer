@@ -49,7 +49,7 @@ const InfoPanelAggregationFeature: React.FC<
     return <div>Turn on scenarios to view predictions</div>;
   }
   if (!props.feature) {
-    return <div>Select area on the map</div>;
+    return <></>; //<div>Select area on the map</div>;
   }
   const selectedPropertiesToShow = displayProperties.reduce((memo, key) => {
     const item = {
@@ -63,13 +63,13 @@ const InfoPanelAggregationFeature: React.FC<
   }, [] as any);
 
   return (
-    <div className="flex flex-col py-2 overflow-y-auto divide-y divide-dashed scroll-child">
+    <div className="flex flex-col overflow-y-auto divide-y bg-4 divide-dashed scroll-child">
       {selectedPropertiesToShow.map((item: any, i: number) => {
         const val = formatValue(props.feature.properties, item.property);
         return (
           <div
             key={i}
-            className="flex justify-between gap-2 px-2 py-0.5 max-h-48 scroll-child overflow-y-auto"
+            className="flex justify-between gap-2 px-2 py-0.5 max-h-48 scroll-child overflow-y-auto text-xs"
           >
             <div className="font-semibold ">{item.label || 'fixme'}:</div>
             <div className="text-right ">

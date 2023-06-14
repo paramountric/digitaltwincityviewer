@@ -11,7 +11,7 @@ export default function ButtonSelect(props: SelectProps) {
 
   return (
     <div
-      className={`relative text-sm font-semibold ring-1 ring-inset w-full ring-gray-300 focus:z-50 ${
+      className={`relative text-xs font-semibold ring-1 ring-inset w-full ring-gray-300 focus:z-50 ${
         state ? 'bg-gray-700 text-white' : 'bg-white text-gray-900'
       }`}
     >
@@ -20,7 +20,7 @@ export default function ButtonSelect(props: SelectProps) {
         type="button"
         className="flex items-center justify-center w-full gap-2 px-3 py-2 whitespace-nowrap"
       >
-        {state && <CheckIcon className="w-5 h-5 -ml-0.5" aria-hidden="true" />}
+        {state && <CheckIcon className="w-4 h-4 -ml-0.5" aria-hidden="true" />}
         <span>{label}</span>
       </button>
     </div>
@@ -28,7 +28,7 @@ export default function ButtonSelect(props: SelectProps) {
 }
 
 // const scenarioKeyButtonBaseStyle =
-// 'relative inline-flex items-center px-3 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 focus:z-10';
+// 'relative inline-flex items-center px-3 py-2 text-xs font-semibold ring-1 ring-inset ring-gray-300 focus:z-10';
 
 {
   /* <button
@@ -50,7 +50,7 @@ export default function ButtonSelect(props: SelectProps) {
 }
 
 // const filterButtonBaseStyle =
-// 'relative inline-flex items-center px-3 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 focus:z-10';
+// 'relative inline-flex items-center px-3 py-2 text-xs font-semibold ring-1 ring-inset ring-gray-300 focus:z-10';
 
 {
   /* <button
