@@ -138,7 +138,7 @@ export default function PanelNotes() {
                   <MapPinIcon className="w-2 h-2" />
                   {note.entityName}
                 </p>
-                <p className="mt-3 text-sm ">{note.comment}</p>
+                <p className="mt-3 text-xs ">{note.comment}</p>
               </div>
             </div>
           </li>
@@ -149,7 +149,7 @@ export default function PanelNotes() {
       <div className="mt-8">
         {showAddNewNote ? (
           <div className="border-t-2 border-gray-700">
-            <p className="flex my-4 text-sm text-gray-600">
+            <p className="flex my-4 text-xs text-gray-600">
               <MapPinIcon className="w-6 h-6 mr-2" />
               {selectedFeature?.properties?.addr || (
                 <span className="italic">Select a building on the screen</span>

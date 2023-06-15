@@ -27,7 +27,7 @@ export default function FilterMenuActionPanel(
   );
 
   return (
-    <div className="flex shrink-0 w-[550px] py-4">
+    <div className="flex shrink-0 w-[560px] py-4">
       <span className="flex justify-center w-full isolate action-panel">
         <Dropdown
           onSelect={uiActions.setSelectedFilterBuildingOption}
