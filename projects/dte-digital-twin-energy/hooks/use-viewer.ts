@@ -83,7 +83,7 @@ export const AGGREGATION_LAYERS = [
   'primaryAreas2050-line',
 ];
 
-const aggregationLayers = AGGREGATION_LAYERS.map((layerId) => {
+const aggregationLayers = AGGREGATION_LAYERS.map(layerId => {
   const layer = layerId.split('-')[0];
   const type = layerId.split('-')[1];
 
@@ -141,7 +141,7 @@ const maplibreOptions = {
           'background-color': 'rgba(255, 255, 255, 1)',
         },
       },
-      ...aggregationLayers.filter((l) => l.type === 'fill'),
+      ...aggregationLayers.filter(l => l.type === 'fill'),
       {
         id: 'water',
         name: 'Water',
@@ -196,7 +196,7 @@ const maplibreOptions = {
           'circle-color': 'rgb(150, 200, 150)',
         },
       },
-      ...aggregationLayers.filter((l) => l.type === 'line'),
+      ...aggregationLayers.filter(l => l.type === 'line'),
       {
         id: 'building',
         name: 'Buildings extruded',
@@ -289,311 +289,310 @@ export const useViewer = (): UseViewerProps => {
     if (!viewer || !viewer.maplibreMap) {
       return;
     }
-    const {
-      selectedYearKey,
-      filterButton,
-      selectedFilterBuildingOption,
-      selectedFilterGridOption,
-      showScenario,
-      selectedRenovationOption,
-      trigger, // use for setSelectedFeature and filteredFeatures since we use the change flag to know if we proceed with this function
-    } = uiState;
+    try {
+      const {
+        selectedYearKey,
+        filterButton,
+        selectedFilterBuildingOption,
+        selectedFilterGridOption,
+        showScenario,
+        selectedRenovationOption,
+        trigger, // use for setSelectedFeature and filteredFeatures since we use the change flag to know if we proceed with this function
+      } = uiState;
 
-    const uiStateHasChanged = Object.keys(uiState).some(
-      // @ts-ignore
-      (key: string) => uiState[key] !== lastUiState[key]
-    );
-    if (!uiStateHasChanged) {
-      return;
-    }
-    viewer.maplibreMap.setPaintProperty(
-      'building',
-      'fill-extrusion-color',
-      BUILDING_COLOR_LIGHT
-    );
-    viewer.maplibreMap.setPaintProperty(
-      'building-future',
-      'fill-extrusion-color',
-      BUILDING_COLOR_LIGHT
-    );
-    console.log('ui state has changed', uiStateHasChanged);
-    // if changing to selection mode, reset filtered features and rerun
-    // - to select feature or selection
-    if (
-      lastUiState.selectedFilterBuildingOption === 'all' &&
-      selectedFilterBuildingOption !== 'all'
-    ) {
-      addFilteredFeatures();
-      uiActions.triggerUpdate();
-      setLastUiState(uiState);
-      return;
-    }
-
-    // if changing to aggregation, reset filtered features and rerun
-    // - to select aggregation feature
-    if (
-      filterButton !== 'buildings' &&
-      (lastUiState.filterButton !== filterButton ||
-        lastUiState.selectedFilterGridOption !== selectedFilterGridOption)
-    ) {
-      addFilteredFeatures();
-      uiActions.triggerUpdate();
-      setLastUiState(uiState);
-      return;
-    }
-
-    // - update building layers visibility
-    if (uiState.filterButton === 'buildings') {
-      viewer.maplibreMap?.setLayoutProperty(
-        'building',
-        'visibility',
-        selectedYearKey === '18' ? 'visible' : 'none'
+      const uiStateHasChanged = Object.keys(uiState).some(
+        // @ts-ignore
+        (key: string) => uiState[key] !== lastUiState[key]
       );
-      viewer.maplibreMap?.setLayoutProperty(
-        'building-future',
-        'visibility',
-        selectedYearKey === '50' ? 'visible' : 'none'
-      );
-    }
-
-    // if show scenario
-    if (showScenario) {
-      // - hide all aggregation layer
-      // if (
-      //   lastUiState.filterButton !== filterButton ||
-      //   lastUiState.selectedFilterBuildingOption !==
-      //     selectedFilterBuildingOption ||
-      //   lastUiState.selectedFilterGridOption !== selectedFilterGridOption
-      // ) {
-      //   console.log('hide all aggregation layers');
-      AGGREGATION_LAYERS.forEach((layer) => {
-        viewer.maplibreMap?.setLayoutProperty(layer, 'visibility', 'none');
-      });
-      // }
-
-      // - show the visible aggregation layer
-      if (uiState.filterButton === 'districts') {
-        const cityDistrictsName = `cityDistricts20${selectedYearKey}`;
-        viewer.maplibreMap?.setLayoutProperty(
-          `${cityDistrictsName}-fill`,
-          'visibility',
-          'visible'
-        );
-        viewer.maplibreMap?.setLayoutProperty(
-          `${cityDistrictsName}-line`,
-          'visibility',
-          'visible'
-        );
-      } else if (uiState.filterButton === 'baseAreas') {
-        const baseAreasName = `baseAreas20${selectedYearKey}`;
-        viewer.maplibreMap?.setLayoutProperty(
-          `${baseAreasName}-fill`,
-          'visibility',
-          'visible'
-        );
-        viewer.maplibreMap?.setLayoutProperty(
-          `${baseAreasName}-line`,
-          'visibility',
-          'visible'
-        );
-      } else if (uiState.filterButton === 'primaryAreas') {
-        const primaryAreasName = `primaryAreas20${selectedYearKey}`;
-        viewer.maplibreMap?.setLayoutProperty(
-          `${primaryAreasName}-fill`,
-          'visibility',
-          'visible'
-        );
-        viewer.maplibreMap?.setLayoutProperty(
-          `${primaryAreasName}-line`,
-          'visibility',
-          'visible'
-        );
-      } else if (uiState.filterButton === 'grid') {
-        const selectedGrid = uiState.selectedFilterGridOption;
-        const gridLayer = `${selectedGrid}20${selectedYearKey}`;
-        console.log('gridLayer', gridLayer);
-        viewer.maplibreMap?.setLayoutProperty(
-          `${gridLayer}-fill`,
-          'visibility',
-          'visible'
-        );
-        viewer.maplibreMap?.setLayoutProperty(
-          `${gridLayer}-line`,
-          'visibility',
-          'visible'
-        );
+      if (!uiStateHasChanged) {
+        return;
       }
-
-      // if (selectedFeature) {
-      //   const RESET_ALL_BUILDING_FEATURES =
-      //     viewer.maplibreMap?.queryRenderedFeatures(undefined, {
-      //       layers: ['building', 'building-future'],
-      //     });
-      //   for (const f of RESET_ALL_BUILDING_FEATURES || []) {
-      //     viewer.maplibreMap.setFeatureState(
-      //       {
-      //         source: 'vectorTiles',
-      //         sourceLayer: f.sourceLayer,
-      //         id: f.properties.id,
-      //       },
-      //       {
-      //         showScenario: false,
-      //       }
-      //     );
-      //     viewer?.maplibreMap?.setFeatureState(
-      //       {
-      //         source: 'vectorTiles',
-      //         sourceLayer: selectedFeature.sourceLayer,
-      //         id: selectedFeature.properties.id,
-      //       },
-      //       {
-      //         showScenario: true,
-      //       }
-      //     );
-      //   }
-      // } else {
-      // - create category map
-      const categories: FilterCategories = filterCategoryKeys.reduce(
-        (acc: any, category: string) => {
-          acc[category] = {}; // store the category values with a map of uuid of the feature, since id is an int
-          return acc;
-        },
-        {}
+      viewer.maplibreMap.setPaintProperty(
+        'building',
+        'fill-extrusion-color',
+        BUILDING_COLOR_LIGHT
       );
-      // - know which building features are selected
-      const ALL_BUILDING_FEATURES = viewer.maplibreMap?.queryRenderedFeatures(
-        undefined,
-        {
-          layers: ['building', 'building-future'],
-        }
+      viewer.maplibreMap.setPaintProperty(
+        'building-future',
+        'fill-extrusion-color',
+        BUILDING_COLOR_LIGHT
       );
-
-      let featureUUIDs = filteredFeatures.featureUUIDs || {};
-
-      // ! I think there is a rule above that reloads if this is true
-      // switching fron all to selection required to reset the filtered features
-      // since the user must first do a selection
+      // if changing to selection mode, reset filtered features and rerun
+      // - to select feature or selection
       if (
         lastUiState.selectedFilterBuildingOption === 'all' &&
-        selectedFilterBuildingOption === 'selection'
+        selectedFilterBuildingOption !== 'all'
       ) {
-        console.log('reset featureUUIDs');
-        featureUUIDs = {};
+        addFilteredFeatures();
+        uiActions.triggerUpdate();
+        setLastUiState(uiState);
+        return;
       }
 
-      console.log('featureUUIDs', featureUUIDs);
+      // if changing to aggregation, reset filtered features and rerun
+      // - to select aggregation feature
+      if (
+        filterButton !== 'buildings' &&
+        (lastUiState.filterButton !== filterButton ||
+          lastUiState.selectedFilterGridOption !== selectedFilterGridOption)
+      ) {
+        addFilteredFeatures();
+        uiActions.triggerUpdate();
+        setLastUiState(uiState);
+        return;
+      }
 
-      const getShowScenarioFeatureState = (f: any) => {
-        // Show all
+      // - update building layers visibility
+      if (uiState.filterButton === 'buildings') {
+        viewer.maplibreMap?.setLayoutProperty(
+          'building',
+          'visibility',
+          selectedYearKey === '18' ? 'visible' : 'none'
+        );
+        viewer.maplibreMap?.setLayoutProperty(
+          'building-future',
+          'visibility',
+          selectedYearKey === '50' ? 'visible' : 'none'
+        );
+      }
+
+      // if show scenario
+      if (showScenario) {
+        // - hide all aggregation layer
+        // if (
+        //   lastUiState.filterButton !== filterButton ||
+        //   lastUiState.selectedFilterBuildingOption !==
+        //     selectedFilterBuildingOption ||
+        //   lastUiState.selectedFilterGridOption !== selectedFilterGridOption
+        // ) {
+        //   console.log('hide all aggregation layers');
+        AGGREGATION_LAYERS.forEach(layer => {
+          viewer.maplibreMap?.setLayoutProperty(layer, 'visibility', 'none');
+        });
+        // }
+
+        // - show the visible aggregation layer
+        if (uiState.filterButton === 'districts') {
+          const cityDistrictsName = `cityDistricts20${selectedYearKey}`;
+          viewer.maplibreMap?.setLayoutProperty(
+            `${cityDistrictsName}-fill`,
+            'visibility',
+            'visible'
+          );
+          viewer.maplibreMap?.setLayoutProperty(
+            `${cityDistrictsName}-line`,
+            'visibility',
+            'visible'
+          );
+        } else if (uiState.filterButton === 'baseAreas') {
+          const baseAreasName = `baseAreas20${selectedYearKey}`;
+          viewer.maplibreMap?.setLayoutProperty(
+            `${baseAreasName}-fill`,
+            'visibility',
+            'visible'
+          );
+          viewer.maplibreMap?.setLayoutProperty(
+            `${baseAreasName}-line`,
+            'visibility',
+            'visible'
+          );
+        } else if (uiState.filterButton === 'primaryAreas') {
+          const primaryAreasName = `primaryAreas20${selectedYearKey}`;
+          viewer.maplibreMap?.setLayoutProperty(
+            `${primaryAreasName}-fill`,
+            'visibility',
+            'visible'
+          );
+          viewer.maplibreMap?.setLayoutProperty(
+            `${primaryAreasName}-line`,
+            'visibility',
+            'visible'
+          );
+        } else if (uiState.filterButton === 'grid') {
+          const selectedGrid = uiState.selectedFilterGridOption;
+          const gridLayer = `${selectedGrid}20${selectedYearKey}`;
+          viewer.maplibreMap?.setLayoutProperty(
+            `${gridLayer}-fill`,
+            'visibility',
+            'visible'
+          );
+          viewer.maplibreMap?.setLayoutProperty(
+            `${gridLayer}-line`,
+            'visibility',
+            'visible'
+          );
+        }
+
+        // if (selectedFeature) {
+        //   const RESET_ALL_BUILDING_FEATURES =
+        //     viewer.maplibreMap?.queryRenderedFeatures(undefined, {
+        //       layers: ['building', 'building-future'],
+        //     });
+        //   for (const f of RESET_ALL_BUILDING_FEATURES || []) {
+        //     viewer.maplibreMap.setFeatureState(
+        //       {
+        //         source: 'vectorTiles',
+        //         sourceLayer: f.sourceLayer,
+        //         id: f.properties.id,
+        //       },
+        //       {
+        //         showScenario: false,
+        //       }
+        //     );
+        //     viewer?.maplibreMap?.setFeatureState(
+        //       {
+        //         source: 'vectorTiles',
+        //         sourceLayer: selectedFeature.sourceLayer,
+        //         id: selectedFeature.properties.id,
+        //       },
+        //       {
+        //         showScenario: true,
+        //       }
+        //     );
+        //   }
+        // } else {
+        // - create category map
+        const categories: FilterCategories = filterCategoryKeys.reduce(
+          (acc: any, category: string) => {
+            acc[category] = {}; // store the category values with a map of uuid of the feature, since id is an int
+            return acc;
+          },
+          {}
+        );
+        // - know which building features are selected
+        const ALL_BUILDING_FEATURES = viewer.maplibreMap?.queryRenderedFeatures(
+          undefined,
+          {
+            layers: ['building', 'building-future'],
+          }
+        );
+
+        let featureUUIDs = filteredFeatures.featureUUIDs || {};
+
+        // ! I think there is a rule above that reloads if this is true
+        // switching fron all to selection required to reset the filtered features
+        // since the user must first do a selection
+        if (
+          lastUiState.selectedFilterBuildingOption === 'all' &&
+          selectedFilterBuildingOption === 'selection'
+        ) {
+          featureUUIDs = {};
+        }
+
+        const getShowScenarioFeatureState = (f: any) => {
+          // Show all
+          if (
+            filterButton === 'buildings' &&
+            selectedFilterBuildingOption === 'all'
+          ) {
+            return {
+              showScenario: true,
+            };
+          }
+          // Show selection
+          if (
+            filterButton === 'buildings' &&
+            selectedFilterBuildingOption === 'selection'
+          ) {
+            return {
+              showScenario: Boolean(featureUUIDs[f.properties.UUID]),
+            };
+          }
+          // Show single
+          if (
+            filterButton === 'buildings' &&
+            selectedFilterBuildingOption === 'single' &&
+            filteredFeatures.features?.length === 1 &&
+            f.properties.UUID === filteredFeatures.features[0].properties.UUID
+          ) {
+            return {
+              showScenario: true,
+            };
+          }
+
+          if (filterButton === 'districts') {
+            return {
+              showScenario: Boolean(featureUUIDs[f.properties.UUID]),
+            };
+          }
+
+          if (filterButton === 'baseAreas') {
+            return {
+              showScenario: Boolean(featureUUIDs[f.properties.UUID]),
+            };
+          }
+
+          if (filterButton === 'primaryAreas') {
+            return {
+              showScenario: Boolean(featureUUIDs[f.properties.UUID]),
+            };
+          }
+
+          if (filterButton === 'grid') {
+            return {
+              showScenario: Boolean(featureUUIDs[f.properties.UUID]),
+            };
+          }
+
+          return {
+            showScenario: false,
+          };
+        };
+
+        for (const f of ALL_BUILDING_FEATURES || []) {
+          viewer.maplibreMap.setFeatureState(
+            {
+              source: 'vectorTiles',
+              sourceLayer: f.sourceLayer,
+              id: f.properties.id,
+            },
+            getShowScenarioFeatureState(f)
+          );
+
+          // - CATEGORIES
+
+          for (const key of filterCategoryKeys) {
+            // check if value exists
+            if (!f.properties[key]) {
+              continue;
+            }
+            // for each key, the value is another key, and its value is the UUID feature map
+            categories[key][f.properties[key]] =
+              categories[key][f.properties[key]] || {};
+            categories[key][f.properties[key]][f.properties.UUID] = f;
+          }
+          setFilterCategories(categories);
+        }
+
+        // - update filteredFeatures - the aggregation should change if new seletion or new scenario
         if (
           filterButton === 'buildings' &&
           selectedFilterBuildingOption === 'all'
         ) {
-          return {
-            showScenario: true,
-          };
-        }
-        // Show selection
-        if (
+          // all buildings aggregations goes into the filter as well
+          addFilteredFeatures(ALL_BUILDING_FEATURES, selectedRenovationOption);
+        } else if (
           filterButton === 'buildings' &&
           selectedFilterBuildingOption === 'selection'
         ) {
-          return {
-            showScenario: Boolean(featureUUIDs[f.properties.UUID]),
-          };
+          addFilteredFeatures(
+            filteredFeatures.features,
+            selectedRenovationOption
+          );
         }
-        // Show single
-        if (
-          filterButton === 'buildings' &&
-          selectedFilterBuildingOption === 'single' &&
-          filteredFeatures.features?.length === 1 &&
-          f.properties.UUID === filteredFeatures.features[0].properties.UUID
-        ) {
-          return {
-            showScenario: true,
-          };
-        }
-
-        if (filterButton === 'districts') {
-          return {
-            showScenario: Boolean(featureUUIDs[f.properties.UUID]),
-          };
-        }
-
-        if (filterButton === 'baseAreas') {
-          return {
-            showScenario: Boolean(featureUUIDs[f.properties.UUID]),
-          };
-        }
-
-        if (filterButton === 'primaryAreas') {
-          return {
-            showScenario: Boolean(featureUUIDs[f.properties.UUID]),
-          };
-        }
-
-        if (filterButton === 'grid') {
-          return {
-            showScenario: Boolean(featureUUIDs[f.properties.UUID]),
-          };
-        }
-
-        return {
-          showScenario: false,
-        };
-      };
-
-      for (const f of ALL_BUILDING_FEATURES || []) {
-        viewer.maplibreMap.setFeatureState(
-          {
-            source: 'vectorTiles',
-            sourceLayer: f.sourceLayer,
-            id: f.properties.id,
-          },
-          getShowScenarioFeatureState(f)
-        );
-
-        // - CATEGORIES
-
-        for (const key of filterCategoryKeys) {
-          // check if value exists
-          if (!f.properties[key]) {
-            continue;
-          }
-          // for each key, the value is another key, and its value is the UUID feature map
-          categories[key][f.properties[key]] =
-            categories[key][f.properties[key]] || {};
-          categories[key][f.properties[key]][f.properties.UUID] = f;
-        }
-        setFilterCategories(categories);
+        // }
+      } else {
+        // else do not show scenario
+        // addFilteredFeatures();
       }
 
-      // - update filteredFeatures - the aggregation should change if new seletion or new scenario
-      if (
-        filterButton === 'buildings' &&
-        selectedFilterBuildingOption === 'all'
-      ) {
-        // all buildings aggregations goes into the filter as well
-        addFilteredFeatures(ALL_BUILDING_FEATURES, selectedRenovationOption);
-      } else if (
-        filterButton === 'buildings' &&
-        selectedFilterBuildingOption === 'selection'
-      ) {
-        addFilteredFeatures(
-          filteredFeatures.features,
-          selectedRenovationOption
-        );
-      }
-      // }
-    } else {
-      // else do not show scenario
-      // addFilteredFeatures();
+      assignMapColors(viewer.maplibreMap, uiState);
+
+      // LASTLY update the local "last uistate"
+      setLastUiState(uiState);
+    } catch (e) {
+      console.log('error', e);
     }
-
-    assignMapColors(viewer.maplibreMap, uiState);
-
-    // LASTLY update the local "last uistate"
-    setLastUiState(uiState);
   }, [uiState, filteredFeatures]);
 
   // useEffect(() => {
@@ -878,8 +877,6 @@ export const useViewer = (): UseViewerProps => {
 
   // SET SELECTED FEATURE (building or aggregation)
   useEffect(() => {
-    console.log('clickedFeatures', clickedFeatures);
-    console.log('uiState', uiState.filterButton);
     if (!viewer) {
       return;
     }
@@ -893,7 +890,6 @@ export const useViewer = (): UseViewerProps => {
       if (clickedFeatures && clickedFeatures.length > 0) {
         const feature = clickedFeatures[0];
         if (feature) {
-          console.log('feature to add', feature);
           // setSelectedFeature(feature);
           addFilteredFeatures([feature], uiState.selectedRenovationOption);
           uiActions.triggerUpdate();
@@ -923,11 +919,8 @@ export const useViewer = (): UseViewerProps => {
       if (clickedFeatures && clickedFeatures.length > 0) {
         const aggregationKey = getAggregationKey();
         const layerId = getAggregationLayerId(aggregationKey);
-        const feature = clickedFeatures.find((f) => f.layer?.id === layerId);
-        console.log('feature', feature);
-        console.log('aggregationKey', aggregationKey);
+        const feature = clickedFeatures.find(f => f.layer?.id === layerId);
         if (feature) {
-          console.log('found feature', feature);
           uiActions.triggerUpdate();
           const ALL_BUILDING_FEATURES =
             viewer.maplibreMap?.queryRenderedFeatures(undefined, {
@@ -935,17 +928,16 @@ export const useViewer = (): UseViewerProps => {
             });
           const filteredFeatures = [];
           const aggrId = feature.properties.id;
-          console.log('aggrId', aggrId);
           for (const f of ALL_BUILDING_FEATURES || []) {
-            //console.log('ff', f);
             if (aggrId === f.properties[aggregationKey]) {
               filteredFeatures.push(f);
             }
           }
-          console.log('filteredFeatures', filteredFeatures);
           addFilteredFeatures(
             filteredFeatures,
-            uiState.selectedRenovationOption
+            uiState.selectedRenovationOption,
+            false,
+            feature
           );
 
           // get all features in the aggregation - for filtered features
@@ -979,9 +971,9 @@ export const useViewer = (): UseViewerProps => {
     }
     if (uiState.showPins) {
       const pinData = notes
-        .filter((n) => n.center)
+        .filter(n => n.center)
         .filter(
-          (obj, index, self) => index === self.findIndex((o) => o.id === obj.id)
+          (obj, index, self) => index === self.findIndex(o => o.id === obj.id)
         );
       viewer.setIconLayerProps({
         id: 'pin-icon-layer',
@@ -1001,7 +993,6 @@ export const useViewer = (): UseViewerProps => {
         // sizeMinPixels: 10,
         // sizeMaxPixels: 20,
         getPosition: (d: any) => {
-          console.log(d);
           return [...d.center, d.elevation || 0];
         },
         getSize: (d: any) => 30,

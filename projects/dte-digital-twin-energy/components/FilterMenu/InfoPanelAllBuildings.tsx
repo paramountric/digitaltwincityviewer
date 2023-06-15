@@ -8,11 +8,20 @@ type DisplayDict = {
   [key: string]: string | number;
 };
 
-const displayProperties: string[] = ['population', 'heatedFloorArea'];
+const displayProperties: string[] = [
+  'size',
+  'population',
+  'heightAboveSeaLevel',
+];
+
+// Size: 447,8 km²
+// Population: 631,000
+// Height above mean sea level: 12 m
 
 const propertyLabels: DisplayDict = {
+  size: 'Size',
   population: 'Population',
-  heatedFloorArea: 'Heated floor area',
+  heightAboveSeaLevel: 'Height above mean sea level',
 };
 
 const units: DisplayDict = {
@@ -34,7 +43,7 @@ function formatValue(properties: any, propertyKey: string) {
   return val;
 }
 
-const InfoPanelAllBuildings: React.FC<InfoPanelAllBuildingsProps> = (props) => {
+const InfoPanelAllBuildings: React.FC<InfoPanelAllBuildingsProps> = props => {
   const propertySelection = displayProperties.reduce((memo, key) => {
     const item = {
       property: key,
@@ -51,7 +60,7 @@ const InfoPanelAllBuildings: React.FC<InfoPanelAllBuildingsProps> = (props) => {
         const val = formatValue(props.feature.properties, item.property);
         return (
           <div key={i} className="flex justify-between gap-2 px-2 text-xs">
-            <div className="font-semibold w-36">{item.label || 'fixme'}:</div>
+            <div className="font-semibold w-38">{item.label || 'fixme'}:</div>
             <div className="overflow-y-auto text-right max-h-48 scroll-child">
               {val || '-'} {units[item.property] || ''}
             </div>
