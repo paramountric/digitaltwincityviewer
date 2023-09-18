@@ -902,6 +902,7 @@ export const useViewer = (): UseViewerProps => {
           return uiState.selectedFilterGridOption;
         } else if (filterButton === 'districts') {
           return `cityDistricts`;
+
         } else if (filterButton === 'baseAreas') {
           return filterButton;
         } else if (filterButton === 'primaryAreas') {
@@ -945,6 +946,7 @@ export const useViewer = (): UseViewerProps => {
     }
     // setSelectedFeature and make sure prediction panel works
   }, [clickedFeatures]);
+
 
   const onLoad = useCallback(
     (v: any) => {
