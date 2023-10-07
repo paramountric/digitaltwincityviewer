@@ -58,6 +58,13 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
           state={uiState.showScenario}
         />
       </div>
+      <div className={`${sectionBaseStyle} `}>
+        <ButtonSelect
+          label={uiState.showInfoHeader ? 'i' : 'i'}
+          actions={() => uiActions.setShowInfoHeader(!uiState.showInfoHeader)}
+          state={uiState.showInfoHeader}
+        />
+      </div>
     </div>
   );
 };

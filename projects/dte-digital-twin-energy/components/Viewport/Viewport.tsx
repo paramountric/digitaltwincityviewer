@@ -5,6 +5,8 @@ import { useUi } from '../../hooks/use-ui';
 import Legend from '../Legend/Legend';
 import FilterMenu from '../FilterMenu/FilterMenu';
 import InfoModal from '../InfoMenu/InfoModal';
+import InfoHeader from '../InfoMenu/InfoHeader';
+import InfoFilterMenu from '../InfoMenu/InfoFilterMenu';
 import LeftMenu from '../LeftMenu/LeftMenu';
 import InfoMenu from '../InfoMenu/InfoMenu';
 // import {
@@ -43,6 +45,8 @@ const Viewport: React.FC<ViewportProps> = () => {
       <FilterMenu />
       <InfoMenu />
       <InfoModal />
+      <InfoHeader />
+      <InfoFilterMenu />
       {showScenario && <Legend />}
     </>
   );

@@ -26,7 +26,7 @@ import { select } from 'd3-selection';
 type FilterMenuProps = {};
 
 const FilterMenu: React.FC<FilterMenuProps> = () => {
-  const { state: uiState, actions } = useUi();
+  const { state: uiState, actions: uiActions } = useUi();
   const { state: notesListState } = useNotes();
   // const [selectedFeature, setSelectedFeature] = useState(null);
   // const { state: selectedFeature } = useSelectedFeature();
@@ -164,6 +164,15 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
       {/* OVERVIEW */}
       <div className="overflow-y-auto scroll-child scroll-px-4">
         <div className="px-2 pb-2 text-xl font-bold">{getTitle()}</div>
+        <div className="absolute top-20 right-10 border-2 px-2">
+          <button
+            onClick={() =>
+              uiActions.setShowInfoFilterMenu(!uiState.showInfoFilterMenu)
+            }
+          >
+            i
+          </button>
+        </div>
 
         {/* Default info is the 'all buildings' */}
         {!showBuilding && !showSelection && !showAggregation && (
