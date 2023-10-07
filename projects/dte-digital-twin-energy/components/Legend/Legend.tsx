@@ -23,7 +23,7 @@ const Legend: React.FC<LegendProps> = () => {
   }
 
   return (
-    <div className="absolute px-2 pt-1 pb-2 bg-white border border-gray-300 rounded-md w-36 right-2 bottom-2">
+    <div className="absolute px-2 pt-1 pb-2 bg-white border border-gray-300 rounded-md w-36 left-2 bottom-10">
       <div className="w-full text-center text-s">{getPropertyLabel()}</div>
       <div className="w-full mb-3 text-xs text-center">({propertyUnit})</div>
       {scaleRanges.map((range, i) => {

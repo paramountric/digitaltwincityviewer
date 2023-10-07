@@ -6,6 +6,7 @@ import {
   ArrowDownOnSquareIcon,
   ArrowDownTrayIcon,
 } from '@heroicons/react/20/solid';
+import { useUi } from '../../hooks/use-ui';
 
 const TempItemLayers = () => {
   return (
@@ -42,6 +43,10 @@ const TempItemSave = () => {
 };
 
 export default function LeftMenu() {
+  const {
+    state: { showInfoModal },
+    actions: { setShowInfoModal },
+  } = useUi();
   return (
     <div className="absolute z-30 flex flex-col gap-4 py-8 rounded-md top-20 text-m">
       <LeftMenuItem
@@ -68,6 +73,14 @@ export default function LeftMenu() {
       >
         <TempItemSave />
       </LeftMenuItem>
+      <div
+        className={
+          'flex items-center px-2 py-3 m-0 text-sm font-medium text-white transition bg-gray-700 hover:bg-gray-500 focus:outline-none focus-visible:ring focus-visible:ring-gray-500 focus-visible:ring-opacity-75 rounded-r-xl w-32'
+        }
+        onClick={() => setShowInfoModal(!showInfoModal)}
+      >
+        Info
+      </div>
     </div>
   );
 }
