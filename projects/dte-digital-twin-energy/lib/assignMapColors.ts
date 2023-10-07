@@ -35,18 +35,18 @@ export function assignMapColors(map: any, uiStore: UiStore) {
     } catch (e) {
       console.log('future city set paint error', e);
     }
-    try {
-      AGGREGATION_LAYERS.forEach(layer => {
-        map.setPaintProperty(layer, 'fill-color', [
-          'case',
-          ['boolean', ['feature-state', 'showScenario'], true],
-          ['get', `${key}_bcol`],
-          BUILDING_COLOR_LIGHT,
-        ]);
-      });
-    } catch (e) {
-      console.log('aggregation layer set paint error', e);
-    }
+    // try {
+    //   AGGREGATION_LAYERS.forEach(layer => {
+    //     map.setPaintProperty(layer, 'fill-color', [
+    //       'case',
+    //       ['boolean', ['feature-state', 'showScenario'], true],
+    //       ['get', `${key}_bcol`],
+    //       BUILDING_COLOR_LIGHT,
+    //     ]);
+    //   });
+    // } catch (e) {
+    //   console.log('aggregation layer set paint error', e);
+    // }
   } else {
     try {
       map.setPaintProperty(
@@ -66,13 +66,13 @@ export function assignMapColors(map: any, uiStore: UiStore) {
     } catch (e) {
       console.log('future city set paint error', e);
     }
-    try {
-      AGGREGATION_LAYERS.forEach(layer => {
-        map.setPaintProperty(layer, 'fill-color', DEFAULT_BUILDING_COLOR);
-      });
-    } catch (e) {
-      console.log('aggregation layer set paint error', e);
-    }
+    // try {
+    //   AGGREGATION_LAYERS.forEach(layer => {
+    //     map.setPaintProperty(layer, 'fill-color', DEFAULT_BUILDING_COLOR);
+    //   });
+    // } catch (e) {
+    //   console.log('aggregation layer set paint error', e);
+    // }
   }
 }
 

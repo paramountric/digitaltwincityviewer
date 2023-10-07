@@ -8,6 +8,7 @@ import {
   FilterButtons,
   BuildingFilterOptions,
   GridFilterOptions,
+  AreaFilterOptions,
   RenovationKeys,
   DegreeKey,
   YearKey,
@@ -25,6 +26,7 @@ export type UiStore = {
   scenarioKey: ScenarioKeys;
   filterButton: FilterButtons;
   selectedFilterBuildingOption: BuildingFilterOptions;
+  selectedFilterAreaOption: AreaFilterOptions;
   selectedFilterGridOption: GridFilterOptions;
   selectedRenovationOption: RenovationKeys;
   selectedSolarKey: string;
@@ -51,6 +53,7 @@ const uiStore = new Observable<UiStore>({
   filterButton: 'buildings',
   selectedFilterBuildingOption: 'all',
   selectedFilterGridOption: 'grid1km',
+  selectedFilterAreaOption: 'cityDistricts',
   selectedRenovationOption: 'ref',
   selectedSolarKey: 'period',
   showLayerPlannedDevelopment: false,
@@ -88,8 +91,32 @@ export const useUi = () => {
       setScenario: (scenarioKey: ScenarioKeys) =>
         uiStore.set({ ...uiState, scenarioKey }),
       setShowPins: (showPins: boolean) => uiStore.set({ ...uiState, showPins }),
-      setFilterButton: (filterButton: FilterButtons) =>
-        uiStore.set({ ...uiState, filterButton }),
+      setFilterButton: (filterButton: FilterButtons) => {
+        if (filterButton === 'buildings') {
+          uiStore.set({
+            ...uiState,
+            filterButton,
+            selectedFilterBuildingOption: 'all',
+          });
+          return;
+        }
+        if (filterButton === 'areas') {
+          uiStore.set({
+            ...uiState,
+            filterButton,
+            selectedFilterAreaOption: 'cityDistricts',
+          });
+          return;
+        }
+        if (filterButton === 'grid') {
+          uiStore.set({
+            ...uiState,
+            filterButton,
+            selectedFilterGridOption: 'grid1km',
+          });
+          return;
+        }
+      },
       setSelectedFilterBuildingOption: (
         selectedFilterBuildingOption: BuildingFilterOptions
       ) =>
@@ -105,6 +132,14 @@ export const useUi = () => {
           ...uiState,
           filterButton: 'grid',
           selectedFilterGridOption,
+        }),
+      setSelectedFilterAreaOption: (
+        selectedFilterAreaOption: AreaFilterOptions
+      ) =>
+        uiStore.set({
+          ...uiState,
+          filterButton: 'areas',
+          selectedFilterAreaOption,
         }),
       setShowLayerPlannedDevelopment: (showLayerPlannedDevelopment: boolean) =>
         uiStore.set({ ...uiState, showLayerPlannedDevelopment }),
@@ -196,11 +231,8 @@ export const useUi = () => {
       if (uiState.filterButton === 'buildings') {
         return '';
       }
-      if (uiState.filterButton === 'districts') {
-        return 'cityDistricts';
-      }
-      if (uiState.filterButton === 'baseAreas') {
-        return 'baseAreas';
+      if (uiState.filterButton === 'areas') {
+        return 'areas';
       }
       if (uiState.filterButton === 'grid') {
         return uiState.selectedFilterGridOption;

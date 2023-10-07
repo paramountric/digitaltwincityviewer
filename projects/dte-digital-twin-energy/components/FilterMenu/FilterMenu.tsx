@@ -112,13 +112,16 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
       } else if (selectedFilterGridOption === 'grid100m') {
         return `Selected 100 m square`;
       }
-    } else if (filterButton === 'districts') {
-      return `Selected district`;
-    } else if (filterButton === 'baseAreas') {
-      return `Selected base area`;
-    } else if (filterButton === 'primaryAreas') {
-      return `Selected primary area`;
+    } else if (filterButton === 'areas') {
+      return `Selected area`;
     }
+    // } else if (filterButton === 'districts') {
+    //   return `Selected district`;
+    // } else if (filterButton === 'baseAreas') {
+    //   return `Selected base area`;
+    // } else if (filterButton === 'primaryAreas') {
+    //   return `Selected primary area`;
+    // }
     return 'Gothenburg';
   };
 
@@ -164,7 +167,8 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
       {/* OVERVIEW */}
       <div className="overflow-y-auto scroll-child scroll-px-4">
         <div className="px-2 pb-2 text-xl font-bold">{getTitle()}</div>
-        <div className="absolute top-20 right-10 border-2 px-2">
+        {/* BADLY ENGINEERED INFO BUTTON */}
+        <div className="absolute top-24 right-10 border-2 px-2">
           <button
             onClick={() =>
               uiActions.setShowInfoFilterMenu(!uiState.showInfoFilterMenu)
@@ -233,8 +237,8 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
               </FilterResultPanel>
             ) : (
               <div className="px-2 mb-6 text-sm italic text-gray-500">
-                {filterButton === 'districts'
-                  ? 'Select a city district on the map'
+                {filterButton === 'areas'
+                  ? 'Select an area on the map'
                   : filterButton === 'grid'
                   ? 'Select a tile on the map'
                   : 'Select an area on the map'}

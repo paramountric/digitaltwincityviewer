@@ -283,6 +283,7 @@ export const useViewer = (): UseViewerProps => {
         filterButton,
         selectedFilterBuildingOption,
         selectedFilterGridOption,
+        selectedFilterAreaOption,
         showScenario,
         selectedRenovationOption,
         trigger, // use for setSelectedFeature and filteredFeatures since we use the change flag to know if we proceed with this function
@@ -293,8 +294,10 @@ export const useViewer = (): UseViewerProps => {
         filterButton: true,
         selectedFilterBuildingOption: true,
         selectedFilterGridOption: true,
+        selectedFilterAreaOption: true,
         showScenario: true,
         selectedRenovationOption: true,
+        trigger: true,
       } as any;
 
       const uiStateHasChanged = Object.keys(uiState).some(
@@ -317,6 +320,7 @@ export const useViewer = (): UseViewerProps => {
         'fill-extrusion-color',
         BUILDING_COLOR_LIGHT
       );
+
       // if changing to selection mode, reset filtered features and rerun
       // - to select feature or selection
       if (
@@ -334,7 +338,8 @@ export const useViewer = (): UseViewerProps => {
       if (
         filterButton !== 'buildings' &&
         (lastUiState.filterButton !== filterButton ||
-          lastUiState.selectedFilterGridOption !== selectedFilterGridOption)
+          lastUiState.selectedFilterGridOption !== selectedFilterGridOption ||
+          lastUiState.selectedFilterAreaOption !== selectedFilterAreaOption)
       ) {
         addFilteredFeatures();
         uiActions.triggerUpdate();
@@ -365,52 +370,68 @@ export const useViewer = (): UseViewerProps => {
         //     selectedFilterBuildingOption ||
         //   lastUiState.selectedFilterGridOption !== selectedFilterGridOption
         // ) {
-        //   console.log('hide all aggregation layers');
+        console.log('hide all aggregation layers');
         AGGREGATION_LAYERS.forEach(layer => {
           viewer.maplibreMap?.setLayoutProperty(layer, 'visibility', 'none');
         });
         // }
 
         // - show the visible aggregation layer
-        if (uiState.filterButton === 'districts') {
-          const cityDistrictsName = `cityDistricts`;
+        // if (uiState.filterButton === 'districts') {
+        //   const cityDistrictsName = `cityDistricts`;
+        //   viewer.maplibreMap?.setLayoutProperty(
+        //     `${cityDistrictsName}-fill`,
+        //     'visibility',
+        //     'visible'
+        //   );
+        //   viewer.maplibreMap?.setLayoutProperty(
+        //     `${cityDistrictsName}-line`,
+        //     'visibility',
+        //     'visible'
+        //   );
+        // } else if (uiState.filterButton === 'baseAreas') {
+        //   const baseAreasName = `baseAreas`;
+        //   viewer.maplibreMap?.setLayoutProperty(
+        //     `${baseAreasName}-fill`,
+        //     'visibility',
+        //     'visible'
+        //   );
+        //   viewer.maplibreMap?.setLayoutProperty(
+        //     `${baseAreasName}-line`,
+        //     'visibility',
+        //     'visible'
+        //   );
+        // } else if (uiState.filterButton === 'primaryAreas') {
+        //   const primaryAreasName = `primaryAreas`;
+        //   viewer.maplibreMap?.setLayoutProperty(
+        //     `${primaryAreasName}-fill`,
+        //     'visibility',
+        //     'visible'
+        //   );
+        //   viewer.maplibreMap?.setLayoutProperty(
+        //     `${primaryAreasName}-line`,
+        //     'visibility',
+        //     'visible'
+        //   );
+        if (uiState.filterButton === 'areas') {
+          const selectedArea = uiState.selectedFilterAreaOption;
+          console.log('selected area', selectedArea);
+          const areaLayer = `${selectedArea}`;
           viewer.maplibreMap?.setLayoutProperty(
-            `${cityDistrictsName}-fill`,
+            `${areaLayer}-fill`,
             'visibility',
             'visible'
           );
           viewer.maplibreMap?.setLayoutProperty(
-            `${cityDistrictsName}-line`,
-            'visibility',
-            'visible'
-          );
-        } else if (uiState.filterButton === 'baseAreas') {
-          const baseAreasName = `baseAreas`;
-          viewer.maplibreMap?.setLayoutProperty(
-            `${baseAreasName}-fill`,
-            'visibility',
-            'visible'
-          );
-          viewer.maplibreMap?.setLayoutProperty(
-            `${baseAreasName}-line`,
-            'visibility',
-            'visible'
-          );
-        } else if (uiState.filterButton === 'primaryAreas') {
-          const primaryAreasName = `primaryAreas`;
-          viewer.maplibreMap?.setLayoutProperty(
-            `${primaryAreasName}-fill`,
-            'visibility',
-            'visible'
-          );
-          viewer.maplibreMap?.setLayoutProperty(
-            `${primaryAreasName}-line`,
+            `${areaLayer}-line`,
             'visibility',
             'visible'
           );
         } else if (uiState.filterButton === 'grid') {
           const selectedGrid = uiState.selectedFilterGridOption;
           const gridLayer = `${selectedGrid}`;
+          console.log('selected grd', selectedGrid);
+
           viewer.maplibreMap?.setLayoutProperty(
             `${gridLayer}-fill`,
             'visibility',
@@ -510,19 +531,7 @@ export const useViewer = (): UseViewerProps => {
             };
           }
 
-          if (filterButton === 'districts') {
-            return {
-              showScenario: Boolean(featureUUIDs[f.properties.UUID]),
-            };
-          }
-
-          if (filterButton === 'baseAreas') {
-            return {
-              showScenario: Boolean(featureUUIDs[f.properties.UUID]),
-            };
-          }
-
-          if (filterButton === 'primaryAreas') {
+          if (filterButton === 'areas') {
             return {
               showScenario: Boolean(featureUUIDs[f.properties.UUID]),
             };
@@ -903,12 +912,8 @@ export const useViewer = (): UseViewerProps => {
         const filterButton = uiState.filterButton;
         if (filterButton === 'grid') {
           return uiState.selectedFilterGridOption;
-        } else if (filterButton === 'districts') {
-          return `cityDistricts`;
-        } else if (filterButton === 'baseAreas') {
-          return filterButton;
-        } else if (filterButton === 'primaryAreas') {
-          return filterButton;
+        } else if (filterButton === 'areas') {
+          return uiState.selectedFilterAreaOption;
         }
         return '';
       };

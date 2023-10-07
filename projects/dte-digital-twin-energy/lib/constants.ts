@@ -1,11 +1,7 @@
 export type ScenarioKeys = 'energy' | 'solar' | 'renovation';
-export type FilterButtons =
-  | 'buildings'
-  | 'districts'
-  | 'baseAreas'
-  | 'primaryAreas'
-  | 'grid';
+export type FilterButtons = 'buildings' | 'areas' | 'grid';
 export type BuildingFilterOptions = 'all' | 'selection' | 'single';
+export type AreaFilterOptions = 'cityDistricts' | 'baseAreas' | 'primaryAreas';
 export type GridFilterOptions = 'grid1km' | 'grid250m' | 'grid100m';
 export type RenovationKeys = 'ref' | 'dr' | 'er' | 'hr';
 export type SelectablePropertyKey = 'fe' | 'hd' | 'pe' | 'de' | 'ge' | 'cd';
@@ -42,7 +38,11 @@ const degreeKeys: DegreeKey[] = ['0', '25', '45', '85'];
 
 const renovationKeys: RenovationKeys[] = ['ref', 'dr', 'er', 'hr'];
 const solarKeys: SolarKeys[] = ['period'];
-const buildingFilterKeys = ['all', 'selection', 'single'];
+const buildingFilterKeys: BuildingFilterOptions[] = [
+  'all',
+  'selection',
+  'single',
+];
 const filterCategoryKeys = ['bt', 'hs', 'own', 'vs', 'ot', 'ech'];
 
 // *** Settings for labels, units and rounding for the keys of various options
@@ -258,7 +258,28 @@ const filterBuildingOptions = buildingFilterKeys.map(key => ({
   label: filterLabels[key],
 }));
 
-const filterGridOptions = [
+const filterAreaOptions: {
+  key: AreaFilterOptions;
+  label: string;
+}[] = [
+  {
+    key: 'cityDistricts',
+    label: aggregatorLabels.cityDistricts,
+  },
+  {
+    key: 'baseAreas',
+    label: aggregatorLabels.baseAreas,
+  },
+  {
+    key: 'primaryAreas',
+    label: aggregatorLabels.primaryAreas,
+  },
+];
+
+const filterGridOptions: {
+  key: GridFilterOptions;
+  label: string;
+}[] = [
   {
     key: 'grid1km',
     label: 'Grid 1km',
@@ -335,6 +356,7 @@ export {
   aggregatorLabels,
   aggregatorOptions,
   filterBuildingOptions,
+  filterAreaOptions,
   filterGridOptions,
   renovationLabels,
   renovationOptions,
