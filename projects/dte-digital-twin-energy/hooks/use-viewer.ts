@@ -57,30 +57,18 @@ const BUILDING_FUTURE_PAINT_PROPERTY = [
 // ];
 
 export const AGGREGATION_LAYERS = [
-  'grid1km2018-fill',
-  'grid1km2018-line',
-  'grid1km2050-fill',
-  'grid1km2050-line',
-  'grid250m2018-fill',
-  'grid250m2018-line',
-  'grid250m2050-fill',
-  'grid250m2050-line',
-  'grid100m2018-fill',
-  'grid100m2018-line',
-  'grid100m2050-fill',
-  'grid100m2050-line',
-  'cityDistricts2018-fill',
-  'cityDistricts2018-line',
-  'cityDistricts2050-fill',
-  'cityDistricts2050-line',
-  'baseAreas2018-fill',
-  'baseAreas2018-line',
-  'baseAreas2050-fill',
-  'baseAreas2050-line',
-  'primaryAreas2018-fill',
-  'primaryAreas2018-line',
-  'primaryAreas2050-fill',
-  'primaryAreas2050-line',
+  'grid1km-fill',
+  'grid1km-line',
+  'grid250m-fill',
+  'grid250m-line',
+  'grid100m-fill',
+  'grid100m-line',
+  'cityDistricts-fill',
+  'cityDistricts-line',
+  'baseAreas-fill',
+  'baseAreas-line',
+  'primaryAreas-fill',
+  'primaryAreas-line',
 ];
 
 const aggregationLayers = AGGREGATION_LAYERS.map(layerId => {
@@ -238,9 +226,9 @@ const maplibreOptions = {
       vectorTiles: {
         type: 'vector',
         promoteId: 'id', // this will use the id in the properties for feature-state
-        //tiles: [`http://localhost:9000/tiles/{z}/{x}/{y}`],
+        tiles: [`http://localhost:9000/tiles/{z}/{x}/{y}`],
         //tiles: [`${tileServerUrl}/api/tiles?z={z}&x={x}&y={y}`],
-        tiles: [`${dtcvFilesUrl}/tiles/{z}/{x}/{y}.mvt`],
+        // tiles: [`${dtcvFilesUrl}/tiles/{z}/{x}/{y}.mvt`],
       },
     },
     version: 8,
@@ -373,7 +361,7 @@ export const useViewer = (): UseViewerProps => {
 
         // - show the visible aggregation layer
         if (uiState.filterButton === 'districts') {
-          const cityDistrictsName = `cityDistricts20${selectedYearKey}`;
+          const cityDistrictsName = `cityDistricts`;
           viewer.maplibreMap?.setLayoutProperty(
             `${cityDistrictsName}-fill`,
             'visibility',
@@ -385,7 +373,7 @@ export const useViewer = (): UseViewerProps => {
             'visible'
           );
         } else if (uiState.filterButton === 'baseAreas') {
-          const baseAreasName = `baseAreas20${selectedYearKey}`;
+          const baseAreasName = `baseAreas`;
           viewer.maplibreMap?.setLayoutProperty(
             `${baseAreasName}-fill`,
             'visibility',
@@ -397,7 +385,7 @@ export const useViewer = (): UseViewerProps => {
             'visible'
           );
         } else if (uiState.filterButton === 'primaryAreas') {
-          const primaryAreasName = `primaryAreas20${selectedYearKey}`;
+          const primaryAreasName = `primaryAreas`;
           viewer.maplibreMap?.setLayoutProperty(
             `${primaryAreasName}-fill`,
             'visibility',
@@ -410,7 +398,7 @@ export const useViewer = (): UseViewerProps => {
           );
         } else if (uiState.filterButton === 'grid') {
           const selectedGrid = uiState.selectedFilterGridOption;
-          const gridLayer = `${selectedGrid}20${selectedYearKey}`;
+          const gridLayer = `${selectedGrid}`;
           viewer.maplibreMap?.setLayoutProperty(
             `${gridLayer}-fill`,
             'visibility',
@@ -902,7 +890,6 @@ export const useViewer = (): UseViewerProps => {
           return uiState.selectedFilterGridOption;
         } else if (filterButton === 'districts') {
           return `cityDistricts`;
-
         } else if (filterButton === 'baseAreas') {
           return filterButton;
         } else if (filterButton === 'primaryAreas') {
@@ -912,8 +899,7 @@ export const useViewer = (): UseViewerProps => {
       };
 
       const getAggregationLayerId = (aggregationKey: string) => {
-        const selectedYearKey = uiState.selectedYearKey;
-        return `${aggregationKey}20${selectedYearKey}-fill`;
+        return `${aggregationKey}-fill`;
       };
       // if filter button is aggregation, select the aggregation
       if (clickedFeatures && clickedFeatures.length > 0) {
@@ -946,7 +932,6 @@ export const useViewer = (): UseViewerProps => {
     }
     // setSelectedFeature and make sure prediction panel works
   }, [clickedFeatures]);
-
 
   const onLoad = useCallback(
     (v: any) => {

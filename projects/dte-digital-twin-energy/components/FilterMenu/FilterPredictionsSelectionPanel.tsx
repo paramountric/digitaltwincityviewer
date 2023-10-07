@@ -228,7 +228,7 @@ const FilterPredictionsSelectionPanel: React.FC<
 
   return (
     <div>
-      <div>Annual values in climate scenarios</div>
+      {/* <div>Annual values in climate scenarios</div> */}
       <div
         className="mt-3"
         id="delivered-energy-bar-chart"

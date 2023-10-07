@@ -15,40 +15,64 @@ export function assignMapColors(map: any, uiStore: UiStore) {
   } = uiStore;
   if (showScenario) {
     const key = getCombinedKey(uiStore);
-    map.setPaintProperty('building', 'fill-extrusion-color', [
-      'case',
-      ['boolean', ['feature-state', 'showScenario'], true],
-      ['get', `${key}_bcol`],
-      BUILDING_COLOR_LIGHT,
-    ]);
-    map.setPaintProperty('building-future', 'fill-extrusion-color', [
-      'case',
-      ['boolean', ['feature-state', 'showScenario'], true],
-      ['get', `${key}_bcol`],
-      BUILDING_COLOR_LIGHT,
-    ]);
-    // AGGREGATION_LAYERS.forEach(layer => {
-    //   map.setPaintProperty(layer, 'fill-color', [
-    //     'case',
-    //     ['boolean', ['feature-state', 'showScenario'], true],
-    //     ['get', `${key}_bcol`],
-    //     BUILDING_COLOR_LIGHT,
-    //   ]);
-    // });
+    try {
+      map.setPaintProperty('building', 'fill-extrusion-color', [
+        'case',
+        ['boolean', ['feature-state', 'showScenario'], true],
+        ['get', `${key}_bcol`],
+        BUILDING_COLOR_LIGHT,
+      ]);
+    } catch (e) {
+      console.log('current city set paint error', e);
+    }
+    try {
+      map.setPaintProperty('building-future', 'fill-extrusion-color', [
+        'case',
+        ['boolean', ['feature-state', 'showScenario'], true],
+        ['get', `${key}_bcol`],
+        BUILDING_COLOR_LIGHT,
+      ]);
+    } catch (e) {
+      console.log('future city set paint error', e);
+    }
+    try {
+      AGGREGATION_LAYERS.forEach(layer => {
+        map.setPaintProperty(layer, 'fill-color', [
+          'case',
+          ['boolean', ['feature-state', 'showScenario'], true],
+          ['get', `${key}_bcol`],
+          BUILDING_COLOR_LIGHT,
+        ]);
+      });
+    } catch (e) {
+      console.log('aggregation layer set paint error', e);
+    }
   } else {
-    map.setPaintProperty(
-      'building',
-      'fill-extrusion-color',
-      DEFAULT_BUILDING_COLOR
-    );
-    map.setPaintProperty(
-      'building-future',
-      'fill-extrusion-color',
-      DEFAULT_BUILDING_COLOR
-    );
-    // AGGREGATION_LAYERS.forEach(layer => {
-    //   map.setPaintProperty(layer, 'fill-color', DEFAULT_BUILDING_COLOR);
-    // });
+    try {
+      map.setPaintProperty(
+        'building',
+        'fill-extrusion-color',
+        DEFAULT_BUILDING_COLOR
+      );
+    } catch (e) {
+      console.log('current city set paint error', e);
+    }
+    try {
+      map.setPaintProperty(
+        'building-future',
+        'fill-extrusion-color',
+        DEFAULT_BUILDING_COLOR
+      );
+    } catch (e) {
+      console.log('future city set paint error', e);
+    }
+    try {
+      AGGREGATION_LAYERS.forEach(layer => {
+        map.setPaintProperty(layer, 'fill-color', DEFAULT_BUILDING_COLOR);
+      });
+    } catch (e) {
+      console.log('aggregation layer set paint error', e);
+    }
   }
 }
 
