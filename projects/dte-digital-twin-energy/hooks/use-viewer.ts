@@ -226,9 +226,9 @@ const maplibreOptions = {
       vectorTiles: {
         type: 'vector',
         promoteId: 'id', // this will use the id in the properties for feature-state
-        tiles: [`http://localhost:9000/tiles/{z}/{x}/{y}`],
+        // tiles: [`http://localhost:9000/tiles/{z}/{x}/{y}`],
         //tiles: [`${tileServerUrl}/api/tiles?z={z}&x={x}&y={y}`],
-        // tiles: [`${dtcvFilesUrl}/tiles/{z}/{x}/{y}.mvt`],
+        tiles: [`${dtcvFilesUrl}/final/tiles/{z}/{x}/{y}.mvt`],
       },
     },
     version: 8,
