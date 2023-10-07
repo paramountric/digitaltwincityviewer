@@ -288,13 +288,25 @@ export const useViewer = (): UseViewerProps => {
         trigger, // use for setSelectedFeature and filteredFeatures since we use the change flag to know if we proceed with this function
       } = uiState;
 
+      const compareTheseKeysFromState = {
+        selectedYearKey: true,
+        filterButton: true,
+        selectedFilterBuildingOption: true,
+        selectedFilterGridOption: true,
+        showScenario: true,
+        selectedRenovationOption: true,
+      } as any;
+
       const uiStateHasChanged = Object.keys(uiState).some(
-        // @ts-ignore
-        (key: string) => uiState[key] !== lastUiState[key]
+        (key: string) =>
+          // @ts-ignore
+          compareTheseKeysFromState[key] && uiState[key] !== lastUiState[key]
       );
       if (!uiStateHasChanged) {
         return;
       }
+      console.log('uiState', uiState);
+      console.log('last ui state', lastUiState);
       viewer.maplibreMap.setPaintProperty(
         'building',
         'fill-extrusion-color',
@@ -574,7 +586,10 @@ export const useViewer = (): UseViewerProps => {
         // addFilteredFeatures();
       }
 
-      assignMapColors(viewer.maplibreMap, uiState);
+      if (uiStateHasChanged) {
+        console.log('ui state has changed');
+        assignMapColors(viewer.maplibreMap, uiState);
+      }
 
       // LASTLY update the local "last uistate"
       setLastUiState(uiState);
