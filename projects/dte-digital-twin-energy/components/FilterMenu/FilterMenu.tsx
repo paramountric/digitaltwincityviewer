@@ -86,14 +86,14 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
   const showAggregation = filterButton !== 'buildings';
 
   const renovationLabels = {
-    ref: '',
-    dr: ' (deep renovation)',
-    hr: ' (HVAC renovation)',
-    er: ' (envelope renovation)',
+    ref: 'selected scenario',
+    dr: 'full renovation',
+    hr: 'facade and roof renovation',
+    er: 'renovation of building installations',
   };
 
   const initialWord =
-    selectedDegreeKey === '0' ? 'Current values ' : 'Predicted values ';
+    selectedDegreeKey === '0' ? 'Annual values ' : 'Predicted values ';
 
   const getTitle = () => {
     if (filterButton === 'buildings') {
@@ -129,20 +129,20 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
         return `${initialWord} for the selected building ${renovationLabel}`;
       }
       if (selectedFilterBuildingOption === 'selection') {
-        return `${initialWord}  for the selection ${renovationLabel}`;
+        return `${initialWord} for ${renovationLabel}`;
       }
       if (selectedFilterBuildingOption === 'all') {
-        return `${initialWord}  for all buildings ${renovationLabel}`;
+        return `${initialWord}  for ${renovationLabel}`; // all buildings
       }
     } else if (filterButton === 'grid') {
       if (selectedFilterGridOption === 'grid1km') {
-        return `${initialWord} for selected 1 km square ${renovationLabel}`;
+        return `${initialWord} for ${renovationLabel}`; //selected 1 km square
       }
       if (selectedFilterGridOption === 'grid250m') {
-        return `${initialWord} for selected 250 m square ${renovationLabel}`;
+        return `${initialWord} for ${renovationLabel}`; // selected 250 m square
       }
       if (selectedFilterGridOption === 'grid100m') {
-        return `${initialWord} for selected 100 m square ${renovationLabel}`;
+        return `${initialWord} for ${renovationLabel}`; // selected 100 m square
       }
     }
     return `${initialWord} for selected area ${renovationLabel}`;
