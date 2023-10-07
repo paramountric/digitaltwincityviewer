@@ -174,7 +174,10 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
         {showSelection && (
           <>
             {aggregatedFeature ? (
-              <FilterResultPanel isOpen={showSelection} label="Info">
+              <FilterResultPanel
+                isOpen={showSelection}
+                label="Info for the filtered selection"
+              >
                 <InfoPanelSelectedBuildings feature={aggregatedFeature} />
               </FilterResultPanel>
             ) : (
@@ -189,7 +192,10 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
         {showBuilding && (
           <>
             {selectedFeature ? (
-              <FilterResultPanel isOpen={showBuilding} label="Info">
+              <FilterResultPanel
+                isOpen={showBuilding}
+                label={`Info for the selected building`}
+              >
                 <InfoPanelSingleBuilding feature={selectedFeature} />
               </FilterResultPanel>
             ) : (
@@ -205,7 +211,10 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
         {showAggregation && (
           <>
             {aggregatedFeature?.feature || aggregatedFeature?.properties ? (
-              <FilterResultPanel isOpen={showAggregation} label="Info">
+              <FilterResultPanel
+                isOpen={showAggregation}
+                label="Info for the selected area"
+              >
                 <InfoPanelAggregationFeature feature={aggregatedFeature} />
               </FilterResultPanel>
             ) : (

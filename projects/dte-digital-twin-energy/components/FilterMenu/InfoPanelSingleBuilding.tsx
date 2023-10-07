@@ -78,10 +78,18 @@ const InfoPanelSingleBuilding: React.FC<
       unit: units[key],
       decimals: rounding[key],
     };
+    memo.push(item);
     return memo;
   }, [] as any);
   return (
     <div className="flex flex-col overflow-y-auto divide-y bg-4 divide-dashed scroll-child">
+      {propertySelection.length === 0 && (
+        <div className="flex justify-between gap-2 px-2 py-2 text-xs">
+          <div className="px-2 mb-6 text-xs italic text-gray-500">
+            No information available for the selected building
+          </div>
+        </div>
+      )}
       {propertySelection.map((item: any, i: number) => {
         const val = formatValue(props.feature.properties, item.property);
         return (

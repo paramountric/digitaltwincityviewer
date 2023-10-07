@@ -366,6 +366,9 @@ const FilterPredictionsSingleBuildingPanel: React.FC<
         id="primary-energy-chart"
         ref={primaryEnergyRef}
       ></div>
+      <div className="absolute top-0 left-0 z-50 p-1 bg-white border shadow-md tooltip">
+        {/* this is replaced with tooltip text */}
+      </div>
     </div>
   );
 };
