@@ -188,8 +188,13 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
           </>
         )}
 
+        {/* ALL but with default on selected building + all */}
+        {showBuilding && selectedFilterBuildingOption === 'all' && (
+          <InfoPanelAllBuildings feature={allBuildingsFeature} />
+        )}
+
         {/* SINGLE BUILDING */}
-        {showBuilding && (
+        {showBuilding && selectedFilterBuildingOption !== 'all' && (
           <>
             {selectedFeature ? (
               <FilterResultPanel
