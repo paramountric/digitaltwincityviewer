@@ -5,7 +5,12 @@ import { select } from 'd3-selection';
 import { scaleBand, scaleLinear } from 'd3-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
 import { getColorFromScale } from '../../lib/colorScales';
-import { propertyLabels, units, rounding } from '../../lib/constants';
+import {
+  propertyLabels,
+  units,
+  rounding,
+  renovationLabels,
+} from '../../lib/constants';
 import { useUi } from '../../hooks/use-ui';
 
 type FilterPredictionsSelectionPanelProps = {
@@ -22,23 +27,37 @@ function formatValue(properties: any, propertyKey: string) {
 }
 
 // kwh/m2 or total ghg/m2 for each of the years
-function getIndicatorDegreeValues(
+function getIndicatorDegreeOrRenovationValues(
   properties: any,
+  scenarioKey: string,
   selectedIndicatorKey: string,
+  selectedYear: string,
   renovationKey: string
 ) {
   // console.log(properties);
   const hfa = properties.hfa || 1;
-  if (renovationKey !== 'ref') {
-    const only1degIsInTheData =
-      properties[`${selectedIndicatorKey}50_25_${renovationKey}`];
-    return [0, only1degIsInTheData / hfa, 0, 0];
+  if (scenarioKey === 'renovation') {
+    console.log(properties);
+    console.log('hfa', hfa);
+    console.log('selectedIndicatorKey', selectedIndicatorKey);
+    console.log('renovationKey', renovationKey);
+    const ref = properties[`${selectedIndicatorKey}${selectedYear}_25_ref`];
+    // deep renovation
+    const dr = properties[`${selectedIndicatorKey}${selectedYear}_25_dr`];
+    // er
+    const er = properties[`${selectedIndicatorKey}${selectedYear}_25_er`];
+    // hr
+    const hr = properties[`${selectedIndicatorKey}${selectedYear}_25_hr`];
+    return [ref / hfa, dr / hfa, er / hfa, hr / hfa];
+    // const only1degIsInTheData =
+    //   properties[`${selectedIndicatorKey}50_25_${renovationKey}`];
+    // return [0, only1degIsInTheData / hfa, 0, 0];
   }
   // todo: refactor the property names, since they are not named in a good way -> the 18 year has the same values and are all the degZero
-  const deg0 = properties[`${selectedIndicatorKey}18_25_${renovationKey}`];
-  const deg25 = properties[`${selectedIndicatorKey}50_25_${renovationKey}`];
-  const deg45 = properties[`${selectedIndicatorKey}50_45_${renovationKey}`];
-  const deg85 = properties[`${selectedIndicatorKey}50_85_${renovationKey}`];
+  const deg0 = properties[`${selectedIndicatorKey}18_25_ref`];
+  const deg25 = properties[`${selectedIndicatorKey}50_25_ref`];
+  const deg45 = properties[`${selectedIndicatorKey}50_45_ref`];
+  const deg85 = properties[`${selectedIndicatorKey}50_85_ref`];
   return [deg0 / hfa, deg25 / hfa, deg45 / hfa, deg85 / hfa];
   // return ['18', '50'].map(year => {
   //   const keyAddM2 = `${selectedIndicatorKey}${year}_${selectedDegreeKey}_ban`; // building area normalized
@@ -49,7 +68,9 @@ function getIndicatorDegreeValues(
 function applyChart(
   el: HTMLDivElement,
   properties: any,
+  scenarioKey: string,
   selectedIndicatorKey: string,
+  selectedYear: string,
   renovationKey: string
 ) {
   if (!properties) {
@@ -60,9 +81,11 @@ function applyChart(
   const scaleKey = isGhg ? 'buildingGhg' : 'energyDeclaration';
   const unit = units[`${selectedIndicatorKey}M2`];
   select(el).selectAll('svg').remove();
-  const timelineValues = getIndicatorDegreeValues(
+  const timelineValues = getIndicatorDegreeOrRenovationValues(
     properties,
+    scenarioKey,
     selectedIndicatorKey,
+    selectedYear,
     renovationKey
   );
   // console.log(timelineValues);
@@ -71,17 +94,25 @@ function applyChart(
     return;
   }
 
-  const degrees: string[] = ['2018', '+1°C', '+1.5°C', '+2°C'];
+  const domain: string[] =
+    scenarioKey === 'renovation'
+      ? Object.values(renovationLabels)
+      : ['2018', '+1°C', '+1.5°C', '+2°C'];
 
-  const margin = { top: 20, right: 0, bottom: 20, left: 60 };
+  const margin = {
+    top: 20,
+    right: 0,
+    bottom: 20,
+    left: scenarioKey === 'renovation' ? 100 : 40,
+  };
   const width = 500 - margin.left - margin.right;
   const height = 220 - margin.top - margin.bottom;
-  // const x = scaleBand().domain(degrees).range([0, width]).padding(0.6);
+  // const x = scaleBand().domain(domain).range([0, width]).padding(0.6);
   const x = scaleLinear()
     .domain([0, max] as any)
     .range([0, width]); //.padding(0.6);
   const y = scaleBand()
-    .domain(degrees as any)
+    .domain(domain as any)
     .range([height, 0])
     .padding(0.6);
 
@@ -104,7 +135,7 @@ function applyChart(
     .attr('stroke-width', '0.5px')
     .attr('class', 'bar')
     .attr('x', 0)
-    .attr('y', (d, i) => y(degrees[i]) as number)
+    .attr('y', (d, i) => y(domain[i]) as number)
     .attr('width', d => x(d))
     .attr('height', y.bandwidth())
     .attr('fill', d => getColorFromScale(d, scaleKey, true))
@@ -180,7 +211,9 @@ const FilterPredictionsSelectionPanel: React.FC<
       applyChart(
         finalEnergyRef.current,
         props.feature?.properties,
+        uiState.scenarioKey,
         'fe',
+        uiState.selectedYearKey,
         props.renovationKey
       );
     }
@@ -188,7 +221,9 @@ const FilterPredictionsSelectionPanel: React.FC<
       applyChart(
         heatDemandRef.current,
         props.feature?.properties,
+        uiState.scenarioKey,
         'hd',
+        uiState.selectedYearKey,
         props.renovationKey
       );
     }
@@ -196,7 +231,9 @@ const FilterPredictionsSelectionPanel: React.FC<
       applyChart(
         primaryEnergyRef.current,
         props.feature?.properties,
+        uiState.scenarioKey,
         'pe',
+        uiState.selectedYearKey,
         props.renovationKey
       );
     }
@@ -204,7 +241,9 @@ const FilterPredictionsSelectionPanel: React.FC<
       applyChart(
         deliveredEnergyRef.current,
         props.feature?.properties,
+        uiState.scenarioKey,
         'de',
+        uiState.selectedYearKey,
         props.renovationKey
       );
     }
@@ -212,7 +251,9 @@ const FilterPredictionsSelectionPanel: React.FC<
       applyChart(
         ghgEmissionsRef.current,
         props.feature?.properties,
+        uiState.scenarioKey,
         'ge',
+        uiState.selectedYearKey,
         props.renovationKey
       );
     }
@@ -220,11 +261,19 @@ const FilterPredictionsSelectionPanel: React.FC<
       applyChart(
         coolDemandRef.current,
         props.feature?.properties,
+        uiState.scenarioKey,
         'cd',
+        uiState.selectedYearKey,
         props.renovationKey
       );
     }
-  }, [props.feature?.properties, trigger, uiState.selectedDegreeKey]);
+  }, [
+    props.feature?.properties,
+    trigger,
+    uiState.selectedDegreeKey,
+    uiState.selectedYearKey,
+    uiState.scenarioKey,
+  ]);
 
   return (
     <div>

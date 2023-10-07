@@ -36,7 +36,7 @@ const yearKeys: YearKey[] = ['18', '50'];
 // note that zero is the year 18 in property keys, all other keys have year 50 for the degrees
 const degreeKeys: DegreeKey[] = ['0', '25', '45', '85'];
 
-const renovationKeys: RenovationKeys[] = ['ref', 'dr', 'er', 'hr'];
+export const renovationKeys: RenovationKeys[] = ['ref', 'dr', 'er', 'hr'];
 const solarKeys: SolarKeys[] = ['period'];
 const buildingFilterKeys: BuildingFilterOptions[] = [
   'all',
@@ -317,8 +317,8 @@ const filterCategoryOptions = filterCategoryKeys.map(key => ({
 const renovationLabels = {
   ref: 'No renovation',
   dr: 'All',
-  er: 'Envelope',
-  hr: 'HVAC systems',
+  er: 'Façade and roof',
+  hr: 'Building installations',
 };
 
 const renovationOptions: PropertyKeyOption[] = renovationKeys.map(key => ({

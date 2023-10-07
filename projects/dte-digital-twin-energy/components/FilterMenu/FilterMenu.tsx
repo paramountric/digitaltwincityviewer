@@ -85,10 +85,11 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
 
   const showAggregation = filterButton !== 'buildings';
 
+  // this exisists in constants...
   const renovationLabels = {
     ref: 'selected scenario',
     dr: 'full renovation',
-    hr: 'facade and roof renovation',
+    hr: 'façade and roof renovation',
     er: 'renovation of building installations',
   };
 

@@ -1,6 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Observable } from '../lib/Observable';
-import { propertyKeys, degreeKeys, filterCategoryKeys } from '../lib/constants';
+import {
+  propertyKeys,
+  degreeKeys,
+  filterCategoryKeys,
+  renovationKeys,
+} from '../lib/constants';
 
 const filteredCategoriesPlusConstructionYear = ['cy', ...filterCategoryKeys];
 
@@ -39,7 +44,12 @@ const useFilteredFeatures = () => {
   };
 
   // must aggregate all properties with all years
-  const aggregateFeatures = (renovationOption: string, features: any[]) => {
+  const aggregateFeatures = (
+    features: any[],
+    // these are for renovation
+    scenarioKey = 'energy',
+    yearKey = '18'
+  ) => {
     const filterCategoryAggregation = {} as any;
     const aggregatedFeature = features.reduce(
       (acc: any, feature: any) => {
@@ -58,19 +68,34 @@ const useFilteredFeatures = () => {
           }
         }
         acc.properties.numFeatures += 1;
-        propertyKeys.forEach(pKey => {
-          degreeKeys.forEach(dKey => {
-            const yearKey = dKey === '0' ? '18' : '50';
-            // note that zero is for year 18, that has the same values for all degrees - 25 is used here
-            const degreeKey = dKey === '0' ? '25' : dKey;
-            const scenarioKey = `${pKey}${yearKey}_${degreeKey}_${renovationOption}`;
-            const value = feature.properties[scenarioKey];
-            if (value) {
-              acc.properties[scenarioKey] =
-                (acc.properties[scenarioKey] || 0) + value;
-            }
+        if (scenarioKey === 'renovation') {
+          propertyKeys.forEach(pKey => {
+            renovationKeys.forEach(rKey => {
+              // renovation are all on 2.5 degrees
+              const degreeKey = '25';
+              const renovationKey = `${pKey}${yearKey}_${degreeKey}_${rKey}`;
+              const value = feature.properties[renovationKey];
+              if (value) {
+                acc.properties[renovationKey] =
+                  (acc.properties[renovationKey] || 0) + value;
+              }
+            });
           });
-        });
+        } else {
+          propertyKeys.forEach(pKey => {
+            degreeKeys.forEach(dKey => {
+              const scenarioYearKey = dKey === '0' ? '18' : '50';
+              // note that zero is for year 18, that has the same values for all degrees - 25 is used here
+              const degreeKey = dKey === '0' ? '25' : dKey;
+              const scenarioKey = `${pKey}${scenarioYearKey}_${degreeKey}_ref`;
+              const value = feature.properties[scenarioKey];
+              if (value) {
+                acc.properties[scenarioKey] =
+                  (acc.properties[scenarioKey] || 0) + value;
+              }
+            });
+          });
+        }
         return acc;
       },
       {
@@ -104,7 +129,8 @@ const useFilteredFeatures = () => {
       // add more features to the store (aggregate more)
       addFilteredFeatures: (
         features?: any[],
-        renovationOption = 'ref',
+        scenarioKey = 'energy',
+        yearKey = '18',
         removePrevious = false,
         featureToMerge?: any // optional feature to merge with aggregated feature (just name for now)
       ) => {
@@ -152,9 +178,12 @@ const useFilteredFeatures = () => {
 
         const allFeatures = [...existingFeatures, ...newFeatures];
 
+        console.log('aggregate features', scenarioKey, yearKey);
+
         const aggregatedFeature = aggregateFeatures(
-          renovationOption,
-          allFeatures
+          allFeatures,
+          scenarioKey,
+          yearKey
         );
         if (featureToMerge) {
           aggregatedFeature.properties.name = featureToMerge.properties.name;
@@ -172,7 +201,11 @@ const useFilteredFeatures = () => {
 
         filteredFeaturesStore.set(updatedFilter);
       },
-      removeFilteredFeatures: (features?: any[], renovationOption = 'ref') => {
+      removeFilteredFeatures: (
+        features?: any[],
+        scenarioKey = 'energy',
+        yearKey = '18'
+      ) => {
         if (!features) {
           filteredFeaturesStore.set({});
           return;
@@ -197,8 +230,9 @@ const useFilteredFeatures = () => {
         const newFeatureIds = withoutFeatures.map((feature: any) => feature.id);
 
         const aggregatedFeature = aggregateFeatures(
-          renovationOption,
-          withoutFeatures
+          withoutFeatures,
+          scenarioKey,
+          yearKey
         );
         // add to existing state
         const updatedFilter = {
@@ -211,13 +245,14 @@ const useFilteredFeatures = () => {
         filteredFeaturesStore.set(updatedFilter);
       },
       // reuses existing features and re-aggregates them with new settings
-      updateFilteredFeatures: (renovationOption = 'ref') => {
+      updateFilteredFeatures: (scenarioKey = 'energy', yearKey = '18') => {
         if (!filteredFeatures.features || !filteredFeatures.features.length) {
           return;
         }
         const aggregatedFeature = aggregateFeatures(
-          renovationOption,
-          filteredFeatures.features
+          filteredFeatures.features,
+          scenarioKey,
+          yearKey
         );
         // add to existing state
         const updatedFilter = {

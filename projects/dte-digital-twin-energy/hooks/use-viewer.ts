@@ -279,6 +279,7 @@ export const useViewer = (): UseViewerProps => {
     }
     try {
       const {
+        scenarioKey,
         selectedYearKey,
         filterButton,
         selectedFilterBuildingOption,
@@ -290,6 +291,7 @@ export const useViewer = (): UseViewerProps => {
       } = uiState;
 
       const compareTheseKeysFromState = {
+        scenarioKey: true,
         selectedYearKey: true,
         filterButton: true,
         selectedFilterBuildingOption: true,
@@ -579,14 +581,19 @@ export const useViewer = (): UseViewerProps => {
           selectedFilterBuildingOption === 'all'
         ) {
           // all buildings aggregations goes into the filter as well
-          addFilteredFeatures(ALL_BUILDING_FEATURES, selectedRenovationOption);
+          addFilteredFeatures(
+            ALL_BUILDING_FEATURES,
+            uiState.scenarioKey,
+            uiState.selectedYearKey
+          );
         } else if (
           filterButton === 'buildings' &&
           selectedFilterBuildingOption === 'selection'
         ) {
           addFilteredFeatures(
             filteredFeatures.features,
-            selectedRenovationOption
+            uiState.scenarioKey,
+            uiState.selectedYearKey
           );
         }
         // }
@@ -903,7 +910,11 @@ export const useViewer = (): UseViewerProps => {
         const feature = clickedFeatures[0];
         if (feature) {
           // setSelectedFeature(feature);
-          addFilteredFeatures([feature], uiState.selectedRenovationOption);
+          addFilteredFeatures(
+            [feature],
+            uiState.scenarioKey,
+            uiState.selectedYearKey
+          );
           uiActions.triggerUpdate();
         }
       }
@@ -941,7 +952,8 @@ export const useViewer = (): UseViewerProps => {
           }
           addFilteredFeatures(
             filteredFeatures,
-            uiState.selectedRenovationOption,
+            uiState.scenarioKey,
+            uiState.selectedYearKey,
             false,
             feature
           );

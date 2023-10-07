@@ -32,7 +32,7 @@ export default function ScenarioRenovation() {
         options={[]}
         roundedClass="rounded-md"
       /> */}
-      <div className="inline-flex justify-center text-xs font-medium text-gray-700 focus:outline-none">
+      {/* <div className="inline-flex justify-center text-xs font-medium text-gray-700 focus:outline-none">
         given a temperature rise of
       </div>
       <Dropdown
@@ -45,7 +45,7 @@ export default function ScenarioRenovation() {
         selectedKey={uiState.selectedDegreeKey}
         options={degreeOptions}
         roundedClass="rounded-md"
-      />
+      /> */}
       <div className="inline-flex text-xs font-medium text-gray-700 justify-centerbg-white focus:outline-none">
         if you renovate
       </div>
