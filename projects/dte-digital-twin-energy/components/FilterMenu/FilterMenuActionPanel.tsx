@@ -58,7 +58,7 @@ export default function FilterMenuActionPanel(
   return (
     <>
       <div className="flex shrink-0 w-[560px] pt-4">
-        <span className="flex justify-center w-full isolate action-panel">
+        <span className="flex justify-center w-full isolate action-panel-top">
           {/* <Dropdown
           onSelect={uiActions.setSelectedFilterBuildingOption}
           name={filterLabels[uiState.selectedFilterBuildingOption]}
@@ -100,7 +100,7 @@ export default function FilterMenuActionPanel(
       </div>
       <div className="flex shrink-0 w-[560px]">
         {filterButton === 'buildings' && (
-          <span className="flex justify-center w-full isolate action-panel">
+          <span className="flex justify-center w-full isolate action-panel-bottom">
             {filterBuildingOptions.map(opt => (
               <ButtonSelect
                 key={opt.key}
@@ -114,7 +114,7 @@ export default function FilterMenuActionPanel(
           </span>
         )}
         {filterButton === 'areas' && (
-          <span className="flex justify-center w-full isolate action-panel">
+          <span className="flex justify-center w-full isolate action-panel-bottom">
             {filterAreaOptions.map(opt => (
               <ButtonSelect
                 key={opt.key}
@@ -126,7 +126,7 @@ export default function FilterMenuActionPanel(
           </span>
         )}
         {filterButton === 'grid' && (
-          <span className="flex justify-center w-full isolate action-panel">
+          <span className="flex justify-center w-full isolate action-panel-bottom">
             {filterGridOptions.map(opt => (
               <ButtonSelect
                 key={opt.key}

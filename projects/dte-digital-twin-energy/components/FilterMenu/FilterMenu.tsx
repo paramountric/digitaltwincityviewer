@@ -169,7 +169,7 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
       <div className="overflow-y-auto scroll-child scroll-px-4">
         <div className="px-2 pb-2 text-xl font-bold">{getTitle()}</div>
         {/* BADLY ENGINEERED INFO BUTTON */}
-        <div className="absolute top-24 right-10 border-2 px-2">
+        {/* <div className="absolute top-24 right-10 border-2 px-2">
           <button
             onClick={() =>
               uiActions.setShowInfoFilterMenu(!uiState.showInfoFilterMenu)
@@ -177,7 +177,7 @@ const FilterMenu: React.FC<FilterMenuProps> = () => {
           >
             i
           </button>
-        </div>
+        </div> */}
 
         {/* Default info is the 'all buildings' */}
         {!showBuilding && !showSelection && !showAggregation && (

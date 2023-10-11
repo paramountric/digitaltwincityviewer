@@ -15,6 +15,12 @@
   .action-panel div {
     @apply first:rounded-l-full last:rounded-r-full;
   }
+  .action-panel-top div {
+    @apply first:rounded-tl-md last:rounded-tr-md;
+  }
+  .action-panel-bottom div {
+    @apply first:rounded-bl-md last:rounded-br-md;
+  }
   .button-rounded {
     @apply flex items-center gap-1 py-2.5 pl-4 pr-6 text-sm text-left text-white bg-gray-700 border border-gray-300 rounded-full disabled:bg-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 hover:bg-gray-500;
   }
