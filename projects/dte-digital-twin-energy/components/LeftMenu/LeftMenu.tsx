@@ -79,7 +79,8 @@ export default function LeftMenu() {
         }
         onClick={() => setShowInfoModal(!showInfoModal)}
       >
-        Info
+        <img className="w-5 h-5 mr-3" src={`/Info-icon_left.svg`} alt="Info" />
+        <span>Info</span>
       </div>
     </div>
   );

@@ -59,11 +59,13 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
         />
       </div>
       <div className={`${sectionBaseStyle} `}>
-        <ButtonSelect
-          label={uiState.showInfoHeader ? 'i' : 'i'}
-          actions={() => uiActions.setShowInfoHeader(!uiState.showInfoHeader)}
-          state={uiState.showInfoHeader}
-        />
+        <button
+          onClick={() => uiActions.setShowInfoHeader(!uiState.showInfoHeader)}
+          type="button"
+          className="flex items-center justify-center w-full gap-2 px-3 py-2  whitespace-nowrap"
+        >
+          <img className="w-5 h-5 mr-3" src={`/Info-icon_top.svg`} alt="Info" />
+        </button>
       </div>
     </div>
   );
