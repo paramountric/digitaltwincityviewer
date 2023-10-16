@@ -76,6 +76,14 @@ export default function InfoModal() {
                       and housing company Framtiden have contributed to the
                       testing phase.
                     </p>
+                    <p className="pt-2 text-xs">
+                      <a
+                        className="text-blue-700"
+                        href="https://digitaltwincityviewer.s3.eu-north-1.amazonaws.com/dte-viewer.pdf"
+                      >
+                        Read more about the viewer in this PDF file
+                      </a>
+                    </p>
                   </div>
                 </div>
               </Dialog.Panel>
