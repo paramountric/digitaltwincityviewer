@@ -7,8 +7,6 @@ const Login: React.FC = () => {
   const [name, setName] = useState('Demo User');
   const { actions: userActions, signInError, signInLoading } = useUser();
 
-  console.log('render login');
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     userActions.signIn(name, email, password);
@@ -26,7 +24,7 @@ const Login: React.FC = () => {
               type="name"
               required
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={e => setName(e.target.value)}
             />
           </label>
           <label>
@@ -36,7 +34,7 @@ const Login: React.FC = () => {
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
             />
           </label>
           <label>
@@ -46,7 +44,7 @@ const Login: React.FC = () => {
               type="password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
             />
           </label>
           {signInError && <p className="text-red-600">Invalid credentials</p>}

@@ -122,7 +122,10 @@ export function useUser() {
         if (!name || !email || !password) {
           return;
         }
-        await signIn({ name, email, password });
+        const success = await signIn({ name, email, password });
+        if (!success) {
+          return;
+        }
         try {
           const randomId = Math.random().toString(36).substring(7);
           const userData = {
