@@ -32,31 +32,54 @@ const ActionPanel: React.FC<ActionPanelProps> = () => {
   return (
     <div className="z-20 flex justify-center divide-x-2 divide-gray-700 w-fit top-16">
       <div className={`${sectionBaseStyle}`}>
-        <span className="inline-flex isolate action-panel">
-          <ButtonSelect
-            label={'Energy'}
-            actions={() => uiActions.setScenario('energy')}
-            state={uiState.scenarioKey === 'energy'}
-          />
-          <ButtonSelect
-            label={'Solar'}
-            actions={() => uiActions.setScenario('solar')}
-            state={uiState.scenarioKey === 'solar'}
-          />
-          <ButtonSelect
-            label={'Renovation'}
-            actions={() => uiActions.setScenario('renovation')}
-            state={uiState.scenarioKey === 'renovation'}
-          />
-        </span>
+        <div className="flex flex-col">
+          <div className="text-xs italic px-2 text-gray-500">
+            1. choose focus:
+          </div>
+          <div>
+            <span className="inline-flex isolate action-panel">
+              <ButtonSelect
+                label={'Energy'}
+                actions={() => uiActions.setScenario('energy')}
+                state={uiState.scenarioKey === 'energy'}
+              />
+              <ButtonSelect
+                label={'Solar'}
+                actions={() => uiActions.setScenario('solar')}
+                state={uiState.scenarioKey === 'solar'}
+              />
+              <ButtonSelect
+                label={'Renovation'}
+                actions={() => uiActions.setScenario('renovation')}
+                state={uiState.scenarioKey === 'renovation'}
+              />
+            </span>
+          </div>
+        </div>
       </div>
-      <div className={`${sectionBaseStyle}`}>{displayScenario()}</div>
+      <div className={`${sectionBaseStyle}`}>
+        <div className="flex flex-col">
+          <div className="text-xs italic text-gray-500">
+            2. specify conditions:
+          </div>
+          <div className="flex justify-center items-center gap-1">
+            {displayScenario()}
+          </div>
+        </div>
+      </div>
       <div className={`${sectionBaseStyle} `}>
-        <ButtonSwitch
-          label={uiState.showScenario ? 'SCENARIO ON' : 'SCENARIO OFF'}
-          actions={uiActions.setShowScenario}
-          state={uiState.showScenario}
-        />
+        <div className="flex flex-col">
+          <div className="text-xs italic text-gray-500 pb-1">
+            3. activate scenario:
+          </div>
+          <div>
+            <ButtonSwitch
+              label={uiState.showScenario ? 'SCENARIO ON' : 'SCENARIO OFF'}
+              actions={uiActions.setShowScenario}
+              state={uiState.showScenario}
+            />
+          </div>
+        </div>
       </div>
       <div className={`${sectionBaseStyle} `}>
         <button
