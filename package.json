@@ -8,15 +8,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "dtcv-next-template-dev": "turbo run dev --scope 'dtcv-next-template' --include-dependencies",
-    "dtcv-maplibre-example-dev": "turbo run dev --scope 'dtcv-maplibre-example' --include-dependencies",
-    "dtcc-cfd-vertical-dev": "turbo run dev --filter dtcc-cfd-vertical...",
-    "dtcc-task-flow-dev": "turbo run dev --filter dtcc-task-flow...",
-    "dtcc-file-viewer-dev": "turbo run dev --filter dtcc-file-viewer...",
     "dev:dte": "turbo run dev --filter dte-digital-twin-energy...",
-    "dev:circularity": "turbo run dev --filter dtcc-circularity-viewer...",
-    "trecim-dev": "turbo run dev --filter trecim...",
-    "dtcv-website-dev": "turbo run dev --filter dtcv-website...",
+    "dev:urban-mining": "turbo run dev --filter urban-mining...",
     "publish-packages": "turbo run build && changeset version && changeset publish"
   },
   "devDependencies": {
