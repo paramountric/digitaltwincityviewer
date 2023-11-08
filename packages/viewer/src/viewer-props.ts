@@ -1,8 +1,14 @@
 // Part of this code is derived from deck.gl under MIT license:
 // https://github.com/visgl/deck.gl/tree/master/examples/playground/src
 
-import { Viewer } from './viewer-new';
+import { Viewer } from './viewer';
 import { defaultViewerPropsJsonConfig } from './default-viewer-props-config';
+import { OrbitViewState, DeckProps } from '@deck.gl/core/typed';
+
+export const DEFAULT_START_ZOOM = -2;
+export const DEFAULT_MIN_ZOOM = -5;
+export const DEFAULT_MAX_ZOOM = 5;
+
 export type ViewerProps = {
   container?: HTMLElement;
   height?: number;
@@ -10,12 +16,13 @@ export type ViewerProps = {
   longitude?: number;
   latitude?: number;
   zoom?: number;
+  backgroundColor: null;
   minZoom?: number;
   maxZoom?: number;
   pitch?: number;
+  bearing?: number;
+  position?: number[];
   layers?: any[];
-  // return the viewer instance to the app on load
-  onLoad?: (viewer: Viewer) => void;
   // Needed on init for JSON config: this is dependency injection for the JSON props parser and will override the default if same name
   classes?: {
     [className: string]: any;
@@ -84,3 +91,9 @@ export function setProps(viewer: Viewer, newProps: ViewerProps): boolean {
   // addUpdateTriggersForAccessors(newProps);
   return needsUpdate;
 }
+
+export const defaultViewerProps: ViewerProps = {
+  minZoom: DEFAULT_MIN_ZOOM,
+  maxZoom: DEFAULT_MAX_ZOOM,
+  backgroundColor: null,
+};

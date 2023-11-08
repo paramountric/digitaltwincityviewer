@@ -1,2 +1,2 @@
-export { Viewer } from './viewer-new';
+export { Viewer } from './viewer';
 export type { ViewerProps } from './viewer-props';
