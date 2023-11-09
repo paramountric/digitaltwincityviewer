@@ -17,6 +17,12 @@ const defaultViewportProps: ViewerProps = {
       data: `${dtcvFilesUrl}/final/tiles/{z}/{x}/{y}.mvt`,
     },
   },
+  defaultFeatureStates: {
+    Polygon: {
+      featureId: 'Polygon',
+      fillColor: [255, 0, 0, 0.5],
+    },
+  },
 };
 
 export default function Canvas() {

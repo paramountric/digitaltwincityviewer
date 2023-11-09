@@ -5,6 +5,7 @@ import { Viewer } from './viewer';
 import { defaultViewerPropsJsonConfig } from './default-viewer-props-config';
 import { DeckProps } from '@deck.gl/core/typed';
 import { MVTLayerProps, Tile3DLayerProps } from '@deck.gl/geo-layers/typed';
+import { FeatureState } from './feature/feature';
 
 export const DEFAULT_START_ZOOM = -2;
 export const DEFAULT_MIN_ZOOM = -5;
@@ -26,6 +27,9 @@ export type ViewerProps = {
   pitch?: number;
   bearing?: number;
   position?: number[];
+  defaultFeatureStates?: {
+    [type: string]: FeatureState;
+  };
   mvtLayerConfig?: {
     [layerId: string]: MVTLayerProps;
   };

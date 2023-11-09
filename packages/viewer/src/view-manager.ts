@@ -1,6 +1,6 @@
 import { MapView, MapViewState } from '@deck.gl/core/typed';
-
-import { Feature } from './feature/feature';
+import { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller';
+import { Feature, FeatureState } from './feature/feature';
 import { Viewer } from './viewer';
 import { LayoutManager } from './layout-manager';
 import {
@@ -10,26 +10,14 @@ import {
   Tile3DLayer,
 } from '@deck.gl/geo-layers/typed';
 
-export type FeatureState = {
-  feature?: Feature; // ref during runtime - serialized to featureId
-  label?: string; // override feature name
-  fontSize?: number;
-  // morph geometry?
-  coordinate?: [number, number, number]; // lon, lat, z
-  size?: [number, number]; // width, height, use for imageSize?
-  scale?: [number, number, number]; // x, y, z
-  rotation?: [number, number, number]; // x, y, z
-  fillColor?: number[];
-  strokeColor?: number[];
-  elevation?: number;
-  opacity?: number;
-  // override feature properties from feature ref in this state
-} & Partial<Feature>;
-
 export type SectionViewState = {
-  id: string; // use for mapping section viewstate id
-  // use id (and nest the viewstates between view and view section)
+  id: string; // use for mapping section viewstate id (and nest the viewstates between view and view section ? viewId-sectionId?)
+  // this is for the config of the order
   featureStates?: FeatureState[];
+  // this is for caching (like layout engine)
+  featureStateMap?: {
+    [featureId: string]: FeatureState;
+  };
   backgroundColor?: number[];
   zoom?: number;
   longitude?: number;
@@ -82,7 +70,7 @@ export type ViewManagerProps = {
 export class ViewManager {
   viewer: Viewer;
   views: ViewMap;
-  currentViewPath: string | null = null;
+  currentViewId: string | null = null;
   currentSectionViewState: string | null = null;
   layoutManager: LayoutManager;
   constructor({ viewer }: ViewManagerProps) {
@@ -114,17 +102,18 @@ export class ViewManager {
       this.views.main.tile3dLayerConfig = viewer.props.tile3dLayerConfig;
     }
     this.layoutManager = new LayoutManager(this.viewer);
+    this.onViewStateChange = this.onViewStateChange.bind(this);
   }
 
   getCurrentView(): View | undefined {
-    if (this.currentViewPath) {
-      return this.views[this.currentViewPath];
+    if (this.currentViewId) {
+      return this.views[this.currentViewId];
     }
   }
 
   getCurrentSectionViewState(): SectionViewState | undefined {
-    if (this.currentViewPath) {
-      const view = this.views[this.currentViewPath];
+    if (this.currentViewId) {
+      const view = this.views[this.currentViewId];
       if (view) {
         return view.sections?.find(
           section => section.id === this.currentSectionViewState
@@ -174,6 +163,24 @@ export class ViewManager {
     return viewStates;
   }
 
+  onViewStateChange({
+    viewState,
+    viewId,
+    interactionState,
+    oldViewState,
+  }: ViewStateChangeParameters & { viewId: string }) {
+    if (!this.viewer) {
+      return;
+    }
+    if (this.views[viewId]) {
+      this.views[viewId].sectionViewState = {
+        ...this.views[viewId].sectionViewState,
+        ...viewState,
+      };
+    }
+    this.viewer.update();
+  }
+
   getSectionViewState(
     viewPath: string,
     sectionAnchor: string
@@ -185,8 +192,8 @@ export class ViewManager {
   }
 
   getSectionViewStateIndex(sectionAnchor: string): number | undefined {
-    if (this.currentViewPath) {
-      const view = this.views[this.currentViewPath];
+    if (this.currentViewId) {
+      const view = this.views[this.currentViewId];
       if (view) {
         return view.sections?.findIndex(
           section => section.id === sectionAnchor
@@ -198,12 +205,28 @@ export class ViewManager {
   // call this from app when new viewstate is rendered (fly to is done)
   // use json config to set instances from config in view
   async setView(viewPath: string): Promise<void> {
-    this.currentViewPath = viewPath;
+    this.currentViewId = viewPath;
     const view = this.views[viewPath] || this.views.main;
     if (!view) {
       return;
     }
     // process view to activate it
+
+    // create map of all feature states
+    for (const section of view.sections || []) {
+      section.featureStateMap = {};
+      if (section.featureStates) {
+        for (const featureState of section.featureStates) {
+          const feature = await this.viewer.featureManager.getFeatureById(
+            featureState.featureId
+          );
+          if (feature) {
+            featureState.feature = feature;
+            section.featureStateMap[feature._id] = featureState;
+          }
+        }
+      }
+    }
   }
 
   setSectionViewState(sectionAnchor: string): void {
@@ -231,8 +254,33 @@ export class ViewManager {
     const viewLayers: any[] = [];
     Object.values(this.views).forEach(view => {
       if (view.mvtLayerConfig) {
+        const currentViewState = this.getCurrentSectionViewState();
         Object.values(view.mvtLayerConfig).forEach(mvtLayerConfig => {
-          viewLayers.push(new MVTLayer(mvtLayerConfig));
+          viewLayers.push(
+            new MVTLayer({
+              ...mvtLayerConfig,
+              ...{
+                getFillColor: (f: any) => {
+                  // todo: figure out how to be flexible with the feature state, so that property values can be used (like mapbox color expressions)
+                  // console.log(f);
+                  const defaultFeatureStates =
+                    this.viewer.props.defaultFeatureStates || {};
+                  const defaultFeatureState =
+                    defaultFeatureStates[f._type] ||
+                    defaultFeatureStates[f.type];
+                  const featureState = f.state;
+                  const sectionFeatureMap =
+                    currentViewState?.featureStateMap || {};
+                  const sectionFeatureState = sectionFeatureMap[f._id];
+                  return (
+                    sectionFeatureState?.fillColor ||
+                    featureState?.fillColor ||
+                    defaultFeatureState?.fillColor || [255, 255, 255]
+                  );
+                },
+              },
+            })
+          );
         });
       }
       if (view.tile3dLayerConfig) {

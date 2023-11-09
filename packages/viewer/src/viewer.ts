@@ -7,7 +7,6 @@ import {
   LinearInterpolator,
 } from '@deck.gl/core/typed';
 import GL from '@luma.gl/constants';
-import { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller';
 import EventSource from './event-source';
 import { ViewerProps, defaultViewerProps } from './viewer-props';
 import { FeatureManager } from './feature-manager';
@@ -46,8 +45,6 @@ export class Viewer extends EventSource {
     this.viewManager = new ViewManager({ viewer: this });
     this.featureManager = new FeatureManager({ viewer: this });
     this.fileManager = new FileManager({ viewer: this });
-
-    this.onViewStateChange = this.onViewStateChange.bind(this);
     this.layerFilter = this.layerFilter.bind(this);
     this.onInteractionStateChange = this.onInteractionStateChange.bind(this);
   }
@@ -93,30 +90,23 @@ export class Viewer extends EventSource {
         polygonOffsetFill: true,
         depthTest: true,
         depthFunc: GL.LEQUAL,
-        clearColor: [backgroundColor[0] / 256, 246 / 256, 243 / 256, 1],
+        clearColor: [
+          backgroundColor[0] / 256,
+          backgroundColor[1] / 256,
+          backgroundColor[2] / 256,
+          1,
+        ],
       },
       width: this.props.width,
       height: this.props.height,
       viewState: this.viewManager.getViewStates(),
       views: this.viewManager.getViews(),
-      onViewStateChange: this.onViewStateChange,
+      onViewStateChange: this.viewManager.onViewStateChange,
       onInteractionStateChange: this.onInteractionStateChange,
       layerFilter: this.layerFilter,
       layers: this.getLayers(),
       effects: [],
     };
-  }
-
-  onViewStateChange({
-    viewState,
-    viewId,
-    interactionState,
-    oldViewState,
-  }: ViewStateChangeParameters & { viewId: string }) {
-    if (!this.deck) {
-      return;
-    }
-    this.update();
   }
 
   onInteractionStateChange(interactionState: any) {
