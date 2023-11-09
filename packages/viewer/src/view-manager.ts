@@ -1,6 +1,13 @@
+import {
+  TRANSITION_EVENTS,
+  MapView,
+  MapViewState,
+  MapController,
+} from '@deck.gl/core/typed';
+
 import { Feature } from './feature/feature';
 import { Viewer } from './viewer';
-import { TRANSITION_EVENTS } from '@deck.gl/core/typed';
+import { LayoutManager } from './layout-manager';
 
 export type FeatureState = {
   feature?: Feature; // ref during runtime - serialized to featureId
@@ -15,10 +22,12 @@ export type FeatureState = {
   strokeColor?: number[];
   elevation?: number;
   opacity?: number;
-};
+  // override feature properties from feature ref in this state
+} & Partial<Feature>;
 
-export type ViewSection = {
-  anchor: string; // use as id (unique for view)
+export type SectionViewState = {
+  id: string; // use for mapping section viewstate id
+  // use id (and nest the viewstates between view and view section)
   featureStates?: FeatureState[];
   backgroundColor?: number[];
   zoom?: number;
@@ -26,26 +35,37 @@ export type ViewSection = {
   latitude?: number;
   pitch?: number;
   bearing?: number;
-};
+} & MapViewState; // override viewState for section state;
 
 export type View = {
-  path: string;
-  // different sections of this view
-  sections: ViewSection[];
+  id: string; // use for mapping section viewstate id
+  /** State of the view */
+  sectionViewState: SectionViewState;
+  // different sections of this view (if missing, use the viewState only)
+  sections?: SectionViewState[];
   // parent section of a parent view
-  parentViewSection: ViewSection | null; // to get back to the parent coordinates when nesting views
-  // current interpolated section state
-  viewSection?: ViewSection;
-  // set view
-  viewXPercentage?: number;
-  viewYPercentage?: number;
-  viewWidthPercentage?: number;
-  viewHeightPercentage?: number;
-  // this is calculated from the above or set directly (for the view)
-  viewX?: number;
-  viewY?: number;
-  viewWidth?: number;
-  viewHeight?: number;
+  parentSectionViewState?: SectionViewState; // to get back to the parent coordinates when nesting views
+  mvtLayerConfig?: {
+    // todo: use json config
+    [layerId: string]: {
+      data?: string;
+    };
+  };
+  /** A relative (e.g. `'50%'`) or absolute position. Default `0`. */
+  x?: number | string;
+  /** A relative (e.g. `'50%'`) or absolute position. Default `0`. */
+  y?: number | string;
+  /** A relative (e.g. `'50%'`) or absolute extent. Default `'100%'`. */
+  width?: number | string;
+  /** A relative (e.g. `'50%'`) or absolute extent. Default `'100%'`. */
+  height?: number | string;
+  /** Padding around the view, expressed in either relative (e.g. `'50%'`) or absolute pixels. Default `null`. */
+  padding?: {
+    left?: number | string;
+    right?: number | string;
+    top?: number | string;
+    bottom?: number | string;
+  } | null;
 };
 
 export type ViewMap = {
@@ -58,184 +78,230 @@ export type ViewManagerProps = {
 
 export class ViewManager {
   viewer: Viewer;
-  views: ViewMap = {};
+  views: ViewMap;
   currentViewPath: string | null = null;
-  currentViewSection: string | null = null;
+  currentSectionViewState: string | null = null;
+  layoutManager: LayoutManager;
   constructor({ viewer }: ViewManagerProps) {
     this.viewer = viewer;
+    const { darkMode, darkModeBackgroundColor, lightModeBackgroundColor } =
+      this.viewer.props;
+    this.views = {
+      main: {
+        id: 'main',
+        sectionViewState: {
+          id: 'main',
+          longitude: this.viewer.props.longitude || 0,
+          latitude: this.viewer.props.latitude || 0,
+          backgroundColor: darkMode
+            ? darkModeBackgroundColor
+            : lightModeBackgroundColor,
+          zoom: 0,
+        },
+        width: this.viewer.props.width,
+        height: this.viewer.props.height,
+      },
+    };
+    this.layoutManager = new LayoutManager(this.viewer);
   }
 
-  getCurrentView() {
+  getCurrentView(): View | undefined {
     if (this.currentViewPath) {
       return this.views[this.currentViewPath];
     }
   }
 
-  getCurrentViewSection() {
+  getCurrentSectionViewState(): SectionViewState | undefined {
     if (this.currentViewPath) {
       const view = this.views[this.currentViewPath];
       if (view) {
-        return view.sections.find(
-          section => section.anchor === this.currentViewSection
+        return view.sections?.find(
+          section => section.id === this.currentSectionViewState
         );
       }
     }
   }
 
-  getCurrentViewSectionFeatureStates() {
-    const section = this.getCurrentViewSection();
+  getCurrentSectionViewStateFeatureStates(): FeatureState[] | undefined {
+    const section = this.getCurrentSectionViewState();
     if (section && section.featureStates) {
       return Object.values(section.featureStates);
     }
   }
 
-  getView(viewPath: string) {
+  getMainView(): View {
+    return this.views.main;
+  }
+
+  getMainSectionViewState(): SectionViewState {
+    return this.views.main.sectionViewState;
+  }
+
+  getViews() {
+    // todo: add more views and use this.views
+    return [
+      new MapView({
+        id: 'main',
+        controller: { dragMode: 'pan', dragPan: true, inertia: false },
+        width: this.viewer.props.width,
+        height: this.viewer.props.height,
+      } as any),
+    ];
+  }
+
+  getView(viewPath: string): View | undefined {
     return this.views[viewPath];
   }
 
-  getViewSection(viewPath: string, sectionAnchor: string) {
+  getViewStates(): {
+    [viewId: string]: MapViewState;
+  } {
+    const viewStates: { [viewId: string]: MapViewState } = {};
+    Object.values(this.views).forEach(view => {
+      viewStates[view.id] = view.sectionViewState;
+    });
+    return viewStates;
+  }
+
+  getSectionViewState(
+    viewPath: string,
+    sectionAnchor: string
+  ): SectionViewState | undefined {
     const view = this.views[viewPath];
     if (view) {
-      return view.sections.find(section => section.anchor === sectionAnchor);
+      return view.sections?.find(section => section.id === sectionAnchor);
     }
   }
 
-  getViewSectionIndex(sectionAnchor: string) {
+  getSectionViewStateIndex(sectionAnchor: string): number | undefined {
     if (this.currentViewPath) {
       const view = this.views[this.currentViewPath];
       if (view) {
-        return view.sections.findIndex(
-          section => section.anchor === sectionAnchor
+        return view.sections?.findIndex(
+          section => section.id === sectionAnchor
         );
       }
     }
   }
 
-  // call this from app when new view is rendered, since activateScroll needs the elements in dom
-  async setView(viewPath: string) {
+  // call this from app when new viewstate is rendered (fly to is done)
+  // use json config to set instances from config in view
+  async setView(viewPath: string): Promise<void> {
     this.currentViewPath = viewPath;
-    const view = this.views[viewPath];
-    if (!view || !view.sections[0]) {
+    const view = this.views[viewPath] || this.views.main;
+    if (!view) {
       return;
     }
-    // do some preparations
+    // process view to activate it
   }
 
-  setViewSection(sectionAnchor: string) {
+  setSectionViewState(sectionAnchor: string): void {
     const view = this.getCurrentView();
     if (!view) {
       return;
     }
-    const sourceSection = this.getCurrentViewSection();
-    const targetSection = view.sections.find(
-      section => section.anchor === sectionAnchor
+    const sourceSection = this.getCurrentSectionViewState();
+    const targetSection = view.sections?.find(
+      section => section.id === sectionAnchor
     );
     if (!targetSection) {
       return;
     }
-    this.currentViewSection = sectionAnchor;
-    this.viewer._update();
+    this.currentSectionViewState = sectionAnchor;
+    this.viewer.update();
+  }
+
+  getBackgroundColor(): number[] {
+    return this.views.main.sectionViewState.backgroundColor || [255, 255, 255];
   }
 
   // call this from app when user clicks to go to next view
-  // goToView(viewPath: string, viewSection?: string) {
-  //   const zoomMultiplier = 1;
-  //   const toView = this.views[viewPath];
-  //   if (!toView) {
-  //     console.warn(`View with path ${viewPath} not found`);
-  //     return;
-  //   }
-  //   const toSection =
-  //     toView.sections.find(section => section.anchor === viewSection) ||
-  //     toView.sections[0];
-  //   if (!toSection) {
-  //     console.warn(`Section with anchor ${viewSection} not found`);
-  //     return;
-  //   }
-  //   const toZoom = toView.level * zoomMultiplier;
-  //   const fromView =
-  //     this.getCurrentView() ||
-  //     ({
-  //       level: 0,
-  //     } as View);
-  //   const fromZoom = fromView.level * zoomMultiplier;
-  //   const zoomIn = toZoom > fromZoom;
-  //   const projectNode = this.viewport.getProjectNode();
-  //   const targetFeatureState = toView.parentLayoutNode || projectNode;
-  //   const target =
-  //     toView.isPopup || fromView.isPopup
-  //       ? [projectNode.x, projectNode.y, 0] // this is not [0, 0, 0]
-  //       : [targetFeatureState.x, targetFeatureState.y, 0];
-  //   const sourceFeatureState = fromView.parentLayoutNode || projectNode;
-  //   const source =
-  //     toView.isPopup || fromView.isPopup
-  //       ? [projectNode.x, projectNode.y, 0]
-  //       : [sourceFeatureState.x, sourceFeatureState.y, 0];
-  //   // fix this later - first make section camera change work
-  //   const rotationOrbit = toSection.rotationOrbit || 0;
-  //   const rotationX =
-  //     toSection.rotationX || toSection.rotationX === 0
-  //       ? toSection.rotationX
-  //       : 90;
+  goToView(viewPath: string, viewSection?: string): void {
+    // from viewstate
+    const fromView: View = this.getCurrentView() || ({} as View);
+    const fromSection: SectionViewState =
+      this.getCurrentSectionViewState() || this.views.main.sectionViewState;
+    const fromZoom = this.viewer.props.zoom || 0;
+    // to viewstate
+    const toView: View = this.views[viewPath];
+    if (!toView) {
+      console.warn(`View with path ${viewPath} not found`);
+      return;
+    }
+    const toSection = toView.sections?.find(
+      section => section.id === viewSection
+    );
+    if (!toSection) {
+      console.warn(`Section with id ${viewSection} not found`);
+      return;
+    }
+    const toZoom = toSection.zoom || 0;
+    // figure out what is needed, it should be much simpler to just go from current state to a new state
+    const zoomIn = toZoom > fromZoom;
+    const mainViewState = this.views.main.sectionViewState;
+    const targetFeatureState = toSection || mainViewState;
+    const toLongitude = targetFeatureState.longitude;
+    const toLatitude = targetFeatureState.latitude;
+    const sourceFeatureState = fromView.parentSectionViewState || mainViewState;
+    const fromLongitude = sourceFeatureState.longitude;
+    const fromLatitude = sourceFeatureState.latitude;
+    const toPitch = toSection.pitch || 0;
+    const toBearing = toSection.bearing || 0;
 
-  //   // disable node animations
-  //   this.viewport.props.animateNodes = false;
-  //   // disable controller is needed for the fly around effect
-  //   this.viewport.props.disableController2 = false;
-  //   if (!zoomIn) {
-  //     // set zoom and target to the zoomed in version (because presentation view is in parent node view - full screen)
-  //     Object.assign(this.viewport.props, {
-  //       zoom: fromZoom,
-  //       target: source,
-  //     });
-  //     // this is a hack to prevent the emit to update the view on the next cycle stopping the animation
-  //     this.preventUpdate = true;
-  //     // set back to the previous view before start animating
-  //     this.viewport.emit('set-view', { view: toView }); // will call _update
-  //   }
-  //   // first to an update for disable controller and animation of nodes
-  //   this.viewport._update();
+    // if (!zoomIn) {
+    //   // set zoom and target to the zoomed in version (because presentation view is in parent node view - full screen)
+    //   Object.assign(this.viewport.props, {
+    //     zoom: fromZoom,
+    //     target: source,
+    //   });
+    //   // this is a hack to prevent the emit to update the view on the next cycle stopping the animation
+    //   this.preventUpdate = true;
+    //   // set back to the previous view before start animating
+    //   this.viewport.emit('set-view', { view: toView }); // will call update
+    // }
+    // // first to an update for disable controller and animation of nodes
+    // this.viewport.update();
 
-  //   // then update for the camera fly animation
-  //   this.viewport._update({
-  //     flyTo: {
-  //       target,
-  //       zoom: toZoom,
-  //       // always fly straight in
-  //       rotationOrbit: 0,
-  //       rotationX: 90,
-  //       transitionDuration: toView.isPopup || fromView.isPopup ? 50 : 500,
-  //       transitionInterruption: TRANSITION_EVENTS.IGNORE,
-  //       transitionInterpolator: new ZoomToNodeInterpolator(!zoomIn),
-  //       onTransitionEnd: () => {
-  //         Object.assign(this.viewport.props, {
-  //           // all presentation views are in default target (center NOT [0, 0, 0]!!!)
-  //           // override target for views in setView
-  //           target: [projectNode.x, projectNode.y, projectNode.z],
-  //           // target: [0, 0, 0],
-  //           // all presentation views are in zoom 0
-  //           zoom: 0,
-  //           rotationOrbit,
-  //           rotationX,
-  //           // rotationOrbit: 0,
-  //           // rotationX: 90,
-  //         });
-  //         this.viewport.props.disableController2 = true;
-  //         this.viewport.props.animateNodes = true;
-  //         if (zoomIn) {
-  //           // mostly used for testing
-  //           if (toView.onLoad) {
-  //             toView.onLoad();
-  //           }
-  //           // app needs to call the setView function since the elements need to be rendered first
-  //           this.viewport.emit('set-view', { view: toView }); // will call _update
-  //         } else {
-  //           this.viewport._update();
-  //           // set back the flag to enable update on emit set-view
-  //           this.preventUpdate = false;
-  //         }
-  //       },
-  //     },
-  //   });
-  // }
+    // // then update for the camera fly animation
+    // this.viewport.update({
+    //   flyTo: {
+    //     target,
+    //     zoom: toZoom,
+    //     // always fly straight in
+    //     rotationOrbit: 0,
+    //     rotationX: 90,
+    //     transitionDuration: toView.isPopup || fromView.isPopup ? 50 : 500,
+    //     transitionInterruption: TRANSITION_EVENTS.IGNORE,
+    //     transitionInterpolator: new ZoomToNodeInterpolator(!zoomIn),
+    //     onTransitionEnd: () => {
+    //       Object.assign(this.viewport.props, {
+    //         // all presentation views are in default target (center NOT [0, 0, 0]!!!)
+    //         // override target for views in setView
+    //         target: [projectNode.x, projectNode.y, projectNode.z],
+    //         // target: [0, 0, 0],
+    //         // all presentation views are in zoom 0
+    //         zoom: 0,
+    //         rotationOrbit,
+    //         rotationX,
+    //         // rotationOrbit: 0,
+    //         // rotationX: 90,
+    //       });
+    //       this.viewport.props.disableController2 = true;
+    //       this.viewport.props.animateNodes = true;
+    //       if (zoomIn) {
+    //         // mostly used for testing
+    //         if (toView.onLoad) {
+    //           toView.onLoad();
+    //         }
+    //         // app needs to call the setView function since the elements need to be rendered first
+    //         this.viewport.emit('set-view', { view: toView }); // will call update
+    //       } else {
+    //         this.viewport.update();
+    //         // set back the flag to enable update on emit set-view
+    //         this.preventUpdate = false;
+    //       }
+    //     },
+    //   },
+    // });
+  }
 }

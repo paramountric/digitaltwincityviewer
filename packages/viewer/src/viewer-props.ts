@@ -16,7 +16,10 @@ export type ViewerProps = {
   longitude?: number;
   latitude?: number;
   zoom?: number;
-  backgroundColor: null;
+  backgroundColor?: number[];
+  darkMode?: boolean;
+  darkModeBackgroundColor?: number[];
+  lightModeBackgroundColor?: number[];
   minZoom?: number;
   maxZoom?: number;
   pitch?: number;
@@ -95,5 +98,7 @@ export function setProps(viewer: Viewer, newProps: ViewerProps): boolean {
 export const defaultViewerProps: ViewerProps = {
   minZoom: DEFAULT_MIN_ZOOM,
   maxZoom: DEFAULT_MAX_ZOOM,
-  backgroundColor: null,
+  backgroundColor: [255, 255, 255],
+  darkModeBackgroundColor: [0, 0, 0],
+  lightModeBackgroundColor: [255, 255, 255],
 };
