@@ -1,9 +1,5 @@
 import getConfig from 'next/config';
 
-const {
-  publicRuntimeConfig: { tileServerUrl },
-} = getConfig();
+const { publicRuntimeConfig } = getConfig();
 
-export const config = {
-  tileServerUrl,
-};
+export const config = publicRuntimeConfig;

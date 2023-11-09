@@ -260,21 +260,31 @@ export class ViewManager {
             new MVTLayer({
               ...mvtLayerConfig,
               ...{
+                getElevation: (f: any) => {
+                  const defaultFeatureStates =
+                    this.viewer.props.defaultFeatureStates || {};
+                  const defaultFeatureState =
+                    defaultFeatureStates[f.properties.layerName];
+                  return (
+                    // f.properties.render_height ||
+                    defaultFeatureState?.elevation || 0
+                  );
+                },
+                extruded: true,
                 getFillColor: (f: any) => {
                   // todo: figure out how to be flexible with the feature state, so that property values can be used (like mapbox color expressions)
                   // console.log(f);
                   const defaultFeatureStates =
                     this.viewer.props.defaultFeatureStates || {};
                   const defaultFeatureState =
-                    defaultFeatureStates[f._type] ||
-                    defaultFeatureStates[f.type];
-                  const featureState = f.state;
-                  const sectionFeatureMap =
-                    currentViewState?.featureStateMap || {};
-                  const sectionFeatureState = sectionFeatureMap[f._id];
+                    defaultFeatureStates[f.properties.layerName];
+                  // const featureState = f.state;
+                  // const sectionFeatureMap =
+                  //   currentViewState?.featureStateMap || {};
+                  // const sectionFeatureState = sectionFeatureMap[f._id];
                   return (
-                    sectionFeatureState?.fillColor ||
-                    featureState?.fillColor ||
+                    // sectionFeatureState?.fillColor ||
+                    // featureState?.fillColor ||
                     defaultFeatureState?.fillColor || [255, 255, 255]
                   );
                 },
@@ -285,7 +295,16 @@ export class ViewManager {
       }
       if (view.tile3dLayerConfig) {
         Object.values(view.tile3dLayerConfig).forEach(tile3dLayerConfig => {
-          viewLayers.push(new Tile3DLayer(tile3dLayerConfig));
+          viewLayers.push(
+            new Tile3DLayer({
+              ...tile3dLayerConfig,
+              ...{
+                id: 'google-3d-tiles',
+                data: tile3dLayerConfig.data,
+                loadOptions: tile3dLayerConfig.loadOptions,
+              },
+            })
+          );
         });
       }
     });

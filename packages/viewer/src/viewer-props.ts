@@ -28,7 +28,7 @@ export type ViewerProps = {
   bearing?: number;
   position?: number[];
   defaultFeatureStates?: {
-    [type: string]: FeatureState;
+    [type: string]: Omit<FeatureState, 'featureId'>;
   };
   mvtLayerConfig?: {
     [layerId: string]: MVTLayerProps;

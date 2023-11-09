@@ -9,7 +9,7 @@ export default function Viewport({ config }: any) {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="flex justify-center">
-        <Canvas />
+        <Canvas config={config} />
       </div>
     </DndProvider>
   );
