@@ -1,13 +1,14 @@
-import {
-  TRANSITION_EVENTS,
-  MapView,
-  MapViewState,
-  MapController,
-} from '@deck.gl/core/typed';
+import { MapView, MapViewState } from '@deck.gl/core/typed';
 
 import { Feature } from './feature/feature';
 import { Viewer } from './viewer';
 import { LayoutManager } from './layout-manager';
+import {
+  MVTLayerProps,
+  MVTLayer,
+  Tile3DLayerProps,
+  Tile3DLayer,
+} from '@deck.gl/geo-layers/typed';
 
 export type FeatureState = {
   feature?: Feature; // ref during runtime - serialized to featureId
@@ -47,9 +48,11 @@ export type View = {
   parentSectionViewState?: SectionViewState; // to get back to the parent coordinates when nesting views
   mvtLayerConfig?: {
     // todo: use json config
-    [layerId: string]: {
-      data?: string;
-    };
+    [layerId: string]: MVTLayerProps;
+  };
+  tile3dLayerConfig?: {
+    // todo: use json config
+    [layerId: string]: Tile3DLayerProps;
   };
   /** A relative (e.g. `'50%'`) or absolute position. Default `0`. */
   x?: number | string;
@@ -93,15 +96,23 @@ export class ViewManager {
           id: 'main',
           longitude: this.viewer.props.longitude || 0,
           latitude: this.viewer.props.latitude || 0,
+          zoom: this.viewer.props.zoom || 0,
+          pitch: this.viewer.props.pitch || 0,
+          bearing: this.viewer.props.bearing || 0,
           backgroundColor: darkMode
             ? darkModeBackgroundColor
             : lightModeBackgroundColor,
-          zoom: 0,
         },
         width: this.viewer.props.width,
         height: this.viewer.props.height,
       },
     };
+    if (viewer.props.mvtLayerConfig) {
+      this.views.main.mvtLayerConfig = viewer.props.mvtLayerConfig;
+    }
+    if (viewer.props.tile3dLayerConfig) {
+      this.views.main.tile3dLayerConfig = viewer.props.tile3dLayerConfig;
+    }
     this.layoutManager = new LayoutManager(this.viewer);
   }
 
@@ -213,6 +224,24 @@ export class ViewManager {
 
   getBackgroundColor(): number[] {
     return this.views.main.sectionViewState.backgroundColor || [255, 255, 255];
+  }
+
+  // "View layers" are more on base map / context side compared to "Feature layers" (in feature manager) that are more on the GeoJSON / overlay side
+  getLayers() {
+    const viewLayers: any[] = [];
+    Object.values(this.views).forEach(view => {
+      if (view.mvtLayerConfig) {
+        Object.values(view.mvtLayerConfig).forEach(mvtLayerConfig => {
+          viewLayers.push(new MVTLayer(mvtLayerConfig));
+        });
+      }
+      if (view.tile3dLayerConfig) {
+        Object.values(view.tile3dLayerConfig).forEach(tile3dLayerConfig => {
+          viewLayers.push(new Tile3DLayer(tile3dLayerConfig));
+        });
+      }
+    });
+    return viewLayers;
   }
 
   // call this from app when user clicks to go to next view

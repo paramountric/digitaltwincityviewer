@@ -21,6 +21,7 @@ export class Viewer extends EventSource {
   canvas?: HTMLCanvasElement;
   interactionManager: InteractionManager;
   viewManager: ViewManager;
+  featureManager: FeatureManager;
   fileManager: FileManager;
   constructor(viewportProps: ViewerProps) {
     super();
@@ -43,6 +44,7 @@ export class Viewer extends EventSource {
 
     this.interactionManager = new InteractionManager({ viewer: this });
     this.viewManager = new ViewManager({ viewer: this });
+    this.featureManager = new FeatureManager({ viewer: this });
     this.fileManager = new FileManager({ viewer: this });
 
     this.onViewStateChange = this.onViewStateChange.bind(this);
@@ -126,7 +128,9 @@ export class Viewer extends EventSource {
   }
 
   getLayers() {
-    return []; //getViewportLayers(this);
+    const viewLayers = this.viewManager.getLayers();
+    const featureLayers = this.featureManager.getLayers();
+    return [...viewLayers, ...featureLayers];
   }
 
   update() {

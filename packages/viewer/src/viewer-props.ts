@@ -3,7 +3,8 @@
 
 import { Viewer } from './viewer';
 import { defaultViewerPropsJsonConfig } from './default-viewer-props-config';
-import { OrbitViewState, DeckProps } from '@deck.gl/core/typed';
+import { DeckProps } from '@deck.gl/core/typed';
+import { MVTLayerProps, Tile3DLayerProps } from '@deck.gl/geo-layers/typed';
 
 export const DEFAULT_START_ZOOM = -2;
 export const DEFAULT_MIN_ZOOM = -5;
@@ -25,6 +26,13 @@ export type ViewerProps = {
   pitch?: number;
   bearing?: number;
   position?: number[];
+  mvtLayerConfig?: {
+    [layerId: string]: MVTLayerProps;
+  };
+  tile3dLayerConfig?: {
+    [layerId: string]: Tile3DLayerProps;
+  };
+  // re-think the json spec below
   layers?: any[];
   // Needed on init for JSON config: this is dependency injection for the JSON props parser and will override the default if same name
   classes?: {

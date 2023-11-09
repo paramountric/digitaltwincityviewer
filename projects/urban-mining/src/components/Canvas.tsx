@@ -5,7 +5,19 @@ import { Viewer, ViewerProps } from '@dtcv/viewer';
 import { useViewport } from '../hooks/use-viewport';
 export const CANVAS_PARENT_ID = 'canvas';
 
-const defaultViewportProps: ViewerProps = {};
+const dtcvFilesUrl = 'https://digitaltwincityviewer.s3.amazonaws.com';
+
+const defaultViewportProps: ViewerProps = {
+  longitude: 11.981,
+  latitude: 57.6717,
+  zoom: 14,
+  mvtLayerConfig: {
+    basemap: {
+      id: 'basemap',
+      data: `${dtcvFilesUrl}/final/tiles/{z}/{x}/{y}.mvt`,
+    },
+  },
+};
 
 export default function Canvas() {
   const containerRef = useRef<HTMLCanvasElement>(null);
