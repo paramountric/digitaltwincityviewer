@@ -6,8 +6,11 @@ const nextConfig = {
   output: 'standalone',
   publicRuntimeConfig: {
     version,
-    maptilerApiKey: process.env.MAPTILER_API_KEY,
+    mvtUrl: process.env.MVT_URL,
+    tile3dUrl: process.env.TILE_3D_URL,
     googleApiKey: process.env.GOOGLE_API_KEY,
+    terrainUrl: process.env.TERRAIN_URL,
+    terrainTextureUrl: process.env.TERRAIN_TEXTURE_URL,
   },
 };
 

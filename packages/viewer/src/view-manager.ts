@@ -100,6 +100,8 @@ export class ViewManager {
           zoom: this.viewer.props.zoom || 0,
           pitch: this.viewer.props.pitch || 0,
           bearing: this.viewer.props.bearing || 0,
+          minZoom: this.viewer.props.minZoom || 0,
+          maxZoom: this.viewer.props.maxZoom || 25,
           backgroundColor: darkMode
             ? darkModeBackgroundColor || backgroundColor
             : lightModeBackgroundColor || backgroundColor,
@@ -268,9 +270,11 @@ export class ViewManager {
   // "View layers" are more on base map / context side compared to "Feature layers" (in feature manager) that are more on the GeoJSON / overlay side
   getLayers() {
     const viewLayers: any[] = [];
+    let hasTerrain = false;
     Object.values(this.views).forEach(view => {
       if (view.terrainLayerConfig) {
         Object.values(view.terrainLayerConfig).forEach(terrainLayerConfig => {
+          hasTerrain = true;
           viewLayers.push(
             new TerrainLayer({
               id: 'terrain',
@@ -284,6 +288,23 @@ export class ViewManager {
                 offset: -10000,
               },
               elevationData: terrainLayerConfig.data,
+              texture: terrainLayerConfig.texture,
+              operation: 'terrain+draw',
+            })
+          );
+        });
+      }
+      if (view.tile3dLayerConfig) {
+        Object.values(view.tile3dLayerConfig).forEach(tile3dLayerConfig => {
+          hasTerrain = true;
+          viewLayers.push(
+            new Tile3DLayer({
+              ...tile3dLayerConfig,
+              ...{
+                id: 'google-3d-tiles',
+                data: tile3dLayerConfig.data,
+                loadOptions: tile3dLayerConfig.loadOptions,
+              },
               operation: 'terrain+draw',
             })
           );
@@ -307,6 +328,7 @@ export class ViewManager {
                   );
                 },
                 extruded: (this.views.main.sectionViewState.pitch || 0) > 0,
+                opacity: 0.2,
                 getFillColor: (f: any) => {
                   // todo: figure out how to be flexible with the feature state, so that property values can be used (like mapbox color expressions)
                   const defaultFeatureStates =
@@ -328,21 +350,27 @@ export class ViewManager {
                     defaultFeatureState?.fillColor || [255, 255, 255]
                   );
                 },
-                extensions: [new TerrainExtension()],
-              },
-            })
-          );
-        });
-      }
-      if (view.tile3dLayerConfig) {
-        Object.values(view.tile3dLayerConfig).forEach(tile3dLayerConfig => {
-          viewLayers.push(
-            new Tile3DLayer({
-              ...tile3dLayerConfig,
-              ...{
-                id: 'google-3d-tiles',
-                data: tile3dLayerConfig.data,
-                loadOptions: tile3dLayerConfig.loadOptions,
+                getLineColor: (f: any) => {
+                  const defaultFeatureStates =
+                    this.viewer.props.defaultFeatureStates || ({} as any);
+                  const defaultFeatureState =
+                    defaultFeatureStates[f.properties.layerName];
+                  // const featureState = f.state;
+                  // const sectionFeatureMap =
+                  //   currentViewState?.featureStateMap || {};
+                  // const sectionFeatureState = sectionFeatureMap[f._id];
+                  if (!defaultFeatureStates[f.properties.layerName]) {
+                    console.warn(
+                      `Feature state for layer ${f.properties.layerName} not found`
+                    );
+                  }
+                  return (
+                    // sectionFeatureState?.strokeColor ||
+                    // featureState?.strokeColor ||
+                    defaultFeatureState?.strokeColor || [255, 255, 255]
+                  );
+                },
+                extensions: hasTerrain ? [new TerrainExtension()] : [],
               },
             })
           );

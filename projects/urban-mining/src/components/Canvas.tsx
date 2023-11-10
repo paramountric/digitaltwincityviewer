@@ -11,33 +11,74 @@ export default function Canvas({ config }: { config: any }) {
     longitude: 11.981,
     latitude: 57.6717,
     zoom: 14,
+    maxZoom: 21,
+    minZoom: 10,
     backgroundColor: [0, 0, 255],
     mvtLayerConfig: {
       basemap: {
         id: 'basemap',
-        data: `https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=${config.maptilerApiKey}`,
+        data: config.mvtUrl,
       },
     },
     tile3dLayerConfig: {
-      // basemap3d: {
-      //   id: 'basemap3d',
-      //   data: `https://tile.googleapis.com/v1/3dtiles/root.json`,
-      //   loadOptions: {
-      //     fetch: {
-      //       headers: {
-      //         'X-GOOG-API-KEY': config.googleApiKey,
-      //       },
-      //     },
-      //   },
-      // },
-    },
-    terrainLayerConfig: {
-      basemapTerrain: {
-        id: 'basemapTerrain',
-        data: `https://api.maptiler.com/tiles/terrain-rgb-v2/{z}/{x}/{y}.webp?key=${config.maptilerApiKey}`,
+      basemap3d: {
+        id: 'basemap3d',
+        data: config.tile3dUrl,
+        loadOptions: {
+          fetch: {
+            headers: {
+              'X-GOOG-API-KEY': config.googleApiKey,
+            },
+          },
+        },
       },
     },
+    // terrainLayerConfig: {
+    //   basemapTerrain: {
+    //     id: 'basemapTerrain',
+    //     data: config.terrainUrl,
+    //     texture: config.terrainTextureUrl,
+    //   },
+    // },
     defaultFeatureStates: {
+      // mapbox
+      landuse_overlay: {
+        fillColor: [255, 0, 0],
+        elevation: 0,
+      },
+      road: {
+        fillColor: [255, 0, 0],
+        elevation: 0,
+      },
+      poi_label: {
+        fillColor: [255, 0, 0],
+        elevation: 0,
+      },
+      structure: {
+        fillColor: [255, 0, 0],
+        elevation: 0,
+      },
+      transit_stop_label: {
+        fillColor: [255, 0, 0],
+        elevation: 0,
+      },
+      place_label: {
+        fillColor: [255, 0, 0],
+        elevation: 0,
+      },
+      natural_label: {
+        fillColor: [255, 0, 0],
+        elevation: 0,
+      },
+      airport_label: {
+        fillColor: [255, 0, 0],
+        elevation: 0,
+      },
+      motorway_junction: {
+        fillColor: [255, 0, 0],
+        elevation: 0,
+      },
+      // maptiler
       aerodrome_label: {
         fillColor: [255, 0, 0],
         elevation: 0,
@@ -52,6 +93,7 @@ export default function Canvas({ config }: { config: any }) {
       },
       building: {
         fillColor: [255, 0, 0],
+        strokeColor: [255, 255, 0],
         elevation: 10,
       },
       globallandcover: {
