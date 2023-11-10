@@ -36,6 +36,9 @@ export type ViewerProps = {
   tile3dLayerConfig?: {
     [layerId: string]: Tile3DLayerProps;
   };
+  terrainLayerConfig?: {
+    [layerId: string]: any;
+  };
   // re-think the json spec below
   layers?: any[];
   // Needed on init for JSON config: this is dependency injection for the JSON props parser and will override the default if same name
@@ -110,7 +113,7 @@ export function setProps(viewer: Viewer, newProps: ViewerProps): boolean {
 export const defaultViewerProps: ViewerProps = {
   minZoom: DEFAULT_MIN_ZOOM,
   maxZoom: DEFAULT_MAX_ZOOM,
-  backgroundColor: [255, 255, 255],
-  darkModeBackgroundColor: [0, 0, 0],
-  lightModeBackgroundColor: [255, 255, 255],
+  // backgroundColor: [255, 255, 255],
+  // darkModeBackgroundColor: [0, 0, 0],
+  // lightModeBackgroundColor: [255, 255, 255],
 };

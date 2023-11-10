@@ -22,7 +22,7 @@ export class Viewer extends EventSource {
   viewManager: ViewManager;
   featureManager: FeatureManager;
   fileManager: FileManager;
-  constructor(viewportProps: ViewerProps) {
+  constructor(viewerProps: ViewerProps) {
     super();
     const resolvedProps = Object.assign(
       {
@@ -30,7 +30,7 @@ export class Viewer extends EventSource {
         height: window.innerHeight,
       },
       defaultViewerProps,
-      viewportProps,
+      viewerProps,
       {
         onLoad: this.onLoad.bind(this),
         // onResize: this.onResize.bind(this),

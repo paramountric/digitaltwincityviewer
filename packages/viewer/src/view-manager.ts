@@ -1,14 +1,20 @@
 import { MapView, MapViewState } from '@deck.gl/core/typed';
 import { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller';
-import { Feature, FeatureState } from './feature/feature';
-import { Viewer } from './viewer';
-import { LayoutManager } from './layout-manager';
 import {
   MVTLayerProps,
   MVTLayer,
   Tile3DLayerProps,
   Tile3DLayer,
+  TerrainLayer,
+  TerrainLayerProps,
 } from '@deck.gl/geo-layers/typed';
+import {
+  _TerrainExtension as TerrainExtension,
+  TerrainExtensionProps,
+} from '@deck.gl/extensions/typed';
+import { Feature, FeatureState } from './feature/feature';
+import { Viewer } from './viewer';
+import { LayoutManager } from './layout-manager';
 
 export type SectionViewState = {
   id: string; // use for mapping section viewstate id (and nest the viewstates between view and view section ? viewId-sectionId?)
@@ -41,6 +47,9 @@ export type View = {
   tile3dLayerConfig?: {
     // todo: use json config
     [layerId: string]: Tile3DLayerProps;
+  };
+  terrainLayerConfig?: {
+    [layerId: string]: TerrainLayerProps;
   };
   /** A relative (e.g. `'50%'`) or absolute position. Default `0`. */
   x?: number | string;
@@ -75,8 +84,12 @@ export class ViewManager {
   layoutManager: LayoutManager;
   constructor({ viewer }: ViewManagerProps) {
     this.viewer = viewer;
-    const { darkMode, darkModeBackgroundColor, lightModeBackgroundColor } =
-      this.viewer.props;
+    const {
+      darkMode,
+      darkModeBackgroundColor,
+      lightModeBackgroundColor,
+      backgroundColor,
+    } = this.viewer.props;
     this.views = {
       main: {
         id: 'main',
@@ -88,8 +101,8 @@ export class ViewManager {
           pitch: this.viewer.props.pitch || 0,
           bearing: this.viewer.props.bearing || 0,
           backgroundColor: darkMode
-            ? darkModeBackgroundColor
-            : lightModeBackgroundColor,
+            ? darkModeBackgroundColor || backgroundColor
+            : lightModeBackgroundColor || backgroundColor,
         },
         width: this.viewer.props.width,
         height: this.viewer.props.height,
@@ -100,6 +113,9 @@ export class ViewManager {
     }
     if (viewer.props.tile3dLayerConfig) {
       this.views.main.tile3dLayerConfig = viewer.props.tile3dLayerConfig;
+    }
+    if (viewer.props.terrainLayerConfig) {
+      this.views.main.terrainLayerConfig = viewer.props.terrainLayerConfig;
     }
     this.layoutManager = new LayoutManager(this.viewer);
     this.onViewStateChange = this.onViewStateChange.bind(this);
@@ -246,13 +262,33 @@ export class ViewManager {
   }
 
   getBackgroundColor(): number[] {
-    return this.views.main.sectionViewState.backgroundColor || [255, 255, 255];
+    return this.views.main.sectionViewState.backgroundColor || [99, 255, 255];
   }
 
   // "View layers" are more on base map / context side compared to "Feature layers" (in feature manager) that are more on the GeoJSON / overlay side
   getLayers() {
     const viewLayers: any[] = [];
     Object.values(this.views).forEach(view => {
+      if (view.terrainLayerConfig) {
+        Object.values(view.terrainLayerConfig).forEach(terrainLayerConfig => {
+          viewLayers.push(
+            new TerrainLayer({
+              id: 'terrain',
+              minZoom: 0,
+              maxZoom: 23,
+              strategy: 'no-overlap',
+              elevationDecoder: {
+                rScaler: 6553.6,
+                gScaler: 25.6,
+                bScaler: 0.1,
+                offset: -10000,
+              },
+              elevationData: terrainLayerConfig.data,
+              operation: 'terrain+draw',
+            })
+          );
+        });
+      }
       if (view.mvtLayerConfig) {
         const currentViewState = this.getCurrentSectionViewState();
         Object.values(view.mvtLayerConfig).forEach(mvtLayerConfig => {
@@ -270,24 +306,29 @@ export class ViewManager {
                     defaultFeatureState?.elevation || 0
                   );
                 },
-                extruded: true,
+                extruded: (this.views.main.sectionViewState.pitch || 0) > 0,
                 getFillColor: (f: any) => {
                   // todo: figure out how to be flexible with the feature state, so that property values can be used (like mapbox color expressions)
-                  // console.log(f);
                   const defaultFeatureStates =
-                    this.viewer.props.defaultFeatureStates || {};
+                    this.viewer.props.defaultFeatureStates || ({} as any);
                   const defaultFeatureState =
                     defaultFeatureStates[f.properties.layerName];
                   // const featureState = f.state;
                   // const sectionFeatureMap =
                   //   currentViewState?.featureStateMap || {};
                   // const sectionFeatureState = sectionFeatureMap[f._id];
+                  if (!defaultFeatureStates[f.properties.layerName]) {
+                    console.warn(
+                      `Feature state for layer ${f.properties.layerName} not found`
+                    );
+                  }
                   return (
                     // sectionFeatureState?.fillColor ||
                     // featureState?.fillColor ||
                     defaultFeatureState?.fillColor || [255, 255, 255]
                   );
                 },
+                extensions: [new TerrainExtension()],
               },
             })
           );
