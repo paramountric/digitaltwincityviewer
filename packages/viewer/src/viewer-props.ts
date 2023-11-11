@@ -39,6 +39,7 @@ export type ViewerProps = {
   terrainLayerConfig?: {
     [layerId: string]: any;
   };
+  showTerrain?: boolean;
   // re-think the json spec below
   layers?: any[];
   // Needed on init for JSON config: this is dependency injection for the JSON props parser and will override the default if same name

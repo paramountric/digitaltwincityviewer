@@ -334,6 +334,7 @@ importers:
       '@deck.gl/json': 8.9.32
       '@deck.gl/layers': 8.9.32
       '@deck.gl/mesh-layers': 8.9.32
+      '@dtcv/geojson': workspace:*
       '@loaders.gl/3d-tiles': ^3.4.0
       '@loaders.gl/core': ^3.4.0
       '@loaders.gl/draco': ^3.4.0
@@ -347,6 +348,7 @@ importers:
       '@luma.gl/webgl': 8.5.21
       '@math.gl/core': ^3.6.3
       '@math.gl/web-mercator': ^3.6.3
+      '@turf/bbox': ^6.5.0
       '@types/d3-axis': ^3.0.2
       '@types/d3-scale': ^4.0.3
       '@types/d3-selection': ^3.0.5
@@ -362,6 +364,7 @@ importers:
       '@deck.gl/json': 8.9.32_@deck.gl+core@8.9.32
       '@deck.gl/layers': 8.9.32_v4hv6z2cv7pw4hj4nvtlainku4
       '@deck.gl/mesh-layers': 8.9.32_cubnkiafsnum7bhtykfciqjwte
+      '@dtcv/geojson': link:../geojson
       '@loaders.gl/3d-tiles': 3.4.14_@loaders.gl+core@3.4.14
       '@loaders.gl/core': 3.4.14
       '@loaders.gl/draco': 3.4.14
@@ -375,6 +378,7 @@ importers:
       '@luma.gl/webgl': 8.5.21
       '@math.gl/core': 3.6.3
       '@math.gl/web-mercator': 3.6.3
+      '@turf/bbox': 6.5.0
       '@types/geojson': 7946.0.13
       d3-scale: 4.0.2
       gl-matrix: 3.4.3
