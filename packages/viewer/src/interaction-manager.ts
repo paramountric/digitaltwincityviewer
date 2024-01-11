@@ -8,6 +8,7 @@ export class InteractionManager {
   viewer: Viewer;
   constructor({ viewer }: InteractionManagerProps) {
     this.viewer = viewer;
+    this.onInteractionStateChange = this.onInteractionStateChange.bind(this);
   }
   getCursor({
     isDragging,

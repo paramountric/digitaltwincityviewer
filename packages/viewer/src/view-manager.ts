@@ -190,6 +190,7 @@ export class ViewManager {
     if (!this.viewer) {
       return;
     }
+    console.log('onViewStateChange', viewState, viewId);
     if (this.views[viewId]) {
       this.views[viewId].sectionViewState = {
         ...this.views[viewId].sectionViewState,
