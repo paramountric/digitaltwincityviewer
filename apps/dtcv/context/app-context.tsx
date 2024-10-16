@@ -2,9 +2,18 @@
 
 import { UserWithProfile, Project } from "@/app/types";
 import { Feature } from "@/app/types";
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useRef,
+  useEffect,
+} from "react";
 
 interface AppContextType {
+  canvasRef: React.RefObject<HTMLCanvasElement>;
+  viewportRef: React.RefObject<any>;
   user: UserWithProfile | null;
   project: Project | null;
   projects: Project[];
@@ -27,6 +36,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({
   children,
   ...initial
 }) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const viewportRef = useRef<any | null>(null);
+
   const [user, _setUser] = useState<UserWithProfile | null>(initial.user);
   const [project, _setProject] = useState<Project | null>(initial.project);
   const [projects, _setProjects] = useState<Project[]>(initial.projects);
@@ -34,11 +46,47 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
+  const updateCanvasSize = () => {
+    if (viewportRef.current && canvasRef.current) {
+      const { offsetWidth, offsetHeight } = canvasRef.current.parentElement!;
+      canvasRef.current.style.width = `${offsetWidth}px`;
+      canvasRef.current.style.height = `${offsetHeight}px`;
+      viewportRef.current.props.width = offsetWidth;
+      viewportRef.current.props.height = offsetHeight;
+      viewportRef.current.update();
+    }
+  };
+
+  const handleViewportOnLoad = () => {
+    console.log("viewport loaded");
+    updateCanvasSize();
+    window.addEventListener("resize", updateCanvasSize);
+  };
+
+  useEffect(() => {
+    if (canvasRef.current && !viewportRef.current) {
+      const { offsetWidth, offsetHeight } = canvasRef.current.parentElement!;
+      // const viewportProps: ViewportProps = {
+      // onLoad: handleViewportOnLoad,
+      // };
+      // viewportRef.current = new Viewport(viewportProps);
+    }
+
+    return () => {
+      if (viewportRef.current?.deck) {
+        window.removeEventListener("resize", updateCanvasSize);
+        viewportRef.current?.dispose();
+      }
+    };
+  }, [canvasRef.current]);
+
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
   };
 
   const value: AppContextType = {
+    canvasRef,
+    viewportRef,
     user,
     project,
     projects,

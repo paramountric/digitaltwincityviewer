@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { AppProvider } from "@/context/AppContext";
+import { AppProvider } from "@/context/app-context";
 import { createClient } from "@/utils/supabase/server";
 import {
   DbProfile,
