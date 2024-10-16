@@ -1,24 +1,19 @@
 {
   "name": "root",
   "private": true,
-  "workspaces": [
-    "packages/*",
-    "apps/*",
-    "projects/*"
-  ],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "dev:dtcv": "turbo run dev --filter dtcv...",
+    "dev:dtcv": "turbo run dev --filter dtcv",
     "dev:dte": "turbo run dev --filter dte-digital-twin-energy...",
     "dev:urban-mining": "turbo run dev --filter urban-mining...",
-    "publish-packages": "turbo run build && changeset version && changeset publish"
+    "gen:types": "supabase gen types typescript --local | sed 's/export interface Database {/export type Database = {/' > apps/dtcv/utils/supabase/generated/db.ts"
   },
   "devDependencies": {
-    "turbo": "^1.6.3"
+    "turbo": "^2.1.3"
   },
-  "dependencies": {
-    "@changesets/cli": "^2.25.2"
-  },
-  "packageManager": "pnpm@8.3.1"
+  "packageManager": "pnpm@9.4.0",
+  "engines": {
+    "node": ">=20"
+  }
 }

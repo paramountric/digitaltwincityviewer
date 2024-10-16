@@ -1,16 +1,21 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local"],
-  "pipeline": {
+  "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+    },
+    "dtcv#build": {
+      "dependsOn": ["^build"],
+      "env": ["SUPABASE_PRIVATE_KEY"],
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "docs#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["build/**"]
     },
     "dev": {
-      "cache": false
-    },
-    "test": {},
-    "test:watch": {
       "cache": false
     }
   }
