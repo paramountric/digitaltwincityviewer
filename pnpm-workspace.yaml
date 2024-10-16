@@ -1,4 +1,3 @@
 packages:
-  - "projects/*"
   - "apps/*"
   - "packages/*"
