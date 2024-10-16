@@ -3,18 +3,13 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { AppProvider } from "@/context/app-context";
 import { createClient } from "@/utils/supabase/server";
-import {
-  DbProfile,
-  DbUser,
-  Feature,
-  Project,
-  UserWithProfile,
-} from "@/app/types";
+import { DbProfile, DbUser, Project, UserWithProfile } from "@/types";
 import {
   dbFeatureToFeature,
   dbProjectToProject,
   dbUserToUserWithProfile,
-} from "./types/type-utils";
+} from "../types/type-utils";
+import { Feature } from "@dtcv/viewport";
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -124,7 +119,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-gray-900 text-black dark:text-white`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-[hsl(222.2,84%,1%)] text-black dark:text-white`}
       >
         <AppProvider
           user={userWithProfile}

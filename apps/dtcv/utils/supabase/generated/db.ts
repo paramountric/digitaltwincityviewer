@@ -40,10 +40,14 @@ export type Database = {
           description: string | null
           geometry: unknown | null
           id: string
+          key: string | null
           name: string | null
+          namespace: string | null
+          observed_at: string | null
           position: unknown | null
           project_id: string | null
           properties: Json | null
+          type: string | null
           updated_at: string | null
         }
         Insert: {
@@ -51,10 +55,14 @@ export type Database = {
           description?: string | null
           geometry?: unknown | null
           id?: string
+          key?: string | null
           name?: string | null
+          namespace?: string | null
+          observed_at?: string | null
           position?: unknown | null
           project_id?: string | null
           properties?: Json | null
+          type?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -62,10 +70,14 @@ export type Database = {
           description?: string | null
           geometry?: unknown | null
           id?: string
+          key?: string | null
           name?: string | null
+          namespace?: string | null
+          observed_at?: string | null
           position?: unknown | null
           project_id?: string | null
           properties?: Json | null
+          type?: string | null
           updated_at?: string | null
         }
         Relationships: [

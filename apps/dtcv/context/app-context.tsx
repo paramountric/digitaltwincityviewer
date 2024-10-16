@@ -1,7 +1,7 @@
 "use client";
 
-import { UserWithProfile, Project } from "@/app/types";
-import { Feature } from "@/app/types";
+import { UserWithProfile, Project } from "@/types";
+import { Feature } from "@dtcv/viewport";
 import React, {
   createContext,
   useState,
@@ -10,6 +10,7 @@ import React, {
   useRef,
   useEffect,
 } from "react";
+import { Viewport, ViewportProps } from "@dtcv/viewport";
 
 interface AppContextType {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -66,10 +67,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({
   useEffect(() => {
     if (canvasRef.current && !viewportRef.current) {
       const { offsetWidth, offsetHeight } = canvasRef.current.parentElement!;
-      // const viewportProps: ViewportProps = {
-      // onLoad: handleViewportOnLoad,
-      // };
-      // viewportRef.current = new Viewport(viewportProps);
+      console.log("offsetWidth", offsetWidth);
+      console.log("offsetHeight", offsetHeight);
+      const viewportProps: ViewportProps = {
+        width: offsetWidth,
+        height: offsetHeight,
+        onLoad: handleViewportOnLoad,
+      };
+      viewportRef.current = new Viewport(viewportProps);
     }
 
     return () => {

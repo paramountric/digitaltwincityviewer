@@ -1,16 +1,17 @@
-import { useAppContext } from "../context/app-context";
+"use client";
 
-export default function Home() {
+import { useAppContext } from "../context/app-context";
+import { Canvas } from "./_components/canvas";
+
+export default function Start() {
   const { user, project, projects, features } = useAppContext();
 
   return (
-    <div>
-      <h1>Digital Twin City Viewer</h1>
-      {user ? (
-        <p>Welcome back, user!</p>
-      ) : (
-        <p>Please log in to access all features.</p>
-      )}
+    <div className="w-screen h-screen overflow-hidden">
+      <div className="bg-white dark:bg-background text-black dark:text-white">
+        TEst
+      </div>
+      <Canvas />
     </div>
   );
 }

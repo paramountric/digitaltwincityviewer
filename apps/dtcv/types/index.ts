@@ -4,18 +4,6 @@ export type DbProfile = Database["public"]["Tables"]["profiles"]["Row"];
 export type DbProject = Database["public"]["Tables"]["projects"]["Row"];
 export type DbFeature = Database["public"]["Tables"]["features"]["Row"];
 
-export type Feature = {
-  id: string;
-  createdAt: string;
-  description: string | null;
-  geometry: unknown | null;
-  name: string | null;
-  position: unknown | null;
-  projectId: string | null;
-  properties: Json | null;
-  updatedAt: string;
-};
-
 export type User = {
   instanceId: string;
   id: string;

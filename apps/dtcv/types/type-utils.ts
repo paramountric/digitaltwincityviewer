@@ -1,9 +1,9 @@
+import { Feature, FeatureProperties } from "@dtcv/viewport";
 import {
   DbProfile,
   DbUser,
   DbProject,
   DbFeature,
-  Feature,
   Profile,
   Project,
   User,
@@ -88,20 +88,28 @@ export function dbProjectToProject(dbProject: DbProject): Project {
 export function dbFeatureToFeature(dbFeature: DbFeature): Feature {
   return {
     id: dbFeature.id,
+    key: dbFeature.key || "",
     createdAt: dbFeature.created_at || new Date().toISOString(),
     description: dbFeature.description,
     geometry: dbFeature.geometry,
     name: dbFeature.name,
-    position: dbFeature.position,
-    projectId: dbFeature.project_id,
-    properties: dbFeature.properties,
+    type: dbFeature.type || undefined,
+    namespace: dbFeature.namespace || undefined,
+    observedAt: dbFeature.observed_at || undefined,
+    position: dbFeature.position || undefined,
+    projectId: dbFeature.project_id || undefined,
+    properties: (dbFeature.properties as FeatureProperties) || undefined,
     updatedAt: dbFeature.updated_at || new Date().toISOString(),
   };
 }
 
 export function featureToDbFeature(feature: Feature): DbFeature {
   return {
-    id: feature.id,
+    id: feature.id || "",
+    key: feature.key || "",
+    type: feature.type || null,
+    namespace: feature.namespace || null,
+    observed_at: feature.observedAt || null,
     created_at: feature.createdAt || new Date().toISOString(),
     updated_at: feature.updatedAt || new Date().toISOString(),
     description: feature.description || null,

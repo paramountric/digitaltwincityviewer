@@ -30,6 +30,9 @@ EXECUTE FUNCTION update_modified_column();
 -- Create features table
 CREATE TABLE features (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    key VARCHAR(255),
+    type VARCHAR(255),
+    namespace VARCHAR(255),
     project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
     name VARCHAR(255),
     description TEXT,
@@ -38,9 +41,7 @@ CREATE TABLE features (
     properties JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT check_geometry_presence CHECK (
-        geometry IS NOT NULL OR position IS NOT NULL
-    )
+    observed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TRIGGER update_features_modtime

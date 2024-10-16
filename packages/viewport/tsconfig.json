@@ -13,7 +13,7 @@
     "noUnusedParameters": false,
     "preserveWatchOutput": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "target": "ESNext",
     "lib": ["esnext", "dom"],
     "allowJs": true,
@@ -21,8 +21,9 @@
     "outDir": "dist",
     "module": "esnext",
     "resolveJsonModule": true,
+    "noImplicitAny": false,
     "jsx": "preserve"
   },
-  "include": ["src", "index.d.ts"],
-  "exclude": ["dist", "node_modules"]
+  "include": ["src", "index.d.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }
