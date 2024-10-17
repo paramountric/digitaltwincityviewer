@@ -4,6 +4,19 @@ export type FeatureColor = {
   name: string;
 };
 
+export const DEFAULT_BACKGROUND_COLOR = [2, 6, 23, 255] as [
+  number,
+  number,
+  number,
+  number
+];
+export const DEFAULT_MAP_COORDINATES = [11.981, 57.6717];
+export const DEFAULT_MAP_ZOOM = 16;
+export const DEFAULT_MIN_ZOOM = 0;
+export const DEFAULT_MAX_ZOOM = 20;
+export const DEFAULT_BEARING = 0;
+export const DEFAULT_PITCH = 0;
+
 export const TILE_SIZE = 2 ** 18;
 
 export const blue: FeatureColor = {

@@ -120,3 +120,39 @@ export function featureToDbFeature(feature: Feature): DbFeature {
     properties: feature.properties || null,
   };
 }
+
+export function projectToFeature(
+  project: Project,
+  extraProps?: FeatureProperties
+): Feature {
+  return {
+    id: project.id,
+    key: project.id,
+    createdAt: project.createdAt || new Date().toISOString(),
+    updatedAt: project.updatedAt || new Date().toISOString(),
+    description: project.description || null,
+    geometry: null,
+    name: project.name,
+    type: "project",
+    namespace: "project",
+    observedAt: project.createdAt || new Date().toISOString(),
+    position: null,
+    projectId: null,
+    properties: projectPropertiesToFeatureProperties(project, extraProps),
+  };
+}
+
+export function projectPropertiesToFeatureProperties(
+  project: Project,
+  extraProps?: FeatureProperties
+): FeatureProperties {
+  if (!project.properties) {
+    return {};
+  }
+  return {
+    ...extraProps,
+    ...{
+      // what to take from project?,
+    },
+  };
+}

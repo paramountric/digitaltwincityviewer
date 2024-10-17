@@ -3,102 +3,75 @@ import { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/contr
 import GL from '@luma.gl/constants';
 import { ViewportProps } from './types';
 import { Timeline } from './lib/timeline';
-const DEFAULT_BACKGROUND_COLOR = [2, 6, 23, 255] as [
-  number,
-  number,
-  number,
-  number
-];
+import { MainLayout } from './layouts/main-layout';
+import {
+  DEFAULT_MAP_COORDINATES,
+  DEFAULT_MAP_ZOOM,
+  DEFAULT_MIN_ZOOM,
+  DEFAULT_MAX_ZOOM,
+  DEFAULT_BEARING,
+  DEFAULT_PITCH,
+  DEFAULT_BACKGROUND_COLOR,
+} from './constants';
+import { Feature } from './feature';
+import { ScatterplotLayer } from '@deck.gl/layers/typed';
 
 type Layout = any;
 type UpdateTriggers = any;
 
-const defaultViewportProps: ViewportProps = {
-  zoom: 10,
-  backgroundColor: DEFAULT_BACKGROUND_COLOR,
-};
-
 export class Viewport {
   props: ViewportProps;
   deck: Deck | null;
-  canvas: HTMLCanvasElement;
   mainLayout: Layout;
   featureLayouts: Map<string, Layout> = new Map();
   timeline: Timeline;
+  mainFeature: Feature;
   constructor(viewportProps: ViewportProps) {
-    const resolvedProps = Object.assign(
-      defaultViewportProps,
-      viewportProps,
-      // will overwrite default and sent in
-      {
-        onLoad: this.onLoad.bind(this),
-        onError: (error: Error) => {
-          if (viewportProps.onContextLost) {
-            viewportProps.onContextLost(error);
-          }
-        },
-        getTooltip: null,
-      }
-    ) as DeckProps;
-    this.props = resolvedProps as ViewportProps;
+    this.props = viewportProps;
+    const {
+      mainFeature = {
+        id: 'main',
+        key: 'main',
+        properties: {},
+      },
+      width,
+      height,
+    } = viewportProps;
+
+    mainFeature.properties._width = width;
+    mainFeature.properties._height = height;
+    mainFeature.properties._longitude =
+      mainFeature.properties._longitude ?? DEFAULT_MAP_COORDINATES[0];
+    mainFeature.properties._latitude =
+      mainFeature.properties._latitude ?? DEFAULT_MAP_COORDINATES[1];
+    mainFeature.properties._zoom =
+      mainFeature.properties._zoom ?? DEFAULT_MAP_ZOOM;
+    mainFeature.properties._backgroundColor =
+      mainFeature.properties._backgroundColor ?? DEFAULT_BACKGROUND_COLOR;
+    mainFeature.properties._minZoom =
+      mainFeature.properties._minZoom ?? DEFAULT_MIN_ZOOM;
+    mainFeature.properties._maxZoom =
+      mainFeature.properties._maxZoom ?? DEFAULT_MAX_ZOOM;
+    mainFeature.properties._bearing =
+      mainFeature.properties._bearing ?? DEFAULT_BEARING;
+    mainFeature.properties._pitch =
+      mainFeature.properties._pitch ?? DEFAULT_PITCH;
+
+    this.mainFeature = mainFeature;
+
+    this.mainLayout = new MainLayout({
+      parentFeature: this.mainFeature,
+    });
 
     this.timeline = new Timeline();
-
-    // const position = (
-    //   boardNode.appearance?.position
-    //     ? [...boardNode.appearance.position]
-    //     : [TILE_SIZE / 2, TILE_SIZE / 2, 0]
-    // ) as [number, number, number];
-
-    // const initialCameraFrame: Appearance = {
-    //   position,
-    //   target: boardNode.appearance?.target || position,
-    //   zoom: boardNode.appearance?.zoom || DEFAULT_START_ZOOM,
-    //   rotationOrbit: boardNode.appearance?.rotationOrbit || 0,
-    //   rotationX: boardNode.appearance?.rotationX || 90,
-    //   minZoom: boardNode.appearance?.minZoom || DEFAULT_MIN_ZOOM,
-    //   maxZoom: boardNode.appearance?.maxZoom || DEFAULT_MAX_ZOOM,
-    //   backgroundColor:
-    //     boardNode.appearance?.backgroundColor ||
-    //     (DEFAULT_BACKGROUND_COLOR as [number, number, number]),
-    //   viewX: boardNode.appearance?.viewX || 0,
-    //   viewY: boardNode.appearance?.viewY || 0,
-    //   paddingLeft: boardNode.appearance?.paddingLeft || 0,
-    //   width: this.props.width,
-    //   height: this.props.height,
-    // };
-
-    // console.log('initialCameraFrame', initialCameraFrame);
-
-    // this.boardNode = {
-    //   id: boardNode.id || defaultProjectNode.id,
-    //   key: boardNode.key || defaultProjectNode.key,
-    //   type: boardNode.type || NODE_TYPE_BOARD,
-    //   name: boardNode.name || defaultProjectNode.name,
-    //   // the boardNode is the board and the id === boardId
-    //   boardId: boardNode.id || defaultProjectNode.id,
-    //   namespace: boardNode.namespace || defaultProjectNode.namespace,
-    //   appearance: {
-    //     // add settings from DB for the board / node here
-    //     ...initialCameraFrame,
-    //     // cannot override the size of the board
-    //     size: [DEFAULT_VIEW_AREA_SIZE, DEFAULT_VIEW_AREA_SIZE],
-    //   },
-    // };
-    // this.boardLayout = new BoardLayout({
-    //   parentNodeProps: this.boardNode,
-    //   timeline: this.timeline,
-    //   cameraFrame: {
-    //     ...initialCameraFrame,
-    //   },
-    // });
 
     // this.interactionManager = new InteractionManager({ viewport: this });
 
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.layerFilter = this.layerFilter.bind(this);
+    this.onLoad = this.onLoad.bind(this);
 
-    this.deck = new Deck(resolvedProps);
+    this.update();
   }
 
   dispose() {
@@ -113,9 +86,6 @@ export class Viewport {
     // this.deck._addResources({
     //   iconAtlas: getIconAtlas(gl),
     // });
-
-    // @ts-ignore
-    this.canvas = this.deck.canvas;
 
     this.update();
     if (this.props.onLoad) {
@@ -182,13 +152,12 @@ export class Viewport {
 
   getLayers() {
     const viewportLayers = this.mainLayout.getLayers() || [];
-    const visibleNodes = this.mainLayout.getVisibleNodes() || [];
+    const visibleNodes = this.mainLayout.getVisibleFeatures() || [];
     for (const child of visibleNodes) {
       const { versionUri } = child;
       let featureLayout = this.featureLayouts[versionUri];
       if (featureLayout) {
         const childLayers = featureLayout.getLayers();
-        // console.log('childlayers', childLayers);
         if (childLayers && childLayers.length > 0) {
           viewportLayers.push(...childLayers);
         }
@@ -197,16 +166,13 @@ export class Viewport {
     return viewportLayers;
   }
 
-  getProps({ extraProps = undefined } = {}) {
+  getProps() {
     const backgroundColor =
-      this.mainLayout.getBackgroundColor() ||
-      this.props.backgroundColor ||
-      DEFAULT_BACKGROUND_COLOR;
+      this.mainLayout.getBackgroundColor() || DEFAULT_BACKGROUND_COLOR;
 
     const props: DeckProps = {
-      ...this.props,
-      ...extraProps,
-      _animate: true,
+      canvas: this.props.canvas,
+      _animate: false,
       parameters: {
         depthMask: true,
         depthTest: true,
@@ -227,23 +193,30 @@ export class Viewport {
           backgroundColor[3] / 256,
         ],
       },
-      width: this.props.width,
-      height: this.props.height,
+      width: this.mainFeature.properties._width,
+      height: this.mainFeature.properties._height,
       viewState: this.getViewStates(),
       views: this.getViews(),
-      onViewStateChange: this.onViewStateChange,
       layerFilter: this.layerFilter,
-      //   layers: this.getLayers(),
+      layers: this.getLayers(),
       effects: [],
       getTooltip: null,
       useDevicePixels: true,
+      onViewStateChange: this.onViewStateChange,
+      onLoad: this.onLoad,
+      onError: (error: Error) => {
+        console.log('error', error);
+        if (this.props.onContextLost) {
+          this.props.onContextLost(error);
+        }
+      },
     };
     return props;
   }
 
   update(updateTriggers?: UpdateTriggers) {
     if (!this.deck) {
-      console.log('no deck');
+      this.deck = new Deck(this.getProps());
       return;
     }
     if (updateTriggers) {

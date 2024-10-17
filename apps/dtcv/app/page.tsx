@@ -7,11 +7,13 @@ export default function Start() {
   const { user, project, projects, features } = useAppContext();
 
   return (
-    <div className="w-screen h-screen overflow-hidden">
-      <div className="bg-white dark:bg-background text-black dark:text-white">
+    <>
+      <div className="absolute top-0 left-0 w-full h-full bg-white dark:bg-background text-black dark:text-white">
         TEst
       </div>
-      <Canvas />
-    </div>
+      <div className="relative h-screen overflow-hidden">
+        <Canvas />
+      </div>
+    </>
   );
 }

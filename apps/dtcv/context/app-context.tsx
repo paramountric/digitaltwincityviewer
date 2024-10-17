@@ -11,6 +11,7 @@ import React, {
   useEffect,
 } from "react";
 import { Viewport, ViewportProps } from "@dtcv/viewport";
+import { projectToFeature } from "../types/type-utils";
 
 interface AppContextType {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -43,9 +44,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({
   const [user, _setUser] = useState<UserWithProfile | null>(initial.user);
   const [project, _setProject] = useState<Project | null>(initial.project);
   const [projects, _setProjects] = useState<Project[]>(initial.projects);
+  const [mainFeature, _setMainFeature] = useState<Feature | null>(
+    project ? projectToFeature(project) : null
+  );
   const [features, _setFeatures] = useState<Feature[]>(initial.features);
 
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   const updateCanvasSize = () => {
     if (viewportRef.current && canvasRef.current) {
@@ -60,18 +64,23 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 
   const handleViewportOnLoad = () => {
     console.log("viewport loaded");
-    updateCanvasSize();
     window.addEventListener("resize", updateCanvasSize);
+    // todo: add more event listeners here, on canvas (unmount them in return statement of the useEffect)
   };
 
   useEffect(() => {
     if (canvasRef.current && !viewportRef.current) {
-      const { offsetWidth, offsetHeight } = canvasRef.current.parentElement!;
-      console.log("offsetWidth", offsetWidth);
-      console.log("offsetHeight", offsetHeight);
+      const {
+        offsetWidth = window.innerWidth,
+        offsetHeight = window.innerHeight,
+      } = canvasRef.current.parentElement!;
+
+      const viewportFeature = mainFeature ? mainFeature : undefined;
       const viewportProps: ViewportProps = {
+        canvas: canvasRef.current,
         width: offsetWidth,
         height: offsetHeight,
+        mainFeature: viewportFeature,
         onLoad: handleViewportOnLoad,
       };
       viewportRef.current = new Viewport(viewportProps);
@@ -80,7 +89,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
     return () => {
       if (viewportRef.current?.deck) {
         window.removeEventListener("resize", updateCanvasSize);
-        viewportRef.current?.dispose();
+        // viewportRef.current?.dispose();
       }
     };
   }, [canvasRef.current]);

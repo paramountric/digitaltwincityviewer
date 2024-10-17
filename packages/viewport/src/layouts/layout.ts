@@ -21,26 +21,71 @@ import {
   FeatureMap,
   FeatureProperties,
   getVersionUri,
-} from './feature';
-import { Timeline } from './lib/timeline';
-import { PixelExtent } from './types';
+} from '../feature';
+import { Timeline } from '../lib/timeline';
+import { PixelExtent } from '../types';
+import { DEFAULT_PITCH } from '../constants';
+import { DEFAULT_BEARING } from '../constants';
+import { DEFAULT_MAP_ZOOM } from '../constants';
 
-export type LayoutProps = any;
+export type LayoutProps = {
+  parentFeature: Feature;
+};
+export type BaseMap = 'mvt' | 'tile3d' | 'none';
+
+export type GetViewProps = {
+  disableController: boolean;
+};
+
+export type CameraFrame = {
+  latitude: number;
+  longitude: number;
+  zoom: number;
+  bearing: number;
+  pitch: number;
+  width: number;
+  height: number;
+  viewX: number;
+  viewY: number;
+};
 
 export abstract class Layout {
   id: string;
   featureMap: FeatureMap;
-  cameraFrame: any;
+  baseMap: BaseMap = 'mvt';
+  cameraFrame: CameraFrame;
   cameraAnimation: any;
   animationCursor: number | null;
   featureAnimations: any;
   updateTriggers: any;
-  constructor() {
+  parentFeature: Feature;
+  constructor({ parentFeature }: LayoutProps) {
     console.log('init layout');
+    this.featureMap = new Map();
+    this.parentFeature = parentFeature;
+    this.id = parentFeature.key;
+
+    if (
+      parentFeature.properties._longitude &&
+      parentFeature.properties._latitude
+    ) {
+      this.cameraFrame = {
+        viewX: 0,
+        viewY: 0,
+        longitude: parentFeature.properties._longitude,
+        latitude: parentFeature.properties._latitude,
+        zoom: parentFeature.properties._zoom || DEFAULT_MAP_ZOOM,
+        bearing: parentFeature.properties._bearing || DEFAULT_BEARING,
+        pitch: parentFeature.properties._pitch || DEFAULT_PITCH,
+        width: parentFeature.properties._width,
+        height: parentFeature.properties._height,
+      };
+    }
   }
 
   applyFeatures(featureList: Feature[]) {
     // this merges the features by versionUri
+    this.featureMap = new Map(featureList.map(f => [f.versionUri, f]));
     // this.featureMap = mergeFeatureList(
     //   featureList,
     //   this.featureMap,
@@ -67,12 +112,9 @@ export abstract class Layout {
 
   abstract getLayers(): Layer[];
 
-  abstract getView():
-    | MapView
-    | GlobeView
-    | OrbitView
-    | OrthographicView
-    | undefined;
+  abstract getView(
+    props: GetViewProps
+  ): MapView | GlobeView | OrbitView | OrthographicView | undefined;
 
   applyUpdateTriggers(updateTriggers: any = {}) {
     for (const triggerKey of Object.keys(updateTriggers)) {
@@ -160,7 +202,7 @@ export abstract class Layout {
   }
 
   animationInProgress() {
-    return this.animationCursor !== null;
+    return this.cameraAnimation && this.animationCursor !== null;
   }
 
   getBackgroundColor() {
