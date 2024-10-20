@@ -52,7 +52,7 @@ export type CameraFrame = {
 export abstract class Layout {
   id: string;
   featureMap: FeatureMap;
-  baseMap: BaseMap = 'mvt';
+  baseMap: BaseMap = 'none';
   cameraFrame: CameraFrame;
   cameraAnimation: any;
   animationCursor: number | null;

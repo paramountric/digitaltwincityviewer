@@ -14,7 +14,6 @@ import {
   DEFAULT_BACKGROUND_COLOR,
 } from './constants';
 import { Feature } from './feature';
-import { ScatterplotLayer } from '@deck.gl/layers/typed';
 
 type Layout = any;
 type UpdateTriggers = any;

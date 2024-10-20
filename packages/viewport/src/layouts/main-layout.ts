@@ -12,6 +12,7 @@ import {
 export class MainLayout extends Layout {
   constructor({ parentFeature }: LayoutProps) {
     super({ parentFeature });
+    this.baseMap = 'mvt';
   }
 
   getView({ disableController }: GetViewProps) {

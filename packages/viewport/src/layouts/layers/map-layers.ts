@@ -13,6 +13,8 @@ import {
 import { Layout } from '../layout';
 import { _MVTLayerProps } from '@deck.gl/geo-layers/typed/mvt-layer/mvt-layer';
 import { Feature } from '../..';
+import { DEFAULT_BACKGROUND_COLOR } from '../../constants';
+import { CollisionFilterExtension } from '@deck.gl/extensions';
 
 interface IMapLayer {
   features: Feature[];
@@ -30,17 +32,25 @@ export function getMapLayers({ features, layout }: IMapLayer) {
       return mapLayers;
       break;
     case 'mvt':
-      const mvtLayer = createBaseMapMvtLayer({
+      const mvtGeometryLayer = createBaseMapMvtGeometryLayer({
         layout,
       });
-      if (mvtLayer) {
-        mapLayers.push(mvtLayer);
+      if (mvtGeometryLayer) {
+        mapLayers.push(mvtGeometryLayer);
+      }
+      const mvtTextLayer = createBaseMapMvtTextLayer({
+        layout,
+      });
+      if (mvtTextLayer) {
+        mapLayers.push(mvtTextLayer);
       }
       break;
-    //   case 'tiles3d':
-    //     const tile3dLayers = createTile3dLayers(layout, viewId);
-    //     mapLayers.push(...tile3dLayers);
-    //     break;
+    case 'tile3d':
+      const tile3dLayer = createTile3dLayer(layout);
+      if (tile3dLayer) {
+        mapLayers.push(tile3dLayer);
+      }
+      break;
     default:
       break;
   }
@@ -50,79 +60,7 @@ export function getMapLayers({ features, layout }: IMapLayer) {
   return mapLayers;
 }
 
-// function createTile3dLayers(layout: Layout, viewId: string) {
-//   const tile3dLayers = [];
-
-//   if (process.env.NEXT_PUBLIC_MVT_URL) {
-//     this.mvtLayerConfig = {
-//       basemapMvt: {
-//         id: 'basemapMvt',
-//         data: process.env.NEXT_PUBLIC_MVT_URL,
-//       },
-//     };
-//   }
-//   if (
-//     process.env.NEXT_PUBLIC_TILE_3D_URL &&
-//     process.env.NEXT_PUBLIC_TILE_3D_API_KEY
-//   ) {
-//     this.tile3dLayerConfig = {
-//       basemap3d: {
-//         id: 'basemap3d',
-//         data: process.env.NEXT_PUBLIC_TILE_3D_URL,
-//         loadOptions: {
-//           fetch: {
-//             headers: {
-//               'X-GOOG-API-KEY': process.env.NEXT_PUBLIC_TILE_3D_API_KEY,
-//             },
-//           },
-//         },
-//       },
-//     };
-//   }
-
-//   const creditsElement = document.getElementById('credits');
-//   if (layout.tile3dLayerConfig) {
-//     Object.keys(layout.tile3dLayerConfig).forEach(tile3dLayerConfigKey => {
-//       const tile3dLayerConfig = layout.tile3dLayerConfig[tile3dLayerConfigKey];
-//       console.log('tile3dLayerConfig', tile3dLayerConfig);
-//       tile3dLayers.push(
-//         new Tile3DLayer({
-//           ...{
-//             id: layout.getLayerId(tile3dLayerConfigKey, viewId),
-//             data: tile3dLayerConfig.data,
-//             loadOptions: tile3dLayerConfig.loadOptions,
-//           },
-//           operation: 'terrain+draw',
-//           onTilesetLoad: tileset3d => {
-//             // console.log('tileset3d', tileset3d);
-//             if (creditsElement) {
-//               tileset3d.options.onTraversalComplete = selectedTiles => {
-//                 const credits = new Set();
-//                 selectedTiles.forEach(tile => {
-//                   const { copyright } = tile.content.gltf.asset;
-//                   copyright.split(';').forEach(credits.add, credits);
-//                   creditsElement.innerHTML = [...credits].join('; ');
-//                 });
-//                 return selectedTiles;
-//               };
-//             }
-//           },
-//           // onTileLoad: tileHeader => {
-//           //   console.log('tileHeader', tileHeader);
-//           // },
-//           // onTileError: (tileHeader, error) => {
-//           //   console.log('tileHeader', tileHeader);
-//           //   console.log('error', error);
-//           // },
-//         })
-//       );
-//     });
-//   }
-
-//   return tile3dLayers;
-// }
-
-function createBaseMapMvtLayer({ layout }) {
+function createBaseMapMvtTextLayer({ layout }) {
   const baseMapMvtUrl = process.env.NEXT_PUBLIC_MVT_URL;
 
   if (!baseMapMvtUrl) {
@@ -130,41 +68,182 @@ function createBaseMapMvtLayer({ layout }) {
     return null;
   }
 
-  const layerId = layout.getLayerId('basemap-mvt-layer');
+  const layerId = layout.getLayerId('basemap-mvt-text-layer');
   return new MVTLayer({
     id: layerId,
     data: baseMapMvtUrl,
-    textOutlineColor: [255, 255, 255, 255],
-    textOutlineWidth: 1,
-    getTextBackgroundColor: [255, 255, 255, 255],
-    getElevation: (layer: any) => {
-      // todo: figure out how to extrude layers, for example buildings -> convert layers to node types and set extrusion the the style?
-      return 1;
-      // const elevation = layout.getNodeExtrusion(node) || 1;
-      // return elevation;
-    },
-    // pointType: 'circle+text',
+    pointType: 'text',
     extruded: false, //layout.isTilted(),
-    textFontFamily: 'Verdana',
     opacity: 1,
-    getFillColor: (layer: any) => {
-      return [0, 0, 0, 255];
-    },
-    getLineWidth: 1,
+    stroked: false,
+    filled: false,
+    getLineWidth: 0,
+
+    // TEXT /** GeoJsonLayer properties forwarded to `TextLayer` if `pointType` is `'text'` */
     getText: (layer: any) => {
-      return layer.properties.name || '';
+      const typeFilter = ['town', 'city', 'neighbourhood', 'Forest'];
+      const { name, type } = layer.properties;
+      if (typeFilter.includes(type)) {
+        return name;
+      }
+      return null;
       // const text = layout.getMapLayerText(layer);
-      // return text;
     },
-    getTextColor: [0, 0, 0, 255],
-    getTextSize: 16,
-    getLineColor: (layer: any) => {
-      return [255, 255, 255, 255];
+    getTextColor: [255, 255, 255, 255],
+    // getTextAngle: (layer: any) => {
+    //   console.log('layer', layer);
+    //   return 0;
+    // },
+    getTextSize: (layer: any) => {
+      const { type } = layer.properties;
+      switch (type) {
+        case 'city':
+          return 16;
+        case 'town':
+          return 14;
+        case 'neighbourhood':
+          return 12;
+        case 'Forest':
+          return 10;
+        default:
+          return 0; // Don't render text for other types
+      }
     },
+    // getTextAnchor: 'center',
+    // getTextAlignmentBaseline: 'center',
+    // getTextPixelOffset: [0, 0],
+    getTextBackgroundColor: [0, 0, 0, 255],
+    // getTextBorderColor: [0, 0, 0, 255],
+    // getTextBorderWidth: 0,
+    // textSizeUnits: 'pixels',
+    // textSizeScale: 1,
+    // textSizeMinPixels: 0,
+    // textSizeMaxPixels: Number.MAX_SAFE_INTEGER,
+    textCharacterSet:
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ÆØÅæøåÄÖäöÉéÜüß',
+    textFontFamily: 'Noto Sans, sans-serif',
+    // textFontWeight: 'normal',
+    // textLineHeight: 1,
+    // textMaxWidth: 100,
+    // textWordBreak: 'break-word', // TODO
+    textBackground: true,
+    // textBackgroundPadding: [0, 0, 0, 0],
+    // textOutlineColor: [layout.getBackgroundColor() || DEFAULT_BACKGROUND_COLOR],
+    // textOutlineWidth: 1,
+    textBillboard: false,
+    // textFontSettings: {
+    //   sdf: true,
+    // },
+
+    // EXTENSIONS
+    extensions: [new CollisionFilterExtension()],
     // extensions: parentNode.appearance?.showMapElevation
     //   ? [new TerrainExtension()]
     //   : [],
   }); // _MVTLayerProps)
+}
+
+function createBaseMapMvtGeometryLayer({ layout }) {
+  const baseMapMvtUrl = process.env.NEXT_PUBLIC_MVT_URL;
+
+  if (!baseMapMvtUrl) {
+    console.warn('No base map mvt url found');
+    return null;
+  }
+
+  const layerId = layout.getLayerId('basemap-mvt-geometry-layer');
+  return new MVTLayer({
+    id: layerId,
+    data: baseMapMvtUrl,
+    getElevation: (layer: any) => {
+      // todo: figure out how to extrude layers, for example buildings -> convert layers to node types and set extrusion the the style?
+      const { type, height } = layer.properties;
+      if (type === 'building') {
+        return height || 3;
+      }
+      return 0;
+      // const elevation = layout.getNodeExtrusion(node) || 1;
+      // return elevation;
+    },
+    pointType: '',
+    stroked: true,
+    filled: true,
+    extruded: true, //layout.isTilted(),
+    opacity: 1,
+    getFillColor: (layer: any) => {
+      const { type } = layer.properties;
+      if (type === 'building') {
+        return [255, 255, 255, 16];
+      }
+      return [0, 0, 0, 255];
+    },
+    getLineWidth: (layer: any) => {
+      const { type } = layer.properties;
+      if (type === 'building') {
+        return 1;
+      }
+      return 0;
+    },
+
+    getLineColor: (layer: any) => {
+      return [255, 255, 255, 255];
+    },
+  }); // _MVTLayerProps)
+}
+
+function createTile3dLayer(layout: Layout) {
+  const tile3dUrl = process.env.NEXT_PUBLIC_TILE_3D_URL;
+  const tile3dApiKey = process.env.NEXT_PUBLIC_TILE_3D_API_KEY;
+
+  if (!tile3dUrl || !tile3dApiKey) {
+    console.warn('No tile3d url or api key found');
+    return null;
+  }
+
+  const tile3dLayerConfig = {
+    id: layout.getLayerId('basemap-3d-tiles-layer'),
+    data: process.env.NEXT_PUBLIC_TILE_3D_URL,
+    loadOptions: {
+      fetch: {
+        headers: {
+          'X-GOOG-API-KEY': process.env.NEXT_PUBLIC_TILE_3D_API_KEY,
+        },
+      },
+    },
+  };
+
+  const creditsElement = document.getElementById('credits');
+  const tile3dLayer = new Tile3DLayer({
+    ...{
+      id: tile3dLayerConfig.id,
+      data: tile3dLayerConfig.data,
+      loadOptions: tile3dLayerConfig.loadOptions,
+    },
+    operation: 'terrain+draw',
+    onTilesetLoad: tileset3d => {
+      // console.log('tileset3d', tileset3d);
+      if (creditsElement) {
+        tileset3d.options.onTraversalComplete = selectedTiles => {
+          const credits = new Set();
+          selectedTiles.forEach(tile => {
+            const { copyright } = tile.content.gltf.asset;
+            copyright.split(';').forEach(credits.add, credits);
+            creditsElement.innerHTML = [...credits].join('; ');
+          });
+          return selectedTiles;
+        };
+      }
+    },
+    // onTileLoad: tileHeader => {
+    //   console.log('tileHeader', tileHeader);
+    // },
+    // onTileError: (tileHeader, error) => {
+    //   console.log('tileHeader', tileHeader);
+    //   console.log('error', error);
+    // },
+  });
+
+  return tile3dLayer;
 }
 
 // create a list of mvt layers here from the users
