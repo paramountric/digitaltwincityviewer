@@ -146,6 +146,12 @@ function createBaseMapMvtTextLayer({ layout }) {
 function createBaseMapMvtGeometryLayer({ layout }) {
   const baseMapMvtUrl = process.env.NEXT_PUBLIC_MVT_URL;
 
+  const creditsElement = document.getElementById('credits');
+  if (creditsElement) {
+    creditsElement.innerHTML =
+      '© <a href="https://www.mapbox.com/about/maps" target="_blank">Mapbox</a> &nbsp;© <a href="https://www.openstreetmap.org/about/" target="_blank">OpenStreetMap</a>';
+  }
+
   if (!baseMapMvtUrl) {
     console.warn('No base map mvt url found');
     return null;
