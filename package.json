@@ -5,8 +5,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:dtcv": "turbo run dev --filter dtcv...",
-    "dev:dte": "turbo run dev --filter dte-digital-twin-energy...",
-    "dev:urban-mining": "turbo run dev --filter urban-mining...",
+    "dev:dtcc": "turbo run dev --filter dtcc...",
     "gen:types": "supabase gen types typescript --local | sed 's/export interface Database {/export type Database = {/' > apps/dtcv/utils/supabase/generated/db.ts"
   },
   "workspaces": [
