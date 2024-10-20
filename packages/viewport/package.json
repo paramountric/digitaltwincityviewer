@@ -54,6 +54,7 @@
     "@math.gl/core": "3.6.3",
     "@math.gl/polygon": "3.6.3",
     "@math.gl/web-mercator": "3.6.3",
+    "gl-matrix": "^3.0.0",
     "geojson": "^0.5.0"
   }
 }
