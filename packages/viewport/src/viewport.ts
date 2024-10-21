@@ -92,6 +92,20 @@ export class Viewport {
     }
   }
 
+  updateCanvasSize(width: number, height: number) {
+    if (this.props.canvas) {
+      this.props.canvas.style.width = `${width}px`;
+      this.props.canvas.style.height = `${height}px`;
+      // just to update the props (however it is not used)
+      this.props.width = width;
+      this.props.height = height;
+      // this is what is used
+      this.mainFeature.properties._width = width;
+      this.mainFeature.properties._height = height;
+      this.update();
+    }
+  }
+
   getViews(): any {
     // add board layout view
     const views = [

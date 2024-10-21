@@ -54,11 +54,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
   const updateCanvasSize = () => {
     if (viewportRef.current && canvasRef.current) {
       const { offsetWidth, offsetHeight } = canvasRef.current.parentElement!;
-      canvasRef.current.style.width = `${offsetWidth}px`;
-      canvasRef.current.style.height = `${offsetHeight}px`;
-      viewportRef.current.props.width = offsetWidth;
-      viewportRef.current.props.height = offsetHeight;
-      viewportRef.current.update();
+      viewportRef.current.updateCanvasSize(offsetWidth, offsetHeight);
     }
   };
 
