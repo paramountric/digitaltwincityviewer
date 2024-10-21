@@ -19,7 +19,7 @@ const CheckEmailContent = () => {
             again.
           </p>
           <Link
-            href="/login"
+            href="/"
             className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300"
           >
             Back to login
