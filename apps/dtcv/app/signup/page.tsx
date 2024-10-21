@@ -49,7 +49,7 @@ export default function SignUp() {
               <label>
                 <span className="text-white">Name</span>
                 <input
-                  className="w-full p-2 border border-gray-400 rounded-md"
+                  className="w-full p-2 border border-gray-400 rounded-md text-black"
                   type="text"
                   required
                   value={name}
@@ -59,7 +59,7 @@ export default function SignUp() {
               <label>
                 <span className="text-white">Email</span>
                 <input
-                  className="w-full p-2 border border-gray-400 rounded-md"
+                  className="w-full p-2 border border-gray-400 rounded-md text-black"
                   type="email"
                   required
                   value={email}
@@ -69,7 +69,7 @@ export default function SignUp() {
               <label>
                 <span className="text-white">Password</span>
                 <input
-                  className="w-full p-2 border border-gray-400 rounded-md"
+                  className="w-full p-2 border border-gray-400 rounded-md text-black"
                   type="password"
                   required
                   value={password}

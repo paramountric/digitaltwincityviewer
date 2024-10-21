@@ -93,30 +93,33 @@ export type Database = {
       profiles: {
         Row: {
           active_project_id: string | null
-          avatar_url: string | null
           bio: string | null
           created_at: string | null
+          display_name: string | null
+          email: string | null
           id: string
+          image_url: string | null
           updated_at: string | null
-          username: string | null
         }
         Insert: {
           active_project_id?: string | null
-          avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
+          display_name?: string | null
+          email?: string | null
           id: string
+          image_url?: string | null
           updated_at?: string | null
-          username?: string | null
         }
         Update: {
           active_project_id?: string | null
-          avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
+          display_name?: string | null
+          email?: string | null
           id?: string
+          image_url?: string | null
           updated_at?: string | null
-          username?: string | null
         }
         Relationships: [
           {

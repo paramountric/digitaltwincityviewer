@@ -65,8 +65,8 @@ export function dbUserToUser(dbUser: DbUser): User {
 export function dbProfileToProfile(dbProfile: DbProfile): Profile {
   return {
     id: dbProfile.id,
-    username: dbProfile.username,
-    avatarUrl: dbProfile.avatar_url,
+    displayName: dbProfile.display_name,
+    imageUrl: dbProfile.image_url,
     bio: dbProfile.bio,
     activeProjectId: dbProfile.active_project_id,
     createdAt: dbProfile.created_at || new Date().toISOString(),

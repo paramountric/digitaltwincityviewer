@@ -44,8 +44,8 @@ export type User = {
 
 export type Profile = {
   id: string;
-  username: string | null;
-  avatarUrl: string | null;
+  displayName: string | null;
+  imageUrl: string | null;
   bio: string | null;
   activeProjectId: string | null;
   createdAt: string;

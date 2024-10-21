@@ -162,34 +162,38 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Create a profile table
 CREATE TABLE profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-    username TEXT UNIQUE,
-    avatar_url TEXT,
+    email TEXT,
+    display_name TEXT,
+    image_url TEXT,
     bio TEXT,
     active_project_id UUID REFERENCES projects(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create a trigger to automatically create a profile when a new user is added
-CREATE OR REPLACE FUNCTION create_profile_for_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO profiles (id)
-    VALUES (NEW.id);
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- 4. Functions and Triggers
+set check_function_bodies = off;
 
-CREATE TRIGGER create_profile_on_signup
-AFTER INSERT ON auth.users
-FOR EACH ROW
-EXECUTE FUNCTION create_profile_for_new_user();
+CREATE OR REPLACE FUNCTION public.create_profile_on_signup()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
+begin
+  insert into public.profiles(id, email, display_name, image_url)
+  values(
+    new.id,
+    COALESCE(new.email, new.raw_user_meta_data ->> 'email'),
+    COALESCE(new.raw_user_meta_data ->> 'user_name', new.raw_user_meta_data ->> 'name'),
+    new.raw_user_meta_data ->> 'avatar_url'
+  );
+  return new;
+end;
+$function$;
 
--- Create a trigger to update the updated_at column
-CREATE TRIGGER update_profiles_modtime
-BEFORE UPDATE ON profiles
-FOR EACH ROW
-EXECUTE FUNCTION update_modified_column();
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.create_profile_on_signup();
 
 -- Enable RLS on profiles table
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
