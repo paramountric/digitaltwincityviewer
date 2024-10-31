@@ -18,6 +18,9 @@ const LoginForm: React.FC = () => {
 
     if (data) {
       router.push("/");
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     }
   };
 

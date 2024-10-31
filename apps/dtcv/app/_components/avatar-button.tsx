@@ -52,6 +52,9 @@ export function AvatarButton() {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       router.push("/");
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     } catch (error) {
       console.error("Error logging out:", error);
     }
