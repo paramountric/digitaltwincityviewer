@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import Footer from "./footer";
 import { Feature } from "@dtcv/viewport";
+import { NavBar } from "./navbar";
 
 const features: Feature[] = [
   {
@@ -37,10 +38,7 @@ export default function Page() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset className="bg-transparent">
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-background">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-        </header>
+        <NavBar />
         <div className="flex flex-1 flex-col gap-4 p-4 pointer-events-none"></div>
         <Footer />
       </SidebarInset>

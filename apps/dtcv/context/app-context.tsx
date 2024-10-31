@@ -19,6 +19,8 @@ interface AppContextType {
   user: UserWithProfile | null;
   project: Project | null;
   projects: Project[];
+  setProject: (project: Project) => void;
+  updateProject: (project: Project) => void;
   features: Feature[];
   theme: "light" | "dark";
   toggleTheme: () => void;
@@ -50,6 +52,21 @@ export const AppProvider: React.FC<AppProviderProps> = ({
   const [features, _setFeatures] = useState<Feature[]>(initial.features);
 
   const [theme, setTheme] = useState<"light" | "dark">("dark");
+
+  const setProject = (project: Project | null) => {
+    console.log("todo: reset state here for the features etc");
+    _setProject(project);
+  };
+
+  const updateProject = (project: Project) => {
+    _setProject((prevProject) => {
+      if (!prevProject) return project;
+      return {
+        ...prevProject,
+        properties: project.properties,
+      };
+    });
+  };
 
   const updateCanvasSize = () => {
     if (viewportRef.current && canvasRef.current) {
@@ -100,6 +117,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({
     user,
     project,
     projects,
+    setProject,
+    updateProject,
     features,
 
     theme,
