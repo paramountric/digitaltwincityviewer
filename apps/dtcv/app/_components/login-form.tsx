@@ -1,13 +1,24 @@
 import React, { useState } from "react";
+import { login } from "@/actions/login";
+import { useRouter } from "next/navigation";
 
 const LoginForm: React.FC = () => {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add your login logic here
-    console.log("Login attempt with:", username, password);
+    const { data, error } = await login(username, password);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    if (data) {
+      router.push("/");
+    }
   };
 
   return (
@@ -22,7 +33,7 @@ const LoginForm: React.FC = () => {
           id="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="w-full px-3 py-2 border rounded text-white"
+          className="w-full px-3 py-2 border rounded text-black"
           required
         />
       </div>
@@ -35,7 +46,7 @@ const LoginForm: React.FC = () => {
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-3 py-2 border rounded text-white"
+          className="w-full px-3 py-2 border rounded text-black"
           required
         />
       </div>

@@ -5,6 +5,7 @@ import { useAppContext } from "../context/app-context";
 import { Canvas } from "./_components/canvas";
 import LoginForm from "./_components/login-form";
 import Spinner from "@/components/ui/spinner";
+import Navigation from "./_components/navigation";
 
 export default function Start() {
   const { user, project, projects, features } = useAppContext();
@@ -20,7 +21,7 @@ export default function Start() {
       >
         <div className="absolute z-50 top-0 left-0 w-full h-full bg-transparent text-black dark:text-white">
           {user ? (
-            "Logged in"
+            <Navigation />
           ) : (
             <div className="flex items-center justify-center h-full">
               <LoginForm />

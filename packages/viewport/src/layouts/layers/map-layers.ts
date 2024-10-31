@@ -1,3 +1,5 @@
+'use client';
+
 import {
   ScatterplotLayer,
   GeoJsonLayer,
@@ -146,11 +148,13 @@ function createBaseMapMvtTextLayer({ layout }) {
 function createBaseMapMvtGeometryLayer({ layout }) {
   const baseMapMvtUrl = process.env.NEXT_PUBLIC_MVT_URL;
 
-  const creditsElement = document.getElementById('credits');
-  if (creditsElement) {
-    creditsElement.innerHTML =
-      '© <a href="https://www.mapbox.com/about/maps" target="_blank">Mapbox</a> &nbsp;© <a href="https://www.openstreetmap.org/about/" target="_blank">OpenStreetMap</a>';
-  }
+  // This is due to problems with loading state
+  setTimeout(() => {
+    const creditsElement = document.getElementById('credits');
+    if (creditsElement) {
+      creditsElement.innerHTML = `<span>© <a href="https://www.mapbox.com/about/maps" target="_blank" rel="noopener noreferrer">Mapbox</a> © <a href="https://www.openstreetmap.org/about/" target="_blank" rel="noopener noreferrer">OpenStreetMap</a></span>`;
+    }
+  }, 1000);
 
   if (!baseMapMvtUrl) {
     console.warn('No base map mvt url found');
