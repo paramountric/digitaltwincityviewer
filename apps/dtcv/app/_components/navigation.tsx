@@ -1,9 +1,9 @@
 import * as React from "react";
 
-import { Separator } from "@/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -13,11 +13,20 @@ import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
   SidebarProvider,
   SidebarRail,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
+import {
+  _SidebarRight,
+  SidebarRightContent,
+  SidebarRightFooter,
+  SidebarRightHeader,
+  SidebarRightMenu,
+  SidebarRightMenuButton,
+  SidebarRightMenuItem,
+  SidebarRightProvider,
+  useSidebarRight,
+} from "@/components/ui/sidebar-right";
 import Footer from "./footer";
 import { Feature } from "@dtcv/viewport";
 import { NavBar } from "./navbar";
@@ -27,12 +36,12 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MapPinIcon, MapPinnedIcon, Plus } from "lucide-react";
 import { ChevronsUpDown } from "lucide-react";
 import { useAppContext } from "@/context/app-context";
+import { useEffect } from "react";
 
 const features: Feature[] = [
   {
@@ -49,20 +58,23 @@ const data = {
 export default function Navigation() {
   return (
     <SidebarProvider>
-      <div className="pointer-events-auto">
-        <AppSidebar />
-      </div>
-      <SidebarInset className="bg-transparent pointer-events-none">
+      <SidebarRightProvider>
         <div className="pointer-events-auto">
-          <NavBar />
+          <AppSidebar />
         </div>
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          {/* This area remains pointer-events-none */}
-        </div>
-        <div className="pointer-events-auto">
-          <Footer />
-        </div>
-      </SidebarInset>
+        <SidebarInset className="bg-transparent pointer-events-none">
+          <div className="pointer-events-auto">
+            <NavBar />
+          </div>
+          <div className="flex flex-1 flex-col gap-4 p-4">
+            {/* This area remains pointer-events-none */}
+          </div>
+          <div className="pointer-events-auto">
+            <Footer />
+          </div>
+        </SidebarInset>
+        <SidebarRight />
+      </SidebarRightProvider>
     </SidebarProvider>
   );
 }
@@ -146,5 +158,37 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
+  );
+}
+
+function SidebarRight({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const {
+    state,
+    open,
+    setOpen,
+    openMobile,
+    setOpenMobile,
+    isMobile,
+    toggleSidebar,
+  } = useSidebarRight();
+
+  useEffect(() => {
+    setOpen(false);
+  }, []);
+
+  return (
+    <_SidebarRight collapsible="offcanvas" side="right" {...props}>
+      <SidebarRightHeader className="h-16 border-b border-sidebar-border">
+        Feature
+      </SidebarRightHeader>
+      <SidebarRightContent>Feature details</SidebarRightContent>
+      <SidebarRightFooter>
+        <SidebarRightMenu>
+          <SidebarRightMenuItem>
+            <SidebarRightMenuButton>Feature action</SidebarRightMenuButton>
+          </SidebarRightMenuItem>
+        </SidebarRightMenu>
+      </SidebarRightFooter>
+    </_SidebarRight>
   );
 }
