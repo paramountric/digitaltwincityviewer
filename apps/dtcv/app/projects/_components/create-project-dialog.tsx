@@ -13,7 +13,6 @@ import {
 import { useAppContext } from "@/context/app-context";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createProject } from "@/actions/create-project";
 import { LoadingButtonSpinner } from "@/components/loading-button-spinner";
@@ -32,7 +31,6 @@ export default function CreateProjectDialog() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [nameError, setNameError] = useState("");
-  const router = useRouter();
 
   const handleCreateProject = async () => {
     if (!user?.id) {
@@ -53,7 +51,7 @@ export default function CreateProjectDialog() {
       setProject(result.project);
       setActiveDialogId(null);
       toast.success("Project created successfully.");
-      router.push(`/projects/${result.project.id}`);
+      window.location.href = `/projects/${result.project.id}`;
     } catch (error) {
       toast.error(
         error instanceof Error

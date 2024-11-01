@@ -41,7 +41,7 @@ import {
 import { MapPinIcon, MapPinnedIcon, Plus } from "lucide-react";
 import { ChevronsUpDown } from "lucide-react";
 import { useAppContext } from "@/context/app-context";
-import { useEffect } from "react";
+import ProjectSidebarContent from "./project-sidebar-content";
 
 const features: Feature[] = [
   {
@@ -148,6 +148,7 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
+        <ProjectSidebarContent />
         <SidebarGroup>
           <SidebarGroupLabel>Features</SidebarGroupLabel>
           <SidebarGroupContent>

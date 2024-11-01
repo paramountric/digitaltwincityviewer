@@ -56,11 +56,16 @@ export type UserWithProfile = User & {
   profile: Profile;
 };
 
+export type ProjectProperties = {
+  longitude?: number;
+  latitude?: number;
+};
+
 export type Project = {
   id: string;
   name: string;
   description: string | null;
-  properties: Json | null;
+  properties: ProjectProperties | null;
   adminId: string;
   createdAt: string;
   updatedAt: string;
