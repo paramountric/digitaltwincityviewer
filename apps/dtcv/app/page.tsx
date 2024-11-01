@@ -19,7 +19,7 @@ export default function Start() {
           </div>
         }
       >
-        <div className="absolute z-50 top-0 left-0 w-full h-full bg-transparent text-black dark:text-white">
+        <div className="absolute z-50 top-0 left-0 w-full h-full bg-transparent text-black dark:text-white pointer-events-none">
           {user ? (
             <Navigation />
           ) : (

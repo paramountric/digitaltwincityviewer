@@ -17,13 +17,18 @@ interface AppContextType {
   canvasRef: React.RefObject<HTMLCanvasElement>;
   viewportRef: React.RefObject<any>;
   user: UserWithProfile | null;
+  setUser: (user: UserWithProfile | null) => void;
   project: Project | null;
-  projects: Project[];
-  setProject: (project: Project) => void;
+  setProject: (project: Project | null) => void;
   updateProject: (project: Project) => void;
+  projects: Project[];
+  setProjects: (projects: Project[]) => void;
   features: Feature[];
+  setFeatures: (features: Feature[]) => void;
   theme: "light" | "dark";
   toggleTheme: () => void;
+  activeDialogId: string | null;
+  setActiveDialogId: (id: string | null) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -50,8 +55,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({
     project ? projectToFeature(project) : null
   );
   const [features, _setFeatures] = useState<Feature[]>(initial.features);
+  const [activeDialogId, setActiveDialogId] = useState<string | null>(null);
 
   const [theme, setTheme] = useState<"light" | "dark">("dark");
+
+  const setUser = (user: UserWithProfile | null) => {
+    _setUser(user);
+  };
 
   const setProject = (project: Project | null) => {
     console.log("todo: reset state here for the features etc");
@@ -66,6 +76,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({
         properties: project.properties,
       };
     });
+  };
+
+  const setProjects = (projects: Project[]) => {
+    _setProjects(projects);
+  };
+
+  const setFeatures = (features: Feature[]) => {
+    _setFeatures(features);
   };
 
   const updateCanvasSize = () => {
@@ -116,11 +134,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({
     viewportRef,
     user,
     project,
-    projects,
     setProject,
-    updateProject,
+    setUser,
+    projects,
+    setProjects,
     features,
-
+    setFeatures,
+    updateProject,
+    activeDialogId,
+    setActiveDialogId,
     theme,
     toggleTheme,
   };
