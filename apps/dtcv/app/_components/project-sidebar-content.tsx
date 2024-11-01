@@ -21,7 +21,6 @@ import {
   ArrowDownToDot,
   ChevronRight,
   LocateFixedIcon,
-  LocateIcon,
   PinIcon,
 } from "lucide-react";
 import { DEFAULT_MAP_COORDINATES } from "@dtcv/viewport";
@@ -41,7 +40,7 @@ export default function ProjectSidebarContent() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip={project.name}>
               <a href="#">
-                <LocateIcon />
+                <LocateFixedIcon />
                 <span>Site location</span>
               </a>
             </SidebarMenuButton>

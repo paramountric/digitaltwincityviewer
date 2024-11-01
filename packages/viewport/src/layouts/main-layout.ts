@@ -7,7 +7,7 @@ import {
   _GlobeView as GlobeView,
   MapViewState,
   OrbitViewState,
-} from '@deck.gl/core/typed';
+} from '@deck.gl/core';
 
 export class MainLayout extends Layout {
   constructor({ parentFeature }: LayoutProps) {

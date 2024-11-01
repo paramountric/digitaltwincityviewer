@@ -1,4 +1,3 @@
-import { DeckProps } from '@deck.gl/core/typed';
 import { Feature } from './feature';
 
 export type ViewportProps = {

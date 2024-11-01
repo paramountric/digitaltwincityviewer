@@ -8,6 +8,7 @@ import {
   Project,
   User,
   UserWithProfile,
+  ProjectProperties,
 } from "../types";
 
 export function dbUserToUserWithProfile(
@@ -78,7 +79,7 @@ export function dbProjectToProject(dbProject: DbProject): Project {
     id: dbProject.id,
     name: dbProject.name,
     description: dbProject.description,
-    properties: dbProject.properties,
+    properties: dbProject.properties as unknown as ProjectProperties,
     adminId: dbProject.admin_id || "",
     createdAt: dbProject.created_at || new Date().toISOString(),
     updatedAt: dbProject.updated_at || new Date().toISOString(),

@@ -9,13 +9,13 @@ import {
   OrbitViewport,
   OrthographicView,
   OrthographicViewState,
-} from '@deck.gl/core/typed';
+} from '@deck.gl/core';
 import { clamp } from '@math.gl/core';
 import {
   MVTLayerProps,
   TerrainLayerProps,
   Tile3DLayerProps,
-} from '@deck.gl/geo-layers/typed';
+} from '@deck.gl/geo-layers';
 import {
   Feature,
   FeatureMap,

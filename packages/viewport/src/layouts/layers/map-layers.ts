@@ -1,22 +1,19 @@
 'use client';
 
-import {
-  ScatterplotLayer,
-  GeoJsonLayer,
-  BitmapLayer,
-} from '@deck.gl/layers/typed';
-import { PickingInfo, Color } from '@deck.gl/core/typed';
+import { ScatterplotLayer, GeoJsonLayer, BitmapLayer } from '@deck.gl/layers';
+import { PickingInfo, Color } from '@deck.gl/core';
 import {
   MVTLayer,
   TerrainLayer,
   Tile3DLayer,
   TileLayer,
-} from '@deck.gl/geo-layers/typed';
+  MVTLayerProps as _MVTLayerProps,
+} from '@deck.gl/geo-layers';
 import { Layout } from '../layout';
-import { _MVTLayerProps } from '@deck.gl/geo-layers/typed/mvt-layer/mvt-layer';
 import { Feature } from '../..';
 import { DEFAULT_BACKGROUND_COLOR } from '../../constants';
 import { CollisionFilterExtension } from '@deck.gl/extensions';
+import { FeatureCollection, Feature as GeoJsonFeature } from 'geojson';
 
 interface IMapLayer {
   features: Feature[];
@@ -338,7 +335,7 @@ function getGeoJsonLayers(layout: Layout, features: Feature[]) {
     geoJsonLayers.push(
       new GeoJsonLayer({
         id: layout.getLayerId('default-geojson-layer'),
-        data: features,
+        data: features as unknown as GeoJsonFeature[],
         pickable: true,
         pointType: 'circle',
         lineWidthScale: 1,

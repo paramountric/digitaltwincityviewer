@@ -1,5 +1,12 @@
-import { Deck, Layer, DeckProps, FilterContext } from '@deck.gl/core/typed';
-import { ViewStateChangeParameters } from '@deck.gl/core/typed/controllers/controller';
+import {
+  Deck,
+  DeckProps,
+  FilterContext,
+  MapViewState,
+  View,
+  ViewStateChangeParameters,
+  ViewStateMap,
+} from '@deck.gl/core';
 import GL from '@luma.gl/constants';
 import { ViewportProps } from './types';
 import { Timeline } from './lib/timeline';
@@ -119,13 +126,17 @@ export class Viewport {
     return views;
   }
 
-  getViewStates(): {
-    [viewId: string]: any;
-  } {
-    const viewStates: any = {
+  getViewStates(): ViewStateMap<View> {
+    const mainViewState = this.mainLayout.getViewState();
+    const viewStates: ViewStateMap<View> = {
       [this.mainLayout.getViewId()]: {
-        ...this.mainLayout.getViewState(),
-      },
+        ...mainViewState,
+        zoom: (mainViewState.zoom || DEFAULT_MAP_ZOOM) as number,
+        longitude: (mainViewState.longitude ||
+          DEFAULT_MAP_COORDINATES[0]) as number,
+        latitude: (mainViewState.latitude ||
+          DEFAULT_MAP_COORDINATES[1]) as number,
+      } as MapViewState,
     };
     return viewStates;
   }
@@ -186,28 +197,9 @@ export class Viewport {
     const props: DeckProps = {
       canvas: this.props.canvas,
       _animate: false,
-      parameters: {
-        depthMask: true,
-        depthTest: true,
-        blend: true,
-        blendFunc: [
-          GL.SRC_ALPHA,
-          GL.ONE_MINUS_SRC_ALPHA,
-          GL.ONE,
-          GL.ONE_MINUS_SRC_ALPHA,
-        ],
-        polygonOffsetFill: true,
-        depthFunc: GL.LEQUAL,
-        blendEquation: GL.FUNC_ADD,
-        clearColor: [
-          backgroundColor[0] / 256,
-          backgroundColor[1] / 256,
-          backgroundColor[2] / 256,
-          backgroundColor[3] / 256,
-        ],
-      },
       width: this.mainFeature.properties._width,
       height: this.mainFeature.properties._height,
+      // @ts-ignore
       viewState: this.getViewStates(),
       views: this.getViews(),
       layerFilter: this.layerFilter,
