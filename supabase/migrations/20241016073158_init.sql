@@ -7,9 +7,10 @@ CREATE TABLE projects (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     properties JSONB,
-    admin_id UUID REFERENCES auth.users(id),
+    admin_id UUID NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_admin FOREIGN KEY (admin_id) REFERENCES auth.users (id)
 );
 
 -- Create a function to automatically update the updated_at column
@@ -214,3 +215,29 @@ CREATE POLICY set_active_project_policy ON profiles
         active_project_id IS NULL OR
         is_project_member(active_project_id, auth.uid())
     );
+
+-- Enable RLS on projects table
+ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
+
+-- Create policy to allow users to see projects where they are admin OR collaborator
+CREATE POLICY read_projects_policy ON projects
+    FOR SELECT USING (
+        admin_id = auth.uid() OR  -- User is admin
+        id IN (    -- User is collaborator
+            SELECT project_id 
+            FROM project_collaborators 
+            WHERE user_id = auth.uid()
+        )
+    );
+
+-- Create policy to allow users to create their own projects
+CREATE POLICY create_projects_policy ON projects
+    FOR INSERT WITH CHECK (admin_id = auth.uid());
+
+-- Create policy to allow project admins to update their projects
+CREATE POLICY update_projects_policy ON projects
+    FOR UPDATE USING (admin_id = auth.uid());
+
+-- Create policy to allow project admins to delete their projects
+CREATE POLICY delete_projects_policy ON projects
+    FOR DELETE USING (admin_id = auth.uid());

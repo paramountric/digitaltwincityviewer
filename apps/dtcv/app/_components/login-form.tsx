@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { login } from "@/actions/login";
 import { useRouter } from "next/navigation";
@@ -17,10 +19,7 @@ const LoginForm: React.FC = () => {
     }
 
     if (data) {
-      router.push("/");
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
+      router.push("/projects");
     }
   };
 
@@ -34,6 +33,8 @@ const LoginForm: React.FC = () => {
         <input
           type="text"
           id="username"
+          name="username"
+          autoComplete="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="w-full px-3 py-2 border rounded text-black"
@@ -47,6 +48,8 @@ const LoginForm: React.FC = () => {
         <input
           type="password"
           id="password"
+          name="password"
+          autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="w-full px-3 py-2 border rounded text-black"

@@ -10,7 +10,6 @@ import {
   dbUserToUserWithProfile,
 } from "../types/type-utils";
 import { Feature } from "@dtcv/viewport";
-import Link from "next/link";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -69,21 +68,25 @@ export default async function RootLayout({
       profile as unknown as DbProfile
     );
 
-    const { data: userProjectsData, error: userProjectsError } = await client
-      .from("project_collaborators")
-      .select("project_id")
-      .eq("user_id", user.id);
-
-    if (userProjectsError) {
-      message = "Error fetching user projects";
-    }
-
-    const projectIds = userProjectsData?.map((up) => up.project_id) || [];
-
     const { data: projectsData, error: projectsError } = await client
       .from("projects")
-      .select("*")
-      .in("id", projectIds);
+      .select(
+        `
+          *,
+          admin:admin_id(
+            id,
+            email
+          ),
+          project_collaborators(
+            user_id
+          )
+        `
+      )
+      .order("created_at", { ascending: false });
+
+    if (projectsError) {
+      console.error("Error fetching projects:", projectsError);
+    }
 
     if (projectsError) {
       message = "Error fetching projects";
@@ -108,14 +111,10 @@ export default async function RootLayout({
 
       features = (featuresData || []).map(dbFeatureToFeature);
     } else {
-      message = "User not found";
+      message = "Profile not found";
     }
   } else {
     message = "User not found";
-  }
-
-  if (message) {
-    console.log(message);
   }
 
   return (

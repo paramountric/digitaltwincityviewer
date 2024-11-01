@@ -51,8 +51,8 @@ export async function createProject(
   return {
     project: {
       ...projectData,
-      created_at: new Date(projectData.created_at).toISOString(),
-      updated_at: new Date(projectData.updated_at).toISOString(),
+      createdAt: new Date(projectData.created_at).toISOString(),
+      updatedAt: new Date(projectData.updated_at).toISOString(),
     } as Project,
   };
 }

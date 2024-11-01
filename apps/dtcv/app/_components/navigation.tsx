@@ -55,7 +55,11 @@ const data = {
   features,
 };
 
-export default function Navigation() {
+interface NavigationProps {
+  children?: React.ReactNode;
+}
+
+export default function Navigation({ children }: NavigationProps) {
   return (
     <SidebarProvider>
       <SidebarRightProvider>
@@ -66,9 +70,11 @@ export default function Navigation() {
           <div className="pointer-events-auto">
             <NavBar />
           </div>
-          <div className="flex flex-1 flex-col gap-4 p-4">
-            {/* This area remains pointer-events-none */}
-          </div>
+          {children || (
+            <div className="flex flex-1 flex-col gap-4 p-4">
+              {/* This area remains pointer-events-none */}
+            </div>
+          )}
           <div className="pointer-events-auto">
             <Footer />
           </div>
@@ -162,20 +168,6 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 }
 
 function SidebarRight({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const {
-    state,
-    open,
-    setOpen,
-    openMobile,
-    setOpenMobile,
-    isMobile,
-    toggleSidebar,
-  } = useSidebarRight();
-
-  useEffect(() => {
-    setOpen(false);
-  }, []);
-
   return (
     <_SidebarRight collapsible="offcanvas" side="right" {...props}>
       <SidebarRightHeader className="h-16 border-b border-sidebar-border">
