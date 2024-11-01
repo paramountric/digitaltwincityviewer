@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { Project } from "@/types";
+import { DbProject, Project } from "@/types";
 
 export const validateProjectName = (name: string) => {
   // Regex to allow a wide range of characters for project names
@@ -23,9 +23,10 @@ export async function createProject(
 
   const client = createClient();
 
-  const newProject: Partial<Project> = {
+  const newProject: Partial<DbProject> = {
     name,
     description,
+    admin_id: userId,
   };
   const { data: projectData, error: projectError } = await client
     .from("projects")
@@ -34,6 +35,7 @@ export async function createProject(
     .single();
 
   if (projectError) {
+    console.error(projectError);
     throw new Error("Could not create project. Please try again.");
   }
 
@@ -45,6 +47,7 @@ export async function createProject(
     .single();
 
   if (profileUpdateError) {
+    console.error(profileUpdateError);
     throw new Error("Failed to update active project");
   }
 

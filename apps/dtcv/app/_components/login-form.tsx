@@ -19,7 +19,11 @@ const LoginForm: React.FC = () => {
     }
 
     if (data) {
-      router.push("/projects");
+      const route = data.profile.activeProjectId
+        ? `/projects/${data.profile.activeProjectId}`
+        : "/projects";
+
+      router.push(route);
     }
   };
 

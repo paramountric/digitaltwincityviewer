@@ -20,7 +20,7 @@ export default function ProjectsPage() {
     >
       {user ? (
         <div className="absolute z-50 top-0 left-0 w-full h-full bg-transparent text-black dark:text-white pointer-events-none">
-          <Navigation />
+          <Navigation children={<ProjectsList />} />
         </div>
       ) : (
         <div className="absolute z-50 top-0 left-0 w-full h-full bg-transparent text-black dark:text-white">

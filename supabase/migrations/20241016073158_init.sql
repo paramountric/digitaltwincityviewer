@@ -10,7 +10,7 @@ CREATE TABLE projects (
     admin_id UUID NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_admin FOREIGN KEY (admin_id) REFERENCES auth.users (id)
+    FOREIGN KEY (admin_id) REFERENCES auth.users (id) ON DELETE CASCADE
 );
 
 -- Create a function to automatically update the updated_at column
@@ -232,7 +232,25 @@ CREATE POLICY read_projects_policy ON projects
 
 -- Create policy to allow users to create their own projects
 CREATE POLICY create_projects_policy ON projects
-    FOR INSERT WITH CHECK (admin_id = auth.uid());
+    FOR INSERT 
+    WITH CHECK (auth.uid() IS NOT NULL);  -- Allow any authenticated user to create projects
+
+-- Create a function to handle project creation
+CREATE OR REPLACE FUNCTION handle_project_creation()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Automatically add the admin as a collaborator
+    INSERT INTO project_collaborators (project_id, user_id)
+    VALUES (NEW.id, NEW.admin_id);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create a trigger to automatically add admin as collaborator
+CREATE TRIGGER on_project_created
+    AFTER INSERT ON projects
+    FOR EACH ROW
+    EXECUTE FUNCTION handle_project_creation();
 
 -- Create policy to allow project admins to update their projects
 CREATE POLICY update_projects_policy ON projects

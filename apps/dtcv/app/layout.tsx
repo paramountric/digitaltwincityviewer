@@ -68,31 +68,27 @@ export default async function RootLayout({
       profile as unknown as DbProfile
     );
 
+    const { data: userProjectsData, error: userProjectsError } = await client
+      .from("project_collaborators")
+      .select("project_id")
+      .eq("user_id", user.id);
+
+    if (userProjectsError) {
+      console.error("Error fetching user projects", userProjectsError);
+    }
+
+    const projectIds = userProjectsData?.map((up) => up.project_id) || [];
+
     const { data: projectsData, error: projectsError } = await client
       .from("projects")
-      .select(
-        `
-          *,
-          admin:admin_id(
-            id,
-            email
-          ),
-          project_collaborators(
-            user_id
-          )
-        `
-      )
-      .order("created_at", { ascending: false });
+      .select("*")
+      .in("id", projectIds);
 
     if (projectsError) {
-      console.error("Error fetching projects:", projectsError);
+      console.error("Error fetching projects", projectsError);
     }
 
-    if (projectsError) {
-      message = "Error fetching projects";
-    }
-
-    projects = (projectsData || []).map(dbProjectToProject);
+    const projects: Project[] = (projectsData || []).map(dbProjectToProject);
 
     if (userWithProfile && userWithProfile.profile.activeProjectId) {
       project =
