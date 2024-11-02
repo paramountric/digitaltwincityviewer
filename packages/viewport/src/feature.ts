@@ -1,3 +1,5 @@
+import { Geometry as GeoJsonGeometry } from 'geojson';
+
 export type FeatureProperties = {
   // View
   _viewX?: number;
@@ -42,7 +44,7 @@ export type Feature = {
   namespace?: string;
   createdAt?: string;
   description?: string | null;
-  geometry?: unknown | null;
+  geometry?: GeoJsonGeometry | null;
   name?: string | null;
   position?: unknown | null;
   projectId?: string | null;

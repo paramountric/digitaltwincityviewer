@@ -27,9 +27,11 @@ import { PixelExtent } from '../types';
 import { DEFAULT_PITCH } from '../constants';
 import { DEFAULT_BEARING } from '../constants';
 import { DEFAULT_MAP_ZOOM } from '../constants';
+import { Viewport } from '../viewport';
 
 export type LayoutProps = {
   parentFeature: Feature;
+  viewport: Viewport;
 };
 export type BaseMap = 'mvt' | 'tile3d' | 'none';
 
@@ -51,6 +53,7 @@ export type CameraFrame = {
 
 export abstract class Layout {
   id: string;
+  viewport: Viewport;
   featureMap: FeatureMap;
   baseMap: BaseMap = 'none';
   cameraFrame: CameraFrame;
@@ -59,11 +62,11 @@ export abstract class Layout {
   featureAnimations: any;
   updateTriggers: any;
   parentFeature: Feature;
-  constructor({ parentFeature }: LayoutProps) {
-    console.log('init layout');
+  constructor({ parentFeature, viewport }: LayoutProps) {
     this.featureMap = new Map();
     this.parentFeature = parentFeature;
     this.id = parentFeature.key;
+    this.viewport = viewport;
 
     if (
       parentFeature.properties._longitude &&

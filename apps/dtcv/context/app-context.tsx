@@ -15,7 +15,7 @@ import { projectToFeature } from "../types/type-utils";
 
 interface AppContextType {
   canvasRef: React.RefObject<HTMLCanvasElement>;
-  viewportRef: React.RefObject<any>;
+  viewport: Viewport | null;
   user: UserWithProfile | null;
   setUser: (user: UserWithProfile | null) => void;
   project: Project | null;
@@ -131,7 +131,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 
   const value: AppContextType = {
     canvasRef,
-    viewportRef,
+    viewport: viewportRef.current,
     user,
     project,
     setProject,

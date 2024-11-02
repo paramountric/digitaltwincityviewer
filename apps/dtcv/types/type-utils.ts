@@ -92,7 +92,7 @@ export function dbFeatureToFeature(dbFeature: DbFeature): Feature {
     key: dbFeature.key || "",
     createdAt: dbFeature.created_at || new Date().toISOString(),
     description: dbFeature.description,
-    geometry: dbFeature.geometry,
+    geometry: dbFeature.geometry as any,
     name: dbFeature.name,
     type: dbFeature.type || undefined,
     namespace: dbFeature.namespace || undefined,

@@ -21,6 +21,10 @@ import {
   DEFAULT_BACKGROUND_COLOR,
 } from './constants';
 import { Feature } from './feature';
+import {
+  InteractionManager,
+  ViewportInteractionState,
+} from './lib/interaction-manager';
 
 type Layout = any;
 type UpdateTriggers = any;
@@ -30,10 +34,12 @@ export class Viewport {
   deck: Deck | null;
   mainLayout: Layout;
   featureLayouts: Map<string, Layout> = new Map();
+  interactionManager: InteractionManager;
   timeline: Timeline;
   mainFeature: Feature;
   constructor(viewportProps: ViewportProps) {
     this.props = viewportProps;
+    this.interactionManager = new InteractionManager({ viewport: this });
     const {
       mainFeature = {
         id: 'main',
@@ -67,6 +73,7 @@ export class Viewport {
 
     this.mainLayout = new MainLayout({
       parentFeature: this.mainFeature,
+      viewport: this,
     });
 
     this.timeline = new Timeline();
@@ -111,6 +118,11 @@ export class Viewport {
       this.mainFeature.properties._height = height;
       this.update();
     }
+  }
+
+  setViewportInteractionState(interactionState: ViewportInteractionState) {
+    this.interactionManager.interactionState = interactionState;
+    this.update();
   }
 
   getViews(): any {
@@ -209,6 +221,7 @@ export class Viewport {
       useDevicePixels: true,
       onViewStateChange: this.onViewStateChange,
       onLoad: this.onLoad,
+      getCursor: this.interactionManager.getCursor,
       onError: (error: Error) => {
         console.log('error', error);
         if (this.props.onContextLost) {

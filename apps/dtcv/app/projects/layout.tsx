@@ -1,7 +1,7 @@
 import CreateProjectDialog from "./_components/create-project-dialog";
 import DeleteProjectDialog from "./_components/delete-project-dialog";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { EditFeatureProvider } from "@/context/edit-feature-context";
+import { InteractionProvider } from "@/context/interaction-context";
 
 export default async function ProtectedLayout({
   children,
@@ -9,12 +9,12 @@ export default async function ProtectedLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <EditFeatureProvider>
+    <InteractionProvider>
       <TooltipProvider delayDuration={200}>
         <div>{children}</div>
         <CreateProjectDialog />
         <DeleteProjectDialog />
       </TooltipProvider>
-    </EditFeatureProvider>
+    </InteractionProvider>
   );
 }

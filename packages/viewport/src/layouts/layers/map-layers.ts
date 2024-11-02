@@ -1,5 +1,3 @@
-'use client';
-
 import { ScatterplotLayer, GeoJsonLayer, BitmapLayer } from '@deck.gl/layers';
 import { PickingInfo, Color } from '@deck.gl/core';
 import {

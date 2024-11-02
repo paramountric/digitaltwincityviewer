@@ -8,13 +8,16 @@ const LoginForm: React.FC = () => {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage("");
+
     const { data, error } = await login(username, password);
 
     if (error) {
-      console.error(error);
+      setErrorMessage(error || "Login failed. Please check your credentials.");
       return;
     }
 
@@ -23,13 +26,21 @@ const LoginForm: React.FC = () => {
         ? `/projects/${data.profile.activeProjectId}`
         : "/projects";
 
-      router.push(route);
+      // router.push(route);
+      window.location.href = route;
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="bg-white/30 p-8 rounded shadow-md">
       <h2 className="text-2xl mb-4 text-white">Login</h2>
+
+      {errorMessage && (
+        <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded text-red-100 text-sm">
+          {errorMessage}
+        </div>
+      )}
+
       <div className="mb-4">
         <label htmlFor="username" className="block text-white mb-2">
           Username

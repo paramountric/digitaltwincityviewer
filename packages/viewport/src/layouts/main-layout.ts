@@ -7,23 +7,29 @@ import {
   _GlobeView as GlobeView,
   MapViewState,
   OrbitViewState,
+  MapViewProps,
 } from '@deck.gl/core';
+import { getEditFeatureLayer } from './layers/edit-feature-layer';
 
 export class MainLayout extends Layout {
-  constructor({ parentFeature }: LayoutProps) {
-    super({ parentFeature });
+  constructor({ parentFeature, viewport }: LayoutProps) {
+    super({ parentFeature, viewport });
     this.baseMap = 'mvt';
   }
 
   getView({ disableController }: GetViewProps) {
     const { width, height, viewX, viewY } = this.getCameraFrame();
 
-    const viewProps = {
+    const viewProps: MapViewProps = {
       id: this.getViewId(),
-      //   controller: disableController
-      //     ? false
-      //     : { dragMode: 'pan', dragPan: true, inertia: false },
-      controller: true,
+      controller: disableController
+        ? false
+        : {
+            doubleClickZoom: false,
+            dragMode: 'pan',
+            dragPan: true,
+            inertia: false,
+          },
       width,
       height,
       x: viewX,
@@ -56,6 +62,13 @@ export class MainLayout extends Layout {
       features: visibleFeatures,
     });
     layers.push(...mapLayers);
+    const editFeatureLayer = getEditFeatureLayer({
+      layout: this as Layout,
+      interactionManager: this.viewport.interactionManager,
+      features: visibleFeatures,
+      selectedFeatureIndexes: [],
+    });
+    layers.push(...editFeatureLayer);
     return layers;
   }
 }

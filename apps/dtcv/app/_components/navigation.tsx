@@ -42,6 +42,7 @@ import { MapPinIcon, MapPinnedIcon, Plus } from "lucide-react";
 import { ChevronsUpDown } from "lucide-react";
 import { useAppContext } from "@/context/app-context";
 import ProjectSidebarContent from "./project-sidebar-content";
+import { Toolbar } from "./toolbar";
 
 const features: Feature[] = [
   {
@@ -80,6 +81,13 @@ export default function Navigation({ children }: NavigationProps) {
           </div>
         </SidebarInset>
         <SidebarRight />
+        <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-auto">
+          <div className="mx-auto max-w-screen-xl p-2">
+            <div className="flex items-center justify-center gap-2">
+              <Toolbar />
+            </div>
+          </div>
+        </div>
       </SidebarRightProvider>
     </SidebarProvider>
   );
