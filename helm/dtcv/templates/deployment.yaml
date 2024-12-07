@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dtcv-app
+  namespace: {{.Values.namespace}}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      component: dtcv-app
+  template:
+    metadata:
+      labels:
+        component: dtcv-app
+    spec:
+      containers:
+        - name: dtcv-app
+          image: {{.Values.image}}
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: 'platform-secrets'
+          imagePullPolicy: {{.Values.imagePullPolicy}}
+      imagePullSecrets:
+        - name: regcred

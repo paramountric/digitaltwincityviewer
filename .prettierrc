@@ -1,0 +1,15 @@
+{
+  "semi": true,
+  "trailingComma": "es5",
+  "singleQuote": true,
+  "printWidth": 100,
+  "overrides": [
+    {
+      "files": "*.yaml",
+      "options": {
+        "bracketSpacing": false
+      }
+    }
+  ],
+  "tabWidth": 2
+}

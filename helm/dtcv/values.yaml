@@ -1,0 +1,8 @@
+domain: dtcv-local.com
+namespace: dtcv-development
+server: https://kubernetes.default.svc
+image: ghcr.io/paramountric/dtcv
+imagePullPolicy: Never
+enableIngressTls: Enable
+tlsSecretName: dtcv-dev-tls
+ingressClassName: public

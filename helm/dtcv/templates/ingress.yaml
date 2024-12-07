@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dtcv-app-ingress
+  namespace: {{ .Values.namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: 'false'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '3600'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '3600'
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+spec:
+{{- if eq .Values.enableIngressTls "Enable" }}
+  tls:
+    - hosts:
+        - {{ .Values.domain | quote }}
+      secretName: {{ .Values.tlsSecretName }}
+{{- end }}
+  ingressClassName: {{ .Values.ingressClassName }}
+  rules:
+    - host: {{ .Values.domain | default "dtcv.pmtric.com" }}
+      http:
+        paths:
+          - path: '/'
+            pathType: Prefix
+            backend:
+              service:
+                name: dtcv-app
+                port:
+                  number: 3000
