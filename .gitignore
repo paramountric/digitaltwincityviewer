@@ -138,5 +138,6 @@ dist
 # Local temp
 local-temp
 
-# Ignore all local values files in any helm chart directory
+# Local development files
+**/secrets.local.yaml
 **/values.local.yaml

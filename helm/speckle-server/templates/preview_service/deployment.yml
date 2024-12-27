@@ -1,0 +1,154 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: speckle-preview-service
+  namespace: {{ .Values.namespace }}
+  labels:
+{{ include "preview_service.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.preview_service.replicas }}
+  selector:
+    matchLabels:
+      app: speckle-preview-service
+      project: speckle-server
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+{{ include "preview_service.labels" . | indent 8 }}
+    spec:
+      containers:
+      - name: main
+        image: {{ default (printf "speckle/speckle-preview-service:%s" .Values.docker_image_tag) .Values.preview_service.image }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+
+        ports:
+          - name: metrics
+            containerPort: {{ .Values.preview_service.monitoring.metricsPort }}
+            protocol: TCP
+
+        livenessProbe:
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          exec:
+            command:
+              - node
+              - -e
+              - {{ printf "process.exit(Date.now() - require('fs').readFileSync('/tmp/last_successful_query', 'utf8') > %s)" .Values.preview_service.puppeteer.timeoutMilliseconds }}
+
+        resources:
+          requests:
+            cpu: {{ .Values.preview_service.requests.cpu }}
+            memory: {{ .Values.preview_service.requests.memory }}
+          limits:
+            cpu: {{ .Values.preview_service.limits.cpu }}
+            memory: {{ .Values.preview_service.limits.memory }}
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          # readOnlyRootFilesystem: true #FIXME this currently breaks chromium. Need to identify which directories should be mounted.
+          runAsNonRoot: true
+          runAsUser: 800
+
+        volumeMounts:
+        {{- if .Values.db.useCertificate }}
+          - name: postgres-certificate
+            mountPath: /postgres-certificate
+        {{- end }}
+        {{- if .Values.featureFlags.workspacesMultiRegionEnabled }}
+          - name: multi-region-config
+            mountPath: /multi-region-config
+            readOnly: true
+        {{- end }}
+
+        env:
+          - name: HOST
+            value: '127.0.0.1' # Only accept connections from localhost, as preview service does not need to be exposed outside the container.
+          - name: METRICS_HOST
+            value: '0.0.0.0' # Expose metrics outside of the container so it can be scraped by Prometheus
+          - name: PORT
+            value: {{ .Values.preview_service.port | quote }}
+
+          - name: PROMETHEUS_METRICS_PORT
+            value: {{ .Values.preview_service.monitoring.metricsPort | quote }}
+
+          - name: PG_CONNECTION_STRING
+            valueFrom:
+              secretKeyRef:
+                name: {{ default .Values.secretName .Values.db.connectionString.secretName }}
+                key: {{ default "postgres_url" .Values.db.connectionString.secretKey }}
+
+          - name: LOG_LEVEL
+            value: {{ .Values.preview_service.logLevel | quote }}
+          - name: LOG_PRETTY
+            value: {{ .Values.preview_service.logPretty | quote }}
+
+          {{- if .Values.db.useCertificate }}
+          - name: NODE_EXTRA_CA_CERTS
+            value: "/postgres-certificate/ca-certificate.crt"
+          {{- end }}
+
+          {{- if .Values.preview_service.puppeteer.userDataDirectory }}
+          - name: USER_DATA_DIR
+            value: {{ .Values.preview_service.puppeteer.userDataDirectory | quote }}
+          {{- end }}
+
+          {{- if .Values.preview_service.puppeteer.timeoutMilliseconds }}
+          - name: PREVIEW_TIMEOUT
+            value: {{ .Values.preview_service.puppeteer.timeoutMilliseconds | quote }}
+          {{- end }}
+          {{- if .Values.featureFlags.workspacesMultiRegionEnabled }}
+          - name: FF_WORKSPACES_MULTI_REGION_ENABLED
+            value: {{ .Values.featureFlags.workspacesMultiRegionEnabled | quote }}
+          - name: MULTI_REGION_CONFIG_PATH
+            value: "/multi-region-config/multi-region-config.json"
+          {{- end }}
+
+      {{- if .Values.preview_service.affinity }}
+      affinity: {{- include "speckle.renderTpl" (dict "value" .Values.preview_service.affinity "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.preview_service.nodeSelector }}
+      nodeSelector: {{- include "speckle.renderTpl" (dict "value" .Values.preview_service.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.preview_service.tolerations }}
+      tolerations: {{- include "speckle.renderTpl" (dict "value" .Values.preview_service.tolerations "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.preview_service.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- include "speckle.renderTpl" (dict "value" .Values.preview_service.topologySpreadConstraints "context" $) | nindent 8 }}
+      {{- end }}
+      priorityClassName: low-priority
+      {{- if .Values.preview_service.serviceAccount.create }}
+      serviceAccountName: {{ include "preview_service.name" $ }}
+      {{- end }}
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 800
+        fsGroup: 25000
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 30000
+        seccompProfile:
+          type: RuntimeDefault
+
+      # Should be > preview generation time ( 1 hour for good measure )
+      terminationGracePeriodSeconds: 3600
+
+      volumes:
+      {{- if .Values.db.useCertificate }}
+        - name: postgres-certificate
+          configMap:
+            name: postgres-certificate
+      {{- end }}
+      {{- if .Values.featureFlags.workspacesMultiRegionEnabled }}
+        - name: multi-region-config
+          secret:
+            secretName: {{ .Values.multiRegion.config.secretName }}
+            items:
+            - key: {{ .Values.multiRegion.config.secretKey }}
+              path: "multi-region-config.json"
+      {{- end }}

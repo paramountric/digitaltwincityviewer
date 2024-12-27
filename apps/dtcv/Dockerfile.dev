@@ -19,4 +19,4 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 # Start only the web app in development mode
-CMD ["yarn", "workspace", "dtcv", "dev"]
+CMD ["yarn", "run", "dev:dtcv"]

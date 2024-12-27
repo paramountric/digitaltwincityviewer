@@ -1,0 +1,152 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "objects.name" $ }}
+  namespace: {{ .Values.namespace }}
+  labels:
+{{ include "objects.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.objects.replicas }}
+  selector:
+    matchLabels:
+      app: speckle-objects
+      project: speckle-server
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+{{ include "objects.labels" . | indent 8 }}
+    spec:
+      containers:
+      - name: main
+        image: {{ default (printf "speckle/speckle-server:%s" .Values.docker_image_tag) .Values.objects.image }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        args: #overwrites the Dockerfile CMD statement
+        {{- if .Values.objects.inspect.enabled }}
+          - {{ printf "--inspect=%s" .Values.objects.inspect.port }}
+        {{- end }}
+          - "bin/www"
+        ports:
+          - name: http
+            containerPort: {{ include "objects.port" $ }}
+            protocol: TCP
+
+        resources:
+          requests:
+            cpu: {{ .Values.objects.requests.cpu }}
+            memory: {{ .Values.objects.requests.memory }}
+          limits:
+            cpu: {{ .Values.objects.limits.cpu }}
+            memory: {{ .Values.objects.limits.memory }}
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 20000
+
+        volumeMounts:
+          - mountPath: /tmp
+            name: tmp
+        {{- if .Values.db.useCertificate }}
+          - name: postgres-certificate
+            mountPath: /postgres-certificate
+        {{- end }}
+        {{- if .Values.featureFlags.automateModuleEnabled }}
+          - name: encryption-keys
+            readOnly: true
+            mountPath: /encryption-keys
+        {{- end }}
+        {{- if .Values.featureFlags.workspacesMultiRegionEnabled }}
+          - name: multi-region-config
+            mountPath: /multi-region-config
+        {{- end }}
+
+        # Allow for k8s to remove the pod from the service endpoints to stop receive traffic
+        lifecycle:
+          preStop:
+            exec:
+              command: ["sleep", "5"]
+
+        startupProbe:
+          periodSeconds: 10
+          failureThreshold: 60 # 10*60 = 600s; accounts for long-running db migrations
+          timeoutSeconds: 3
+          httpGet:
+            path: /liveness
+            port: {{ include "server.port" $ }}
+
+        livenessProbe:
+          periodSeconds: 60
+          timeoutSeconds: 10
+          failureThreshold: 3
+          httpGet:
+            path: /liveness
+            port: {{ include "objects.port" $ }}
+
+        readinessProbe:
+          initialDelaySeconds: 5
+          periodSeconds: 4
+          timeoutSeconds: 2
+          failureThreshold: 1
+
+          httpGet:
+            path: /readiness
+            port: {{ include "objects.port" $ }}
+
+        env:
+{{ include "server.env" $ | indent 10 }}
+{{/* NOTE: Environment variables are configured in utils/helm/speckle-server/templates/_helpers.tpl */}}
+      {{- if .Values.objects.affinity }}
+      affinity: {{- include "speckle.renderTpl" (dict "value" .Values.objects.affinity "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.objects.nodeSelector }}
+      nodeSelector: {{- include "speckle.renderTpl" (dict "value" .Values.objects.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.objects.tolerations }}
+      tolerations: {{- include "speckle.renderTpl" (dict "value" .Values.objects.tolerations "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.objects.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- include "speckle.renderTpl" (dict "value" .Values.objects.topologySpreadConstraints "context" $) | nindent 8 }}
+      {{- end }}
+      priorityClassName: high-priority
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 20000
+        fsGroup: 25000
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 30000
+        seccompProfile:
+          type: RuntimeDefault
+
+      {{- if .Values.objects.serviceAccount.create }}
+      serviceAccountName: {{ include "objects.name" $ }}
+      {{- end }}
+      terminationGracePeriodSeconds: 310
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      {{- if .Values.db.useCertificate }}
+        - name: postgres-certificate
+          configMap:
+            name: postgres-certificate
+      {{- end }}
+      {{- if .Values.featureFlags.automateModuleEnabled }}
+        - name: encryption-keys
+          secret:
+            secretName: encryption-keys
+      {{- end }}
+      {{- if .Values.featureFlags.workspacesMultiRegionEnabled }}
+        - name: multi-region-config
+          secret:
+            secretName: {{ .Values.multiRegion.config.secretName }}
+            items:
+            - key: {{ .Values.multiRegion.config.secretKey }}
+              path: "multi-region-config.json"
+      {{- end }}

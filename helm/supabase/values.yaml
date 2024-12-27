@@ -1,0 +1,307 @@
+# Vector configuration
+vector:
+  enabled: false # Set to false since we don't need vector for local development
+
+secret:
+  jwt:
+    # Generate these values securely - do not use these examples!!
+    anonKey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE
+    serviceKey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q
+    secret: 'dN0MZoR2LbjtHfO6CsmZjctEsw7OugsIfhA3lcA1Ar8OT0jREhA8/yyGl7eAHHRP7Besq7XWlV+BGNx94GvBMw=='
+  db:
+    secretRef: 'supabase-db' # Reference to the Kubernetes secret
+    secretRefKey:
+      username: 'username' # Key in the secret for the username
+      password: 'password' # Key in the secret for the password
+  s3:
+    secretRef: 'supabase-s3' # Reference to the Kubernetes secret
+    secretRefKey:
+      keyId: 'keyId' # Key in the secret for the S3 key ID
+      secretKey: 'secretKey' # Key in the secret for the S3 secret key
+  analytics:
+    secretRef: 'supabase-analytics'
+    secretRefKey:
+      username: 'username'
+      password: 'password'
+  smtp:
+    secretRef: 'supabase-smtp' # Reference to the Kubernetes secret
+    secretRefKey:
+      username: 'username' # Key in the secret for the SMTP username
+      password: 'password' # Key in the secret for the SMTP password
+
+# Database configuration
+db:
+  enabled: true
+  image:
+    repository: supabase/postgres
+    tag: 15.1.0
+  service:
+    port: 5432
+  serviceAccount:
+    create: true
+  autoscaling:
+    enabled: false
+  environment:
+    POSTGRES_HOST: /var/run/postgresql
+    POSTGRES_PORT: '5432'
+    JWT_EXP: 3600
+  persistence:
+    enabled: true
+    size: 8Gi
+
+# Studio configuration
+studio:
+  enabled: true
+  image:
+    repository: supabase/studio
+    tag: latest
+  service:
+    port: 3000
+  serviceAccount:
+    create: true
+  autoscaling:
+    enabled: false
+  environment:
+    STUDIO_DEFAULT_ORGANIZATION: 'My Organization'
+    STUDIO_DEFAULT_PROJECT: 'My Project'
+    SUPABASE_PUBLIC_URL: 'http://localhost:8000'
+    SUPABASE_URL: 'http://supabase-supabase-rest:8000'
+    NEXT_PUBLIC_ENABLE_LOGS: 'true'
+    NEXT_ANALYTICS_BACKEND_PROVIDER: 'postgres'
+    STUDIO_PG_META_URL: 'http://supabase-supabase-meta:8080'
+  livenessProbe:
+    tcpSocket:
+      port: 3000
+    initialDelaySeconds: 60
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 5
+
+# Auth configuration
+auth:
+  enabled: true
+  image:
+    repository: supabase/gotrue
+    tag: latest
+  service:
+    port: 9999
+  serviceAccount:
+    create: true
+  autoscaling:
+    enabled: false
+  environment:
+    DB_USER: supabase_auth_admin
+    DB_PORT: 5432
+    DB_SSL: disable
+    API_EXTERNAL_URL: 'http://localhost:8000'
+    GOTRUE_API_HOST: '0.0.0.0'
+    GOTRUE_API_PORT: '9999'
+    GOTRUE_SITE_URL: 'http://localhost:8000'
+    GOTRUE_URI_ALLOW_LIST: '*'
+    GOTRUE_DISABLE_SIGNUP: 'false'
+    GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+    GOTRUE_JWT_ADMIN_ROLES: service_role
+    GOTRUE_JWT_AUD: authenticated
+    GOTRUE_JWT_EXP: '3600'
+    GOTRUE_EXTERNAL_EMAIL_ENABLED: 'false'
+    GOTRUE_MAILER_AUTOCONFIRM: 'true'
+
+# Rest API configuration
+rest:
+  enabled: true
+  image:
+    repository: postgrest/postgrest
+    tag: latest
+  service:
+    port: 8000
+  serviceAccount:
+    create: true
+  autoscaling:
+    enabled: false
+  environment:
+    DB_USER: authenticator
+    DB_PORT: 5432
+    DB_SSL: disable
+    PGRST_DB_SCHEMAS: public,storage,graphql_public
+    PGRST_DB_ANON_ROLE: anon
+    PGRST_DB_USE_LEGACY_GUCS: 'false'
+    PGRST_APP_SETTINGS_JWT_EXP: 3600
+    PGRST_SERVER_PORT: '8000'
+
+# Meta Service
+meta:
+  # Enable meta provisioning
+  enabled: true
+  image:
+    repository: supabase/postgres-meta
+    pullPolicy: IfNotPresent
+    tag: 'v0.85.0'
+  imagePullSecrets: []
+  replicaCount: 1
+  nameOverride: ''
+  fullnameOverride: ''
+  livenessProbe: {}
+  readinessProbe: {}
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ''
+  podAnnotations: {}
+  podSecurityContext:
+    {}
+    # fsGroup: 2000
+  securityContext:
+    {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+  service:
+    type: ClusterIP
+    port: 8080
+  environment:
+    # Override the database hostname if using external database
+    # DB_HOST: DATABASE.NAMESPACE.svc.cluster.local
+    DB_USER: supabase_admin
+    DB_PORT: 5432
+    DB_DRIVER: postgres
+    DB_SSL: disable # disable, allow, prefer, require, verify-ca, verify-full
+    PG_META_PORT: '8080'
+  # volumeMounts:
+  #   - name: volume_name
+  #     mountPath: /path/to/my/secret
+  # volumes:
+  #   - name: volume_name
+  #     secret:
+  #       defaultMode: 733
+  #       secretName: my_secret
+  #       items:
+  #       - key: my_secret.txt
+  #         path: name_of_file_in_container.txt
+  resources:
+    {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Storage configuration
+storage:
+  enabled: true
+  image:
+    repository: supabase/storage-api
+    tag: latest
+  service:
+    port: 5000
+  serviceAccount:
+    create: true
+  autoscaling:
+    enabled: false
+  environment:
+    DB_USER: supabase_storage_admin
+    DB_PORT: 5432
+    DB_SSL: disable
+    PGOPTIONS: -c search_path=storage,public
+    FILE_SIZE_LIMIT: '52428800'
+    STORAGE_BACKEND: file
+    FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+    STORAGE_API_PORT: '5000'
+  persistence:
+    enabled: true
+    size: 10Gi
+
+# Realtime configuration
+realtime:
+  enabled: false # Set to false if you don't need realtime for local development
+  image:
+    repository: supabase/realtime
+    tag: latest
+  service:
+    port: 4000 # Add Realtime service port
+  environment:
+    DB_HOST: 'localhost'
+    DB_PORT: 5432
+    DB_NAME: 'postgres'
+    DB_USER: 'postgres'
+    DB_PASSWORD: 'your-db-password' # Ensure this matches your DB password
+    PORT: 4000
+    JWT_SECRET: 'your-secure-jwt-secret' # Ensure this matches your JWT secret
+
+# MinIO configuration
+minio:
+  enabled: false # Set to false if you don't need MinIO for local development
+  image:
+    repository: minio/minio
+    tag: latest
+  service:
+    port: 9000 # Add MinIO service port
+  environment:
+    MINIO_ACCESS_KEY: 'your-access-key' # Replace with your MinIO access key
+    MINIO_SECRET_KEY: 'your-secret-key' # Replace with your MinIO secret key
+  persistence:
+    enabled: true
+    size: 10Gi
+
+# Kong configuration
+kong:
+  enabled: false # Set to false if you don't need Kong for local development
+  image:
+    repository: kong
+    tag: latest
+  service:
+    port: 8000 # Add Kong service port
+  ingress:
+    enabled: false # Add this line to disable Kong ingress
+  environment:
+    KONG_DATABASE: 'off'
+    KONG_PROXY_ACCESS_LOG: '/dev/stdout'
+    KONG_ADMIN_ACCESS_LOG: '/dev/stdout'
+    KONG_PROXY_ERROR_LOG: '/dev/stderr'
+    KONG_ADMIN_ERROR_LOG: '/dev/stderr'
+    KONG_ADMIN_LISTEN: '0.0.0.0:8001'
+
+# Imgproxy configuration
+imgproxy:
+  enabled: false # Set to false if you don't need Imgproxy for local development
+  image:
+    repository: darthsim/imgproxy
+    tag: latest
+  service:
+    port: 8080 # Add Imgproxy service port
+  environment:
+    IMGPROXY_BASE_URL: 'http://localhost:8080'
+    IMGPROXY_KEY: 'your-imgproxy-key' # Replace with your Imgproxy key
+    IMGPROXY_SALT: 'your-imgproxy-salt' # Replace with your Imgproxy salt
+
+# Analytics configuration
+analytics:
+  enabled: false # Set to false if you don't need analytics for local development
+  environment:
+    DB_PORT: 5432
+  bigQuery:
+    enabled: false # Add this line to disable BigQuery integration
+
+# Functions configuration
+functions:
+  enabled: false # Set to false if you don't need functions for local development

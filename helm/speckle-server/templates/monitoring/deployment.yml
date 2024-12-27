@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: speckle-monitoring
+  namespace: {{ .Values.namespace }}
+  labels:
+{{ include "monitoring.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.monitoring.replicas }}
+  selector:
+    matchLabels:
+      app: speckle-monitoring
+      project: speckle-server
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+{{ include "monitoring.labels" . | indent 8 }}
+    spec:
+      containers:
+      - name: main
+        image: {{ default (printf "speckle/speckle-monitor-deployment:%s" .Values.docker_image_tag) .Values.monitoring.image }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+
+        ports:
+          - name: metrics
+            containerPort: 9092
+            protocol: TCP
+
+        resources:
+          requests:
+            cpu: {{ .Values.monitoring.requests.cpu }}
+            memory: {{ .Values.monitoring.requests.memory }}
+          limits:
+            cpu: {{ .Values.monitoring.limits.cpu }}
+            memory: {{ .Values.monitoring.limits.memory }}
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 20000
+
+        volumeMounts:
+        {{- if .Values.db.useCertificate }}
+          - name: postgres-certificate
+            mountPath: /postgres-certificate
+        {{- end }}
+        {{- if .Values.featureFlags.workspacesMultiRegionEnabled }}
+          - name: multi-region-config
+            mountPath: /multi-region-config
+            readOnly: true
+        {{- end }}
+
+        env:
+          - name: PG_CONNECTION_STRING
+            valueFrom:
+              secretKeyRef:
+                name: {{ default .Values.secretName .Values.db.connectionString.secretName }}
+                key: {{ default "postgres_url" .Values.db.connectionString.secretKey }}
+
+          {{- if .Values.db.useCertificate }}
+          - name: NODE_EXTRA_CA_CERTS
+            value: "/postgres-certificate/ca-certificate.crt"
+          {{- end }}
+          {{- if .Values.featureFlags.workspacesMultiRegionEnabled }}
+          - name: FF_WORKSPACES_MULTI_REGION_ENABLED
+            value: {{ .Values.featureFlags.workspacesMultiRegionEnabled | quote }}
+          - name: MULTI_REGION_CONFIG_PATH
+            value: "/multi-region-config/multi-region-config.json"
+          {{- end }}
+
+          - name: LOG_LEVEL
+            value: {{ .Values.monitoring.logLevel }}
+          - name: LOG_PRETTY
+            value: {{ .Values.monitoring.logPretty | quote }}
+
+      priorityClassName: low-priority
+      {{- if .Values.monitoring.serviceAccount.create }}
+      serviceAccountName: {{ include "monitoring.name" $ }}
+      {{- end }}
+      terminationGracePeriodSeconds: 10
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 20000
+        fsGroup: 25000
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 30000
+        seccompProfile:
+          type: RuntimeDefault
+
+      volumes:
+      {{- if .Values.db.useCertificate }}
+        - name: postgres-certificate
+          configMap:
+            name: postgres-certificate
+      {{- end }}
+      {{- if .Values.featureFlags.workspacesMultiRegionEnabled }}
+        - name: multi-region-config
+          secret:
+            secretName: {{ .Values.multiRegion.config.secretName }}
+            items:
+            - key: {{ .Values.multiRegion.config.secretKey }}
+              path: "multi-region-config.json"
+      {{- end }}
+
+      {{- if .Values.monitoring.affinity }}
+      affinity: {{- include "speckle.renderTpl" (dict "value" .Values.monitoring.affinity "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.monitoring.nodeSelector }}
+      nodeSelector: {{- include "speckle.renderTpl" (dict "value" .Values.monitoring.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.monitoring.tolerations }}
+      tolerations: {{- include "speckle.renderTpl" (dict "value" .Values.monitoring.tolerations "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.monitoring.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- include "speckle.renderTpl" (dict "value" .Values.monitoring.topologySpreadConstraints "context" $) | nindent 8 }}
+      {{- end }}

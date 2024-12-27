@@ -1,3 +1,9 @@
 node_modules
 build
 dist
+# Helm charts generated files
+**/charts/*.tgz
+**/Chart.lock
+# Tilt files
+Tiltfile
+**/Tiltfile

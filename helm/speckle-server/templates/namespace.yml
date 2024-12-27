@@ -1,0 +1,8 @@
+{{- if .Values.create_namespace }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespace }}
+  labels:
+{{ include "speckle.labels" . | indent 4 }}
+{{- end }}

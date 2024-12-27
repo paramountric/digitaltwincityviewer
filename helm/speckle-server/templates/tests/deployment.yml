@@ -1,0 +1,67 @@
+{{- if .Values.helm_test_enabled }}
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "speckle-test"
+  namespace: {{ .Values.namespace }}
+  annotations:
+    helm.sh/hook: test
+  labels:
+{{ include "test.labels" . | indent 4 }}
+spec:
+  backoffLimit: 1
+  parallelism: 1
+  completions: 1
+  template:
+    spec:
+      containers:
+        - name: test-deployment
+          image: {{ default (printf "speckle/speckle-test-deployment:%s" .Values.docker_image_tag) .Values.test.image }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+
+          env:
+            - name: SPECKLE_SERVER
+              value: https://{{ .Values.domain }}
+            - name: SERVER_VERSION
+              value: {{ .Values.docker_image_tag | quote}}
+            - name: FRONTEND_VERSION
+              {{- if .Values.frontend_2.enabled }}
+              value: {{ "2" | quote }}
+              {{- else }}
+              value: {{ "1" | quote }}
+              {{- end }}
+            - name: VERIFY_CERTIFICATE
+              value: {{ (default "1" .Values.tlsRejectUnauthorized) | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.test.logLevel }}
+            - name: LOG_PRETTY
+              value: {{ .Values.test.logPretty | quote }}
+          resources:
+            requests:
+              cpu: {{ .Values.test.requests.cpu }}
+              memory: {{ .Values.test.requests.memory }}
+            limits:
+              cpu: {{ .Values.test.limits.cpu }}
+              memory: {{ .Values.test.limits.memory }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 20000
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 20000
+        runAsGroup: 30000
+        seccompProfile:
+          type: RuntimeDefault
+
+      {{- if .Values.test.serviceAccount.create }}
+      serviceAccountName: {{ include "test.name" $ }}
+      {{- end }}
+{{- end }}

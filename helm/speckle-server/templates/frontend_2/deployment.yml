@@ -1,0 +1,157 @@
+{{- if .Values.frontend_2.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: speckle-frontend-2
+  namespace: {{ .Values.namespace }}
+  labels:
+{{ include "frontend_2.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.frontend_2.replicas }}
+  selector:
+    matchLabels:
+{{ include "frontend_2.selectorLabels" . | indent 6 }}
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+{{ include "frontend_2.labels" . | indent 8 }}
+    spec:
+      containers:
+      - name: main
+        image: {{ default (printf "speckle/speckle-frontend-2:%s" .Values.docker_image_tag) .Values.frontend_2.image }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+
+        ports:
+          - name: www
+            containerPort: 8080
+            protocol: TCP
+
+        resources:
+          requests:
+            cpu: {{ .Values.frontend_2.requests.cpu }}
+            memory: {{ .Values.frontend_2.requests.memory }}
+          limits:
+            cpu: {{ .Values.frontend_2.limits.cpu }}
+            memory: {{ .Values.frontend_2.limits.memory }}
+
+        # Allow for k8s to remove the pod from the service endpoints to stop receive traffic
+        lifecycle:
+          preStop:
+            exec:
+              command: ["sleep", "5"]
+
+        livenessProbe:
+          httpGet:
+            path: /api/status
+            port: www
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /api/status
+            port: www
+          failureThreshold: 1
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 5
+
+        env:
+          - name: FILE_SIZE_LIMIT_MB
+            value: {{ .Values.file_size_limit_mb | quote }}
+          - name: NUXT_PUBLIC_API_ORIGIN
+            value: {{ .Values.ssl_canonical_url | ternary (printf "https://%s" .Values.domain) (printf "http://%s" .Values.domain) }}
+          - name: NUXT_PUBLIC_BASE_URL
+            value: {{ .Values.ssl_canonical_url | ternary (printf "https://%s" .Values.domain) (printf "http://%s" .Values.domain) }}
+          - name: NUXT_PUBLIC_BACKEND_API_ORIGIN
+            value: {{ printf "http://%s.%s.svc.cluster.local.:3000" (include "server.name" $) .Values.namespace }}
+          - name: NUXT_PUBLIC_MIXPANEL_TOKEN_ID
+            value: {{ .Values.analytics.mixpanel_token_id }}
+          - name: NUXT_PUBLIC_MIXPANEL_API_HOST
+            value: {{ .Values.analytics.mixpanel_api_host }}
+          - name: NUXT_PUBLIC_LOG_LEVEL
+            value: {{ .Values.frontend_2.logLevel }}
+          - name: NUXT_PUBLIC_LOG_PRETTY
+            value: {{ .Values.frontend_2.logPretty | quote }}
+          - name: NUXT_PUBLIC_SERVER_NAME
+            value: {{ .Release.Name }}
+          - name: NUXT_PUBLIC_LOG_CLIENT_API_TOKEN
+            value: {{ .Values.frontend_2.logClientApiToken }}
+          - name: NUXT_PUBLIC_LOG_CLIENT_API_ENDPOINT
+            value: {{ .Values.frontend_2.logClientApiEndpoint }}
+          - name: NODE_TLS_REJECT_UNAUTHORIZED
+            value: {{ .Values.tlsRejectUnauthorized | quote }}
+          - name: NUXT_REDIS_URL
+            valueFrom:
+              secretKeyRef:
+                name: {{ default .Values.secretName .Values.redis.connectionString.secretName }}
+                key: {{ default "redis_url" .Values.redis.connectionString.secretKey }}
+          {{- if .Values.frontend_2.webflowApiToken }}
+          - name: NUXT_WEBFLOW_API_TOKEN
+            value: {{ .Values.frontend_2.webflowApiToken | quote }}
+          {{- end }}
+          {{- if .Values.analytics.datadog_app_id }}
+          - name: NUXT_PUBLIC_DATADOG_APP_ID
+            value: {{ .Values.analytics.datadog_app_id | quote }}
+          {{- end }}
+          {{- if .Values.analytics.datadog_client_token }}
+          - name: NUXT_PUBLIC_DATADOG_CLIENT_TOKEN
+            value: {{ .Values.analytics.datadog_client_token | quote }}
+          {{- end }}
+          {{- if .Values.analytics.datadog_site }}
+          - name: NUXT_PUBLIC_DATADOG_SITE
+            value: {{ .Values.analytics.datadog_site | quote }}
+          {{- end }}
+          {{- if .Values.analytics.datadog_service }}
+          - name: NUXT_PUBLIC_DATADOG_SERVICE
+            value: {{ .Values.analytics.datadog_service | quote }}
+          {{- end }}
+          {{- if .Values.analytics.datadog_env }}
+          - name: NUXT_PUBLIC_DATADOG_ENV
+            value: {{ .Values.analytics.datadog_env | quote }}
+          {{- end }}
+          - name: NUXT_PUBLIC_FF_AUTOMATE_MODULE_ENABLED
+            value: {{ .Values.featureFlags.automateModuleEnabled | quote }}
+          - name: NUXT_PUBLIC_FF_WORKSPACES_MODULE_ENABLED
+            value: {{ .Values.featureFlags.workspacesModuleEnabled | quote }}
+          - name: NUXT_PUBLIC_FF_WORKSPACES_SSO_ENABLED
+            value: {{ .Values.featureFlags.workspacesSSOEnabled | quote }}
+          - name: NUXT_PUBLIC_FF_MULTIPLE_EMAILS_MODULE_ENABLED
+            value: {{ .Values.featureFlags.multipleEmailsModuleEnabled | quote }}
+          - name: NUXT_PUBLIC_FF_GATEKEEPER_MODULE_ENABLED
+            value: {{ .Values.featureFlags.gatekeeperModuleEnabled | quote }}
+          - name: NUXT_PUBLIC_FF_BILLING_INTEGRATION_ENABLED
+            value: {{ .Values.featureFlags.billingIntegrationEnabled | quote }}
+          - name: NUXT_PUBLIC_FF_WORKSPACES_MULTI_REGION_ENABLED
+            value: {{ .Values.featureFlags.workspacesMultiRegionEnabled | quote }}
+          - name: NUXT_PUBLIC_FF_WORKSPACES_MULTI_REGION_BLOB_STORAGE_ENABLED
+            value: {{ .Values.featureFlags.workspacesMultiRegionBlobStorageEnabled | quote }}
+          - name: NUXT_PUBLIC_FF_GENDOAI_MODULE_ENABLED
+            value: {{ .Values.featureFlags.gendoAIModuleEnabled | quote }}
+          {{- if .Values.analytics.survicate_workspace_key }}
+          - name: NUXT_PUBLIC_SURVICATE_WORKSPACE_KEY
+            value: {{ .Values.analytics.survicate_workspace_key | quote }}
+          {{- end }}
+
+      priorityClassName: high-priority
+      {{- if .Values.frontend_2.affinity }}
+      affinity: {{- include "speckle.renderTpl" (dict "value" .Values.frontend_2.affinity "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.frontend_2.nodeSelector }}
+      nodeSelector: {{- include "speckle.renderTpl" (dict "value" .Values.frontend_2.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.frontend_2.tolerations }}
+      tolerations: {{- include "speckle.renderTpl" (dict "value" .Values.frontend_2.tolerations "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.frontend_2.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- include "speckle.renderTpl" (dict "value" .Values.frontend_2.topologySpreadConstraints "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.frontend_2.serviceAccount.create }}
+      serviceAccountName: {{ include "frontend_2.name" $ }}
+      {{- end }}
+{{- end }}
