@@ -2,29 +2,29 @@
 
 // Ref 1: https://github.com/sanathkr/go-npm
 // Ref 2: https://medium.com/xendit-engineering/how-we-repurposed-npm-to-publish-and-distribute-our-go-binaries-for-internal-cli-23981b80911b
-"use strict";
+'use strict';
 
-import binLinks from "bin-links";
-import { createHash } from "crypto";
-import fs from "fs";
-import fetch from "node-fetch";
-import { Agent } from "https";
-import { HttpsProxyAgent } from "https-proxy-agent";
-import path from "path";
-import { extract } from "tar";
-import zlib from "zlib";
+import binLinks from 'bin-links';
+import { createHash } from 'crypto';
+import fs from 'fs';
+import fetch from 'node-fetch';
+import { Agent } from 'https';
+import { HttpsProxyAgent } from 'https-proxy-agent';
+import path from 'path';
+import { extract } from 'tar';
+import zlib from 'zlib';
 
 // Mapping from Node's `process.arch` to Golang's `$GOARCH`
 const ARCH_MAPPING = {
-  x64: "amd64",
-  arm64: "arm64",
+  x64: 'amd64',
+  arm64: 'arm64',
 };
 
 // Mapping between Node's `process.platform` to Golang's
 const PLATFORM_MAPPING = {
-  darwin: "darwin",
-  linux: "linux",
-  win32: "windows",
+  darwin: 'darwin',
+  linux: 'linux',
+  win32: 'windows',
 };
 
 const arch = ARCH_MAPPING[process.arch];
@@ -32,7 +32,7 @@ const platform = PLATFORM_MAPPING[process.platform];
 
 // TODO: import pkg from "../package.json" assert { type: "json" };
 const readPackageJson = async () => {
-  const contents = await fs.promises.readFile("package.json");
+  const contents = await fs.promises.readFile('package.json');
   return JSON.parse(contents);
 };
 
@@ -52,11 +52,11 @@ const fetchAndParseCheckSumFile = async (packageJson, agent) => {
   const checksumFileUrl = `https://github.com/${repo}/releases/download/v${version}/${pkgName}_${version}_checksums.txt`;
 
   // Fetch the checksum file
-  console.info("Downloading", checksumFileUrl);
+  console.info('Downloading', checksumFileUrl);
   const response = await fetch(checksumFileUrl, { agent });
   if (response.ok) {
     const checkSumContent = await response.text();
-    const lines = checkSumContent.split("\n");
+    const lines = checkSumContent.split('\n');
 
     const checksums = {};
     for (const line of lines) {
@@ -66,18 +66,14 @@ const fetchAndParseCheckSumFile = async (packageJson, agent) => {
 
     return checksums;
   } else {
-    console.error(
-      "Could not fetch checksum file",
-      response.status,
-      response.statusText
-    );
+    console.error('Could not fetch checksum file', response.status, response.statusText);
   }
 };
 
 const errGlobal = `Installing Supabase CLI as a global module is not supported.
 Please use one of the supported package managers: https://github.com/supabase/cli#install-the-cli
 `;
-const errChecksum = "Checksum mismatch. Downloaded data might be corrupted.";
+const errChecksum = 'Checksum mismatch. Downloaded data might be corrupted.';
 const errUnsupported = `Installation is not supported for ${process.platform} ${process.arch}`;
 
 /**
@@ -88,9 +84,7 @@ const errUnsupported = `Installation is not supported for ${process.platform} ${
  *  See: https://docs.npmjs.com/files/package.json#bin
  */
 async function main() {
-  const yarnGlobal = JSON.parse(
-    process.env.npm_config_argv || "{}"
-  ).original?.includes("global");
+  const yarnGlobal = JSON.parse(process.env.npm_config_argv || '{}').original?.includes('global');
   if (process.env.npm_config_global || yarnGlobal) {
     throw errGlobal;
   }
@@ -100,9 +94,9 @@ async function main() {
 
   // Read from package.json and prepare for the installation.
   const pkg = await readPackageJson();
-  if (platform === "windows") {
+  if (platform === 'windows') {
     // Update bin path in package.json
-    pkg.bin[pkg.name] += ".exe";
+    pkg.bin[pkg.name] += '.exe';
   }
 
   // Prepare the installation path by creating the directory if it doesn't exist.
@@ -126,9 +120,9 @@ async function main() {
 
   // Then, download the binary.
   const url = getDownloadUrl(pkg);
-  console.info("Downloading", url);
+  console.info('Downloading', url);
   const resp = await fetch(url, { agent });
-  const hash = createHash("sha256");
+  const hash = createHash('sha256');
   const pkgNameWithPlatform = `${pkg.name}_${platform}_${arch}.tar.gz`;
 
   // Then, decompress the binary -- we will first Un-GZip, then we will untar.
@@ -138,7 +132,7 @@ async function main() {
 
   // Update the hash with the binary data as it's being downloaded.
   resp.body
-    .on("data", (chunk) => {
+    .on('data', (chunk) => {
       hash.update(chunk);
     })
     // Pipe the data to the ungz stream.
@@ -146,35 +140,35 @@ async function main() {
 
   // After the ungz stream has ended, verify the checksum.
   ungz
-    .on("end", () => {
+    .on('end', () => {
       const expectedChecksum = checksumMap?.[pkgNameWithPlatform];
       // Skip verification if we can't find the file checksum
       if (!expectedChecksum) {
-        console.warn("Skipping checksum verification");
+        console.warn('Skipping checksum verification');
         return;
       }
-      const calculatedChecksum = hash.digest("hex");
+      const calculatedChecksum = hash.digest('hex');
       if (calculatedChecksum !== expectedChecksum) {
         throw errChecksum;
       }
-      console.info("Checksum verified.");
+      console.info('Checksum verified.');
     })
     // Pipe the data to the untar stream.
     .pipe(untar);
 
   // Wait for the untar stream to finish.
   await new Promise((resolve, reject) => {
-    untar.on("error", reject);
-    untar.on("end", () => resolve());
+    untar.on('error', reject);
+    untar.on('end', () => resolve());
   });
 
   // Link the binaries in postinstall to support yarn
   await binLinks({
-    path: path.resolve("."),
+    path: path.resolve('.'),
     pkg: { ...pkg, bin: { [pkg.name]: binPath } },
   });
 
-  console.info("Installed Supabase CLI successfully");
+  console.info('Installed DTCV CLI successfully');
 }
 
 await main();

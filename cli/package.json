@@ -11,10 +11,11 @@
     "scripts"
   ],
   "scripts": {
+    "build": "go build -o bin/dtcv main.go",
     "postinstall": "node scripts/postinstall.js"
   },
   "bin": {
-    "supabase": "bin/dtcv"
+    "dtcv": "bin/dtcv"
   },
   "dependencies": {
     "bin-links": "^5.0.0",

@@ -83,8 +83,8 @@ var (
 	createTicket bool
 
 	rootCmd = &cobra.Command{
-		Use:     "supabase",
-		Short:   "Supabase CLI " + utils.Version,
+		Use:     "dtcv",
+		Short:   "Digital Twin City Viewer CLI " + utils.Version,
 		Version: utils.Version,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if IsExperimental(cmd) && !viper.GetBool("EXPERIMENTAL") {
@@ -178,9 +178,9 @@ func shouldFetchRelease(fsys afero.Fs) bool {
 }
 
 func suggestUpgrade(version string) string {
-	const guide = "https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli"
-	return fmt.Sprintf(`A new version of Supabase CLI is available: %s (currently installed v%s)
-We recommend updating regularly for new features and bug fixes: %s`, utils.Yellow(version), utils.Version, utils.Bold(guide))
+	const guide = "https://supabase.com/docs/guides/cli/getting-started"
+	return fmt.Sprintf(`The Digital Twin City Viewer CLI is a modified version of Supabase CLI %s. 
+For more information check the original documentation: %s`, version, utils.Bold(guide))
 }
 
 func recoverAndExit() {

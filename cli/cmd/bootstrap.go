@@ -1,31 +1,30 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"os/signal"
-	"strings"
+	"path/filepath"
 
-	"github.com/go-errors/errors"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/supabase/cli/internal/bootstrap"
+	_init "github.com/supabase/cli/internal/init"
 	"github.com/supabase/cli/internal/utils"
 )
 
 var (
 	starter = bootstrap.StarterTemplate{
-		Name:        "scratch",
-		Description: "An empty project from scratch.",
-		Start:       "supabase start",
+		Name:        "dtcv-template",
+		Description: "Digital Twin City Viewer template.",
+		Start:       "npm run dev",
 	}
 
 	bootstrapCmd = &cobra.Command{
-		GroupID: groupQuickStart,
+		GroupID: groupLocalDev,
 		Use:     "bootstrap [template]",
-		Short:   "Bootstrap a Supabase project from a starter template",
+		Short:   "Bootstrap a project from the DTCV template",
 		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, _ := signal.NotifyContext(cmd.Context(), os.Interrupt)
@@ -37,27 +36,28 @@ var (
 					viper.Set("WORKDIR", workdir)
 				}
 			}
-			client := utils.GetGitHubClient(ctx)
-			templates, err := bootstrap.ListSamples(ctx, client)
+
+			// Get template directory
+			exe, err := os.Executable()
 			if err != nil {
 				return err
 			}
-			if len(args) > 0 {
-				name := args[0]
-				for _, t := range templates {
-					if strings.EqualFold(t.Name, name) {
-						starter = t
-						break
-					}
-				}
-				if !strings.EqualFold(starter.Name, name) {
-					return errors.New("Invalid template: " + name)
-				}
-			} else {
-				if err := promptStarterTemplate(ctx, templates); err != nil {
-					return err
-				}
+			binDir := filepath.Dir(exe)
+			templatePath := filepath.Join(binDir, "..", "..", "apps", "nextjs-slack-clone")
+			fmt.Printf("Using template from: %s\n", templatePath)
+
+			// Verify template directory exists
+			if _, err := os.Stat(templatePath); os.IsNotExist(err) {
+				return fmt.Errorf("template directory not found at: %s", templatePath)
 			}
+			starter.Url = templatePath
+
+			// Skip init if template exists
+			initParams.Overwrite = true
+			if err := _init.Run(ctx, afero.NewOsFs(), nil, nil, initParams); err != nil {
+				return err
+			}
+
 			return bootstrap.Run(ctx, starter, afero.NewOsFs())
 		},
 	}
@@ -65,32 +65,7 @@ var (
 
 func init() {
 	bootstrapFlags := bootstrapCmd.Flags()
-	bootstrapFlags.StringVarP(&dbPassword, "password", "p", "", "Password to your remote Postgres database.")
+	bootstrapFlags.StringVarP(&dbPassword, "password", "p", "", "Password to your local Postgres database.")
 	cobra.CheckErr(viper.BindPFlag("DB_PASSWORD", bootstrapFlags.Lookup("password")))
 	rootCmd.AddCommand(bootstrapCmd)
-}
-
-func promptStarterTemplate(ctx context.Context, templates []bootstrap.StarterTemplate) error {
-	items := make([]utils.PromptItem, len(templates))
-	for i, t := range templates {
-		items[i] = utils.PromptItem{
-			Index:   i,
-			Summary: t.Name,
-			Details: t.Description,
-		}
-	}
-	items = append(items, utils.PromptItem{
-		Index:   len(items),
-		Summary: starter.Name,
-		Details: starter.Description,
-	})
-	title := "Which starter template do you want to use?"
-	choice, err := utils.PromptChoice(ctx, title, items)
-	if err != nil {
-		return err
-	}
-	if choice.Index < len(templates) {
-		starter = templates[choice.Index]
-	}
-	return nil
 }

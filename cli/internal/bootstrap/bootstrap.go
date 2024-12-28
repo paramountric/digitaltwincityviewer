@@ -19,22 +19,15 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	"github.com/supabase/cli/internal/db/push"
-	initBlank "github.com/supabase/cli/internal/init"
-	"github.com/supabase/cli/internal/link"
-	"github.com/supabase/cli/internal/login"
-	"github.com/supabase/cli/internal/projects/apiKeys"
-	"github.com/supabase/cli/internal/projects/create"
 	"github.com/supabase/cli/internal/utils"
 	"github.com/supabase/cli/internal/utils/flags"
-	"github.com/supabase/cli/internal/utils/tenant"
 	"github.com/supabase/cli/pkg/api"
 	"github.com/supabase/cli/pkg/fetcher"
 	"github.com/supabase/cli/pkg/queue"
-	"golang.org/x/term"
 )
 
 func Run(ctx context.Context, starter StarterTemplate, fsys afero.Fs, options ...func(*pgx.ConnConfig)) error {
+	// 1. Setup workdir
 	workdir := viper.GetString("WORKDIR")
 	if !filepath.IsAbs(workdir) {
 		workdir = filepath.Join(utils.CurrentDirAbs, workdir)
@@ -55,73 +48,49 @@ func Run(ctx context.Context, starter StarterTemplate, fsys afero.Fs, options ..
 	if err := utils.ChangeWorkDir(fsys); err != nil {
 		return err
 	}
-	// 0. Download starter template
-	if len(starter.Url) > 0 {
-		client := utils.GetGitHubClient(ctx)
-		if err := downloadSample(ctx, client, starter.Url, fsys); err != nil {
-			return err
-		}
-	} else if err := initBlank.Run(ctx, fsys, nil, nil, utils.InitParams{Overwrite: true}); err != nil {
+
+	// 2. Copy template files
+	fmt.Printf("Copying template from: %s to current directory\n", starter.Url)
+	if _, err := fsys.Stat(starter.Url); err != nil {
+		return errors.Errorf("template directory not found: %w", err)
+	}
+	
+	if err := copyDir(fsys, starter.Url, "."); err != nil {
+		return errors.Errorf("failed to copy template: %w", err)
+	}
+
+	// 3. Set up default API keys for local development
+	keys := []api.ApiKeyResponse{
+		{
+			ApiKey:      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0",
+			Name:        "anon",
+			Description: utils.Ptr("Development-only anon key"),
+		},
+		{
+			ApiKey:      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU",
+			Name:        "service_role",
+			Description: utils.Ptr("Development-only service role key"),
+		},
+	}
+
+	// 4. Set up default database config for local development
+	dbConfig := pgconn.Config{
+		Host:     "127.0.0.1",
+		Port:     54322,
+			User:     "postgres",
+			Password: "postgres",
+			Database: "postgres",
+	}
+
+	fmt.Fprintln(os.Stderr, "Setting up local development environment...")
+	fmt.Fprintln(os.Stderr, "Note: This is a local-only setup, not connected to Supabase platform")
+
+	// 5. Write environment variables
+	if err := writeDotEnv(keys, dbConfig, fsys); err != nil {
 		return err
 	}
-	// 1. Login
-	_, err := utils.LoadAccessTokenFS(fsys)
-	if errors.Is(err, utils.ErrMissingToken) {
-		if err := login.Run(ctx, os.Stdout, login.RunParams{
-			OpenBrowser: term.IsTerminal(int(os.Stdin.Fd())),
-			Fsys:        fsys,
-		}); err != nil {
-			return err
-		}
-	} else if err != nil {
-		return err
-	}
-	// 2. Create project
-	params := api.V1CreateProjectBodyDto{
-		Name:        filepath.Base(workdir),
-		TemplateUrl: &starter.Url,
-	}
-	if err := create.Run(ctx, params, fsys); err != nil {
-		return err
-	}
-	// 3. Get api keys
-	var keys []api.ApiKeyResponse
-	policy := newBackoffPolicy(ctx)
-	if err := backoff.RetryNotify(func() error {
-		fmt.Fprintln(os.Stderr, "Linking project...")
-		keys, err = apiKeys.RunGetApiKeys(ctx, flags.ProjectRef)
-		return err
-	}, policy, newErrorCallback()); err != nil {
-		return err
-	}
-	// 4. Link project
-	if err := utils.LoadConfigFS(fsys); err != nil {
-		return err
-	}
-	link.LinkServices(ctx, flags.ProjectRef, tenant.NewApiKey(keys).Anon, fsys)
-	if err := utils.WriteFile(utils.ProjectRefPath, []byte(flags.ProjectRef), fsys); err != nil {
-		return err
-	}
-	// 5. Wait for project healthy
-	policy.Reset()
-	if err := backoff.RetryNotify(func() error {
-		fmt.Fprintln(os.Stderr, "Checking project health...")
-		return checkProjectHealth(ctx)
-	}, policy, newErrorCallback()); err != nil {
-		return err
-	}
-	// 6. Push migrations
-	config := flags.NewDbConfigWithPassword(flags.ProjectRef)
-	if err := writeDotEnv(keys, config, fsys); err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to create .env file:", err)
-	}
-	policy.Reset()
-	if err := backoff.RetryNotify(func() error {
-		return push.Run(ctx, false, false, true, true, config, fsys)
-	}, policy, newErrorCallback()); err != nil {
-		return err
-	}
-	// 7. TODO: deploy functions
+
+	// 6. Suggest next steps
 	utils.CmdSuggestion = suggestAppStart(utils.CurrentDirAbs, starter.Start)
 	return nil
 }
@@ -392,4 +361,70 @@ func (d *Downloader) Start(ctx context.Context, localPath, remotePath string) er
 
 func (d *Downloader) Wait() error {
 	return d.queue.Collect()
+}
+
+func RunLocalTemplate(ctx context.Context, templatePath string, fsys afero.Fs) error {
+	// Copy template files
+	if err := copyDir(fsys, templatePath, "."); err != nil {
+		return err
+	}
+
+	// Set up default API keys for local development
+	keys := []api.ApiKeyResponse{
+		{
+			ApiKey:      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0",
+			Name:        "anon",
+			Description: utils.Ptr("Development-only anon key"),
+		},
+		{
+			ApiKey:      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU",
+			Name:        "service_role",
+			Description: utils.Ptr("Development-only service role key"),
+		},
+	}
+
+	// Set up default database config for local development
+	dbConfig := pgconn.Config{
+		Host:     "127.0.0.1",
+		Port:     54322,
+		User:     "postgres",
+		Password: "postgres",
+		Database: "postgres",
+	}
+
+	fmt.Fprintln(os.Stderr, "Setting up local development environment...")
+	fmt.Fprintln(os.Stderr, "Note: This is a local-only setup, not connected to Supabase platform")
+
+	// Write environment variables
+	return writeDotEnv(keys, dbConfig, fsys)
+}
+
+func copyDir(fsys afero.Fs, src, dst string) error {
+	entries, err := afero.ReadDir(fsys, src)
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		sourcePath := filepath.Join(src, entry.Name())
+		destPath := filepath.Join(dst, entry.Name())
+
+		if entry.IsDir() {
+			if err := fsys.MkdirAll(destPath, 0755); err != nil {
+				return err
+			}
+			if err := copyDir(fsys, sourcePath, destPath); err != nil {
+				return err
+			}
+		} else {
+			data, err := afero.ReadFile(fsys, sourcePath)
+			if err != nil {
+				return err
+			}
+			if err := afero.WriteFile(fsys, destPath, data, 0644); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

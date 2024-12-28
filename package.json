@@ -6,6 +6,7 @@
     "dev": "turbo run dev",
     "dev:dtcv": "turbo run dev --filter dtcv...",
     "dev:dtcc": "turbo run dev --filter dtcc...",
+    "build:cli": "turbo run build --filter=dtcv-cli",
     "gen:types": "supabase gen types typescript --local | sed 's/export interface Database {/export type Database = {/' > apps/dtcv/utils/supabase/generated/db.ts"
   },
   "workspaces": [

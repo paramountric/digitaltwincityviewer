@@ -15,6 +15,9 @@
       "dependsOn": ["^build"],
       "outputs": ["build/**"]
     },
+    "dtcv-cli#build": {
+      "outputs": ["bin/**"]
+    },
     "dev": {
       "cache": false
     }
