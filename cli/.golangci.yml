@@ -1,0 +1,23 @@
+linters:
+  enable:
+    - dogsled
+    - dupl
+    - gofmt
+    - goimports
+    - gosec
+    - misspell
+    - nakedret
+    - stylecheck
+    - unconvert
+    - unparam
+    - whitespace
+    - errcheck
+    - gosimple
+    - staticcheck
+    - ineffassign
+    - unused
+linters-settings:
+  stylecheck:
+    checks: ["all", "-ST1003"]
+  dupl:
+    threshold: 200

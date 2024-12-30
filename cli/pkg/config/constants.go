@@ -17,12 +17,20 @@ const (
 	supavisorImage   = "supabase/supavisor:1.1.56"
 	gotrueImage      = "supabase/gotrue:v2.164.0"
 	realtimeImage    = "supabase/realtime:v2.33.58"
-	storageImage     = "supabase/storage-api:v1.14.5"
+	storageImage     = "supabase/storage-api:v1.11.13"
 	logflareImage    = "supabase/logflare:1.4.0"
 	// Append to JobImages when adding new dependencies below
 	DifferImage  = "supabase/pgadmin-schema-diff:cli-0.0.5"
 	MigraImage   = "supabase/migra:3.0.1663481299"
 	PgProveImage = "supabase/pg_prove:3.36"
+	// Container IDs
+	RedisId          = "redis"
+	SpeckleServerId  = "speckle-server"
+	SpeckleFrontendId = "speckle-frontend"
+	// Speckle images
+	SpeckleServerImage   = "speckle/speckle-server:2.17.1"
+	SpeckleFrontendImage = "speckle/speckle-frontend:2.17.1"
+	RedisImage           = "redis:7-alpine"
 )
 
 var ServiceImages = []string{
@@ -46,3 +54,11 @@ var JobImages = []string{
 	MigraImage,
 	PgProveImage,
 }
+
+// Container aliases used for service discovery
+var (
+	RedisAliases          = []string{"redis"}
+	SpeckleServerAliases  = []string{"speckle-server"}
+	SpeckleFrontendAliases = []string{"speckle-frontend"}
+)
+

@@ -33,6 +33,9 @@ var (
 	LogflareId    string
 	VectorId      string
 	PoolerId      string
+	RedisId       string
+	SpeckleServerId string
+	SpeckleFrontendId string
 
 	DbAliases          = []string{"db", "db.supabase.internal"}
 	KongAliases        = []string{"kong", "api.supabase.internal"}
@@ -48,6 +51,9 @@ var (
 	LogflareAliases    = []string{"analytics"}
 	VectorAliases      = []string{"vector"}
 	PoolerAliases      = []string{"pooler"}
+	RedisAliases       = []string{"redis"}
+	SpeckleServerAliases = []string{"speckle_server"}
+	SpeckleFrontendAliases = []string{"speckle_frontend"}
 
 	//go:embed templates/initial_schemas/13.sql
 	InitialSchemaPg13Sql string
@@ -79,6 +85,9 @@ func UpdateDockerIds() {
 	LogflareId = GetId(LogflareAliases[0])
 	VectorId = GetId(VectorAliases[0])
 	PoolerId = GetId(PoolerAliases[0])
+	RedisId = GetId(RedisAliases[0])
+	SpeckleServerId = GetId(SpeckleServerAliases[0])
+	SpeckleFrontendId = GetId(SpeckleFrontendAliases[0])
 }
 
 func GetDockerIds() []string {
@@ -96,6 +105,9 @@ func GetDockerIds() []string {
 		LogflareId,
 		VectorId,
 		PoolerId,
+		RedisId,
+		SpeckleServerId,
+		SpeckleFrontendId,
 	}
 }
 
@@ -104,7 +116,7 @@ var Config = config.NewConfig(config.WithHostname(GetHostname()))
 func LoadConfigFS(fsys afero.Fs) error {
 	if err := Config.Load("", NewRootFS(fsys)); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			CmdSuggestion = fmt.Sprintf("Have you set up the project with %s?", Aqua("supabase init"))
+				CmdSuggestion = fmt.Sprintf("Have you set up the project with %s?", Aqua("supabase init"))
 		}
 		return err
 	}

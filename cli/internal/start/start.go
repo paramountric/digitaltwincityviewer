@@ -78,16 +78,19 @@ func Run(ctx context.Context, fsys afero.Fs, excludedContainers []string, ignore
 }
 
 type kongConfig struct {
-	GotrueId      string
-	RestId        string
-	RealtimeId    string
-	StorageId     string
-	PgmetaId      string
-	EdgeRuntimeId string
-	LogflareId    string
-	PoolerId      string
-	ApiHost       string
-	ApiPort       uint16
+	GotrueId          string
+	RestId            string
+	RealtimeId        string
+	StorageId         string
+	PgmetaId          string
+	EdgeRuntimeId     string
+	LogflareId        string
+	PoolerId          string
+	RedisId           string
+	SpeckleServerId   string
+	SpeckleFrontendId string
+	ApiHost           string
+	ApiPort          uint16
 }
 
 // TODO: deprecate after removing storage headers from kong
@@ -169,8 +172,6 @@ func run(p utils.Program, ctx context.Context, fsys afero.Fs, excludedContainers
 
 	var started []string
 	var isStorageEnabled = utils.Config.Storage.Enabled && !isContainerExcluded(utils.Config.Storage.Image, excluded)
-	var isImgProxyEnabled = utils.Config.Storage.ImageTransformation != nil &&
-		utils.Config.Storage.ImageTransformation.Enabled && !isContainerExcluded(utils.Config.Storage.ImgProxyImage, excluded)
 	p.Send(utils.StatusMsg("Starting containers..."))
 
 	// Start Logflare
@@ -310,7 +311,7 @@ EOF
 EOF
 `},
 				Healthcheck: &container.HealthConfig{
-					Test: []string{"CMD", "wget", "--no-verbose", "--tries=1", "--spider",
+					Test: []string{"CMD", "curl", "-sSfL", "--head", "-o", "/dev/null",
 						"http://127.0.0.1:9001/health",
 					},
 					Interval: 10 * time.Second,
@@ -348,6 +349,9 @@ EOF
 			EdgeRuntimeId: utils.EdgeRuntimeId,
 			LogflareId:    utils.LogflareId,
 			PoolerId:      utils.PoolerId,
+			RedisId:       utils.RedisId,
+			SpeckleServerId:   utils.SpeckleServerId,
+			SpeckleFrontendId: utils.SpeckleFrontendId,
 			ApiHost:       utils.Config.Hostname,
 			ApiPort:       utils.Config.Api.Port,
 		}); err != nil {
@@ -382,7 +386,7 @@ EOF
 				Env: []string{
 					"KONG_DATABASE=off",
 					"KONG_DECLARATIVE_CONFIG=/home/kong/kong.yml",
-					"KONG_DNS_ORDER=LAST,A,CNAME", // https://github.com/supabase/cli/issues/14
+					"KONG_DNS_ORDER=LAST,A,CNAME",
 					"KONG_PLUGINS=request-transformer,cors",
 					fmt.Sprintf("KONG_PORT_MAPS=%d:8000", utils.Config.Api.Port),
 					// Need to increase the nginx buffers in kong to avoid it rejecting the rather
@@ -394,6 +398,11 @@ EOF
 					// Use modern TLS certificate
 					"KONG_SSL_CERT=/home/kong/localhost.crt",
 					"KONG_SSL_CERT_KEY=/home/kong/localhost.key",
+					"KONG_DNS_RESOLVER=127.0.0.11:53",
+					"KONG_DNS_ORDER=LAST,A,CNAME",
+					"KONG_DNS_NOT_FOUND_TTL=0s",
+					"KONG_DNS_ERROR_TTL=0s",
+					"KONG_DNS_STALE_TTL=0s",
 				},
 				Entrypoint: []string{"sh", "-c", `cat <<'EOF' > /home/kong/kong.yml && \
 cat <<'EOF' > /home/kong/custom_nginx.template && \
@@ -662,9 +671,7 @@ EOF
 				Env:          env,
 				ExposedPorts: nat.PortSet{"9999/tcp": {}},
 				Healthcheck: &container.HealthConfig{
-					Test: []string{"CMD", "wget", "--no-verbose", "--tries=1", "--spider",
-						"http://127.0.0.1:9999/health",
-					},
+					Test:     []string{"CMD", "curl", "-sSfL", "--head", "-o", "/dev/null", "http://127.0.0.1:9999/health"},
 					Interval: 10 * time.Second,
 					Timeout:  2 * time.Second,
 					Retries:  3,
@@ -835,7 +842,7 @@ EOF
 					// TODO: https://github.com/supabase/storage-api/issues/55
 					"STORAGE_S3_REGION=" + utils.Config.Storage.S3Credentials.Region,
 					"GLOBAL_S3_BUCKET=stub",
-					fmt.Sprintf("ENABLE_IMAGE_TRANSFORMATION=%t", isImgProxyEnabled),
+					fmt.Sprintf("ENABLE_IMAGE_TRANSFORMATION=%t", utils.Config.Storage.ImageTransformation.Enabled),
 					fmt.Sprintf("IMGPROXY_URL=http://%s:5001", utils.ImgProxyId),
 					"TUS_URL_PATH=/storage/v1/upload/resumable",
 					"S3_PROTOCOL_ACCESS_KEY_ID=" + utils.Config.Storage.S3Credentials.AccessKeyId,
@@ -847,7 +854,7 @@ EOF
 				},
 				Healthcheck: &container.HealthConfig{
 					// For some reason, localhost resolves to IPv6 address on GitPod which breaks healthcheck.
-					Test: []string{"CMD", "wget", "--no-verbose", "--tries=1", "--spider",
+					Test: []string{"CMD", "curl", "-sSfL", "--head", "-o", "/dev/null",
 						"http://127.0.0.1:5000/status",
 					},
 					Interval: 10 * time.Second,
@@ -874,11 +881,11 @@ EOF
 	}
 
 	// Start Storage ImgProxy.
-	if isStorageEnabled && isImgProxyEnabled {
+	if isStorageEnabled && utils.Config.Storage.ImageTransformation.Enabled && !isContainerExcluded(utils.Config.Storage.ImageTransformation.Image, excluded) {
 		if _, err := utils.DockerStart(
 			ctx,
 			container.Config{
-				Image: utils.Config.Storage.ImgProxyImage,
+				Image: utils.Config.Storage.ImageTransformation.Image,
 				Env: []string{
 					"IMGPROXY_BIND=:5001",
 					"IMGPROXY_LOCAL_FILESYSTEM_ROOT=/",
@@ -979,10 +986,11 @@ EOF
 					"HOSTNAME=0.0.0.0",
 				},
 				Healthcheck: &container.HealthConfig{
-					Test:     []string{"CMD-SHELL", `node --eval="fetch('http://127.0.0.1:3000/api/profile').then((r) => {if (!r.ok) throw new Error(r.status)})"`},
+					Test:     []string{"CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"},
 					Interval: 10 * time.Second,
-					Timeout:  2 * time.Second,
-					Retries:  3,
+					Timeout:  5 * time.Second,
+					Retries:  5,
+					StartPeriod: 30 * time.Second,
 				},
 			},
 			container.HostConfig{
@@ -1079,6 +1087,136 @@ EOF
 		started = append(started, utils.PoolerId)
 	}
 
+	// Start Redis if not already started
+	if utils.Config.Redis.Enabled && !isContainerExcluded(utils.Config.Redis.Image, excluded) {
+		if _, err := utils.DockerStart(
+			ctx,
+			container.Config{
+				Image: utils.Config.Redis.Image,
+				Healthcheck: &container.HealthConfig{
+					Test:     []string{"CMD", "redis-cli", "ping"},
+					Interval: 10 * time.Second,
+					Timeout:  5 * time.Second,
+					Retries:  5,
+				},
+			},
+			container.HostConfig{
+				RestartPolicy: container.RestartPolicy{Name: "always"},
+			},
+			network.NetworkingConfig{
+				EndpointsConfig: map[string]*network.EndpointSettings{
+					utils.NetId: {
+						Aliases: utils.RedisAliases,
+					},
+				},
+			},
+			utils.RedisId,
+		); err != nil {
+			return err
+		}
+		started = append(started, utils.RedisId)
+	}
+
+	// Start Speckle Server.
+	if utils.Config.Speckle.Server.Enabled && !isContainerExcluded(utils.Config.Speckle.Server.Image, excluded) {
+		if _, err := utils.DockerStart(
+			ctx,
+			container.Config{
+				Image: utils.Config.Speckle.Server.Image,
+				Env: []string{
+					"CANONICAL_URL=" + utils.Config.Speckle.CanonicalUrl,
+					"SESSION_SECRET=" + utils.Config.Speckle.SessionSecret,
+					fmt.Sprintf("POSTGRES_URL=postgresql://%s:%s@%s:%d/%s",
+						dbConfig.User,
+						dbConfig.Password,
+						dbConfig.Host,
+						dbConfig.Port,
+						dbConfig.Database),
+					fmt.Sprintf("REDIS_URL=redis://%s:6379", utils.RedisAliases[0]),
+					"LOG_LEVEL=" + utils.Config.Speckle.LogLevel,
+					"S3_ACCESS_KEY=" + utils.Config.Speckle.Server.S3AccessKey,
+					"S3_SECRET_KEY=" + utils.Config.Speckle.Server.S3SecretKey,
+					"S3_ENDPOINT=" + utils.Config.Speckle.Server.S3Endpoint,
+					"S3_BUCKET=" + utils.Config.Speckle.Server.S3Bucket,
+					"S3_REGION=" + utils.Config.Speckle.Server.S3Region,
+					"DISABLE_FILE_UPLOADS=" + utils.Config.Speckle.Server.DisableFileUploads,
+					"S3_FORCE_PATH_STYLE=true",
+				},
+				ExposedPorts: nat.PortSet{"3000/tcp": {}},
+				Healthcheck: &container.HealthConfig{
+					Test:        []string{"CMD", "curl", "-f", "http://localhost:3000/health"},
+					Interval:    10 * time.Second,
+					Timeout:     5 * time.Second,
+					Retries:     5,
+					StartPeriod: 30 * time.Second,
+				},
+			},
+			container.HostConfig{
+				RestartPolicy: container.RestartPolicy{Name: "always"},
+			},
+			network.NetworkingConfig{
+				EndpointsConfig: map[string]*network.EndpointSettings{
+					utils.NetId: {
+						Aliases: []string{"speckle-server"},
+					},
+				},
+			},
+			utils.SpeckleServerId,
+		); err != nil {
+			return err
+		}
+		started = append(started, utils.SpeckleServerId)
+	}
+
+	// Start Speckle Frontend.
+	if utils.Config.Speckle.Frontend.Enabled && !isContainerExcluded(utils.Config.Speckle.Frontend.Image, excluded) {
+		if _, err := utils.DockerStart(
+			ctx,
+			container.Config{
+				Image: utils.Config.Speckle.Frontend.Image,
+				Env: []string{
+					"NUXT_PUBLIC_SERVER_NAME=" + utils.Config.Speckle.Frontend.ServerName,
+					"NUXT_PUBLIC_API_ORIGIN=http://speckle-server:3000",
+					"NUXT_PUBLIC_BASE_URL=" + utils.Config.Speckle.Frontend.BaseUrl,
+					"NUXT_PUBLIC_BACKEND_API_ORIGIN=http://speckle-server:3000",
+					"NUXT_PUBLIC_LOG_LEVEL=warn",
+					"NUXT_REDIS_URL=" + utils.Config.Speckle.Frontend.RedisUrl,
+					"LOG_LEVEL=info",
+					"OPENRESTY_HTTP_PORT_NUMBER=3000",
+					"OPENRESTY_HTTPS_PORT_NUMBER=8443",
+				},
+				ExposedPorts: nat.PortSet{
+					"3000/tcp": {},
+					"8443/tcp": {},
+				},
+				Healthcheck: &container.HealthConfig{
+					Test:        []string{"CMD", "curl", "-f", "http://localhost:3000/"},
+					Interval:    10 * time.Second,
+					Timeout:     5 * time.Second,
+					Retries:     5,
+					StartPeriod: 30 * time.Second,
+				},
+			},
+			container.HostConfig{
+				RestartPolicy: container.RestartPolicy{Name: "always"},
+				PortBindings: nat.PortMap{
+					"3000/tcp": []nat.PortBinding{{HostPort: "3001"}},
+				},
+			},
+			network.NetworkingConfig{
+				EndpointsConfig: map[string]*network.EndpointSettings{
+					utils.NetId: {
+						Aliases: utils.SpeckleFrontendAliases,
+					},
+				},
+			},
+			utils.SpeckleFrontendId,
+		); err != nil {
+			return err
+		}
+		started = append(started, utils.SpeckleFrontendId)
+	}
+
 	p.Send(utils.StatusMsg("Waiting for health checks..."))
 	if utils.NoBackupVolume && utils.SliceContains(started, utils.StorageId) {
 		if err := start.WaitForHealthyService(ctx, serviceTimeout, utils.StorageId); err != nil {
@@ -1099,11 +1237,23 @@ func isContainerExcluded(imageName string, excluded map[string]bool) bool {
 }
 
 func ExcludableContainers() []string {
-	names := []string{}
-	for _, image := range config.ServiceImages {
-		names = append(names, utils.ShortContainerImageName(image))
+	return []string{
+		utils.Config.Api.KongImage,
+		utils.Config.Auth.Image,
+		utils.Config.Inbucket.Image,
+		utils.Config.Realtime.Image,
+		utils.Config.Api.Image,
+		utils.Config.Storage.Image,
+		utils.Config.Storage.ImageTransformation.Image,
+		utils.Config.EdgeRuntime.Image,
+		utils.Config.Studio.PgmetaImage,
+		utils.Config.Studio.Image,
+		utils.Config.Analytics.Image,
+		utils.Config.Analytics.VectorImage,
+		utils.Config.Redis.Image,
+		utils.Config.Speckle.Server.Image,
+		utils.Config.Speckle.Frontend.Image,
 	}
-	return names
 }
 
 func formatMapForEnvConfig(input map[string]string, output *bytes.Buffer) {

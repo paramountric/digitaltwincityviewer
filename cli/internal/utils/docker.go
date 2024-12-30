@@ -25,7 +25,6 @@ import (
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
-	"github.com/docker/docker/api/types/versions"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/errdefs"
@@ -93,57 +92,29 @@ func WaitAll[T any](containers []T, exec func(container T) error) []error {
 // NoBackupVolume TODO: encapsulate this state in a class
 var NoBackupVolume = false
 
-func DockerRemoveAll(ctx context.Context, w io.Writer, projectId string) error {
-	fmt.Fprintln(w, "Stopping containers...")
-	args := CliProjectFilter(projectId)
-	containers, err := Docker.ContainerList(ctx, container.ListOptions{
-		All:     true,
-		Filters: args,
-	})
-	if err != nil {
-		return errors.Errorf("failed to list containers: %w", err)
-	}
-	// Gracefully shutdown containers
-	var ids []string
-	for _, c := range containers {
-		if c.State == "running" {
-			ids = append(ids, c.ID)
+func DockerRemoveAll(ctx context.Context, w io.Writer, projectRef string) error {
+	// Get all container IDs that need to be stopped
+	ids := GetDockerIds()
+	
+	// Stop all containers
+	for _, id := range ids {
+		containerId := GetId(id)
+		if err := Docker.ContainerStop(ctx, containerId, container.StopOptions{}); err != nil && !client.IsErrNotFound(err) {
+			fmt.Fprintf(w, "Failed to stop container %s: %v\n", containerId, err)
 		}
 	}
-	result := WaitAll(ids, func(id string) error {
-		if err := Docker.ContainerStop(ctx, id, container.StopOptions{}); err != nil {
-			return errors.Errorf("failed to stop container: %w", err)
-		}
-		return nil
-	})
-	if err := errors.Join(result...); err != nil {
-		return err
+
+	// Remove containers, volumes, and network
+	if containers, err := Docker.ContainersPrune(ctx, filters.NewArgs()); err == nil {
+		fmt.Fprintf(w, "Pruned containers: %v\n", containers.ContainersDeleted)
 	}
-	if report, err := Docker.ContainersPrune(ctx, args); err != nil {
-		return errors.Errorf("failed to prune containers: %w", err)
-	} else if viper.GetBool("DEBUG") {
-		fmt.Fprintln(os.Stderr, "Pruned containers:", report.ContainersDeleted)
+	if volumes, err := Docker.VolumesPrune(ctx, filters.NewArgs()); err == nil {
+		fmt.Fprintf(w, "Pruned volumes: %v\n", volumes.VolumesDeleted)
 	}
-	// Remove named volumes
-	if NoBackupVolume {
-		vargs := args.Clone()
-		if versions.GreaterThanOrEqualTo(Docker.ClientVersion(), "1.42") {
-			// Since docker engine 25.0.3, all flag is required to include named volumes.
-			// https://github.com/docker/cli/blob/master/cli/command/volume/prune.go#L76
-			vargs.Add("all", "true")
-		}
-		if report, err := Docker.VolumesPrune(ctx, vargs); err != nil {
-			return errors.Errorf("failed to prune volumes: %w", err)
-		} else if viper.GetBool("DEBUG") {
-			fmt.Fprintln(os.Stderr, "Pruned volumes:", report.VolumesDeleted)
-		}
+	if err := Docker.NetworkRemove(ctx, GetId("network")); err == nil {
+		fmt.Fprintf(w, "Pruned network: %v\n", GetId("network"))
 	}
-	// Remove networks.
-	if report, err := Docker.NetworksPrune(ctx, args); err != nil {
-		return errors.Errorf("failed to prune networks: %w", err)
-	} else if viper.GetBool("DEBUG") {
-		fmt.Fprintln(os.Stderr, "Pruned network:", report.NetworksDeleted)
-	}
+
 	return nil
 }
 
@@ -194,15 +165,14 @@ func GetRegistry() string {
 	return strings.ToLower(registry)
 }
 
-func GetRegistryImageUrl(imageName string) string {
-	registry := GetRegistry()
-	if registry == "docker.io" {
-		return imageName
+func GetRegistryImageUrl(image string) string {
+	// Skip registry prefix for official images and images with full paths
+	if strings.HasPrefix(image, "redis:") || 
+	   strings.HasPrefix(image, "speckle/") ||
+	   strings.Contains(image, "/") {  // Skip if image already has a registry/org prefix
+		return image
 	}
-	// Configure mirror registry
-	parts := strings.Split(imageName, "/")
-	imageName = parts[len(parts)-1]
-	return registry + "/supabase/" + imageName
+	return fmt.Sprintf("%s/%s", GetRegistry(), image)
 }
 
 func DockerImagePull(ctx context.Context, imageTag string, w io.Writer) error {

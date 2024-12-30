@@ -131,6 +131,8 @@ type (
 		Functions    FunctionConfig `toml:"functions"`
 		Analytics    analytics      `toml:"analytics"`
 		Experimental experimental   `toml:"experimental"`
+		Redis        redis          `toml:"redis"`
+		Speckle      SpeckleConfig `toml:"speckle"`
 	}
 
 	config struct {
@@ -209,6 +211,60 @@ type (
 		S3AccessKey     string    `toml:"s3_access_key"`
 		S3SecretKey     string    `toml:"s3_secret_key"`
 		Webhooks        *webhooks `toml:"webhooks"`
+	}
+
+	RedisConfig struct {
+		Enabled        bool   `toml:"enabled"`
+		Port           uint16 `toml:"port"`
+		Image          string `toml:"-"`
+		Maxmemory      string `toml:"maxmemory"`
+		MaxmemoryPolicy string `toml:"maxmemory_policy"`
+	}
+
+	SpeckleConfig struct {
+		Enabled       bool            `toml:"enabled"`
+		ServerPort    uint16          `toml:"server_port"`
+		FrontendPort  uint16          `toml:"frontend_port"`
+		CanonicalUrl  string          `toml:"canonical_url"`
+		SessionSecret string          `toml:"session_secret"`
+		LogLevel      string          `toml:"log_level"`
+		Server        SpeckleServerConfig  `toml:"server"`
+		Frontend      SpeckleFrontendConfig `toml:"frontend"`
+	}
+
+	SpeckleServerConfig struct {
+		Enabled          bool   `toml:"enabled"`
+		Image           string `toml:"-"`
+		PostgresHost    string `toml:"postgres_host"`
+		PostgresPort    uint16 `toml:"postgres_port"`
+		PostgresUser    string `toml:"postgres_user"`
+		PostgresPassword string `toml:"postgres_password"`
+		PostgresDb      string `toml:"postgres_db"`
+		RedisUrl        string `toml:"redis_url"`
+		S3AccessKey     string `toml:"s3_access_key"`
+		S3SecretKey     string `toml:"s3_secret_key"`
+		S3Endpoint      string `toml:"s3_endpoint"`
+		S3Bucket        string `toml:"s3_bucket"`
+		S3Region        string `toml:"s3_region"`
+		DisableFileUploads string `toml:"disable_file_uploads"`
+	}
+
+	SpeckleFrontendConfig struct {
+		Enabled          bool   `toml:"enabled"`
+		Image           string `toml:"-"`
+		ServerName       string `toml:"server_name"`
+		ApiOrigin        string `toml:"api_origin"`
+		BaseUrl          string `toml:"base_url"`
+		BackendApiOrigin string `toml:"backend_api_origin"`
+		RedisUrl         string `toml:"redis_url"`
+	}
+
+	redis struct {
+		Enabled         bool   `toml:"enabled"`
+		Image           string `toml:"-"`
+		Port            uint16 `toml:"port"`
+		Maxmemory       string `toml:"maxmemory"`
+		MaxmemoryPolicy string `toml:"maxmemory_policy"`
 	}
 )
 
@@ -300,12 +356,15 @@ func NewConfig(editors ...ConfigEditor) config {
 			SecretKeyBase:   "EAx3IQ/wRG1v47ZD4NE4/9RzBI8Jmil3x0yhcW4V2NHBP6c2iPIzwjofi2Ep4HIG",
 		},
 		Storage: storage{
-			Image:         storageImage,
-			ImgProxyImage: imageProxyImage,
+			Image: storageImage,
 			S3Credentials: storageS3Credentials{
 				AccessKeyId:     "625729a08b95bf1b7ff351a663f3a23c",
 				SecretAccessKey: "850181e4652dd023b7a98c58ae0d2d34bd487ee0cc3254aed6eda37307425907",
 				Region:          "local",
+			},
+			ImageTransformation: imageTransformation{
+				Enabled: true,
+				Image:   imageProxyImage,
 			},
 		},
 		Auth: auth{
@@ -345,6 +404,40 @@ func NewConfig(editors ...ConfigEditor) config {
 		EdgeRuntime: edgeRuntime{
 			Image: edgeRuntimeImage,
 		},
+		Redis: redis{
+            Enabled: true,
+            Port:    6379,
+            Image:   RedisImage,
+            Maxmemory: "512mb",
+            MaxmemoryPolicy: "allkeys-lru",
+        },
+        Speckle: SpeckleConfig{
+            Enabled: true,
+            ServerPort: 3000,
+            FrontendPort: 3001,
+            CanonicalUrl: "http://127.0.0.1",
+            SessionSecret: "super-secret-session-token",
+            LogLevel: "info",
+            Server: SpeckleServerConfig{
+                Enabled: true,
+                Image:   SpeckleServerImage,
+                PostgresHost: "db",
+                PostgresPort: 5432,
+                PostgresUser: "postgres",
+                PostgresPassword: "postgres",
+                PostgresDb: "postgres",
+                RedisUrl: "redis://redis:6379",
+            },
+            Frontend: SpeckleFrontendConfig{
+                Enabled: true,
+                Image:   SpeckleFrontendImage,
+                ServerName: "local",
+                ApiOrigin: "http://127.0.0.1",
+                BaseUrl: "http://127.0.0.1",
+                BackendApiOrigin: "http://127.0.0.1:3000",
+                RedisUrl: "redis://localhost:6379",
+            },
+        },
 	}}
 	for _, apply := range editors {
 		apply(&initial)
@@ -732,6 +825,27 @@ func (c *baseConfig) Validate(fsys fs.FS) error {
 			return errors.Errorf("Invalid config for analytics.backend. Must be one of: %v", allowed)
 		}
 	}
+	if c.Speckle.Server.Enabled {
+		var err error
+		if c.Speckle.Server.S3AccessKey, err = maybeLoadEnv(c.Experimental.S3AccessKey); err != nil {
+			return err
+		}
+		if c.Speckle.Server.S3SecretKey, err = maybeLoadEnv(c.Experimental.S3SecretKey); err != nil {
+			return err
+		}
+		if c.Speckle.Server.S3Region, err = maybeLoadEnv(c.Experimental.S3Region); err != nil {
+			return err
+		}
+		if c.Speckle.Server.S3Endpoint, err = maybeLoadEnv(c.Speckle.Server.S3Endpoint); err != nil {
+			return err
+		}
+		if c.Speckle.Server.S3Bucket, err = maybeLoadEnv(c.Speckle.Server.S3Bucket); err != nil {
+			return err
+		}
+		if c.Speckle.Server.DisableFileUploads, err = maybeLoadEnv(c.Speckle.Server.DisableFileUploads); err != nil {
+			return err
+		}
+	}
 	if err := c.Experimental.validate(); err != nil {
 		return err
 	}
@@ -790,8 +904,15 @@ func loadDefaultEnv() error {
 }
 
 func loadEnvIfExists(path string) error {
-	if err := godotenv.Load(path); err != nil && !errors.Is(err, os.ErrNotExist) {
-		return errors.Errorf("failed to load %s: %w", ".env", err)
+	fmt.Printf("Attempting to load env from: %s\n", path)
+	if err := godotenv.Load(path); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			fmt.Printf("File not found: %s\n", path)
+		} else {
+			return errors.Errorf("failed to load %s: %w", ".env", err)
+		}
+	} else {
+		fmt.Printf("Successfully loaded env from: %s\n", path)
 	}
 	return nil
 }

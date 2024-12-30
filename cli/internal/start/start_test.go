@@ -133,7 +133,7 @@ func TestDatabaseStart(t *testing.T) {
 		utils.StorageId = "test-storage"
 		apitest.MockDockerStart(utils.Docker, utils.GetRegistryImageUrl(utils.Config.Storage.Image), utils.StorageId)
 		utils.ImgProxyId = "test-imgproxy"
-		apitest.MockDockerStart(utils.Docker, utils.GetRegistryImageUrl(utils.Config.Storage.ImgProxyImage), utils.ImgProxyId)
+		apitest.MockDockerStart(utils.Docker, utils.GetRegistryImageUrl(utils.Config.Storage.ImageTransformation.Image), utils.ImgProxyId)
 		utils.EdgeRuntimeId = "test-edge-runtime"
 		apitest.MockDockerStart(utils.Docker, utils.GetRegistryImageUrl(utils.Config.EdgeRuntime.Image), utils.EdgeRuntimeId)
 		utils.PgmetaId = "test-pgmeta"
@@ -144,6 +144,15 @@ func TestDatabaseStart(t *testing.T) {
 		apitest.MockDockerStart(utils.Docker, utils.GetRegistryImageUrl(utils.Config.Analytics.Image), utils.LogflareId)
 		utils.VectorId = "test-vector"
 		apitest.MockDockerStart(utils.Docker, utils.GetRegistryImageUrl(utils.Config.Analytics.VectorImage), utils.VectorId)
+		// Add mock setup for Redis
+		utils.RedisId = "test-redis"
+		apitest.MockDockerStart(utils.Docker, utils.GetRegistryImageUrl(utils.Config.Redis.Image), utils.RedisId)
+		// Add mock setup for Speckle Server
+		utils.SpeckleServerId = "test-speckle-server"
+		apitest.MockDockerStart(utils.Docker, utils.GetRegistryImageUrl(utils.Config.Speckle.Server.Image), utils.SpeckleServerId)
+		// Add mock setup for Speckle Frontend
+		utils.SpeckleFrontendId = "test-speckle-frontend"
+		apitest.MockDockerStart(utils.Docker, utils.GetRegistryImageUrl(utils.Config.Speckle.Frontend.Image), utils.SpeckleFrontendId)
 		// Setup mock postgres
 		conn := pgtest.NewConn()
 		defer conn.Close(t)
@@ -151,7 +160,8 @@ func TestDatabaseStart(t *testing.T) {
 		started := []string{
 			utils.DbId, utils.KongId, utils.GotrueId, utils.InbucketId, utils.RealtimeId,
 			utils.StorageId, utils.ImgProxyId, utils.EdgeRuntimeId, utils.PgmetaId, utils.StudioId,
-			utils.LogflareId, utils.RestId, utils.VectorId,
+			utils.LogflareId, utils.RestId, utils.VectorId, utils.RedisId, utils.SpeckleServerId,
+			utils.SpeckleFrontendId,
 		}
 		for _, container := range started {
 			gock.New(utils.Docker.DaemonHost()).
