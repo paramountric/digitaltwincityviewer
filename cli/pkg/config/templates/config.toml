@@ -289,9 +289,9 @@ enabled = true
 # Port to use for Speckle Server
 server_port = 3000
 # Port to use for Speckle Frontend
-frontend_port = 54326
+frontend_port = 3000
 # Base URL for the Speckle installation
-canonical_url = "http://127.0.0.1"
+canonical_url = "http://127.0.0.1:54331"
 # Session secret for cookie signing
 session_secret = "env(SPECKLE_SESSION_SECRET)"
 # Log level (debug, info, warn, error)
@@ -317,7 +317,7 @@ enabled = true
 # Server name displayed in the UI
 server_name = "local"
 # API endpoints through Kong
-api_origin = "http://127.0.0.1:54321/speckle/api"
-base_url = "http://127.0.0.1:54321/speckle"
+api_origin = "http://127.0.0.1:54330"
+base_url = "http://127.0.0.1:54331"
 backend_api_origin = "http://speckle-server:3000"
 redis_url = "redis://redis:6379"

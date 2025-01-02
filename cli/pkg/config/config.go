@@ -413,9 +413,9 @@ func NewConfig(editors ...ConfigEditor) config {
         },
         Speckle: SpeckleConfig{
             Enabled: true,
-            ServerPort: 3000,
-            FrontendPort: 3001,
-            CanonicalUrl: "http://127.0.0.1",
+            ServerPort: 54330,    // External port
+    		FrontendPort: 54331,  // External port
+            CanonicalUrl: "http://127.0.0.1:54331",
             SessionSecret: "super-secret-session-token",
             LogLevel: "info",
             Server: SpeckleServerConfig{
@@ -432,9 +432,9 @@ func NewConfig(editors ...ConfigEditor) config {
                 Enabled: true,
                 Image:   SpeckleFrontendImage,
                 ServerName: "local",
-                ApiOrigin: "http://127.0.0.1",
-                BaseUrl: "http://127.0.0.1",
-                BackendApiOrigin: "http://127.0.0.1:3000",
+                ApiOrigin: "http://127.0.0.1:54331",         // Changed to use server port
+        		BaseUrl: "http://127.0.0.1:54331",           // Changed to use frontend port
+        		BackendApiOrigin: "http://127.0.0.1:54330",  // Changed to use server port
                 RedisUrl: "redis://localhost:6379",
             },
         },
@@ -904,15 +904,8 @@ func loadDefaultEnv() error {
 }
 
 func loadEnvIfExists(path string) error {
-	fmt.Printf("Attempting to load env from: %s\n", path)
-	if err := godotenv.Load(path); err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			fmt.Printf("File not found: %s\n", path)
-		} else {
-			return errors.Errorf("failed to load %s: %w", ".env", err)
-		}
-	} else {
-		fmt.Printf("Successfully loaded env from: %s\n", path)
+	if err := godotenv.Load(path); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return errors.Errorf("failed to load %s: %w", ".env", err)
 	}
 	return nil
 }

@@ -1144,15 +1144,18 @@ EOF
 				},
 				ExposedPorts: nat.PortSet{"3000/tcp": {}},
 				Healthcheck: &container.HealthConfig{
-					Test:        []string{"CMD", "curl", "-f", "http://localhost:3000/health"},
-					Interval:    10 * time.Second,
-					Timeout:     5 * time.Second,
-					Retries:     5,
+					Test:     []string{"CMD", "curl", "-f", "http://127.0.0.1:3000/health"},
+					Interval: 10 * time.Second,
+					Timeout:  5 * time.Second,
+					Retries:  5,
 					StartPeriod: 30 * time.Second,
 				},
 			},
 			container.HostConfig{
 				RestartPolicy: container.RestartPolicy{Name: "always"},
+				PortBindings: nat.PortMap{
+					"3000/tcp": []nat.PortBinding{{HostPort: "54330"}},
+				},
 			},
 			network.NetworkingConfig{
 				EndpointsConfig: map[string]*network.EndpointSettings{
@@ -1176,12 +1179,13 @@ EOF
 				Image: utils.Config.Speckle.Frontend.Image,
 				Env: []string{
 					"NUXT_PUBLIC_SERVER_NAME=" + utils.Config.Speckle.Frontend.ServerName,
-					"NUXT_PUBLIC_API_ORIGIN=http://speckle-server:3000",
-					"NUXT_PUBLIC_BASE_URL=" + utils.Config.Speckle.Frontend.BaseUrl,
-					"NUXT_PUBLIC_BACKEND_API_ORIGIN=http://speckle-server:3000",
+					// todo: use the variables from the config
+					"NUXT_PUBLIC_API_ORIGIN=http://127.0.0.1:54330",
+					"NUXT_PUBLIC_BASE_URL=http://127.0.0.1:54331",
+					"NUXT_PUBLIC_BACKEND_API_ORIGIN=http://127.0.0.1:54330",
 					"NUXT_PUBLIC_LOG_LEVEL=warn",
-					"NUXT_REDIS_URL=" + utils.Config.Speckle.Frontend.RedisUrl,
-					"LOG_LEVEL=info",
+					"NUXT_REDIS_URL=redis://redis:6379",
+					"LOG_LEVEL=info", // should be extra option
 					"OPENRESTY_HTTP_PORT_NUMBER=3000",
 					"OPENRESTY_HTTPS_PORT_NUMBER=8443",
 				},
@@ -1190,17 +1194,17 @@ EOF
 					"8443/tcp": {},
 				},
 				Healthcheck: &container.HealthConfig{
-					Test:        []string{"CMD", "curl", "-f", "http://localhost:3000/"},
-					Interval:    10 * time.Second,
-					Timeout:     5 * time.Second,
-					Retries:     5,
+					Test:     []string{"CMD", "curl", "-f", "http://127.0.0.1:3000/health"},
+					Interval: 10 * time.Second,
+					Timeout:  5 * time.Second,
+					Retries:  5,
 					StartPeriod: 30 * time.Second,
 				},
 			},
 			container.HostConfig{
 				RestartPolicy: container.RestartPolicy{Name: "always"},
 				PortBindings: nat.PortMap{
-					"3000/tcp": []nat.PortBinding{{HostPort: "3001"}},
+					"3000/tcp": []nat.PortBinding{{HostPort: "54331"}},
 				},
 			},
 			network.NetworkingConfig{
