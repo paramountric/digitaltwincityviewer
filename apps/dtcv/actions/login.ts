@@ -1,9 +1,7 @@
-"use server";
+'use server';
 
-import { DbProfile } from "@/types";
-import { DbUser } from "@/types";
-import { dbUserToUserWithProfile } from "@/types/type-utils";
-import { createClient } from "@/utils/supabase/server";
+import { DbProfile, DbUser, dbUserToUserWithProfile } from '@dtcv/model';
+import { createClient } from '@/utils/supabase/server';
 
 export async function login(username: string, password: string) {
   const client = createClient();
@@ -19,9 +17,9 @@ export async function login(username: string, password: string) {
 
   // find the profile for the user
   const { data: profileData, error: profileError } = await client
-    .from("profiles")
-    .select("*")
-    .eq("id", data?.user?.id)
+    .from('profiles')
+    .select('*')
+    .eq('id', data?.user?.id)
     .single();
 
   if (profileError) {

@@ -1,54 +1,48 @@
-"use server";
+'use server';
 
-import { createClient } from "@/utils/supabase/server";
-import { DbProject, Project } from "@/types";
+import { createClient } from '@/utils/supabase/server';
+import { DbStream, Project } from '@dtcv/model';
 
 export const validateProjectName = (name: string) => {
   // Regex to allow a wide range of characters for project names
-  const validNameRegex =
-    /^[a-zA-ZåäöÅÄÖæøåÆØÅéèêëÉÈÊËíìîïÍÌÎÏóòôõÓÒÔÕúùûüÚÙÛÜñÑçÇ\d\s\-_.'&()]+$/;
+  const validNameRegex = /^[a-zA-ZåäöÅÄÖæøåÆØÅéèêëÉÈÊËíìîïÍÌÎÏóòôõÓÒÔÕúùûüÚÙÛÜñÑçÇ\d\s\-_.'&()]+$/;
   return validNameRegex.test(name) && name.trim().length > 0;
 };
 
-export async function createProject(
-  name: string,
-  description: string,
-  userId: string
-) {
+export async function createProject(name: string, description: string, userId: string) {
   if (!validateProjectName(name)) {
     throw new Error(
-      "Invalid project name. Use only common letters, numbers, spaces, hyphens, and underscores."
+      'Invalid project name. Use only common letters, numbers, spaces, hyphens, and underscores.'
     );
   }
 
   const client = createClient();
 
-  const newProject: Partial<DbProject> = {
+  const newProject: Partial<DbStream> = {
     name,
     description,
-    admin_id: userId,
   };
   const { data: projectData, error: projectError } = await client
-    .from("projects")
+    .from('projects')
     .insert(newProject)
     .select()
     .single();
 
   if (projectError) {
     console.error(projectError);
-    throw new Error("Could not create project. Please try again.");
+    throw new Error('Could not create project. Please try again.');
   }
 
   const { error: profileUpdateError } = await client
-    .from("profiles")
+    .from('profiles')
     .update({ active_project_id: projectData.id })
-    .eq("id", userId)
+    .eq('id', userId)
     .select()
     .single();
 
   if (profileUpdateError) {
     console.error(profileUpdateError);
-    throw new Error("Failed to update active project");
+    throw new Error('Failed to update active project');
   }
 
   return {

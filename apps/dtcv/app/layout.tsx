@@ -1,30 +1,32 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "./globals.css";
-import { AppProvider } from "@/context/app-context";
-import { createClient } from "@/utils/supabase/server";
-import { DbProfile, DbUser, Project, UserWithProfile } from "@/types";
+import type { Metadata } from 'next';
+import localFont from 'next/font/local';
+import './globals.css';
+import { AppProvider } from '@/context/app-context';
+import { createClient } from '@/utils/supabase/server';
 import {
-  dbFeatureToFeature,
+  DbProfile,
+  DbUser,
+  Project,
+  UserWithProfile,
   dbProjectToProject,
   dbUserToUserWithProfile,
-} from "../types/type-utils";
-import { Feature } from "@dtcv/viewport";
+} from '@dtcv/model';
+import { Feature } from '@dtcv/viewport';
 
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+  src: './fonts/GeistVF.woff',
+  variable: '--font-geist-sans',
+  weight: '100 900',
 });
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+  src: './fonts/GeistMonoVF.woff',
+  variable: '--font-geist-mono',
+  weight: '100 900',
 });
 
 export const metadata: Metadata = {
-  title: "Digital Twin City Viewer",
-  description: "Digital Twin City Viewer",
+  title: 'Digital Twin City Viewer',
+  description: 'Digital Twin City Viewer',
 };
 
 export default async function RootLayout({
@@ -47,13 +49,13 @@ export default async function RootLayout({
 
   if (user) {
     const { data: profileData, error: profileError } = await client
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
       .single();
 
     if (profileError || !profileData) {
-      console.error("Error fetching profile", profileError);
+      console.error('Error fetching profile', profileError);
     }
 
     const profile = profileData || {
@@ -68,49 +70,47 @@ export default async function RootLayout({
       profile as unknown as DbProfile
     );
 
-    const { data: userProjectsData, error: userProjectsError } = await client
-      .from("project_collaborators")
-      .select("project_id")
-      .eq("user_id", user.id);
+    // const { data: userProjectsData, error: userProjectsError } = await client
+    //   .from('project_collaborators')
+    //   .select('project_id')
+    //   .eq('user_id', user.id);
 
-    if (userProjectsError) {
-      console.error("Error fetching user projects", userProjectsError);
-    }
+    // if (userProjectsError) {
+    //   console.error('Error fetching user projects', userProjectsError);
+    // }
 
-    const projectIds = userProjectsData?.map((up) => up.project_id) || [];
+    // const projectIds = userProjectsData?.map((up) => up.project_id) || [];
 
-    const { data: projectsData, error: projectsError } = await client
-      .from("projects")
-      .select("*")
-      .in("id", projectIds);
+    // const { data: projectsData, error: projectsError } = await client
+    //   .from('projects')
+    //   .select('*')
+    //   .in('id', projectIds);
 
-    if (projectsError) {
-      console.error("Error fetching projects", projectsError);
-    }
+    // if (projectsError) {
+    //   console.error('Error fetching projects', projectsError);
+    // }
 
-    const projects: Project[] = (projectsData || []).map(dbProjectToProject);
+    // const projects: Project[] = (projectsData || []).map(dbProjectToProject);
 
-    if (userWithProfile && userWithProfile.profile.activeProjectId) {
-      project =
-        projects.find(
-          (project) => project.id === userWithProfile!.profile.activeProjectId
-        ) || null;
+    // if (userWithProfile && userWithProfile.profile.activeProjectId) {
+    //   project =
+    //     projects.find((project) => project.id === userWithProfile!.profile.activeProjectId) || null;
 
-      const { data: featuresData, error: featuresError } = await client
-        .from("features")
-        .select("*")
-        .eq("project_id", project?.id ?? "");
+    //   const { data: featuresData, error: featuresError } = await client
+    //     .from('features')
+    //     .select('*')
+    //     .eq('project_id', project?.id ?? '');
 
-      if (featuresError) {
-        message = "Error fetching features";
-      }
+    //   if (featuresError) {
+    //     message = 'Error fetching features';
+    //   }
 
-      features = (featuresData || []).map(dbFeatureToFeature);
-    } else {
-      message = "Profile not found";
-    }
+    //   features = (featuresData || []).map(dbFeatureToFeature);
+    // } else {
+    //   message = 'Profile not found';
+    // }
   } else {
-    message = "User not found";
+    message = 'User not found';
   }
 
   return (

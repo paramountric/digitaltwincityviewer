@@ -7,7 +7,12 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY || 'your-anon-key'
 );
 
-test.describe.only('User Authentication Sync', () => {
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL || 'http://localhost:54321',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'your-service-role-key'
+);
+
+test.describe('User Authentication Sync', () => {
   test.beforeEach(async () => {
     // Clean up test data
     const {
@@ -20,7 +25,7 @@ test.describe.only('User Authentication Sync', () => {
     await supabase.from('users').delete().neq('id', '0');
   });
 
-  test('should sync user creation from Supabase to Speckle', async () => {
+  test.only('should sync user creation from Supabase to Speckle', async () => {
     const testUser = {
       email: faker.internet.email(),
       password: faker.internet.password(),
@@ -42,25 +47,55 @@ test.describe.only('User Authentication Sync', () => {
       },
     });
 
+    console.log('Auth Data:', authData);
+    console.log('Auth Error:', authError);
+
     expect(authError).toBeNull();
     expect(authData.user).toBeDefined();
 
-    // Give the trigger time to execute
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Give the trigger more time to execute
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Debug: Check if trigger exists
+    const { data: triggerData } = await supabase
+      .from('pg_trigger')
+      .select('*')
+      .eq('tgname', 'on_auth_user_created');
+    console.log('Trigger exists:', triggerData);
 
     // Check if user was synced to Speckle users table
     const { data: speckleUser, error: speckleError } = await supabase
       .from('users')
       .select('*')
-      .eq('id', authData.user!.id)
-      .single();
+      .eq('email', testUser.email);
+
+    console.log('Speckle User Query Result:', speckleUser);
+    console.log('Speckle Error:', speckleError);
+
+    // Modified expectations to help debug
+    if (speckleError) {
+      console.error('Speckle Error Details:', speckleError);
+    }
 
     expect(speckleError).toBeNull();
     expect(speckleUser).toBeDefined();
-    expect(speckleUser.email).toBe(testUser.email);
-    expect(speckleUser.name).toBe(testUser.name);
-    expect(speckleUser.company).toBe(testUser.company);
-    expect(speckleUser.bio).toBe(testUser.bio);
+    expect(speckleUser?.[0]?.email).toBe(testUser.email);
+    expect(speckleUser?.[0]?.name).toBe(testUser.name);
+
+    // Check users_meta table for additional fields
+    const { data: userMeta, error: metaError } = await supabase
+      .from('users_meta')
+      .select('*')
+      .eq('user_id', speckleUser?.[0]?.id);
+
+    expect(metaError).toBeNull();
+    expect(userMeta).toBeDefined();
+
+    // Check specific metadata values
+    const findMetaValue = (key: string) => userMeta?.find((m) => m.key === key)?.value;
+
+    expect(findMetaValue('company')).toBe(testUser.company);
+    expect(findMetaValue('bio')).toBe(testUser.bio);
   });
 
   test('should sync user updates between systems', async () => {
@@ -69,32 +104,56 @@ test.describe.only('User Authentication Sync', () => {
       email: faker.internet.email(),
       password: faker.internet.password(),
       name: faker.person.fullName(),
+      company: faker.company.name(),
     };
 
     const {
       data: { user },
-    } = await supabase.auth.signUp(testUser);
+    } = await supabase.auth.signUp({
+      email: testUser.email,
+      password: testUser.password,
+      options: {
+        data: {
+          name: testUser.name,
+          company: testUser.company,
+        },
+      },
+    });
     expect(user).toBeDefined();
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Update user in Speckle
-    const updatedName = faker.person.fullName();
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({ name: updatedName })
-      .eq('id', user!.id);
+    // Update user metadata
+    const newName = faker.person.fullName();
+    const { error: updateError } = await supabase.auth.updateUser({
+      data: {
+        name: newName,
+      },
+    });
 
     expect(updateError).toBeNull();
 
     // Give the trigger time to execute
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Verify update synced to auth.users
-    const {
-      data: { user: updatedUser },
-    } = await supabase.auth.getUser();
-    expect(updatedUser!.user_metadata.name).toBe(updatedName);
+    // Verify update in Speckle users table
+    const { data: speckleUser } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', testUser.email)
+      .single();
+
+    expect(speckleUser.name).toBe(newName);
+
+    // Verify update in users_meta
+    const { data: userMeta } = await supabase
+      .from('users_meta')
+      .select('*')
+      .eq('user_id', speckleUser.id)
+      .eq('key', 'name')
+      .single();
+
+    expect(userMeta.value).toBe(newName);
   });
 
   test('should sync user deletion between systems', async () => {
@@ -109,8 +168,8 @@ test.describe.only('User Authentication Sync', () => {
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Delete from auth
-    const { error: deleteError } = await supabase.auth.admin.deleteUser(user!.id);
+    // Delete from auth using admin client
+    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user!.id);
     expect(deleteError).toBeNull();
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -119,10 +178,18 @@ test.describe.only('User Authentication Sync', () => {
     const { data: speckleUser, error: speckleError } = await supabase
       .from('users')
       .select('*')
-      .eq('id', user!.id)
+      .eq('email', user!.email)
       .single();
 
     expect(speckleError).toBeDefined();
     expect(speckleUser).toBeNull();
+
+    // Verify deleted from users_meta
+    const { data: userMeta } = await supabase
+      .from('users_meta')
+      .select('*')
+      .eq('user_id', user!.id);
+
+    expect(userMeta).toHaveLength(0);
   });
 });

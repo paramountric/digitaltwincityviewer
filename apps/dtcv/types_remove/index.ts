@@ -1,8 +1,8 @@
-import { Database, Json } from "@/utils/supabase/generated/db";
+import { Database, Json } from '@/utils/supabase/generated_remove/db';
 
-export type DbProfile = Database["public"]["Tables"]["profiles"]["Row"];
-export type DbProject = Database["public"]["Tables"]["projects"]["Row"];
-export type DbFeature = Database["public"]["Tables"]["features"]["Row"];
+export type DbProfile = Database['public']['Tables']['profiles']['Row'];
+export type DbProject = Database['public']['Tables']['projects']['Row'];
+export type DbFeature = Database['public']['Tables']['features']['Row'];
 
 export type User = {
   instanceId: string;

@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 
 import {
   Sidebar,
@@ -15,7 +15,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarRail,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
 import {
   _SidebarRight,
   SidebarRightContent,
@@ -26,10 +26,10 @@ import {
   SidebarRightMenuItem,
   SidebarRightProvider,
   useSidebarRight,
-} from "@/components/ui/sidebar-right";
-import Footer from "./footer";
-import { Feature } from "@dtcv/viewport";
-import { NavBar } from "./navbar";
+} from '@/components/ui/sidebar-right';
+import Footer from './footer';
+import { Feature } from '@dtcv/viewport';
+import { NavBar } from './navbar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,18 +37,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MapPinIcon, MapPinnedIcon, Plus } from "lucide-react";
-import { ChevronsUpDown } from "lucide-react";
-import { useAppContext } from "@/context/app-context";
-import ProjectSidebarContent from "./project-sidebar-content";
-import { Toolbar } from "./toolbar";
+} from '@/components/ui/dropdown-menu';
+import { MapPinIcon, MapPinnedIcon, Plus } from 'lucide-react';
+import { ChevronsUpDown } from 'lucide-react';
+import { useAppContext } from '@/context/app-context';
+import ProjectSidebarContent from './project-sidebar-content';
+import { Toolbar } from './toolbar';
 
 const features: Feature[] = [
   {
-    key: "feature-1",
-    name: "Feature 1",
-    type: "Building",
+    key: 'feature-1',
+    name: 'Feature 1',
+    type: 'Building',
   },
 ];
 // This is sample data.
@@ -110,12 +110,8 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <MapPinnedIcon className="size-4" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">
-                      {project?.name || "Project"}
-                    </span>
-                    <span className="truncate text-xs">
-                      {user?.profile.displayName}
-                    </span>
+                    <span className="truncate font-semibold">{project?.name || 'Project'}</span>
+                    <span className="truncate text-xs">{user?.profile.name}</span>
                   </div>
                   <ChevronsUpDown className="ml-auto" />
                 </SidebarMenuButton>
@@ -138,7 +134,7 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <div className="flex size-6 items-center justify-center rounded-sm border">
                       <MapPinIcon className="size-4 shrink-0" />
                     </div>
-                    {project.name || "Project"}
+                    {project.name || 'Project'}
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
@@ -146,9 +142,7 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                     <Plus className="size-4" />
                   </div>
-                  <div className="font-medium text-muted-foreground">
-                    Add project
-                  </div>
+                  <div className="font-medium text-muted-foreground">Add project</div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

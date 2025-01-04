@@ -27,12 +27,12 @@ const LoginForm: React.FC = () => {
     }
 
     if (data) {
-      const route = data.profile.activeProjectId
-        ? `/projects/${data.profile.activeProjectId}`
-        : '/projects';
+      // const route = data.profile.activeProjectId
+      //   ? `/projects/${data.profile.activeProjectId}`
+      //   : '/projects';
 
       // router.push(route);
-      window.location.href = route;
+      window.location.href = '/projects';
     }
   };
 

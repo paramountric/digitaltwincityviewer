@@ -1,17 +1,9 @@
-"use client";
+'use client';
 
-import { UserWithProfile, Project } from "@/types";
-import { Feature } from "@dtcv/viewport";
-import React, {
-  createContext,
-  useState,
-  useContext,
-  ReactNode,
-  useRef,
-  useEffect,
-} from "react";
-import { Viewport, ViewportProps } from "@dtcv/viewport";
-import { projectToFeature } from "../types/type-utils";
+import { UserWithProfile, Project, projectToEntity } from '@dtcv/model';
+import { Feature } from '@dtcv/viewport';
+import React, { createContext, useState, useContext, ReactNode, useRef, useEffect } from 'react';
+import { Viewport, ViewportProps } from '@dtcv/viewport';
 
 interface AppContextType {
   canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -25,7 +17,7 @@ interface AppContextType {
   setProjects: (projects: Project[]) => void;
   features: Feature[];
   setFeatures: (features: Feature[]) => void;
-  theme: "light" | "dark";
+  theme: 'light' | 'dark';
   toggleTheme: () => void;
   activeDialogId: string | null;
   setActiveDialogId: (id: string | null) => void;
@@ -41,10 +33,7 @@ interface AppProviderProps {
   children: ReactNode;
 }
 
-export const AppProvider: React.FC<AppProviderProps> = ({
-  children,
-  ...initial
-}) => {
+export const AppProvider: React.FC<AppProviderProps> = ({ children, ...initial }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const viewportRef = useRef<any | null>(null);
 
@@ -52,19 +41,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({
   const [project, _setProject] = useState<Project | null>(initial.project);
   const [projects, _setProjects] = useState<Project[]>(initial.projects);
   const [mainFeature, _setMainFeature] = useState<Feature | null>(
-    project ? projectToFeature(project) : null
+    project ? projectToEntity(project) : null
   );
   const [features, _setFeatures] = useState<Feature[]>(initial.features);
   const [activeDialogId, setActiveDialogId] = useState<string | null>(null);
 
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   const setUser = (user: UserWithProfile | null) => {
     _setUser(user);
   };
 
   const setProject = (project: Project | null) => {
-    console.log("todo: reset state here for the features etc");
+    console.log('todo: reset state here for the features etc');
     _setProject(project);
   };
 
@@ -94,17 +83,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({
   };
 
   const handleViewportOnLoad = () => {
-    console.log("viewport loaded");
-    window.addEventListener("resize", updateCanvasSize);
+    console.log('viewport loaded');
+    window.addEventListener('resize', updateCanvasSize);
     // todo: add more event listeners here, on canvas (unmount them in return statement of the useEffect)
   };
 
   useEffect(() => {
     if (canvasRef.current && !viewportRef.current) {
-      const {
-        offsetWidth = window.innerWidth,
-        offsetHeight = window.innerHeight,
-      } = canvasRef.current.parentElement!;
+      const { offsetWidth = window.innerWidth, offsetHeight = window.innerHeight } =
+        canvasRef.current.parentElement!;
 
       const viewportFeature = mainFeature ? mainFeature : undefined;
       const viewportProps: ViewportProps = {
@@ -119,14 +106,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 
     return () => {
       if (viewportRef.current?.deck) {
-        window.removeEventListener("resize", updateCanvasSize);
+        window.removeEventListener('resize', updateCanvasSize);
         // viewportRef.current?.dispose();
       }
     };
   }, [canvasRef.current]);
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 
   const value: AppContextType = {
@@ -153,7 +140,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
 export const useAppContext = (): AppContextType => {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error("useAppContext must be used within an AppProvider");
+    throw new Error('useAppContext must be used within an AppProvider');
   }
   return context;
 };

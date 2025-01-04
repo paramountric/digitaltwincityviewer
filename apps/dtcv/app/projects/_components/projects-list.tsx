@@ -1,21 +1,14 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { useAppContext } from "@/context/app-context";
-import { Project } from "@/types";
-import { createClient } from "@/utils/supabase/client";
-import { Toaster } from "@/components/ui/toaster";
-import { useRouter } from "next/dist/client/components/navigation";
+import { Button } from '@/components/ui/button';
+import { useAppContext } from '@/context/app-context';
+import { Project } from '@dtcv/model';
+import { createClient } from '@/utils/supabase/client';
+import { Toaster } from '@/components/ui/toaster';
+import { useRouter } from 'next/dist/client/components/navigation';
 
 export function ProjectsList() {
-  const {
-    projects,
-    user,
-    setProject,
-    setUser,
-    setFeatures,
-    setActiveDialogId,
-  } = useAppContext();
+  const { projects, user, setProject, setUser, setFeatures, setActiveDialogId } = useAppContext();
   const router = useRouter();
 
   const profileId = user?.profile?.id;
@@ -27,28 +20,28 @@ export function ProjectsList() {
 
     const client = createClient();
     const { error: updateError } = await client
-      .from("profiles")
+      .from('profiles')
       .update({ active_project_id: projectId })
-      .eq("id", profileId)
+      .eq('id', profileId)
       .select()
       .single();
 
     if (updateError) {
-      console.error("Failed to update active project:", updateError);
+      console.error('Failed to update active project:', updateError);
       return;
     }
 
     setUser({
       ...user,
-      profile: { ...user.profile, activeProjectId: projectId },
+      profile: { ...user.profile },
     });
     setProject(project);
     const { data, error: loadError } = await client
-      .from("features")
+      .from('features')
       .select()
-      .eq("project_id", projectId);
+      .eq('project_id', projectId);
     if (loadError) {
-      console.error("Failed to load features:", loadError);
+      console.error('Failed to load features:', loadError);
       return;
     }
     if (data) {
@@ -62,15 +55,13 @@ export function ProjectsList() {
       <main className="flex flex-col min-h-[calc(100vh-128px)] gap-4 p-4 lg:gap-6 lg:p-6 pointer-events-auto">
         <div className="flex flex-grow items-center justify-center rounded-lg border border-dashed shadow-sm">
           <div className="flex flex-col items-center gap-4 text-center px-4 py-8">
-            <h3 className="text-3xl font-bold tracking-tight">
-              You have no projects
-            </h3>
+            <h3 className="text-3xl font-bold tracking-tight">You have no projects</h3>
             <p className="text-lg text-muted-foreground max-w-md">
               Create your first project to get started!
             </p>
             <Button
               className="mt-6 text-lg px-6 py-3"
-              onClick={() => setActiveDialogId("create-project")}
+              onClick={() => setActiveDialogId('create-project')}
             >
               Create project
             </Button>

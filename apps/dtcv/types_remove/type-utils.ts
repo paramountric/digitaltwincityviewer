@@ -1,4 +1,4 @@
-import { Feature, FeatureProperties } from "@dtcv/viewport";
+import { Feature, FeatureProperties } from '@dtcv/viewport';
 import {
   DbProfile,
   DbUser,
@@ -9,12 +9,9 @@ import {
   User,
   UserWithProfile,
   ProjectProperties,
-} from "../types";
+} from '../types_remove';
 
-export function dbUserToUserWithProfile(
-  dbUser: DbUser,
-  dbProfile: DbProfile
-): UserWithProfile {
+export function dbUserToUserWithProfile(dbUser: DbUser, dbProfile: DbProfile): UserWithProfile {
   const user = dbUserToUser(dbUser);
   const profile = dbProfileToProfile(dbProfile);
   return {
@@ -80,7 +77,7 @@ export function dbProjectToProject(dbProject: DbProject): Project {
     name: dbProject.name,
     description: dbProject.description,
     properties: dbProject.properties as unknown as ProjectProperties,
-    adminId: dbProject.admin_id || "",
+    adminId: dbProject.admin_id || '',
     createdAt: dbProject.created_at || new Date().toISOString(),
     updatedAt: dbProject.updated_at || new Date().toISOString(),
   };
@@ -89,7 +86,7 @@ export function dbProjectToProject(dbProject: DbProject): Project {
 export function dbFeatureToFeature(dbFeature: DbFeature): Feature {
   return {
     id: dbFeature.id,
-    key: dbFeature.key || "",
+    key: dbFeature.key || '',
     createdAt: dbFeature.created_at || new Date().toISOString(),
     description: dbFeature.description,
     geometry: dbFeature.geometry as any,
@@ -106,8 +103,8 @@ export function dbFeatureToFeature(dbFeature: DbFeature): Feature {
 
 export function featureToDbFeature(feature: Feature): DbFeature {
   return {
-    id: feature.id || "",
-    key: feature.key || "",
+    id: feature.id || '',
+    key: feature.key || '',
     type: feature.type || null,
     namespace: feature.namespace || null,
     observed_at: feature.observedAt || null,
@@ -122,10 +119,7 @@ export function featureToDbFeature(feature: Feature): DbFeature {
   };
 }
 
-export function projectToFeature(
-  project: Project,
-  extraProps?: FeatureProperties
-): Feature {
+export function projectToFeature(project: Project, extraProps?: FeatureProperties): Feature {
   return {
     id: project.id,
     key: project.id,
@@ -134,8 +128,8 @@ export function projectToFeature(
     description: project.description || null,
     geometry: null,
     name: project.name,
-    type: "project",
-    namespace: "project",
+    type: 'project',
+    namespace: 'project',
     observedAt: project.createdAt || new Date().toISOString(),
     position: null,
     projectId: null,
