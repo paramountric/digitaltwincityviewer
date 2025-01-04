@@ -61,25 +61,22 @@ export function AvatarButton() {
   };
 
   const handleProjectSelect = async (selectedProject: Project) => {
-    try {
-      if (!user) {
-        console.error('User not found');
-        return;
-      }
-      // Update the active project ID for the user in the database
-      const { error } = await supabase
-        .from('profiles')
-        .update({ active_project_id: selectedProject.id })
-        .eq('id', user.profile.id);
-
-      if (error) throw error;
-
-      setProject(selectedProject);
-
-      router.push(`/projects/${selectedProject.id}`);
-    } catch (error) {
-      console.error('Error setting active project:', error);
-    }
+    // try {
+    //   if (!user) {
+    //     console.error('User not found');
+    //     return;
+    //   }
+    //   // Update the active project ID for the user in the database
+    //   const { error } = await supabase
+    //     .from('profiles')
+    //     .update({ active_project_id: selectedProject.id })
+    //     .eq('id', user.profile.id);
+    //   if (error) throw error;
+    //   setProject(selectedProject);
+    //   router.push(`/projects/${selectedProject.id}`);
+    // } catch (error) {
+    //   console.error('Error setting active project:', error);
+    // }
   };
 
   return (

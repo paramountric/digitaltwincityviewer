@@ -33,17 +33,17 @@ export async function createProject(name: string, description: string, userId: s
     throw new Error('Could not create project. Please try again.');
   }
 
-  const { error: profileUpdateError } = await client
-    .from('profiles')
-    .update({ active_project_id: projectData.id })
-    .eq('id', userId)
-    .select()
-    .single();
+  // const { error: profileUpdateError } = await client
+  //   .from('profiles')
+  //   .update({ active_project_id: projectData.id })
+  //   .eq('id', userId)
+  //   .select()
+  //   .single();
 
-  if (profileUpdateError) {
-    console.error(profileUpdateError);
-    throw new Error('Failed to update active project');
-  }
+  // if (profileUpdateError) {
+  //   console.error(profileUpdateError);
+  //   throw new Error('Failed to update active project');
+  // }
 
   return {
     project: {

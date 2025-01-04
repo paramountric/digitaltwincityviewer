@@ -13,42 +13,42 @@ export function ProjectsList() {
 
   const profileId = user?.profile?.id;
 
-  const setActiveProject = async (project: Project) => {
-    if (!user) return;
+  // const setActiveProject = async (project: Project) => {
+  //   if (!user) return;
 
-    const projectId = project.id;
+  //   const projectId = project.id;
 
-    const client = createClient();
-    const { error: updateError } = await client
-      .from('profiles')
-      .update({ active_project_id: projectId })
-      .eq('id', profileId)
-      .select()
-      .single();
+  //   const client = createClient();
+  //   const { error: updateError } = await client
+  //     .from('profiles')
+  //     .update({ active_project_id: projectId })
+  //     .eq('id', profileId)
+  //     .select()
+  //     .single();
 
-    if (updateError) {
-      console.error('Failed to update active project:', updateError);
-      return;
-    }
+  //   if (updateError) {
+  //     console.error('Failed to update active project:', updateError);
+  //     return;
+  //   }
 
-    setUser({
-      ...user,
-      profile: { ...user.profile },
-    });
-    setProject(project);
-    const { data, error: loadError } = await client
-      .from('features')
-      .select()
-      .eq('project_id', projectId);
-    if (loadError) {
-      console.error('Failed to load features:', loadError);
-      return;
-    }
-    if (data) {
-      setFeatures(data);
-    }
-    router.push(`/projects/${projectId}`);
-  };
+  //   setUser({
+  //     ...user,
+  //     profile: { ...user.profile },
+  //   });
+  //   setProject(project);
+  //   const { data, error: loadError } = await client
+  //     .from('features')
+  //     .select()
+  //     .eq('project_id', projectId);
+  //   if (loadError) {
+  //     console.error('Failed to load features:', loadError);
+  //     return;
+  //   }
+  //   if (data) {
+  //     setFeatures(data);
+  //   }
+  //   router.push(`/projects/${projectId}`);
+  // };
 
   if (!projects || projects.length === 0) {
     return (

@@ -1,3 +1,5 @@
+# For detailed configuration reference documentation, visit:
+# https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
 project_id = "digitaltwincityviewer"
@@ -7,15 +9,16 @@ enabled = true
 # Port to use for the API URL.
 port = 54321
 # Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
-# endpoints. `public` is always included.
+# endpoints. `public` and `graphql_public` schemas are included by default.
 schemas = ["public", "graphql_public"]
-# Extra schemas to add to the search_path of every request. `public` is always included.
+# Extra schemas to add to the search_path of every request.
 extra_search_path = ["public", "extensions"]
 # The maximum number of rows returns from a view, table, or stored procedure. Limits payload size
 # for accidental or malicious requests.
 max_rows = 1000
 
 [api.tls]
+# Enable HTTPS endpoints locally using a self-signed certificate.
 enabled = false
 
 [db]
@@ -38,6 +41,13 @@ pool_mode = "transaction"
 default_pool_size = 20
 # Maximum number of client connections allowed.
 max_client_conn = 100
+
+[db.seed]
+# If enabled, seeds the database after migrations during a db reset.
+enabled = true
+# Specifies an ordered list of seed files to load during db reset.
+# Supports glob patterns relative to supabase directory: './seeds/*.sql'
+sql_paths = ['./seed.sql']
 
 [realtime]
 enabled = true
@@ -64,6 +74,8 @@ port = 54324
 # Uncomment to expose additional ports for testing user applications that send emails.
 # smtp_port = 54325
 # pop3_port = 54326
+# admin_email = "admin@email.com"
+# sender_name = "Admin"
 
 [storage]
 enabled = true
@@ -100,6 +112,11 @@ enable_signup = true
 enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
 enable_manual_linking = false
+# Passwords shorter than this value will be rejected as weak. Minimum 6, recommended 8 or more.
+minimum_password_length = 6
+# Passwords that do not meet the following requirements will be rejected as weak. Supported values
+# are: `letters_digits`, `lower_upper_letters_digits`, `lower_upper_letters_digits_symbols`
+password_requirements = ""
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
@@ -113,9 +130,14 @@ enable_confirmations = false
 secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
 max_frequency = "1s"
+# Number of characters used in the email OTP.
+otp_length = 6
+# Number of seconds before the email OTP expires (defaults to 1 hour).
+otp_expiry = 3600
 
 # Use a production-ready SMTP server
 # [auth.email.smtp]
+# enabled = true
 # host = "smtp.sendgrid.net"
 # port = 587
 # user = "apikey"
@@ -130,11 +152,11 @@ max_frequency = "1s"
 
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.
-enable_signup = true
+enable_signup = false
 # If enabled, users need to confirm their phone number before signing in.
 enable_confirmations = false
 # Template for sending OTP to users
-template = "Your code is {{ .Code }} ."
+template = "Your code is {{ .Code }}"
 # Controls the minimum amount of time that must pass before sending another sms otp.
 max_frequency = "5s"
 
@@ -172,12 +194,17 @@ enroll_enabled = true
 verify_enabled = true
 
 # Configure Multi-factor-authentication via Phone Messaging
-# [auth.mfa.phone]
+[auth.mfa.phone]
+enroll_enabled = false
+verify_enabled = false
+otp_length = 6
+template = "Your code is {{ .Code }}"
+max_frequency = "5s"
+
+# Configure Multi-factor-authentication via WebAuthn
+# [auth.mfa.web_authn]
 # enroll_enabled = true
 # verify_enabled = true
-# otp_length = 6
-# template = "Your code is {{ .Code }} ."
-# max_frequency = "10s"
 
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
@@ -217,7 +244,17 @@ enabled = true
 # Configure one of the supported request policies: `oneshot`, `per_worker`.
 # Use `oneshot` for hot reload, or `per_worker` for load testing.
 policy = "oneshot"
+# Port to attach the Chrome inspector for debugging edge functions.
 inspector_port = 8083
+
+# Use these configurations to customize your Edge Function.
+# [functions.MY_FUNCTION_NAME]
+# enabled = true
+# verify_jwt = true
+# import_map = "./functions/MY_FUNCTION_NAME/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+# entrypoint = "./functions/MY_FUNCTION_NAME/index.ts"
 
 [analytics]
 enabled = true
@@ -237,3 +274,65 @@ s3_region = "env(S3_REGION)"
 s3_access_key = "env(S3_ACCESS_KEY)"
 # Configures AWS_SECRET_ACCESS_KEY for S3 bucket
 s3_secret_key = "env(S3_SECRET_KEY)"
+
+[redis]
+enabled = true
+# Port to use for Redis
+port = 6379
+# Maximum memory usage before eviction
+maxmemory = "2gb"
+# Eviction policy (options: volatile-lru, allkeys-lru, volatile-random, allkeys-random, volatile-ttl)
+maxmemory_policy = "volatile-lru"
+
+[speckle]
+enabled = true
+server_port = 54330
+frontend_port = 54331
+canonical_url = "http://127.0.0.1:54330"
+session_secret = "super-secret-session-token"
+log_level = "info"
+
+[speckle.server]
+enabled = true
+strategy_local = true
+# Postgres settings - pointing to Supabase within Docker network
+postgres_host = "supabase_db_digitaltwincityviewer"  # Use Docker container name
+postgres_port = 5432  # Internal Docker port, not the exposed port
+postgres_user = "postgres"
+postgres_password = "postgres"
+postgres_db = "postgres"
+# Redis settings
+redis_url = "redis://redis:6379"
+# S3 settings
+s3_endpoint = "http://minio:9000"
+s3_access_key = "minioadmin"
+s3_secret_key = "minioadmin"
+s3_bucket = "speckle-server"
+s3_create_bucket = true
+s3_region = ""
+file_size_limit_mb = 100
+# Email settings - using Supabase Inbucket
+email = true
+email_host = "supabase_inbucket_digitaltwincityviewer"  # Docker container name
+email_port = 2500  # SMTP port for Inbucket
+email_from = "no-reply@example.org"
+# Frontend settings
+use_frontend_2 = true
+frontend_origin = "http://127.0.0.1:54331"
+onboarding_stream_url = "https://latest.speckle.systems/projects/843d07eb10"
+onboarding_stream_cache_bust_number = 1
+enable_fe2_messaging = false
+# Notifications
+disable_notifications_consumption = false
+# File upload settings
+disable_file_uploads = true
+
+[speckle.frontend]
+enabled = true
+server_name = "local"
+api_origin = "http://127.0.0.1:54330"
+base_url = "http://127.0.0.1:54331"
+backend_api_origin = "http://speckle-server:3000"
+log_level = "warn"
+redis_url = "redis://redis:6379"
+use_frontend_2 = true

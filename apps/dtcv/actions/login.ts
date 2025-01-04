@@ -17,9 +17,9 @@ export async function login(username: string, password: string) {
 
   // find the profile for the user
   const { data: profileData, error: profileError } = await client
-    .from('profiles')
+    .from('users')
     .select('*')
-    .eq('id', data?.user?.id)
+    .eq('suuid', data?.user?.id)
     .single();
 
   if (profileError) {

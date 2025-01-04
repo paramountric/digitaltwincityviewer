@@ -1,14 +1,16 @@
-"use client";
+'use client';
 
-import { Suspense } from "react";
-import { useAppContext } from "../context/app-context";
-import { Canvas } from "./_components/canvas";
-import LoginForm from "./_components/login-form";
-import Spinner from "@/components/ui/spinner";
-import Navigation from "./_components/navigation";
+import { Suspense } from 'react';
+import { useAppContext } from '../context/app-context';
+import { Canvas } from './_components/canvas';
+import LoginForm from './_components/login-form';
+import Spinner from '@/components/ui/spinner';
+import Navigation from './_components/navigation';
 
 export default function Start() {
   const { user } = useAppContext();
+
+  console.log('user', user);
 
   return (
     <>
