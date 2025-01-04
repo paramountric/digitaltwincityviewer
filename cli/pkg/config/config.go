@@ -222,41 +222,56 @@ type (
 	}
 
 	SpeckleConfig struct {
-		Enabled       bool            `toml:"enabled"`
-		ServerPort    uint16          `toml:"server_port"`
-		FrontendPort  uint16          `toml:"frontend_port"`
-		CanonicalUrl  string          `toml:"canonical_url"`
-		SessionSecret string          `toml:"session_secret"`
-		LogLevel      string          `toml:"log_level"`
-		Server        SpeckleServerConfig  `toml:"server"`
-		Frontend      SpeckleFrontendConfig `toml:"frontend"`
+		Enabled      bool           `toml:"enabled"`
+		ServerPort   uint16         `toml:"server_port"`
+		FrontendPort uint16         `toml:"frontend_port"`
+		CanonicalUrl string         `toml:"canonical_url"`
+		SessionSecret string        `toml:"session_secret"`
+		LogLevel     string         `toml:"log_level"`
+		Server       SpeckleServer  `toml:"server"`
+		Frontend     SpeckleFrontend `toml:"frontend"`
 	}
 
-	SpeckleServerConfig struct {
-		Enabled          bool   `toml:"enabled"`
-		Image           string `toml:"-"`
-		PostgresHost    string `toml:"postgres_host"`
-		PostgresPort    uint16 `toml:"postgres_port"`
-		PostgresUser    string `toml:"postgres_user"`
-		PostgresPassword string `toml:"postgres_password"`
-		PostgresDb      string `toml:"postgres_db"`
-		RedisUrl        string `toml:"redis_url"`
-		S3AccessKey     string `toml:"s3_access_key"`
-		S3SecretKey     string `toml:"s3_secret_key"`
-		S3Endpoint      string `toml:"s3_endpoint"`
-		S3Bucket        string `toml:"s3_bucket"`
-		S3Region        string `toml:"s3_region"`
-		DisableFileUploads string `toml:"disable_file_uploads"`
+	SpeckleServer struct {
+		Enabled                        bool   `toml:"enabled"`
+		StrategyLocal                  bool   `toml:"strategy_local"`
+		PostgresHost                   string `toml:"postgres_host"`
+		PostgresPort                   uint16 `toml:"postgres_port"`
+		PostgresUser                   string `toml:"postgres_user"`
+		PostgresPassword               string `toml:"postgres_password"`
+		PostgresDb                     string `toml:"postgres_db"`
+		RedisUrl                       string `toml:"redis_url"`
+		S3Endpoint                     string `toml:"s3_endpoint"`
+		S3AccessKey                    string `toml:"s3_access_key"`
+		S3SecretKey                    string `toml:"s3_secret_key"`
+		S3Bucket                       string `toml:"s3_bucket"`
+		S3CreateBucket                 bool   `toml:"s3_create_bucket"`
+		S3Region                       string `toml:"s3_region"`
+		FileSizeLimitMb               int    `toml:"file_size_limit_mb"`
+		Email                         bool   `toml:"email"`
+		EmailHost                     string `toml:"email_host"`
+		EmailFrom                     string `toml:"email_from"`
+		EmailPort                     uint16 `toml:"email_port"`
+		UseFrontend2                  bool   `toml:"use_frontend_2"`
+		FrontendOrigin                string `toml:"frontend_origin"`
+		OnboardingStreamUrl           string `toml:"onboarding_stream_url"`
+		OnboardingStreamCacheBustNumber int  `toml:"onboarding_stream_cache_bust_number"`
+		EnableFe2Messaging            bool   `toml:"enable_fe2_messaging"`
+		DisableNotificationsConsumption bool `toml:"disable_notifications_consumption"`
+		Image                         string `toml:"-"`
+		DisableFileUploads            bool   `toml:"disable_file_uploads"`
 	}
 
-	SpeckleFrontendConfig struct {
-		Enabled          bool   `toml:"enabled"`
-		Image           string `toml:"-"`
-		ServerName       string `toml:"server_name"`
-		ApiOrigin        string `toml:"api_origin"`
-		BaseUrl          string `toml:"base_url"`
-		BackendApiOrigin string `toml:"backend_api_origin"`
-		RedisUrl         string `toml:"redis_url"`
+	SpeckleFrontend struct {
+		Enabled           bool   `toml:"enabled"`
+		ServerName        string `toml:"server_name"`
+		ApiOrigin         string `toml:"api_origin"`
+		BaseUrl           string `toml:"base_url"`
+		BackendApiOrigin  string `toml:"backend_api_origin"`
+		LogLevel          string `toml:"log_level"`
+		RedisUrl          string `toml:"redis_url"`
+		Image             string `toml:"-"`
+		UseFrontend2      bool   `toml:"use_frontend_2"`
 	}
 
 	redis struct {
@@ -413,29 +428,45 @@ func NewConfig(editors ...ConfigEditor) config {
         },
         Speckle: SpeckleConfig{
             Enabled: true,
-            ServerPort: 54330,    // External port
-    		FrontendPort: 54331,  // External port
-            CanonicalUrl: "http://127.0.0.1:54331",
+            ServerPort: 54330,
+    		FrontendPort: 54331,
+            CanonicalUrl: "http://127.0.0.1",
             SessionSecret: "super-secret-session-token",
             LogLevel: "info",
-            Server: SpeckleServerConfig{
+            Server: SpeckleServer{
                 Enabled: true,
                 Image:   SpeckleServerImage,
-                PostgresHost: "db",
-                PostgresPort: 5432,
-                PostgresUser: "postgres",
-                PostgresPassword: "postgres",
-                PostgresDb: "postgres",
-                RedisUrl: "redis://redis:6379",
+                StrategyLocal: true,
+                PostgresUser: "speckle",
+                PostgresPassword: "speckle",
+                PostgresDb: "speckle",
+                RedisUrl: "redis://redis",
+                S3Endpoint: "http://minio:9000",
+                S3AccessKey: "minioadmin",
+                S3SecretKey: "minioadmin",
+                S3Bucket: "speckle-server",
+                S3CreateBucket: true,
+                S3Region: "",
+                FileSizeLimitMb: 100,
+                EmailFrom: "no-reply@example.org",
+                UseFrontend2: true,
+                FrontendOrigin: "http://127.0.0.1",
+                OnboardingStreamUrl: "https://latest.speckle.systems/projects/843d07eb10",
+                OnboardingStreamCacheBustNumber: 1,
+                EnableFe2Messaging: false,
+                DisableNotificationsConsumption: false,
+                DisableFileUploads: false,
             },
-            Frontend: SpeckleFrontendConfig{
+            Frontend: SpeckleFrontend{
                 Enabled: true,
-                Image:   SpeckleFrontendImage,
+                Image: SpeckleFrontendImage,
                 ServerName: "local",
-                ApiOrigin: "http://127.0.0.1:54331",         // Changed to use server port
-        		BaseUrl: "http://127.0.0.1:54331",           // Changed to use frontend port
-        		BackendApiOrigin: "http://127.0.0.1:54330",  // Changed to use server port
-                RedisUrl: "redis://localhost:6379",
+                ApiOrigin: "http://127.0.0.1",
+                BaseUrl: "http://127.0.0.1",
+                BackendApiOrigin: "http://speckle-server:3000",
+                LogLevel: "warn",
+                RedisUrl: "redis://redis",
+				UseFrontend2: true,
             },
         },
 	}}
@@ -840,9 +871,6 @@ func (c *baseConfig) Validate(fsys fs.FS) error {
 			return err
 		}
 		if c.Speckle.Server.S3Bucket, err = maybeLoadEnv(c.Speckle.Server.S3Bucket); err != nil {
-			return err
-		}
-		if c.Speckle.Server.DisableFileUploads, err = maybeLoadEnv(c.Speckle.Server.DisableFileUploads); err != nil {
 			return err
 		}
 	}

@@ -286,38 +286,53 @@ maxmemory_policy = "volatile-lru"
 
 [speckle]
 enabled = true
-# Port to use for Speckle Server
-server_port = 3000
-# Port to use for Speckle Frontend
-frontend_port = 3000
-# Base URL for the Speckle installation
-canonical_url = "http://127.0.0.1:54331"
-# Session secret for cookie signing
-session_secret = "env(SPECKLE_SESSION_SECRET)"
-# Log level (debug, info, warn, error)
+server_port = 54330
+frontend_port = 54331
+canonical_url = "http://127.0.0.1:54330"
+session_secret = "super-secret-session-token"
 log_level = "info"
 
 [speckle.server]
 enabled = true
-# Database configuration (uses Supabase Postgres)
-postgres_host = "db"
-postgres_port = 5432
+strategy_local = true
+# Postgres settings - pointing to Supabase within Docker network
+postgres_host = "supabase_db_digitaltwincityviewer"  # Use Docker container name
+postgres_port = 5432  # Internal Docker port, not the exposed port
 postgres_user = "postgres"
 postgres_password = "postgres"
 postgres_db = "postgres"
-# Redis configuration
+# Redis settings
 redis_url = "redis://redis:6379"
-# S3 additional configuration for Speckle (the other values are set above)
-s3_endpoint = "env(S3_ENDPOINT)"
-s3_bucket = "env(S3_BUCKET)"
-disable_file_uploads = "env(DISABLE_FILE_UPLOADS)"
+# S3 settings
+s3_endpoint = "http://minio:9000"
+s3_access_key = "minioadmin"
+s3_secret_key = "minioadmin"
+s3_bucket = "speckle-server"
+s3_create_bucket = true
+s3_region = ""
+file_size_limit_mb = 100
+# Email settings - using Supabase Inbucket
+email = true
+email_host = "supabase_inbucket_digitaltwincityviewer"  # Docker container name
+email_port = 2500  # SMTP port for Inbucket
+email_from = "no-reply@example.org"
+# Frontend settings
+use_frontend_2 = true
+frontend_origin = "http://127.0.0.1:54331"
+onboarding_stream_url = "https://latest.speckle.systems/projects/843d07eb10"
+onboarding_stream_cache_bust_number = 1
+enable_fe2_messaging = false
+# Notifications
+disable_notifications_consumption = false
+# File upload settings
+disable_file_uploads = true
 
 [speckle.frontend]
 enabled = true
-# Server name displayed in the UI
 server_name = "local"
-# API endpoints through Kong
 api_origin = "http://127.0.0.1:54330"
 base_url = "http://127.0.0.1:54331"
 backend_api_origin = "http://speckle-server:3000"
+log_level = "warn"
 redis_url = "redis://redis:6379"
+use_frontend_2 = true

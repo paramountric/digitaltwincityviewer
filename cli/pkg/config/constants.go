@@ -29,7 +29,7 @@ const (
 	SpeckleFrontendId = "speckle-frontend"
 	// Speckle images
 	SpeckleServerImage   = "speckle/speckle-server:2.23.4"
-	SpeckleFrontendImage = "speckle/speckle-frontend:2.23.4"
+	SpeckleFrontendImage = "speckle/speckle-frontend-2:2.23.4"
 	RedisImage           = "redis:7-alpine"
 )
 

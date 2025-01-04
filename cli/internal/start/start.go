@@ -1117,31 +1117,71 @@ EOF
 		started = append(started, utils.RedisId)
 	}
 
-	// Start Speckle Server.
-	if utils.Config.Speckle.Server.Enabled && !isContainerExcluded(utils.Config.Speckle.Server.Image, excluded) {
+	// Start Speckle Server
+	if utils.Config.Speckle.Server.Enabled {
+		env := []string{
+			"CANONICAL_URL=" + utils.Config.Speckle.CanonicalUrl,
+			"SESSION_SECRET=" + utils.Config.Speckle.SessionSecret,
+			"STRATEGY_LOCAL=" + strconv.FormatBool(utils.Config.Speckle.Server.StrategyLocal),
+			"LOG_LEVEL=" + utils.Config.Speckle.LogLevel,
+
+			fmt.Sprintf("POSTGRES_URL=postgresql://%s:%s@%s:%d/%s",
+				dbConfig.User,
+				dbConfig.Password,
+				dbConfig.Host,
+				dbConfig.Port,
+				dbConfig.Database),
+			
+			// // Postgres settings
+			// "POSTGRES_HOST=" + utils.Config.Speckle.Server.PostgresHost,
+			// "POSTGRES_PORT=" + strconv.FormatUint(uint64(utils.Config.Speckle.Server.PostgresPort), 10),
+			// "POSTGRES_USER=" + utils.Config.Speckle.Server.PostgresUser,
+			// "POSTGRES_PASSWORD=" + utils.Config.Speckle.Server.PostgresPassword,
+			// "POSTGRES_DB=" + utils.Config.Speckle.Server.PostgresDb,
+
+			// // Alternative: use connection string
+			// "PG_CONNECTION_STRING=postgres://" + utils.Config.Speckle.Server.PostgresUser + ":" + 
+            // utils.Config.Speckle.Server.PostgresPassword + "@" + 
+            // utils.Config.Speckle.Server.PostgresHost + ":" + 
+            // strconv.FormatUint(uint64(utils.Config.Speckle.Server.PostgresPort), 10) + "/" + 
+            // utils.Config.Speckle.Server.PostgresDb,
+			
+			// Redis settings
+			"REDIS_URL=" + utils.Config.Speckle.Server.RedisUrl,
+			
+			// S3 settings
+			"S3_ENDPOINT=" + utils.Config.Speckle.Server.S3Endpoint,
+			"S3_ACCESS_KEY=" + utils.Config.Speckle.Server.S3AccessKey,
+			"S3_SECRET_KEY=" + utils.Config.Speckle.Server.S3SecretKey,
+			"S3_BUCKET=" + utils.Config.Speckle.Server.S3Bucket,
+			"S3_CREATE_BUCKET=" + strconv.FormatBool(utils.Config.Speckle.Server.S3CreateBucket),
+			"S3_REGION=" + utils.Config.Speckle.Server.S3Region,
+			"FILE_SIZE_LIMIT_MB=" + strconv.Itoa(utils.Config.Speckle.Server.FileSizeLimitMb),
+			
+			// Email settings
+			"EMAIL=" + strconv.FormatBool(utils.Config.Speckle.Server.Email),
+			"EMAIL_HOST=" + utils.Config.Speckle.Server.EmailHost,
+			"EMAIL_FROM=" + utils.Config.Speckle.Server.EmailFrom,
+			"EMAIL_PORT=" + strconv.FormatUint(uint64(utils.Config.Speckle.Server.EmailPort), 10),
+			
+			// Frontend settings
+			"USE_FRONTEND_2=" + strconv.FormatBool(utils.Config.Speckle.Server.UseFrontend2),
+			"FRONTEND_ORIGIN=" + utils.Config.Speckle.Server.FrontendOrigin,
+			"ONBOARDING_STREAM_URL=" + utils.Config.Speckle.Server.OnboardingStreamUrl,
+			"ONBOARDING_STREAM_CACHE_BUST_NUMBER=" + strconv.Itoa(utils.Config.Speckle.Server.OnboardingStreamCacheBustNumber),
+			"ENABLE_FE2_MESSAGING=" + strconv.FormatBool(utils.Config.Speckle.Server.EnableFe2Messaging),
+			
+			// Notifications
+			"DISABLE_NOTIFICATIONS_CONSUMPTION=" + strconv.FormatBool(utils.Config.Speckle.Server.DisableNotificationsConsumption),
+			
+			// File upload settings
+			"DISABLE_FILE_UPLOADS=" + strconv.FormatBool(utils.Config.Speckle.Server.DisableFileUploads),
+		}
 		if _, err := utils.DockerStart(
 			ctx,
 			container.Config{
 				Image: utils.Config.Speckle.Server.Image,
-				Env: []string{
-					"CANONICAL_URL=" + utils.Config.Speckle.CanonicalUrl,
-					"SESSION_SECRET=" + utils.Config.Speckle.SessionSecret,
-					fmt.Sprintf("POSTGRES_URL=postgresql://%s:%s@%s:%d/%s",
-						dbConfig.User,
-						dbConfig.Password,
-						dbConfig.Host,
-						dbConfig.Port,
-						dbConfig.Database),
-					fmt.Sprintf("REDIS_URL=redis://%s:6379", utils.RedisAliases[0]),
-					"LOG_LEVEL=" + utils.Config.Speckle.LogLevel,
-					"S3_ACCESS_KEY=" + utils.Config.Speckle.Server.S3AccessKey,
-					"S3_SECRET_KEY=" + utils.Config.Speckle.Server.S3SecretKey,
-					"S3_ENDPOINT=" + utils.Config.Speckle.Server.S3Endpoint,
-					"S3_BUCKET=" + utils.Config.Speckle.Server.S3Bucket,
-					"S3_REGION=" + utils.Config.Speckle.Server.S3Region,
-					"DISABLE_FILE_UPLOADS=" + utils.Config.Speckle.Server.DisableFileUploads,
-					"S3_FORCE_PATH_STYLE=true",
-				},
+				Env:   env,
 				ExposedPorts: nat.PortSet{"3000/tcp": {}},
 				Healthcheck: &container.HealthConfig{
 					Test:     []string{"CMD", "curl", "-f", "http://127.0.0.1:3000/health"},
@@ -1171,30 +1211,31 @@ EOF
 		started = append(started, utils.SpeckleServerId)
 	}
 
-	// Start Speckle Frontend.
-	if utils.Config.Speckle.Frontend.Enabled && !isContainerExcluded(utils.Config.Speckle.Frontend.Image, excluded) {
+	// Start Speckle Frontend
+	if utils.Config.Speckle.Frontend.Enabled {
+		env := []string{
+			"NUXT_PUBLIC_SERVER_NAME=" + utils.Config.Speckle.Frontend.ServerName,
+			"NUXT_PUBLIC_API_ORIGIN=" + utils.Config.Speckle.Frontend.ApiOrigin,
+			"NUXT_PUBLIC_BASE_URL=" + utils.Config.Speckle.Frontend.BaseUrl,
+			"NUXT_PUBLIC_BACKEND_API_ORIGIN=" + utils.Config.Speckle.Frontend.BackendApiOrigin,
+			"NUXT_PUBLIC_LOG_LEVEL=" + utils.Config.Speckle.Frontend.LogLevel,
+			"NUXT_REDIS_URL=" + utils.Config.Speckle.Frontend.RedisUrl,
+			"LOG_LEVEL=" + utils.Config.Speckle.LogLevel,
+			"USE_FRONTEND_2=" + strconv.FormatBool(utils.Config.Speckle.Frontend.UseFrontend2),
+			"NODE_ENV=production",
+			"HOST=0.0.0.0",
+        	"PORT=8080",
+		}
 		if _, err := utils.DockerStart(
 			ctx,
 			container.Config{
 				Image: utils.Config.Speckle.Frontend.Image,
-				Env: []string{
-					"NUXT_PUBLIC_SERVER_NAME=" + utils.Config.Speckle.Frontend.ServerName,
-					// todo: use the variables from the config
-					"NUXT_PUBLIC_API_ORIGIN=http://127.0.0.1:54330",
-					"NUXT_PUBLIC_BASE_URL=http://127.0.0.1:54331",
-					"NUXT_PUBLIC_BACKEND_API_ORIGIN=http://127.0.0.1:54330",
-					"NUXT_PUBLIC_LOG_LEVEL=warn",
-					"NUXT_REDIS_URL=redis://redis:6379",
-					"LOG_LEVEL=info", // should be extra option
-					"OPENRESTY_HTTP_PORT_NUMBER=3000",
-					"OPENRESTY_HTTPS_PORT_NUMBER=8443",
-				},
+				Env:   env,
 				ExposedPorts: nat.PortSet{
-					"3000/tcp": {},
-					"8443/tcp": {},
+					"8080/tcp": {},
 				},
 				Healthcheck: &container.HealthConfig{
-					Test:     []string{"CMD", "curl", "-f", "http://127.0.0.1:3000/health"},
+					Test:     []string{"CMD", "curl", "-f", "http://127.0.0.1:8080/health"},
 					Interval: 10 * time.Second,
 					Timeout:  5 * time.Second,
 					Retries:  5,
@@ -1204,7 +1245,10 @@ EOF
 			container.HostConfig{
 				RestartPolicy: container.RestartPolicy{Name: "always"},
 				PortBindings: nat.PortMap{
-					"3000/tcp": []nat.PortBinding{{HostPort: "54331"}},
+					"8080/tcp": []nat.PortBinding{{
+						HostIP: "0.0.0.0",
+						HostPort: strconv.Itoa(int(utils.Config.Speckle.FrontendPort)),
+					}},
 				},
 			},
 			network.NetworkingConfig{
