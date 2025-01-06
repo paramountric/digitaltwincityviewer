@@ -133,6 +133,7 @@ type (
 		Experimental experimental   `toml:"experimental"`
 		Redis        redis          `toml:"redis"`
 		Speckle      SpeckleConfig `toml:"speckle"`
+		N8n          n8n            `toml:"n8n"`
 	}
 
 	config struct {
@@ -280,6 +281,23 @@ type (
 		Port            uint16 `toml:"port"`
 		Maxmemory       string `toml:"maxmemory"`
 		MaxmemoryPolicy string `toml:"maxmemory_policy"`
+	}
+
+	n8n struct {
+		Enabled bool   `toml:"enabled"`
+		Image   string `toml:"-"`
+		Port    uint16 `toml:"port"`
+		Volume  string `toml:"volume"`
+
+		SmtpHost string `toml:"smtp_host"`
+		SmtpPort uint16 `toml:"smtp_port"`
+		SmtpUser string `toml:"smtp_user"`
+		SmtpPass string `toml:"smtp_pass"`
+		SmtpSender string `toml:"smtp_sender"`
+		
+		Worker struct {
+			Enabled bool `toml:"enabled"`
+		} `toml:"worker"`
 	}
 )
 
@@ -467,6 +485,21 @@ func NewConfig(editors ...ConfigEditor) config {
                 LogLevel: "warn",
                 RedisUrl: "redis://redis",
 				UseFrontend2: true,
+            },
+        },
+		N8n: n8n{
+            Enabled: false,
+            Image:   "n8nio/n8n:latest",
+            Port:    5678,
+            SmtpHost: "supabase_inbucket_digitaltwincityviewer",
+            SmtpPort: 2500,
+            SmtpUser: "",
+            SmtpPass: "",
+            SmtpSender: "n8n@example.org",
+            Worker: struct {
+                Enabled bool `toml:"enabled"`
+            }{
+                Enabled: true,
             },
         },
 	}}

@@ -36,6 +36,8 @@ var (
 	RedisId       string
 	SpeckleServerId string
 	SpeckleFrontendId string
+	N8nId string
+	N8nWorkerId string
 
 	DbAliases          = []string{"db", "db.supabase.internal"}
 	KongAliases        = []string{"kong", "api.supabase.internal"}
@@ -54,7 +56,8 @@ var (
 	RedisAliases       = []string{"redis"}
 	SpeckleServerAliases = []string{"speckle_server"}
 	SpeckleFrontendAliases = []string{"speckle_frontend"}
-
+	N8nAliases = []string{"n8n"}
+	N8nWorkerAliases = []string{"n8n_worker"}
 	//go:embed templates/initial_schemas/13.sql
 	InitialSchemaPg13Sql string
 	//go:embed templates/initial_schemas/14.sql
@@ -88,6 +91,8 @@ func UpdateDockerIds() {
 	RedisId = GetId(RedisAliases[0])
 	SpeckleServerId = GetId(SpeckleServerAliases[0])
 	SpeckleFrontendId = GetId(SpeckleFrontendAliases[0])
+	N8nId = GetId(N8nAliases[0])
+	N8nWorkerId = GetId(N8nWorkerAliases[0])
 }
 
 func GetDockerIds() []string {
@@ -108,6 +113,8 @@ func GetDockerIds() []string {
 		RedisId,
 		SpeckleServerId,
 		SpeckleFrontendId,
+		N8nId,
+		N8nWorkerId,
 	}
 }
 

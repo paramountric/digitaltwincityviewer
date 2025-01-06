@@ -336,3 +336,19 @@ backend_api_origin = "http://speckle-server:3000"
 log_level = "warn"
 redis_url = "redis://redis:6379"
 use_frontend_2 = true
+
+[n8n]
+enabled = true
+image = "n8nio/n8n:latest"
+port = 5678
+volume = "n8n_data"
+
+# Email settings using Inbucket
+smtp_host = "supabase_inbucket_digitaltwincityviewer"  # Same as Speckle
+smtp_port = 2500  # Same SMTP port as Speckle
+smtp_user = ""    # Not needed for Inbucket
+smtp_pass = ""    # Not needed for Inbucket
+smtp_sender = "n8n@example.org"
+
+[n8n.worker]
+enabled = true

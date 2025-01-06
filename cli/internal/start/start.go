@@ -1265,6 +1265,126 @@ EOF
 		started = append(started, utils.SpeckleFrontendId)
 	}
 
+	// Start n8n
+	if utils.Config.N8n.Enabled && !isContainerExcluded(utils.Config.N8n.Image, excluded) {
+		// Start main n8n node
+		mainEnv := []string{
+			// Queue configuration - updated from deprecated EXECUTIONS_PROCESS
+			"N8N_MODE=queue",  // Replace EXECUTIONS_PROCESS=queue
+			"QUEUE_BULL_REDIS_HOST=" + utils.RedisId,
+			"QUEUE_BULL_REDIS_PORT=6379",
+			
+			// Add permissions enforcement
+			"N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true",
+
+			// Database configuration
+			"DB_TYPE=postgresdb",
+			"DB_POSTGRESDB_DATABASE=" + dbConfig.Database,
+			"DB_POSTGRESDB_HOST=" + dbConfig.Host,
+			fmt.Sprintf("DB_POSTGRESDB_PORT=%d", dbConfig.Port),
+			"DB_POSTGRESDB_USER=" + dbConfig.User,
+			"DB_POSTGRESDB_PASSWORD=" + dbConfig.Password,
+			// "DB_POSTGRESDB_SCHEMA=n8n", // Using a dedicated schema for n8n
+
+			// SMTP Configuration
+			"N8N_EMAIL_MODE=smtp",
+			"N8N_SMTP_HOST=" + utils.Config.N8n.SmtpHost,
+			fmt.Sprintf("N8N_SMTP_PORT=%d", utils.Config.N8n.SmtpPort),
+			"N8N_SMTP_USER=" + utils.Config.N8n.SmtpUser,
+			"N8N_SMTP_PASS=" + utils.Config.N8n.SmtpPass,
+			"N8N_SMTP_SENDER=" + utils.Config.N8n.SmtpSender,
+
+			// User Management settings
+			"N8N_USER_MANAGEMENT_DISABLED=false",
+			"N8N_USER_MANAGEMENT_SKIP_OWNER_SETUP=true",  // Always true since we handle it via DB
+		}
+
+		if _, err := utils.DockerStart(
+			ctx,
+			container.Config{
+				Image: utils.Config.N8n.Image,
+				Env:   mainEnv,
+				ExposedPorts: nat.PortSet{"5678/tcp": {}},
+				Healthcheck: &container.HealthConfig{
+					Test:     []string{"CMD", "curl", "-f", "http://localhost:5678/healthz"},
+					Interval: 10 * time.Second,
+					Timeout:  5 * time.Second,
+					Retries:  3,
+				},
+			},
+			container.HostConfig{
+				RestartPolicy: container.RestartPolicy{Name: "always"},
+				PortBindings: nat.PortMap{
+					"5678/tcp": []nat.PortBinding{{HostPort: strconv.FormatUint(uint64(utils.Config.N8n.Port), 10)}},
+				},
+				Binds: []string{
+					utils.Config.N8n.Volume + ":/home/node/.n8n:Z",
+				},
+			},
+			network.NetworkingConfig{
+				EndpointsConfig: map[string]*network.EndpointSettings{
+					utils.NetId: {
+						Aliases: utils.N8nAliases,
+					},
+				},
+			},
+			utils.N8nId,
+		); err != nil {
+			return err
+		}
+		started = append(started, utils.N8nId)
+
+		// Worker configuration would be similar, with the same database settings
+		if utils.Config.N8n.Worker.Enabled {
+			workerEnv := []string{
+				// Queue configuration - using new env vars
+				"N8N_MODE=queue",
+				"QUEUE_BULL_REDIS_HOST=" + utils.RedisId,
+				"QUEUE_BULL_REDIS_PORT=6379",
+				
+				// Enforce file permissions
+				"N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true",
+				
+				// Database configuration
+				"DB_TYPE=postgresdb",
+				"DB_POSTGRESDB_DATABASE=" + dbConfig.Database,
+				"DB_POSTGRESDB_HOST=" + dbConfig.Host,
+				fmt.Sprintf("DB_POSTGRESDB_PORT=%d", dbConfig.Port),
+				"DB_POSTGRESDB_USER=" + dbConfig.User,
+				"DB_POSTGRESDB_PASSWORD=" + dbConfig.Password,
+				"DB_POSTGRESDB_SCHEMA=n8n",
+			}
+
+			if _, err := utils.DockerStart(
+				ctx,
+				container.Config{
+					Image: utils.Config.N8n.Image,
+					Env:   workerEnv,
+					Healthcheck: &container.HealthConfig{
+						Test:     []string{"CMD", "curl", "-f", "http://localhost:5678/healthz"},
+						Interval: 10 * time.Second,
+						Timeout:  5 * time.Second,
+						Retries:  3,
+					},
+				},
+				container.HostConfig{
+					RestartPolicy: container.RestartPolicy{Name: "always"},
+				},
+				network.NetworkingConfig{
+					EndpointsConfig: map[string]*network.EndpointSettings{
+						utils.NetId: {
+							Aliases: utils.N8nWorkerAliases,
+						},
+					},
+				},
+				utils.N8nWorkerId,
+			); err != nil {
+				return err
+			}
+			started = append(started, utils.N8nWorkerId)
+		}
+	}
+
 	p.Send(utils.StatusMsg("Waiting for health checks..."))
 	if utils.NoBackupVolume && utils.SliceContains(started, utils.StorageId) {
 		if err := start.WaitForHealthyService(ctx, serviceTimeout, utils.StorageId); err != nil {
@@ -1301,6 +1421,7 @@ func ExcludableContainers() []string {
 		utils.Config.Redis.Image,
 		utils.Config.Speckle.Server.Image,
 		utils.Config.Speckle.Frontend.Image,
+		utils.Config.N8n.Image,
 	}
 }
 

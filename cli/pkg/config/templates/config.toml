@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "{{ .ProjectId }}"
+project_id = "digitaltwincityviewer"
 
 [api]
 enabled = true
@@ -156,7 +156,7 @@ enable_signup = false
 # If enabled, users need to confirm their phone number before signing in.
 enable_confirmations = false
 # Template for sending OTP to users
-template = "Your code is {{ `{{ .Code }}` }}"
+template = "Your code is {{ .Code }}"
 # Controls the minimum amount of time that must pass before sending another sms otp.
 max_frequency = "5s"
 
@@ -198,7 +198,7 @@ verify_enabled = true
 enroll_enabled = false
 verify_enabled = false
 otp_length = 6
-template = "Your code is {{ `{{ .Code }}` }}"
+template = "Your code is {{ .Code }}"
 max_frequency = "5s"
 
 # Configure Multi-factor-authentication via WebAuthn
@@ -265,7 +265,7 @@ backend = "postgres"
 # Experimental features may be deprecated any time
 [experimental]
 # Configures Postgres storage engine to use OrioleDB (S3)
-orioledb_version = "{{ .Experimental.OrioleDBVersion }}"
+orioledb_version = ""
 # Configures S3 bucket URL, eg. <bucket_name>.s3-<region>.amazonaws.com
 s3_host = "env(S3_HOST)"
 # Configures S3 bucket region, eg. us-east-1
@@ -336,3 +336,19 @@ backend_api_origin = "http://speckle-server:3000"
 log_level = "warn"
 redis_url = "redis://redis:6379"
 use_frontend_2 = true
+
+[n8n]
+enabled = true
+image = "n8nio/n8n:latest"
+port = 5678
+volume = "n8n_data"
+
+# Email settings using Inbucket
+smtp_host = "supabase_inbucket_digitaltwincityviewer"  # Same as Speckle
+smtp_port = 2500  # Same SMTP port as Speckle
+smtp_user = ""    # Not needed for Inbucket
+smtp_pass = ""    # Not needed for Inbucket
+smtp_sender = "n8n@example.org"
+
+[n8n.worker]
+enabled = true

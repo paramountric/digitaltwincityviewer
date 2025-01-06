@@ -31,6 +31,7 @@ const (
 	SpeckleServerImage   = "speckle/speckle-server:2.23.4"
 	SpeckleFrontendImage = "speckle/speckle-frontend-2:2.23.4"
 	RedisImage           = "redis:7-alpine"
+	N8nImage             = "n8nio/n8n:latest"
 )
 
 var ServiceImages = []string{
@@ -47,6 +48,7 @@ var ServiceImages = []string{
 	logflareImage,
 	vectorImage,
 	supavisorImage,
+	N8nImage,
 }
 
 var JobImages = []string{
@@ -60,5 +62,6 @@ var (
 	RedisAliases          = []string{"redis"}
 	SpeckleServerAliases  = []string{"speckle-server"}
 	SpeckleFrontendAliases = []string{"speckle-frontend"}
+	N8nAliases = []string{"n8n"}
 )
 
