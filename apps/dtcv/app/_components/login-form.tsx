@@ -42,7 +42,7 @@ const LoginForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white/30 p-8 rounded shadow-md">
-      <h2 className="text-2xl mb-4 text-white">Login 2</h2>
+      <h2 className="text-2xl mb-4 text-white">Sign in</h2>
 
       {errorMessage && (
         <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded text-red-100 text-sm">

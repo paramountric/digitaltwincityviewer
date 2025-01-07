@@ -1,42 +1,40 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Canvas } from "../_components/canvas";
-import { createClient } from "@/utils/supabase/client";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Canvas } from '../_components/canvas';
+import { createClient } from '@/utils/supabase/client';
+import { signup } from '@/actions/signup';
 
 export default function SignUp() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name: name,
-        },
+    try {
+      const result = await signup(email, password, {
+        name,
         emailRedirectTo: `${location.origin}/auth/callback`,
-      },
-    });
+      });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      router.push("/auth/check-email");
+      if (result.error) {
+        setError(result.error);
+      } else {
+        router.push('/auth/check-email');
+      }
+    } catch (error) {
+      setError('Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -108,7 +106,7 @@ export default function SignUp() {
                     Creating account...
                   </>
                 ) : (
-                  "Create account"
+                  'Create account'
                 )}
               </button>
             </form>
