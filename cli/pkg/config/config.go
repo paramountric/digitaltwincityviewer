@@ -287,6 +287,9 @@ type (
 		Enabled bool   `toml:"enabled"`
 		Image   string `toml:"-"`
 		Port    uint16 `toml:"port"`
+		ApiKey  string `toml:"api_key"`
+		EncryptionKey string `toml:"encryption_key"`
+		CorsAllowedOrigins []string `toml:"cors_allowed_origins"`
 		Volume  string `toml:"volume"`
 
 		SmtpHost string `toml:"smtp_host"`
@@ -491,6 +494,9 @@ func NewConfig(editors ...ConfigEditor) config {
             Enabled: false,
             Image:   "n8nio/n8n:latest",
             Port:    5678,
+			ApiKey: "1234567890",
+			EncryptionKey: "your-long-encryption-key-at-least-32-chars",
+			CorsAllowedOrigins: []string{"http://localhost:3000", "http://localhost:8000", "http://127.0.0.1"},
             SmtpHost: "supabase_inbucket_digitaltwincityviewer",
             SmtpPort: 2500,
             SmtpUser: "",

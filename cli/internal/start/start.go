@@ -5,7 +5,9 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
+	"io"
 	"net"
+	"net/http"
 	"net/url"
 	"os"
 	"path"
@@ -1269,23 +1271,36 @@ EOF
 	if utils.Config.N8n.Enabled && !isContainerExcluded(utils.Config.N8n.Image, excluded) {
 		// Start main n8n node
 		mainEnv := []string{
-			// Queue configuration - updated from deprecated EXECUTIONS_PROCESS
-			"N8N_MODE=queue",  // Replace EXECUTIONS_PROCESS=queue
+			// Queue configuration
+			"N8N_MODE=queue",
 			"QUEUE_BULL_REDIS_HOST=" + utils.RedisId,
 			"QUEUE_BULL_REDIS_PORT=6379",
-			
-			// Add permissions enforcement
-			"N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true",
 
-			// Database configuration
+			// Database Configuration
 			"DB_TYPE=postgresdb",
-			"DB_POSTGRESDB_DATABASE=" + dbConfig.Database,
 			"DB_POSTGRESDB_HOST=" + dbConfig.Host,
-			fmt.Sprintf("DB_POSTGRESDB_PORT=%d", dbConfig.Port),
+			"DB_POSTGRESDB_PORT=" + strconv.FormatUint(uint64(dbConfig.Port), 10),
+			"DB_POSTGRESDB_DATABASE=" + dbConfig.Database,
 			"DB_POSTGRESDB_USER=" + dbConfig.User,
 			"DB_POSTGRESDB_PASSWORD=" + dbConfig.Password,
-			// "DB_POSTGRESDB_SCHEMA=n8n", // Using a dedicated schema for n8n
-
+			"DB_POSTGRESDB_SCHEMA=n8n",
+			
+			// Security & Authentication
+			"N8N_API_KEY=1234567890",// + utils.Config.N8n.ApiKey,
+			// "N8N_ENCRYPTION_KEY=" + utils.Config.N8n.EncryptionKey,
+			
+			// API Access Configuration
+			"N8N_PUBLIC_API_ENABLED=true",
+			"N8N_PUBLIC_API_DISABLED=false",
+			"N8N_BASIC_AUTH_ACTIVE=false",
+			"N8N_USER_MANAGEMENT_DISABLED=false",
+			
+			// Host Configuration
+			"N8N_HOST=0.0.0.0",
+			fmt.Sprintf("N8N_PORT=%d", utils.Config.N8n.Port),
+			fmt.Sprintf("N8N_WEBHOOK_URL=http://localhost:%d", utils.Config.N8n.Port),
+			"N8N_PROTOCOL=http",
+			
 			// SMTP Configuration
 			"N8N_EMAIL_MODE=smtp",
 			"N8N_SMTP_HOST=" + utils.Config.N8n.SmtpHost,
@@ -1293,10 +1308,8 @@ EOF
 			"N8N_SMTP_USER=" + utils.Config.N8n.SmtpUser,
 			"N8N_SMTP_PASS=" + utils.Config.N8n.SmtpPass,
 			"N8N_SMTP_SENDER=" + utils.Config.N8n.SmtpSender,
-
-			// User Management settings
-			"N8N_USER_MANAGEMENT_DISABLED=false",
-			"N8N_USER_MANAGEMENT_SKIP_OWNER_SETUP=true",  // Always true since we handle it via DB
+			"N8N_SMTP_SSL=true",
+			"N8N_SMTP_IGNORE_TLS=false",
 		}
 
 		if _, err := utils.DockerStart(
@@ -1306,10 +1319,11 @@ EOF
 				Env:   mainEnv,
 				ExposedPorts: nat.PortSet{"5678/tcp": {}},
 				Healthcheck: &container.HealthConfig{
-					Test:     []string{"CMD", "curl", "-f", "http://localhost:5678/healthz"},
+					Test:     []string{"CMD", "wget", "--spider", "--quiet", "http://127.0.0.1:5678/api/v1/docs"},
 					Interval: 10 * time.Second,
 					Timeout:  5 * time.Second,
-					Retries:  3,
+					Retries:  5,
+					StartPeriod: 30 * time.Second,
 				},
 			},
 			container.HostConfig{
@@ -1333,55 +1347,167 @@ EOF
 			return err
 		}
 		started = append(started, utils.N8nId)
+		fmt.Println("n8n container is waiting for health check...")
 
-		// Worker configuration would be similar, with the same database settings
-		if utils.Config.N8n.Worker.Enabled {
-			workerEnv := []string{
-				// Queue configuration - using new env vars
-				"N8N_MODE=queue",
-				"QUEUE_BULL_REDIS_HOST=" + utils.RedisId,
-				"QUEUE_BULL_REDIS_PORT=6379",
-				
-				// Enforce file permissions
-				"N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true",
-				
-				// Database configuration
-				"DB_TYPE=postgresdb",
-				"DB_POSTGRESDB_DATABASE=" + dbConfig.Database,
-				"DB_POSTGRESDB_HOST=" + dbConfig.Host,
-				fmt.Sprintf("DB_POSTGRESDB_PORT=%d", dbConfig.Port),
-				"DB_POSTGRESDB_USER=" + dbConfig.User,
-				"DB_POSTGRESDB_PASSWORD=" + dbConfig.Password,
-				"DB_POSTGRESDB_SCHEMA=n8n",
+		// Check container status directly
+		cli, err := client.NewClientWithOpts(client.FromEnv)
+		if err != nil {
+			fmt.Printf("Failed to create Docker client: %v\n", err)
+			return err
+		}
+
+		maxAttempts := 30
+		for i := 0; i < maxAttempts; i++ {
+			container, err := cli.ContainerInspect(ctx, utils.N8nId)
+			if err != nil {
+				fmt.Printf("Failed to inspect container: %v\n", err)
+				time.Sleep(2 * time.Second)
+				continue
 			}
 
-			if _, err := utils.DockerStart(
-				ctx,
-				container.Config{
-					Image: utils.Config.N8n.Image,
-					Env:   workerEnv,
-					Healthcheck: &container.HealthConfig{
-						Test:     []string{"CMD", "curl", "-f", "http://localhost:5678/healthz"},
-						Interval: 10 * time.Second,
-						Timeout:  5 * time.Second,
-						Retries:  3,
-					},
-				},
-				container.HostConfig{
-					RestartPolicy: container.RestartPolicy{Name: "always"},
-				},
-				network.NetworkingConfig{
-					EndpointsConfig: map[string]*network.EndpointSettings{
-						utils.NetId: {
-							Aliases: utils.N8nWorkerAliases,
-						},
-					},
-				},
-				utils.N8nWorkerId,
-			); err != nil {
-				return err
+			fmt.Printf("Container status: %s, Health: %s\n", container.State.Status, container.State.Health.Status)
+			
+			if container.State.Status == "running" {
+				if container.State.Health.Status == "healthy" || container.State.Health.Status == "none" {
+					fmt.Println("Container is running and healthy, proceeding with setup...")
+					break
+				}
+				if container.State.Health.Status == "unhealthy" {
+					fmt.Printf("Last health check: %s\n", container.State.Health.Log[len(container.State.Health.Log)-1].Output)
+				}
 			}
-			started = append(started, utils.N8nWorkerId)
+
+			if i == maxAttempts-1 {
+				return fmt.Errorf("container failed to become healthy after %d attempts", maxAttempts)
+			}
+
+			fmt.Printf("Waiting for container to be ready (attempt %d/%d)...\n", i+1, maxAttempts)
+			time.Sleep(2 * time.Second)
+		}
+
+		fmt.Println("Container is ready, waiting additional 10 seconds for full initialization...")
+		p.Send(utils.StatusMsg("Waiting 10 seconds for n8n to fully initialize migrations..."))
+		
+		time.Sleep(10 * time.Second)
+
+		fmt.Println("Checking n8n owner status...")
+		p.Send(utils.StatusMsg("Checking if n8n owner is already setup..."))
+
+		// Check owner status first
+		checkUrl := fmt.Sprintf("http://localhost:%d/api/v1/owner", utils.Config.N8n.Port)
+		checkResp, err := http.Get(checkUrl)
+		if err != nil {
+			fmt.Printf("Failed to check owner status: %v\n", err)
+			return errors.Errorf("failed to check owner status: %w", err)
+		}
+		defer checkResp.Body.Close()
+
+		// If we get a 200, owner is already set up
+		if checkResp.StatusCode == http.StatusOK {
+			fmt.Println("n8n owner already configured, skipping setup")
+			p.Send(utils.StatusMsg("n8n owner already configured, skipping setup"))
+			return nil
+		}
+
+		// If we get here, we need to create the owner
+		fmt.Println("Starting n8n owner user setup...")
+		p.Send(utils.StatusMsg("Attempting to create n8n owner user..."))
+
+		// Create owner user
+		n8nUrl := fmt.Sprintf("http://localhost:%d/rest/owner/setup", utils.Config.N8n.Port)
+		fmt.Printf("Sending setup request to: %s\n", n8nUrl)
+		payload := strings.NewReader(`{
+			"email": "admin@digitaltwincityviewer.com",
+			"firstName": "ADMIN",
+			"lastName": "USER",
+			"password": "Very_secret_password_1234567890"
+		}`)
+
+		req, err := http.NewRequestWithContext(ctx, "POST", n8nUrl, payload)
+		if err != nil {
+			fmt.Printf("Failed to create request: %v\n", err)
+			p.Send(utils.StatusMsg(fmt.Sprintf("Failed to create request: %v", err)))
+			return errors.Errorf("failed to create request: %w", err)
+		}
+
+		// Set required headers
+		req.Header.Add("Content-Type", "application/json")
+
+		fmt.Printf("Sending request to %s\n", n8nUrl)
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			fmt.Printf("Request failed: %v\n", err)
+			p.Send(utils.StatusMsg(fmt.Sprintf("Request failed: %v", err)))
+			return err
+		}
+
+		if resp.StatusCode == http.StatusOK {
+			fmt.Println("Owner setup successful, getting auth cookie...")
+			// Get auth cookie for survey submission
+			authCookie := resp.Header.Get("Set-Cookie")
+			if authCookie == "" {
+				resp.Body.Close()
+				fmt.Println("Failed to get authentication token")
+				p.Send(utils.StatusMsg("Failed to get authentication token"))
+				return errors.New("failed to get n8n authentication token")
+			}
+
+			fmt.Println("Submitting setup survey...")
+			p.Send(utils.StatusMsg("Submitting setup survey..."))
+			// Submit survey to complete setup - using localhost instead of container name
+			surveyUrl := fmt.Sprintf("http://localhost:%d/rest/me/survey", utils.Config.N8n.Port)
+			surveyPayload := strings.NewReader(`{
+				"personalizationAnswers": {
+					"codingSkill": "none",
+					"companySize": "none",
+					"companyRole": "none",
+					"nodeTypes": [],
+					"automationGoal": "",
+					"otherGoals": []
+				},
+				"version": "v4",
+				"personalization_survey_submitted_at": "` + time.Now().Format(time.RFC3339) + `",
+				"personalization_survey_n8n_version": "1.0.0"
+			}`)
+
+			surveyReq, err := http.NewRequestWithContext(ctx, "POST", surveyUrl, surveyPayload)
+			if err != nil {
+				resp.Body.Close()
+				fmt.Printf("Failed to create survey request: %v\n", err)
+				p.Send(utils.StatusMsg(fmt.Sprintf("Failed to create survey request: %v", err)))
+				return errors.Errorf("failed to create survey request: %w", err)
+			}
+
+			surveyReq.Header.Add("Content-Type", "application/json")
+			surveyReq.Header.Add("Cookie", authCookie)
+
+			fmt.Printf("Sending survey request to: %s\n", surveyUrl)
+			surveyResp, err := http.DefaultClient.Do(surveyReq)
+			if err != nil {
+				resp.Body.Close()
+				fmt.Printf("Failed to submit survey: %v\n", err)
+				p.Send(utils.StatusMsg(fmt.Sprintf("Failed to submit survey: %v", err)))
+				return errors.Errorf("failed to submit n8n survey: %w", err)
+			}
+
+			if surveyResp.StatusCode != http.StatusOK {
+				body, _ := io.ReadAll(surveyResp.Body)
+				surveyResp.Body.Close()
+				resp.Body.Close()
+				fmt.Printf("Survey submission failed with status %d: %s\n", surveyResp.StatusCode, string(body))
+				p.Send(utils.StatusMsg(fmt.Sprintf("Survey submission failed with status %d: %s", surveyResp.StatusCode, string(body))))
+				return errors.Errorf("failed to complete n8n setup: %s", string(body))
+			}
+
+			fmt.Println("n8n setup completed successfully!")
+			p.Send(utils.StatusMsg("n8n setup completed successfully!"))
+			surveyResp.Body.Close()
+			resp.Body.Close()
+		} else {
+			body, _ := io.ReadAll(resp.Body)
+			resp.Body.Close()
+			fmt.Printf("Setup failed with status %d: %s\n", resp.StatusCode, string(body))
+			return errors.Errorf("failed to create n8n owner user: %s", string(body))
 		}
 	}
 

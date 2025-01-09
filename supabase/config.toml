@@ -156,7 +156,7 @@ enable_signup = false
 # If enabled, users need to confirm their phone number before signing in.
 enable_confirmations = false
 # Template for sending OTP to users
-template = "Your code is {{ .Code }}"
+template = "Your code is 123456"
 # Controls the minimum amount of time that must pass before sending another sms otp.
 max_frequency = "5s"
 
@@ -198,7 +198,7 @@ verify_enabled = true
 enroll_enabled = false
 verify_enabled = false
 otp_length = 6
-template = "Your code is {{ .Code }}"
+template = "Your code is 123456"
 max_frequency = "5s"
 
 # Configure Multi-factor-authentication via WebAuthn
@@ -341,6 +341,9 @@ use_frontend_2 = true
 enabled = true
 image = "n8nio/n8n:latest"
 port = 5678
+api_key = "1234567890"
+encryption_key = "your-long-encryption-key-at-least-32-chars"
+cors_allowed_origins = ["http://localhost:3000", "http://localhost:8000", "http://127.0.0.1"]
 volume = "n8n_data"
 
 # Email settings using Inbucket

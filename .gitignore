@@ -141,3 +141,9 @@ local-temp
 # Local development files
 **/secrets.local.yaml
 **/values.local.yaml
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
