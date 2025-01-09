@@ -1,0 +1,49 @@
+{
+  "name": "DTCC Process",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "trigger-dtcc",
+        "options": {}
+      },
+      "id": "webhook-node-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://dtcc-core-dtcc-core-1:8000/process",
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParameters": {
+          "json": {
+            "config": "={{ $json }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "http-node-1",
+      "name": "DTCC API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "DTCC API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {}
+}

@@ -147,3 +147,6 @@ local-temp
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# DTCC
+data/

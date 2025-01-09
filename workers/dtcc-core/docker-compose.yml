@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  dtcc-core-node:
+    build: .
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./app:/app/app
+      - ./data:/app/data
+    environment:
+      - ENVIRONMENT=development
+      - N8N_API_KEY=1234567890
+    networks:
+      - supabase_network_digitaltwincityviewer
+    env_file:
+      - .env
+
+networks:
+  supabase_network_digitaltwincityviewer:
+    external: true
