@@ -95,6 +95,27 @@ export default function Navigation({ children }: NavigationProps) {
 
 function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { project, projects, user } = useAppContext();
+
+  async function triggerWorkflow() {
+    try {
+      const response = await fetch('http://localhost:5678/webhook/trigger-dtcc', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: {
+            timestamp: new Date().toISOString(),
+          },
+        }),
+      });
+      const result = await response.json();
+      console.log(result);
+      alert('Workflow triggered successfully!');
+    } catch (error: any) {
+      alert('Error triggering workflow: ' + error.message);
+    }
+  }
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -151,6 +172,11 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <ProjectSidebarContent />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={triggerWorkflow}>Trigger DTCC</SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
         <SidebarGroup>
           <SidebarGroupLabel>Features</SidebarGroupLabel>
           <SidebarGroupContent>

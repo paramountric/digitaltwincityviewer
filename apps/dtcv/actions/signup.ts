@@ -7,6 +7,9 @@ const SERVICES = {
   n8n: process.env.N8N_URL || 'http://localhost:5678',
 } as const;
 
+const N8N_EMAIL = process.env.N8N_EMAIL || 'admin@digitaltwincityviewer.com';
+const N8N_PASSWORD = process.env.N8N_PASSWORD || 'Very_secret_password_1234567890';
+
 export async function signup(
   email: string,
   password: string,
@@ -60,56 +63,56 @@ export async function signup(
       console.log('Speckle access code:', accessCode);
     }
 
-    const n8nSetupResponse = await fetch(`${SERVICES.n8n}/rest/owner/setup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email,
-        password,
-        firstName: name,
-        lastName: 'User',
-      }),
-    });
+    // const n8nSetupResponse = await fetch(`${SERVICES.n8n}/rest/owner/setup`, {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({
+    //     email: N8N_EMAIL,
+    //     password: N8N_PASSWORD,
+    //     firstName: 'ADMIN',
+    //     lastName: 'USER',
+    //   }),
+    // });
 
-    if (!n8nSetupResponse.ok) {
-      const errorText = await n8nSetupResponse.text();
-      console.error('n8n setup failed:', errorText);
-      return { error: `n8n setup failed: ${errorText}` };
-    }
+    // if (!n8nSetupResponse.ok) {
+    //   const errorText = await n8nSetupResponse.text();
+    //   console.error('n8n setup failed:', errorText);
+    //   return { error: `n8n setup failed: ${errorText}` };
+    // }
 
-    const authCookie = n8nSetupResponse.headers.get('set-cookie');
-    if (!authCookie) {
-      return { error: 'Failed to get n8n authentication token' };
-    }
+    // const authCookie = n8nSetupResponse.headers.get('set-cookie');
+    // if (!authCookie) {
+    //   return { error: 'Failed to get n8n authentication token' };
+    // }
 
-    const surveyResponse = await fetch(`${SERVICES.n8n}/rest/me/survey`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Cookie: authCookie,
-      },
-      body: JSON.stringify({
-        personalizationAnswers: {
-          codingSkill: 'none',
-          companySize: 'none',
-          companyRole: 'none',
-          nodeTypes: [],
-          automationGoal: '',
-          otherGoals: [],
-          email: false,
-          firstName: name,
-          lastName: name,
-        },
-        version: 'v4',
-        personalization_survey_submitted_at: new Date().toISOString(),
-        personalization_survey_n8n_version: '1.0.0',
-      }),
-    });
+    // const surveyResponse = await fetch(`${SERVICES.n8n}/rest/me/survey`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     Cookie: authCookie,
+    //   },
+    //   body: JSON.stringify({
+    //     personalizationAnswers: {
+    //       codingSkill: 'none',
+    //       companySize: 'none',
+    //       companyRole: 'none',
+    //       nodeTypes: [],
+    //       automationGoal: '',
+    //       otherGoals: [],
+    //       email: false,
+    //       firstName: name,
+    //       lastName: name,
+    //     },
+    //     version: 'v4',
+    //     personalization_survey_submitted_at: new Date().toISOString(),
+    //     personalization_survey_n8n_version: '1.0.0',
+    //   }),
+    // });
 
-    if (!surveyResponse.ok) {
-      console.error('n8n survey submission failed:', await surveyResponse.text());
-      return { error: 'n8n setup completion failed' };
-    }
+    // if (!surveyResponse.ok) {
+    //   console.error('n8n survey submission failed:', await surveyResponse.text());
+    //   return { error: 'n8n setup completion failed' };
+    // }
 
     return {
       data: { email },
