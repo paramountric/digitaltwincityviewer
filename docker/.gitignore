@@ -1,0 +1,6 @@
+volumes/db/data
+volumes/storage
+volumes/redis-data
+.env
+test.http
+docker-compose.override.yml
