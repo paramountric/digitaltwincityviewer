@@ -304,6 +304,7 @@ postgres_db = "postgres"
 # Redis settings
 redis_url = "redis://redis:6379"
 # S3 settings
+s3_enabled = true
 s3_endpoint = "http://minio:9000"
 s3_access_key = "minioadmin"
 s3_secret_key = "minioadmin"

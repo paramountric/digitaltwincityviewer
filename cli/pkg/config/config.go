@@ -235,6 +235,7 @@ type (
 
 	SpeckleServer struct {
 		Enabled                        bool   `toml:"enabled"`
+		S3Enabled                      bool   `toml:"s3_enabled"`
 		StrategyLocal                  bool   `toml:"strategy_local"`
 		PostgresHost                   string `toml:"postgres_host"`
 		PostgresPort                   uint16 `toml:"postgres_port"`
@@ -897,20 +898,22 @@ func (c *baseConfig) Validate(fsys fs.FS) error {
 	}
 	if c.Speckle.Server.Enabled {
 		var err error
-		if c.Speckle.Server.S3AccessKey, err = maybeLoadEnv(c.Experimental.S3AccessKey); err != nil {
-			return err
-		}
-		if c.Speckle.Server.S3SecretKey, err = maybeLoadEnv(c.Experimental.S3SecretKey); err != nil {
-			return err
-		}
-		if c.Speckle.Server.S3Region, err = maybeLoadEnv(c.Experimental.S3Region); err != nil {
-			return err
-		}
-		if c.Speckle.Server.S3Endpoint, err = maybeLoadEnv(c.Speckle.Server.S3Endpoint); err != nil {
-			return err
-		}
-		if c.Speckle.Server.S3Bucket, err = maybeLoadEnv(c.Speckle.Server.S3Bucket); err != nil {
-			return err
+		if c.Speckle.Server.S3Enabled {
+			if c.Speckle.Server.S3AccessKey, err = maybeLoadEnv(c.Experimental.S3AccessKey); err != nil {
+				return err
+			}
+			if c.Speckle.Server.S3SecretKey, err = maybeLoadEnv(c.Experimental.S3SecretKey); err != nil {
+				return err
+			}
+			if c.Speckle.Server.S3Region, err = maybeLoadEnv(c.Experimental.S3Region); err != nil {
+				return err
+			}
+			if c.Speckle.Server.S3Endpoint, err = maybeLoadEnv(c.Speckle.Server.S3Endpoint); err != nil {
+				return err
+			}
+			if c.Speckle.Server.S3Bucket, err = maybeLoadEnv(c.Speckle.Server.S3Bucket); err != nil {
+				return err
+			}
 		}
 	}
 	if err := c.Experimental.validate(); err != nil {
