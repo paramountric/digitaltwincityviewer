@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 import uuid
 import subprocess
 
-# Load environment variables from .env file
 load_dotenv()
 
 N8N_URL = "http://supabase_n8n_digitaltwincityviewer:5678"
@@ -167,9 +166,13 @@ async def setup_workflows():
             print("Attempting to import workflow...")
             
             # Import workflow
-            workflow_path = Path(__file__).parent / "process-dtcc.json"
+            workflow_path = Path(__file__).parent / "workflows/process-dtcc.json"
             with open(workflow_path) as f:
                 workflow_data = json.load(f)
+            
+            # Remove any activation-related fields from the workflow data
+            if 'active' in workflow_data:
+                del workflow_data['active']
             
             response = await client.post(
                 f"{N8N_URL}/api/v1/workflows",
@@ -187,7 +190,8 @@ async def setup_workflows():
             # Activate workflow in a separate request
             activate_response = await client.post(
                 f"{N8N_URL}/api/v1/workflows/{workflow_id}/activate",
-                headers=headers
+                headers=headers,
+                json={}  # Send empty JSON body for activation
             )
             
             if activate_response.status_code == 200:

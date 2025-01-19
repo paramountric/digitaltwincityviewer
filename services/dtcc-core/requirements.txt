@@ -31,13 +31,6 @@ decorator==5.1.1
 defusedxml==0.7.1
 Deprecated==1.2.15
 dtcc==0.7.21
-dtcc-builder==0.7.21
-dtcc-common==0.7.21
-dtcc-data==0.7.21
-dtcc-io==0.7.21
-dtcc-model==0.7.21
-dtcc-viewer==0.7.21
-dtcc-wrangler==0.7.21
 easydev==0.13.2
 executing==2.1.0
 fastapi==0.115.6

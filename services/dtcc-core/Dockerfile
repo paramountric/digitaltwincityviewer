@@ -10,6 +10,10 @@ RUN apt-get update && apt-get install -y \
     gdal-bin \
     libgdal-dev \
     python3-gdal \
+    libgl1-mesa-glx \
+    libglu1-mesa \
+    libxrender1 \
+    libxcursor1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Set GDAL environment variables
@@ -28,7 +32,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the code
 COPY app /app/app
-COPY process-dtcc.json .
+COPY workflows /app/workflows
 COPY app/setup.py .
 
 # Expose the app port

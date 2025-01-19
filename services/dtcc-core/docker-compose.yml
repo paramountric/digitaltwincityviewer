@@ -11,11 +11,9 @@ services:
     environment:
       - ENVIRONMENT=development
       - N8N_API_KEY=1234567890
-    networks:
-      - supabase_network_digitaltwincityviewer
     env_file:
       - .env
 
 networks:
-  supabase_network_digitaltwincityviewer:
+  dtcv_network:
     external: true
