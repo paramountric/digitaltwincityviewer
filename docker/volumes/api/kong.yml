@@ -226,54 +226,90 @@ services:
             - admin
 
   ## Speckle Frontend routes
-  - name: speckle-frontend
-    _comment: 'Speckle Frontend: /speckle/* -> http://speckle-frontend-2:8080/*'
-    url: http://speckle-frontend-2:8080/
-    routes:
-      - name: speckle-frontend-all
-        strip_path: true
-        paths:
-          - /speckle/
-        regex_priority: 200
-    plugins:
-      - name: cors
+  # - name: speckle-frontend
+  #   _comment: 'Speckle Frontend: /speckle/* -> http://speckle-frontend-2:8080/*'
+  #   url: http://speckle-frontend-2:8080
+  #   routes:
+  #     - name: speckle-frontend-all
+  #       strip_path: false
+  #       preserve_host: true
+  #       paths:
+  #         - /speckle
+  #         - /speckle/(.*)
+  #       regex_priority: 2000
+  #   plugins:
+  #     - name: cors
+  #       config:
+  #         origins: ['*']
+  #         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+  #         headers:
+  #           [
+  #             'Accept',
+  #             'Accept-Version',
+  #             'Content-Length',
+  #             'Content-MD5',
+  #             'Content-Type',
+  #             'Date',
+  #             'Authorization',
+  #           ]
+  #         exposed_headers: ['Content-Length']
+  #         credentials: true
+  #         max_age: 3600
 
   ## Speckle API routes
-  - name: speckle-api
-    _comment: 'Speckle API: /speckle/api/* -> http://speckle-server:3000/*'
-    url: http://speckle-server:3000/
-    routes:
-      - name: speckle-api-all
-        strip_path: true
-        paths:
-          - /speckle/api/
-        regex_priority: 300
-    plugins:
-      - name: cors
+  # - name: speckle-api
+  #   _comment: 'Speckle API: /speckle/api/* -> http://speckle-server:3000/*'
+  #   url: http://speckle-server:3000
+  #   routes:
+  #     - name: speckle-api-all
+  #       strip_path: false
+  #       preserve_host: true
+  #       paths:
+  #         - /speckle/api
+  #         - /speckle/api/(.*)
+  #       regex_priority: 1000
+  #   plugins:
+  #     - name: cors
+  #       config:
+  #         origins: ['*']
+  #         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+  #         headers:
+  #           [
+  #             'Accept',
+  #             'Accept-Version',
+  #             'Content-Length',
+  #             'Content-MD5',
+  #             'Content-Type',
+  #             'Date',
+  #             'Authorization',
+  #           ]
+  #         exposed_headers: ['Content-Length']
+  #         credentials: true
+  #         max_age: 3600
 
   ## Speckle Preview Service
-  - name: speckle-preview
-    _comment: 'Speckle Preview: /speckle/preview/* -> http://speckle-preview-service:8080/*'
-    url: http://speckle-preview-service:8080/
-    routes:
-      - name: speckle-preview-all
-        strip_path: true
-        paths:
-          - /speckle/preview/
-    plugins:
-      - name: cors
+  # - name: speckle-preview
+  #   _comment: 'Speckle Preview: /speckle/preview/* -> http://speckle-preview-service:8080/*'
+  #   url: http://speckle-preview-service:8080/
+  #   routes:
+  #     - name: speckle-preview-all
+  #       strip_path: true
+  #       paths:
+  #         - /speckle/preview/
+  #   plugins:
+  #     - name: cors
 
-  ## Speckle Webhook Service
-  - name: speckle-webhook
-    _comment: 'Speckle Webhook: /speckle/webhooks/* -> http://speckle-webhook-service:8080/*'
-    url: http://speckle-webhook-service:8080/
-    routes:
-      - name: speckle-webhook-all
-        strip_path: true
-        paths:
-          - /speckle/webhooks/
-    plugins:
-      - name: cors
+  # ## Speckle Webhook Service
+  # - name: speckle-webhook
+  #   _comment: 'Speckle Webhook: /speckle/webhooks/* -> http://speckle-webhook-service:8080/*'
+  #   url: http://speckle-webhook-service:8080/
+  #   routes:
+  #     - name: speckle-webhook-all
+  #       strip_path: true
+  #       paths:
+  #         - /speckle/webhooks/
+  #   plugins:
+  #     - name: cors
 
   ## Protected Dashboard - catch all remaining routes
   - name: dashboard
@@ -284,7 +320,7 @@ services:
         strip_path: true
         paths:
           - /
-        regex_priority: 100
+        regex_priority: 1
     plugins:
       - name: cors
       - name: basic-auth
