@@ -59,4 +59,4 @@ services:
 
 networks:
   default:
-    name: supabase_network
+    name: dtcv_network
