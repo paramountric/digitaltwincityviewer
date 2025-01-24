@@ -8,15 +8,15 @@ services:
     environment:
       # Queue configuration
       - N8N_MODE=queue
-      - QUEUE_BULL_REDIS_HOST=${REDIS_HOST:-redis}
-      - QUEUE_BULL_REDIS_PORT=6379
+      - QUEUE_BULL_REDIS_HOST=${REDIS_HOST}
+      - QUEUE_BULL_REDIS_PORT=${REDIS_PORT}
 
       # Database Configuration
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=${POSTGRES_HOST:-supabase-db}
       - DB_POSTGRESDB_PORT=${POSTGRES_PORT:-5432}
       - DB_POSTGRESDB_DATABASE=${POSTGRES_DB:-postgres}
-      - DB_POSTGRESDB_USER=supabase_admin
+      - DB_POSTGRESDB_USER=${POSTGRES_USER}
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_POSTGRESDB_SCHEMA=n8n
 
@@ -55,6 +55,8 @@ services:
       start_period: 30s
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
 networks:

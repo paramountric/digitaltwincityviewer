@@ -201,7 +201,7 @@ services:
       PORT: 4000
       DB_HOST: ${POSTGRES_HOST}
       DB_PORT: ${POSTGRES_PORT}
-      DB_USER: supabase_admin
+      DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_NAME: ${POSTGRES_DB}
       DB_AFTER_CONNECT_QUERY: 'SET search_path TO _realtime'
@@ -281,7 +281,7 @@ services:
       PG_META_DB_HOST: ${POSTGRES_HOST}
       PG_META_DB_PORT: ${POSTGRES_PORT}
       PG_META_DB_NAME: ${POSTGRES_DB}
-      PG_META_DB_USER: supabase_admin
+      PG_META_DB_USER: ${POSTGRES_USER}
       PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
 
   functions:
@@ -327,7 +327,7 @@ services:
     #     read_only: true
     environment:
       LOGFLARE_NODE_HOST: 127.0.0.1
-      DB_USERNAME: supabase_admin
+      DB_USERNAME: ${POSTGRES_USER}
       DB_DATABASE: _supabase
       DB_HOSTNAME: ${POSTGRES_HOST}
       DB_PORT: ${POSTGRES_PORT}
@@ -339,7 +339,7 @@ services:
       LOGFLARE_MIN_CLUSTER_SIZE: 1
 
       # Comment variables to use Big Query backend for analytics
-      POSTGRES_BACKEND_URL: postgresql://supabase_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/_supabase
+      POSTGRES_BACKEND_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/_supabase
       POSTGRES_BACKEND_SCHEMA: _analytics
       LOGFLARE_FEATURE_FLAG_OVERRIDE: multibackend=true
       # Uncomment to use Big Query backend for analytics
@@ -438,7 +438,7 @@ services:
       - POSTGRES_PORT=${POSTGRES_PORT}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - DATABASE_URL=ecto://supabase_admin:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/_supabase
+      - DATABASE_URL=ecto://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/_supabase
       - CLUSTER_POSTGRES=true
       - SECRET_KEY_BASE=UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq
       - VAULT_ENC_KEY=your-encryption-key-32-chars-min

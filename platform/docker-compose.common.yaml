@@ -1,0 +1,19 @@
+services:
+  redis:
+    image: 'redis:7-alpine'
+    restart: always
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    volumes:
+      - ./volumes/redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - default
+
+networks:
+  default:
+    name: dtcv_network

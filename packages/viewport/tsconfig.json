@@ -8,12 +8,12 @@
     "forceConsistentCasingInFileNames": true,
     "inlineSources": false,
     "isolatedModules": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "preserveWatchOutput": true,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
     "target": "ESNext",
     "lib": ["esnext", "dom"],
     "allowJs": true,
@@ -22,7 +22,12 @@
     "module": "esnext",
     "resolveJsonModule": true,
     "noImplicitAny": false,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "paths": {
+      "@luma.gl/*": ["./node_modules/@luma.gl/*"],
+      "@deck.gl/*": ["./node_modules/@deck.gl/*"]
+    },
+    "baseUrl": "."
   },
   "include": ["src", "index.d.ts", "**/*.tsx"],
   "exclude": ["node_modules"]

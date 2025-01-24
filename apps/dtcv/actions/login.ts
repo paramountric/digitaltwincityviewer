@@ -13,6 +13,9 @@ interface N8nAuthResponse {
   token: string;
 }
 
+// const N8N_EMAIL = process.env.N8N_EMAIL || 'admin@digitaltwincityviewer.com';
+// const N8N_PASSWORD = process.env.N8N_PASSWORD || 'Very_secret_password_1234567890';
+
 const SERVICES = {
   speckle: process.env.SPECKLE_URL || 'http://localhost:54331',
   n8n: process.env.N8N_URL || 'http://localhost:5678',
@@ -64,22 +67,22 @@ export async function login(username: string, password: string) {
     const speckleData: SpeckleAuthResponse = await speckleResponse.json();
     const speckleCookies = speckleResponse.headers.get('set-cookie');
 
-    // 4. Authenticate with n8n
-    const n8nResponse = await fetch(`${SERVICES.n8n}/rest/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: username, password }),
-    });
+    // 4. Authenticate with n8n (do not use the admin n8n account here, that is only for the owner / admin person)
+    // const n8nResponse = await fetch(`${SERVICES.n8n}/rest/login`, {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ email: N8N_EMAIL, password: N8N_PASSWORD }),
+    // });
 
-    if (!n8nResponse.ok) {
-      console.error('n8n authentication failed:', n8nResponse);
-      return { error: 'n8n authentication failed' };
-    }
+    // if (!n8nResponse.ok) {
+    //   console.error('n8n authentication failed:', n8nResponse);
+    //   return { error: 'n8n authentication failed' };
+    // }
 
-    console.log('n8n response:', n8nResponse);
+    // console.log('n8n response:', n8nResponse);
 
-    const n8nData: N8nAuthResponse = await n8nResponse.json();
-    const n8nCookies = n8nResponse.headers.get('set-cookie');
+    // const n8nData: N8nAuthResponse = await n8nResponse.json();
+    // const n8nCookies = n8nResponse.headers.get('set-cookie');
 
     // 5. Set cookies from both services
     const cookieStore = cookies();
@@ -93,13 +96,13 @@ export async function login(username: string, password: string) {
       });
     }
 
-    if (n8nCookies) {
-      console.log('n8n cookies:', n8nCookies);
-      n8nCookies.split(',').forEach((cookie) => {
-        const [cookieName, ...rest] = cookie.split('=');
-        cookieStore.set(cookieName.trim(), rest.join('='));
-      });
-    }
+    // if (n8nCookies) {
+    //   console.log('n8n cookies:', n8nCookies);
+    //   n8nCookies.split(',').forEach((cookie) => {
+    //     const [cookieName, ...rest] = cookie.split('=');
+    //     cookieStore.set(cookieName.trim(), rest.join('='));
+    //   });
+    // }
 
     const userWithProfile = dbUserToUserWithProfile(
       data?.user as unknown as DbUser,
@@ -114,7 +117,7 @@ export async function login(username: string, password: string) {
         tokens: {
           speckle: speckleData.token,
           speckleRefresh: speckleData.refreshToken,
-          n8n: n8nData.token,
+          // n8n: n8nData.token,
         },
       },
       error: null,

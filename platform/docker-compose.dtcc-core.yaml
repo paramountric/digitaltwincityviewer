@@ -1,0 +1,43 @@
+services:
+  dtcc-core:
+    container_name: dtcc-core
+    build:
+      context: ./dtcc-core
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    ports:
+      - '8001:8000' # TODO: kong is on 8000, consider proxy through kong
+    volumes:
+      - ./dtcc-core/app:/app/app
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DTCC_NO_GUI: 1
+      # S3 configuration
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_REGION: ${S3_REGION}
+      # Database configuration
+      POSTGRES_HOST: ${POSTGRES_HOST:-supabase-db}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+networks:
+  default:
+    name: dtcv_network

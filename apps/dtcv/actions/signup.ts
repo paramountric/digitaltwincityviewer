@@ -7,8 +7,8 @@ const SERVICES = {
   n8n: process.env.N8N_URL || 'http://localhost:5678',
 } as const;
 
-const N8N_EMAIL = process.env.N8N_EMAIL || 'admin@digitaltwincityviewer.com';
-const N8N_PASSWORD = process.env.N8N_PASSWORD || 'Very_secret_password_1234567890';
+// const N8N_EMAIL = process.env.N8N_EMAIL || 'admin@digitaltwincityviewer.com';
+// const N8N_PASSWORD = process.env.N8N_PASSWORD || 'Very_secret_password_1234567890';
 
 export async function signup(
   email: string,
@@ -21,20 +21,6 @@ export async function signup(
   const name = userData.name || email.split('@')[0];
 
   try {
-    const client = createClient();
-    const { data: supabaseData, error: supabaseError } = await client.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { name },
-        emailRedirectTo: userData.emailRedirectTo,
-      },
-    });
-
-    if (supabaseError) {
-      return { error: supabaseError.message };
-    }
-
     const registerUrl = new URL(`${SERVICES.speckle}/auth/local/register`);
     registerUrl.searchParams.append('challenge', 'init_admin');
 
@@ -57,10 +43,24 @@ export async function signup(
       return { error: 'Speckle registration failed' };
     }
 
-    if (speckleResponse.redirected) {
-      const redirectUrl = new URL(speckleResponse.url);
-      const accessCode = redirectUrl.searchParams.get('access_code');
-      console.log('Speckle access code:', accessCode);
+    // if (speckleResponse.redirected) {
+    //   const redirectUrl = new URL(speckleResponse.url);
+    //   const accessCode = redirectUrl.searchParams.get('access_code');
+    //   console.log('Speckle access code:', accessCode);
+    // }
+
+    const client = createClient();
+    const { data: supabaseData, error: supabaseError } = await client.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name },
+        emailRedirectTo: userData.emailRedirectTo,
+      },
+    });
+
+    if (supabaseError) {
+      return { error: supabaseError.message };
     }
 
     // const n8nSetupResponse = await fetch(`${SERVICES.n8n}/rest/owner/setup`, {

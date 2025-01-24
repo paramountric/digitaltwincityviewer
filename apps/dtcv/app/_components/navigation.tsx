@@ -98,7 +98,7 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   async function triggerWorkflow() {
     try {
-      const response = await fetch('http://localhost:5678/webhook/trigger-dtcc', {
+      const response = await fetch('http://localhost:5678/webhook-test/trigger-dtcc', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,9 +111,8 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       });
       const result = await response.json();
       console.log(result);
-      alert('Workflow triggered successfully!');
     } catch (error: any) {
-      alert('Error triggering workflow: ' + error.message);
+      console.error('Error triggering workflow:', error);
     }
   }
   return (
