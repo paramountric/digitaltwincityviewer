@@ -1,0 +1,9 @@
+{
+  "properties": {
+    "id": { "type": "string" },
+    "type": { "type": "string" },
+    "class": { "type": "string" },
+    "name": { "type": "string" }
+  },
+  "additionalProperties": true
+}

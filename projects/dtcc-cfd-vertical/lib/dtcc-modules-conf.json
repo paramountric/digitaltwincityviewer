@@ -1,0 +1,134 @@
+{
+  "modules": [
+    {
+      "name": "dtcc-module-hello-world",
+      "description": "DTCC Hello World Module",
+      "commands": [
+        {
+          "name": "hello-world",
+          "description": "Returns Hello World in different languages",
+          "parameters": [
+            {
+              "name": "lang",
+              "description": "Language to return the greeting in",
+              "type": "string",
+              "required": false
+            },
+            {
+              "name": "sleep_time",
+              "description": "Time to sleep in seconds",
+              "type": "float",
+              "required": false
+            }
+          ],
+          "input": [],
+          "output": [
+            {
+              "name": "hello_world",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "name": "hello-world-2",
+          "description": "Also returns Hello World in different languages",
+          "parameters": [
+            {
+              "name": "lang",
+              "description": "Language to return the greeting in",
+              "type": "string",
+              "required": false
+            },
+            {
+              "name": "sleep_time",
+              "description": "Time to sleep in seconds",
+              "type": "float",
+              "required": false
+            }
+          ],
+          "input": [],
+          "output": [
+            {
+              "name": "hello_world",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dtcc-module-dtcc-builder",
+      "description": "DTCC Builder Module",
+      "commands": [
+        {
+          "name": "build-citymodel",
+          "description": "Build city model from point cloud and property map",
+          "parameters": [
+            {
+              "name": "GroundPercentile",
+              "description": "Percentile of point cloud height to use for setting building ground height (a number between 0 and 1)",
+              "type": "float",
+              "required": false
+            },
+            {
+              "name": "RoofPercentile",
+              "description": "Percentile of point cloud height to use for setting building roof height (a number between 0 and 1)",
+              "type": "float",
+              "required": false
+            }
+          ],
+          "input": [
+            {
+              "name": "PointCloud (FIXME: How do we handle this???)",
+              "type": "file (FIXME: How do we handle this???)"
+            },
+            {
+              "name": "PropertyMap (FIXME: How do we handle this???)",
+              "type": "file (FIXME: How do we handle this???)"
+            }
+          ],
+          "output": [
+            {
+              "name": "CityModel (FIXME: How do we handle this???)",
+              "type": "file"
+            }
+          ]
+        },
+        {
+          "name": "build-mesh",
+          "description": "Build mesh from city model",
+          "parameters": [
+            {
+              "name": "MeshResolution",
+              "description": "Mesh resolution (size of triangles) [m]",
+              "type": "float",
+              "required": false
+            },
+            {
+              "name": "MinBuildingDistance",
+              "description": "Minimum distance between buildings [m]",
+              "type": "float",
+              "required": false
+            }
+          ],
+          "input": [
+            {
+              "name": "CityModel (FIXME: How do we handle this???)",
+              "type": "file (FIXME: How do we handle this???)"
+            },
+            {
+              "name": "DTM (FIXME: How do we handle this???)",
+              "type": "file (FIXME: How do we handle this???)"
+            }
+          ],
+          "output": [
+            {
+              "name": "CitySurface (FIXME: How do we handle this???)",
+              "type": "file"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

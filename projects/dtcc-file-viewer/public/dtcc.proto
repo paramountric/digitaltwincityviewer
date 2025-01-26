@@ -1,0 +1,258 @@
+syntax = "proto3";
+
+// needed to fix following Error:
+// [libprotobuf ERROR google/protobuf/descriptor_database.cc:58] File already exists in database: dtcc.proto
+// The internet told me do this, I don't know why - DW
+// option optimize_for = LITE_RUNTIME;
+
+package DTCC;
+
+//--- Geometry ---
+
+message Vector2D
+{
+  float x = 1;
+  float y = 2;
+}
+
+message Vector3D
+{
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+message Simplex1D
+{
+  int32 v0 = 1;
+  int32 v1 = 2;
+}
+
+message Simplex2D
+{
+  int32 v0 = 1;
+  int32 v1 = 2;
+  int32 v2 = 3;
+}
+
+message Simplex3D
+{
+  int32 v0 = 1;
+  int32 v1 = 2;
+  int32 v2 = 3;
+  int32 v3 = 4;
+}
+
+message BoundingBox2D
+{
+  Vector2D p = 1;
+  Vector2D q = 2;
+}
+
+message BoundingBox3D
+{
+  Vector3D p = 1;
+  Vector3D q = 2;
+}
+
+message MultiPoint
+{
+  repeated Vector2D points = 1;
+}
+
+message MultiPoint3D
+{
+  repeated Vector3D points = 1;
+}
+
+message LineString
+{
+  repeated Vector2D vertices = 1;
+}
+
+message LineString3D
+{
+  repeated Vector3D vertices = 1;
+}
+
+message LinearRing
+{
+  repeated Vector2D vertices = 1;
+}
+
+message Polygon
+{
+  LinearRing shell = 1;
+  repeated LinearRing holes = 2;
+}
+
+message MultiPolygon
+{
+  repeated Polygon polygons = 1;
+}
+
+//--- Grids and meshes ---
+
+message Grid2D
+{
+  BoundingBox2D boundingBox = 1;
+  int32 xSize = 2;
+  int32 ySize = 3;
+  float xStep = 4;
+  float yStep = 5;
+}
+
+message Grid3D
+{
+  BoundingBox3D boundingBox = 1;
+  int32 xSize = 2;
+  int32 ySize = 3;
+  int32 zSize = 4;
+  float xStep = 5;
+  float yStep = 6;
+  float zStep = 7;
+}
+
+message Mesh2D
+{
+  repeated Vector2D vertices = 1;
+  repeated Simplex2D cells = 2;
+  repeated int32 markers = 3;
+}
+
+message Mesh3D
+{
+  repeated Vector3D vertices = 1;
+  repeated Simplex3D cells = 2;
+  repeated int32 markers = 3;
+}
+
+message Surface2D
+{
+  repeated Vector2D vertices = 1;
+  repeated Vector2D normals = 2;
+  repeated Simplex1D edges = 3;
+}
+
+message Surface3D
+{
+  repeated Vector3D vertices = 1;
+  repeated Vector3D normals = 2;
+  repeated Simplex2D faces = 3;
+}
+
+//--- Fields ---
+
+message GridField2D
+{
+  Grid2D grid = 1;
+  repeated float values = 2;
+}
+
+message GridField3D
+{
+  Grid3D grid = 1;
+  repeated float values = 2;
+}
+
+message GridVectorField2D
+{
+  Grid2D grid = 1;
+  repeated float values = 2;
+}
+
+message GridVectorField3D
+{
+  Grid3D grid = 1;
+  repeated float values = 2;
+}
+
+message MeshField2D
+{
+  Mesh2D mesh = 1;
+  repeated float values = 2;
+}
+
+message MeshField3D
+{
+  Mesh3D mesh = 1;
+  repeated float values = 2;
+}
+
+message MeshVectorField2D
+{
+  Mesh2D mesh = 1;
+  repeated float values = 2;
+}
+
+message MeshVectorField3D
+{
+  Mesh3D mesh = 1;
+  repeated float values = 2;
+}
+
+message SurfaceField2D
+{
+  Surface2D surface = 1;
+  repeated float values = 2;
+}
+
+message SurfaceField3D
+{
+  Surface3D surface = 1;
+  repeated float values = 2;
+}
+
+message SurfaceVectorField2D
+{
+  Surface2D surface = 1;
+  repeated float values = 2;
+}
+
+message SurfaceVectorField3D
+{
+  Surface3D surface = 1;
+  repeated float values = 2;
+}
+
+//--- City model ---
+
+message PointCloud
+{
+  repeated Vector3D points = 1;
+  BoundingBox2D bounds =  2;
+  repeated uint32 classification = 3;
+  repeated uint32 intensity = 4;
+  repeated uint32 returnNumber = 5;
+  repeated uint32 numReturns = 6;
+  repeated uint32 usedClassifications = 7;
+  Georeference georeference = 8;
+}
+
+message Building
+{
+  string uuid = 1;
+  Polygon footPrint = 2;
+  double height = 3;
+  double groundHeight = 4;
+  PointCloud roofpoints = 5;
+  uint64 error = 6;
+}
+
+message CityModel
+{
+  repeated Building buildings = 1;
+  // string georeference = 2;
+  Georeference georeference = 3;
+}
+
+
+//--- Georeference ---
+
+message Georeference
+{
+  string crs = 1;
+  int32 epsg = 2;
+  double x0 = 3;
+  double y0 = 4;
+}

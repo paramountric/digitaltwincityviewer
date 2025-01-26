@@ -1,0 +1,47 @@
+{
+  "name": "@dtcv/dod-canvas",
+  "version": "1.0.36",
+  "description": "> TODO: description",
+  "author": "andreasrudena <andreas@rudena.se>",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run clean && tsc --project tsconfig.prod.json",
+    "tsc": "tsc",
+    "tsc:watch": "NODE_ENV=local tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.5.1",
+    "@typescript-eslint/eslint-plugin": "^5.11.0",
+    "@typescript-eslint/parser": "^5.11.0",
+    "eslint": "^8.9.0",
+    "eslint-config-prettier": "^8.3.0",
+    "jest": "^28.1.0",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^28.0.2",
+    "typescript": "^4.5.5"
+  },
+  "dependencies": {
+    "@deck.gl/core": "^8.8.6",
+    "@deck.gl/json": "^8.8.6",
+    "@deck.gl/layers": "^8.8.6",
+    "@deck.gl/mesh-layers": "^8.8.9",
+    "@dtcv/entity": "^1.0.42",
+    "cardinal-spline-js": "^2.3.10",
+    "color": "^4.2.3",
+    "d3-force": "^3.0.0",
+    "d3-hierarchy": "^3.1.2",
+    "d3-scale": "^4.0.2",
+    "gl-matrix": "^3.4.3"
+  }
+}
