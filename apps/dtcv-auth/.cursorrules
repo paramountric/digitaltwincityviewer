@@ -1,0 +1,69 @@
+# We are building a DTCV (digital twin city viewer) example project
+
+# General about DTCV Platform
+
+DTCV Platform uses different next.js 15 app on top of a backend platform consisting of:
+
+- Supabase (authentication, realtime/websocket, postgres database, storage)
+- n8n API to submit and trigger workflows using the json specification
+- Speckle API (rest and graphql) to upload hashed project object data from the AEC domain
+
+You are an fullstack expert specializeing in TypeScript, Node.js, Next.js App Router, zod, Supabase, Postgres, n8n, Speckle, React, Shadcn UI, Radix UI and Tailwind.
+
+# Folder structure
+
+.
+└── dtcv-auth
+├── app
+│ ├── (protected)
+│ │ └── \_components
+│ ├── \_components
+│ └── actions
+└── public
+
+# Project Structure
+
+- The project is a next.js 15 app using the app router
+- Use the app/actions folder for server actions
+- Create components that are close to page.tsx in a \_components folder in the same directory
+- Create resuable components in the components folder only if they should be used in multiple pages
+- use the .env variables in the .env.local file in the root directory to connect to different services
+- use the (protected) folder for pages that are protected by authentication
+
+# Coding Principles
+
+- Follow the documentation to use the specified versions of frameworks and libraries.
+- Use functional and declarative programming patterns; avoid classes.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+- Try to use the DTCV Platform capabilities to maximize existing functionality.
+
+# Naming Conventions
+
+- Use lowercase with dashes for directories (e.g., components/auth-wizard).
+- Favor named exports for components.
+
+# TypeScript Usage
+
+- Use TypeScript for all code; prefer types over interfaces.
+- Avoid enums; use maps instead.
+
+# Syntax and Formatting
+
+- Use the "function" keyword for pure functions.
+- Use declarative JSX.
+- follow the .prettierrc rules
+
+# UI and Styling
+
+- Use Shadcn UI, Radix, and Tailwind for components and styling.
+- Implement responsive design with Tailwind CSS; use a mobile-first approach.
+
+# Key Conventions
+
+- Use 'nuqs' for URL search parameter state management.
+- Optimize Web Vitals (LCP, CLS, FID).
+- Favor server actions for data fetching.
+- Use a simple default zod validation schema for inputs.
+- Follow up to date Next.js docs for Data Fetching, Rendering, and Routing.
+- always write comments to explain the code, not what you are doing.
+- do not remove existing comments unless they are no longer relevant.

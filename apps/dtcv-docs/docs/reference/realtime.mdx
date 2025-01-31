@@ -1,0 +1,41 @@
+# Realtime
+
+After using websocket libraries and a custom "hub" (message broker) we tried out the Supabase realtime connection. It works well and is integrated in the database including the use through Supabase client.
+
+We used it to both through notifications as a result of something changing in the database and to do "presence" an emerging phenomenon to track collaborators in the application.
+
+Realtime support is very important in general for digital twin city applications and especially useful for moving geolocated points on the map.
+
+The points could for example represent vehicles, people, objects or comments.
+
+## How to use realtime in DTCV
+
+The easiest way to use realtime in DTCV is to use the Supabase client and read the realtime documentation directly from Supabase.
+
+A quick example on how to use it in the client code:
+
+```ts
+const supabase = createClient();
+
+supabase
+  .channel("my_channel")
+  .on(
+    "postgres_changes",
+    {
+      event: "*",
+      schema: "public",
+      table: "my_table",
+    },
+    (payload) => {
+      console.log(payload);
+    }
+  )
+  .subscribe();
+```
+
+This will subscribe to all changes in the "my_table" table and log the payload to the console.
+
+Intead of subscribing to "postgres_changes" you can also subscribe to a custom channel, for example "presence" events.
+
+This will bypass the database and you can send mouse cursor movements or realtime data from sensors.
+

@@ -1,0 +1,167 @@
+# Authentication
+
+Authentication, authorization and security is essential in digital twin city applications due to multiple actors and stakeholders with varying roles and permissions.
+
+Sometimes we need to extract and expose parts of sensitive datasets, either as aggregated or depersonalized data. The risk of data leakage is high.
+
+In general using existing solutions and principles is the best approach.
+
+The strategy in DTCV Platform is to use well established libraries with good documentation and support to avoid pitfalls for developers that might not know in depth about security.
+
+## OAuth2 and OpenID Connect
+
+OAuth2 and OpenID Connect are industry standards for handling authentication and authorization in web applications.
+
+These protocols provide:
+
+- Flexibility to implement different security levels
+- Integration with multiple authentication providers
+- Support for social logins (Google, LinkedIn, GitHub)
+- JWT token-based authentication for decoupled systems
+
+## How Auth Works in DTCV Platform
+
+The DTCV Platform implements two authentication systems:
+
+1. **Primary Authentication**: Supabase Auth
+2. **Secondary Authentication**: Speckle Server Auth
+
+These systems are synchronized at the application level to maintain the original implementations while enabling seamless updates. The shared database schema ensures data consistency between both systems.
+
+## Supabase Auth
+
+Supabase Auth provides user management and authentication services with:
+
+- JWT token management
+- Row Level Security with PostgREST
+- User management features
+- Multiple authentication methods
+
+Key Features:
+
+1. **Authentication Methods**:
+
+   - Email/Password
+   - Magic Links
+   - Phone/SMS
+   - OAuth providers (Google, Apple, GitHub, etc.)
+   - Anonymous sign-ins
+
+2. **Security Features**:
+
+   - JWT-based authentication
+   - Refresh token rotation
+   - Rate limiting
+   - CAPTCHA support
+   - Password policies
+
+3. **Communication**:
+
+   - Email templates for verification, recovery, etc.
+   - SMS verification
+   - Custom redirect URLs
+
+4. **API Endpoints**:
+   - User management (`/user`)
+   - Authentication (`/token`, `/logout`)
+   - Sign-up and verification (`/signup`, `/verify`)
+   - Password recovery (`/recover`)
+   - OAuth (`/authorize`, `/callback`)
+
+## Speckle Authentication
+
+Speckle also implements OAuth2 and OpenID Connect for authentication, so the developer need to be aware of the session management in both Supabase and Speckle depending on which endpoint is being used in the application.
+
+### Speckle tokens
+
+1. **Access Tokens**
+
+   - Short-lived JWT tokens for API authentication
+   - Contains user info and scope permissions
+   - Used for API requests
+
+2. **Refresh Tokens**
+
+   - Long-lived tokens for obtaining new access tokens
+   - Must be stored securely
+   - Tied to specific application and user
+
+3. **Authorization Codes**
+   - Single-use codes in OAuth2 flow
+   - Temporary and short-lived
+   - Used to exchange for token pairs
+
+## Authentication Flow
+
+1. **Initial Authentication**
+
+   - User authenticates via login endpoint
+   - Server validates credentials
+   - Returns authorization code via redirect
+
+2. **Token Exchange**
+
+   - Application exchanges authorization code for tokens
+   - Requires app credentials (ID and secret)
+   - Returns access and refresh tokens
+
+3. **Token Usage**
+   - Access token used for API requests
+   - Refresh token used to obtain new tokens
+   - Tokens can be revoked via logout
+
+## Available Scopes
+
+Applications request specific permissions through scopes:
+
+- `streams:read` - Read stream data
+- `streams:write` - Modify streams
+- `profile:read` - Access user profile
+- `profile:email` - Access user email
+- `users:read` - Read user data
+- `users:invite` - Invite users
+
+## Security Considerations
+
+1. **Token Storage**
+
+   - Store tokens securely using HTTP-only cookies
+   - Never expose tokens in client-side storage
+   - Implement proper token rotation
+
+2. **Token Validation**
+
+   - Tokens validated on every request
+   - Includes expiration and scope checks
+   - Rate limiting on authentication endpoints
+
+3. **Error Handling**
+   - Invalid credentials (401)
+   - Invalid requests (400)
+   - Rate limiting (429)
+
+## Additional Resources
+
+- [Speckle Documentation](https://speckle.guide/dev/)
+- [API Reference](https://speckle.guide/dev/api.html)
+- [Example Applications](https://speckle.guide/dev/apps-auth.html)
+
+It's important to understand how the authentication works in both systems, and how to sync the data between them.
+
+Also, see the example app showing how to connect to the Speckle server and use the Speckle GraphQL and REST API.
+
+## Custom Signup/Login
+
+When implementing custom authentication flows:
+
+1. User accounts can be synchronized between Supabase and Speckle
+2. Session management remains separate for each system
+3. Database sharing enables flexible implementation approaches
+4. Careful security consideration is required for all endpoints
+
+## Example app.
+
+DTCC platform
+
+- download demo data (or add manually in the DATA_DIR)
+- then run the different commands from core

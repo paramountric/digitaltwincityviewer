@@ -1,0 +1,38 @@
+.docPage {
+  @apply flex;
+}
+
+.docMainContainer {
+  @apply flex-grow max-w-full;
+}
+
+.docItemWrapper {
+  @apply max-w-6xl mx-auto p-4;
+}
+
+.docSidebarContainer {
+  @apply hidden lg:block;
+  will-change: width;
+  width: var(--doc-sidebar-width);
+  margin-top: calc(-1 * var(--ifm-navbar-height));
+}
+
+.docSidebarContainerHidden {
+  @apply w-0;
+}
+
+@media (min-width: 997px) {
+  .docMainContainer {
+    @apply flex-grow-0;
+    width: calc(100% - var(--doc-sidebar-width));
+  }
+
+  .docMainContainerEnhanced {
+    max-width: calc(100% - var(--doc-sidebar-width));
+  }
+
+  .docSidebarContainer {
+    @apply block;
+    margin-top: calc(-1 * var(--ifm-navbar-height));
+  }
+}

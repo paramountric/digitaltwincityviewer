@@ -1,0 +1,62 @@
+# Getting started
+
+The platform is only used if you need backend services like authentication, database, realtime, workflows, Speckle integration, DTCC Core or file storage.
+
+If you only want to develop a viewer frontend application you can skip the platform, and look into the examples on how to use Next.js, React and viewer components.
+
+## Preparations
+
+The DTCV Platform needs a Docker environment to run locally on your machine.
+
+It's recommended to use [OrbStack](https://orbstack.dev/) or [Docker Desktop](https://docs.docker.com/get-docker/) to run the platform inside the virtual machine.
+
+You also need to have Node.js, pnpm and Supabase CLI installed on your machine.
+
+## Run the platform
+
+When the Docker environment is ready, clone the code from the github repository and run
+
+```bash
+pnpm i
+```
+
+You also need to create a .env file in the platform directory. Use the env-example file as a starting point.
+
+Then to start the platform run:
+
+```bash
+pnpm run platform:start
+```
+
+This will take some time but start all services.
+
+:::warning
+Remember to stop the platform after you are finished with development:
+
+```bash
+pnpm run platform:stop
+```
+
+:::
+
+## Run a viewer app
+
+The simplest example is to use the dtcv-auth app. It shows:
+
+- how to create a user and login
+- an example of the viewer component
+- some UI components like a sidebar
+
+To run this example app, first take a look at the environment variables in example.env and make a copy of the file into .env.local.
+
+Then add the environment variables for the platform.
+
+:::info
+The environment variables for the platform is the one you added when you configured the platform above.
+:::
+
+The to start the app run:
+
+```bash
+pnpm run dev:dtcc-auth
+```

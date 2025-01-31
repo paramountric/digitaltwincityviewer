@@ -1,0 +1,23 @@
+# Auth flow
+
+This applications shows a minimal example of the auth flow - to sign up, sign in and sign out.
+
+## Sign up
+
+To sign up, you need to go to the sign up page. It's accessible from the login page, or from the url /signup.
+
+Note that in the example, the app will sync the Supabase user account with the Speckle account so they have the same email and password.
+
+You can also create a migrationfile in SQL to do this automatically as a database function and trigger. But your migration files in the /supabase/migrations folder if using the supabase CLI. Supabase CLI will automatically run the migrations when you start the platform.
+
+There are many ways to cleverly sync the accounts as the database is shared between the different services. Check the database documentation and how the keys, tokens and sessions can be shared to seamlessly sync the accounts if you want to use Speckle.
+
+You can also register the n8n accounts in this procedure, but as n8n is more used as a local workflow and automation tool, you can use the admin user and save the credentials in the .env.local file. This makes it easier to call the n8n API as part of a local service.
+
+## Sign in
+
+To sign in, you need to go to the login page. It's accessible from the sign up page, or from the url /login.
+
+Looking at the code, you can see that the Speckle login is used as a "profile" on top of the Supabase user. They are synced through the Speckle suuid field in the database and the supabase user id. So you can easily find the Speckle user from the Supabase user id.
+
+Finally in the example UI, the avatar button in the top right corner will show the user menu with the sign out option.

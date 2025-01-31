@@ -1,0 +1,59 @@
+# Design and data
+
+Design and Data was a project that was part of the DTCC where we evaluated the use of the DTCV Platform to support the architectural design process.
+
+The project was focused on the use of Speckle to connect the design process to the DTCV Platform and to use the platform to validate the data.
+
+Below, a workflow for translating and validating semantic design data is outlined. The main purpose of such a workflow is to allow project specific semantic schemas to be translated into formalised ontologies to improve interoperability.
+
+Read more about ontology reflections in this intermediate DTCC report material [here](./ontologies)
+
+## Speckle and Data Management
+
+Speckle is highly inspired by the GIT code revision procedures, using terms like "branch" and "commit" to split the data up in partitions and change events. Already taken into consideration that the AEC industry needs a very flexible way to manage diverse datasets, the Speckle server is, just like GIT, agnostic to the data structures and semantics used when "pushing" data to the server. However, since the software used in the industry have their proprietary application layer semantic structures the compatibility when sending data is connected to conversion "kits" that can translate geometric features according to the needed support. Outside of that it's possible to call properties whatever you wish as the objects are encoded from the flexible arbitrary JSON structure and hierarchy into unique hashes on the connector side. Using these principles it's possible to create a highly flexible open source ecosystem where it's possible to create custom connectors, potentially based on the existing ones, to connect to the Speckle server and push the data needed, in the format that other connected systems are using. This can be useful when connecting the design process to a digital twin as the design data representation can be flexible and used as an overlay, also considering that digital twins can use a quite detailed and sophisticated graphical approach.
+
+## Semantic Interoperability
+
+To not include the semantic interoperability layer in the Speckle server is likely a conscious decision. Just as it needs to be possible to swap the geometric descriptions, it should be up to the specific use case what terminology and semantic logic that needs to be used. There are also several ways to take the semantics into account, and just as geometric descriptions are very much "defaulted" into the Speckle implementation the semantic layers could also be aided by a framework to use some defaults. For later stage design the IFC and CityGML standards could be used as defaults as they have some support in the AEC and GIS worlds. However, for early stage design we propose a framework that is specifically created for fast iterations, calculations at a suitable granularity level and computational design.
+
+## Metadata Core
+
+At the core of the interoperability layer is the metadata. The metadata is the description of the data that we send between systems, and being a flexible framework the metadata layer must be described so that different applications can load it and evaluate the meaning and structure of the data. This is required both for interpretation of the incoming data and also for modifying the data and sending it back or further in the system, knowing that the semantics are consistent and the data is valid.
+
+![Open Metadata](/img/open-meta-data.png)
+The OpenMetadata framework is a related example of how to structure data by providing a metadata layer. (Source: https://blog.open-metadata.org/announcing-openmetadata-20399b816e60)
+
+A simple starting point for managing the metadata in speckle is to use a separate branch in the project for saving these descriptions. In this way a receiving application can use this only when needed and otherwise ignore it.
+
+<img src="/img/dod1.png" alt="Speckle Projects" width="70%" />
+The visualisation shows different projects ("streams") loaded from Speckle, each
+with several branches
+
+![Branches and Commits](/img/dod3.png)
+The branches and commits can be expanded to explore further the data points and find details on the semantic connections
+
+![Graph Visualization](/img/dod2.png)
+Using a graph visualisation and analysing the commits from Speckle together with the schema makes it possible to create a workflow where the user can explore inconsistency in the data
+
+## Validator Application
+
+We propose a validator application that is specialised to load, validate and edit the metadata layer. This application can be used both in a manual or automated way when connected to modules in the design process or external digital twin systems.
+
+![Validator App](/img/dod-framework.png)
+A validator app is connected to Speckle and can be used as an optional intermediate entry point in the workflow to improve the semantic data
+
+## Semantic Technologies Integration
+
+As described in the sections about semantic technologies, we can utilise the power of the JSON-LD standard to both hook into semantic web standards and to the Speckle system. Using these principles we can connect the instances to their semantic type, first by defining our custom terminology and then iteratively move the formalisation level up in the semantic layer stack from application level up to existing ontologies. This is by using the proper prefixes.
+
+The semantic types should be defined keeping standard formats in mind. Normally ontologies are not described in JSON, for example TTL (turtle is a popular format) and OWL is often used. We used JTD (JSON Type Definition) to try the interoperability layer, but JTD is a schema standard and not suitable for semantic interoperability. JTD is still useful for validating data payloads in JSON, and so is another common schema standard JSON Schema.
+
+For the semantic definitions sent in the metadata layer we can look into how to describe ontologies in JSON. This is just as flexible as the JSON we can send into Speckle, and exactly how it should be done is outside of the scope of this project. One approach is described (Angele, Angele, 2001, https://ceur-ws.org/Vol-2956/paper8.pdf) that shows how to approach this problem.
+
+## Implementation Notes
+
+It's important to note here that the main connection between the instances in the Speckle data is mapped to the metadata layer using the principle of connecting the formal type definition well described in the standard. It's also worth noting that speckle uses the "@" sign in implementation to mark hierarchical sections for versioning which could conflict with the JSON-LD way of connecting to context.
+
+## Conclusion
+
+Using a system that supports versioning of data and compatibility between software used in the AEC industry, together with a way to connect data to, and store, a metadata definition in a semantic interoperability layer, we can build a framework with capabilities to facilitate a flexible support for the design process. This can be used to connect to any other system that supports proper semantic interoperability using standards. By enabling the semantic connections to be built incrementally we also make sure that the design process is not disrupted and that a validation mechanism can be used when connecting to other modules or systems to make sure that the data is property defined.

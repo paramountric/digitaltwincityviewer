@@ -1,0 +1,99 @@
+# Use cases
+
+A core activity of the Digital Twin City Viewer project has been to work with real world use cases. In this way we have been able to test the current state of problem solving in various city contexts.
+
+Although the research and promise from the industries shows what is possible with technology, the Digital Twin City Viewer takes a more pragmatic approach. We have seen a tremendous amount of "one offs" coming out from game engines and web platforms that shows fancy visualisations. Instead we have been focusing on creating value for a targeted audience and to build the apps with a small amount of resources.
+
+Just as digital twins are rather processes than 3D models, the development of a Digital Twin City Viewer is something that should within a small amount of time and resouces be able to show the what, when, who and how of a certain city process.
+
+Read more about the projects below, and the conclusions we have drawn from them.
+
+## Digital Twin Energy
+
+![Digital Twin Energy](/img/dte-medium.gif)
+
+Digital Twin Energy used the DTCV Platform to provide a full view of residential buildings in the city of Gothenburg and different connected energy scenarios.
+
+This project was created before we connected the backend of DTCV Platform and instead of storing the data in a database we used the tiles to store the data.
+
+Tile generation was then put into the [modules](/docs/core-concepts/modules) of the platform.
+
+To store data in tiles worked quite well initially but as the simulation data grew the performance of the viewer became an issue.
+
+The better solution would be to offload tile data into the database using the PostGIS extension connected to a feature service.
+
+Nevertheless, the project showed that the viewer could load full Gothenburg as part of a process of creating vector tiles continuously as new simulation data was generated.
+
+The project has been featured in following articles:
+
+- Maiullari, D., Nägeli, C., Rudenå, A., Isacson, Å., Dokter, G., Ellenbroek, I., Wallbaum, H., & Thuvander, L. (2024). A Digital Twin for supporting decision-making and stakeholder collaboration in urban decarbonization processes. A participatory development in Gothenburg. _Environment and Planning B: Urban Analytics and City Science_
+
+- Maiullari, D., Nägeli, C., Rudenå, A., & Thuvander, L. (2023). Gothenburg Digital Twin. Modelling and communicating the effect of temperature change scenarios on building demand. _Journal of Physics: Conference Series_, Volume 2600, Energy performance modelling. DOI: 10.1088/1742-6596/2600/3/032006
+
+- Thuvander, L., Maiullari, D., Nägeli, C., Wallbaum, H., & Rudenå, A. (2024). Digital Tvilling för Energi– Effekter av ett varmare klimat och renoveringar på byggnadsbestånd, _Bygg & Teknik_, Nr 2, pp 14-16
+
+There is also a video from the project showing the viewer:
+
+<iframe
+  width="560"
+  height="315"
+  src="https://www.youtube.com/embed/pO2XanyJ9qY"
+  title="Digital Twin Energy Project Video"
+  frameBorder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+></iframe>
+
+## Design and Data
+
+![Design and Data](/img/design-and-data.gif)
+
+This project examined the design process from architectural practice connected to digital twin cities.
+
+Speckle was tested and integreated into the platform to allow for collaboration between the architects in their native tools.
+
+A main part of the viewer was to add a layer of semantic metadata to the data flow to allow for validation and quality control.
+
+The problem is that collaborators add custom properties to data without following a common schema. Using a validation pipeline with schemas based on ontologies we could ensure consistency and quality of the data from a semantic perspective.
+
+Read more about the results in this intermediate DTCC report material [here](./design-and-data)
+
+Read more about ontology reflections [here](./ontologies)
+
+## Redap
+
+![Redap](/img/redap-medium.gif)
+
+Redap https://research.chalmers.se/en/project/9534 is a project that was finalised before the start of the DTCV Project but where the data could be used to enhance the visualisation of the building stock energy analysis using vector tiles.
+
+This enabled the authors of the project to show the building stock energy analysis on different levels of detail by zooming in and out on the map.
+
+## 3CIM
+
+![3CIM](/img/trecim.png)
+
+3CIM is a project external to DTCC but with a related topic: 3D city models. CityGML is a standard for 3D city models and the TRECIM project is aimed to create an extension of the standard to support national needs of data exchange for city planning.
+
+DTCV was featured in the project as a custom viewer for the CityGML data, and in the following article: https://www.mdpi.com/2106500
+
+CityGML and CityJSON is challenging to implement but is a comprehensive data model for 3D city models.
+
+Read more about the project in the following link: https://www.smartbuilt.se/projekt/informationsinfrastruktur/3cim/
+
+## Urban Mining
+
+![Digital Twin Energy](/img/urban2.gif)
+
+The project shows how to use 3D tiles with overlays for coloring buildings based on their material composition.
+
+The 3D tiles provides a realistic imagery that allows to clearly see the building typology.
+
+The building stocks in cities are valuable banks of material and optimisation can lead to significant savings instead of demolition and put to landfill.
+
+## DTCC Platform
+
+Several test viewers and applications have been created to connect to the DTCC Platform.
+
+The DTCC Platform is developing continuously as part of the next phase of DTCC (2025-2029).
+
+Read more about the our efforts [here](/docs/dtcc/dtcc-intro)

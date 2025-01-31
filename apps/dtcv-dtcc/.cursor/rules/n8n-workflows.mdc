@@ -1,0 +1,326 @@
+---
+description: Helpful for working with workflows and progress when writing code logic
+globs: *.tsx, *.ts, *.json
+---
+
+# N8N Workflow Compatibility Guide
+
+We use same format as n8n to hook into the workflow specification and track progress in the app like this.
+
+This guide provides all the necessary components and structures to implement a custom progress tracking system that integrates with n8n's execution model. You can use these patterns to build your own progress tracking and visualization system while maintaining compatibility with n8n's internal execution flow.
+
+## 1. Core Progress Data Structure
+
+N8N tracks workflow execution progress through several key interfaces and data structures:
+
+### 1.1 Basic Progress Data
+\```typescript
+interface IWorkflowExecutionProgress {
+  workflowId: string;
+  executionId: string;
+  status: ExecutionStatus; // 'running' | 'waiting' | 'finished' | 'error'
+  startTime: Date;
+  currentNode?: string;
+  lastNodeExecuted?: string;
+  runData: {
+    [nodeName: string]: {
+      status: ExecutionStatus;
+      startTime: number;
+      executionTime?: number;
+      data?: ITaskData;
+    }[];
+  };
+}
+\```
+
+### 1.2 Execution Data Storage
+\```typescript
+interface IExecutionData {
+  startData: Record<string, any>;
+  resultData: {
+    runData: Record<string, ITaskData[]>;
+    lastNodeExecuted?: string;
+  };
+  executionData: {
+    contextData: Record<string, any>;
+    metadata: Record<string, any>;
+    nodeExecutionStack: any[];
+    waitingExecution: Record<string, any>;
+    waitingExecutionSource: Record<string, any>;
+  };
+}
+\```
+
+## 2. Progress Tracking System
+
+### 2.1 Progress Events
+\```typescript
+type ExecutionEvents = 
+  | 'executionStarted'    // When workflow starts
+  | 'executionWaiting'    // When workflow is waiting
+  | 'nodeExecuteBefore'   // Before node execution
+  | 'nodeExecuteAfter'    // After node execution
+  | 'executionFinished'   // When workflow completes
+  | 'executionRecovered'  // When execution recovers from error
+\```
+
+### 2.2 Progress Event Data
+\```typescript
+interface ExecutionEventData {
+  executionStarted: {
+    executionId: string;
+    mode: WorkflowExecuteMode;
+    startedAt: Date;
+    workflowId: string;
+    workflowName?: string;
+  };
+  nodeExecuteBefore: {
+    executionId: string;
+    nodeName: string;
+  };
+  nodeExecuteAfter: {
+    executionId: string;
+    nodeName: string;
+    data: ITaskData;
+  };
+  executionFinished: {
+    executionId: string;
+    workflowId: string;
+    status: ExecutionStatus;
+  };
+}
+\```
+
+## 3. Implementation Steps
+
+### 3.1 Progress Tracker
+\```typescript
+class WorkflowProgressTracker {
+  private executions: Map<string, IWorkflowExecutionProgress>;
+
+  async trackExecution(executionId: string): Promise<void> {
+    const progress: IWorkflowExecutionProgress = {
+      executionId,
+      status: 'running',
+      startTime: new Date(),
+      runData: {},
+    };
+    this.executions.set(executionId, progress);
+  }
+
+  async updateNodeProgress(
+    executionId: string, 
+    nodeName: string, 
+    data: ITaskData
+  ): Promise<void> {
+    const execution = this.executions.get(executionId);
+    if (!execution) return;
+
+    if (!execution.runData[nodeName]) {
+      execution.runData[nodeName] = [];
+    }
+
+    execution.runData[nodeName].push({
+      status: data.executionStatus,
+      startTime: Date.now(),
+      data: data,
+    });
+
+    execution.lastNodeExecuted = nodeName;
+    this.executions.set(executionId, execution);
+  }
+
+  async getProgress(executionId: string): Promise<IWorkflowExecutionProgress | null> {
+    return this.executions.get(executionId) || null;
+  }
+}
+\```
+
+### 3.2 Progress Metrics
+\```typescript
+class ProgressMetrics {
+  static calculateCompletion(
+    progress: IWorkflowExecutionProgress, 
+    totalNodes: number
+  ): number {
+    const completedNodes = Object.keys(progress.runData).length;
+    return (completedNodes / totalNodes) * 100;
+  }
+
+  static getExecutionTime(
+    startTime: Date, 
+    endTime?: Date
+  ): { duration: number; formatted: string } {
+    const end = endTime || new Date();
+    const duration = end.getTime() - startTime.getTime();
+    return {
+      duration,
+      formatted: this.formatDuration(duration),
+    };
+  }
+
+  private static formatDuration(ms: number): string {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes % 60}m`;
+    }
+    if (minutes > 0) {
+      return `${minutes}m ${seconds % 60}s`;
+    }
+    return `${seconds}s`;
+  }
+}
+\```
+
+### 3.3 Progress Storage
+\```typescript
+interface IProgressStorage {
+  saveProgress(executionId: string, progress: IWorkflowExecutionProgress): Promise<void>;
+  getProgress(executionId: string): Promise<IWorkflowExecutionProgress | null>;
+  updateNodeStatus(
+    executionId: string, 
+    nodeName: string, 
+    status: ExecutionStatus
+  ): Promise<void>;
+  finalizeExecution(
+    executionId: string, 
+    status: ExecutionStatus
+  ): Promise<void>;
+}
+
+class DatabaseProgressStorage implements IProgressStorage {
+  async saveProgress(
+    executionId: string, 
+    progress: IWorkflowExecutionProgress
+  ): Promise<void> {
+    await db.executions.update({
+      where: { id: executionId },
+      data: {
+        status: progress.status,
+        progress: progress,
+        lastNodeExecuted: progress.lastNodeExecuted,
+      },
+    });
+  }
+
+  // Implement other interface methods...
+}
+\```
+
+## 4. Event Handling
+
+### 4.1 Event Subscribers
+\```typescript
+class WorkflowEventHandler {
+  constructor(
+    private progressTracker: WorkflowProgressTracker,
+    private storage: IProgressStorage
+  ) {}
+
+  async handleExecutionStarted(data: ExecutionEventData['executionStarted']): Promise<void> {
+    await this.progressTracker.trackExecution(data.executionId);
+    await this.storage.saveProgress(data.executionId, {
+      workflowId: data.workflowId,
+      executionId: data.executionId,
+      status: 'running',
+      startTime: data.startedAt,
+      runData: {},
+    });
+  }
+
+  async handleNodeExecute(data: ExecutionEventData['nodeExecuteAfter']): Promise<void> {
+    await this.progressTracker.updateNodeProgress(
+      data.executionId,
+      data.nodeName,
+      data.data
+    );
+    await this.storage.updateNodeStatus(
+      data.executionId,
+      data.nodeName,
+      data.data.executionStatus
+    );
+  }
+
+  async handleExecutionFinished(data: ExecutionEventData['executionFinished']): Promise<void> {
+    await this.storage.finalizeExecution(data.executionId, data.status);
+  }
+}
+\```
+
+### 4.2 Error Handling
+\```typescript
+interface ExecutionError {
+  nodeName: string;
+  error: {
+    message: string;
+    stack?: string;
+  };
+  timestamp: Date;
+}
+
+class ErrorHandler {
+  async handleExecutionError(
+    executionId: string, 
+    error: ExecutionError
+  ): Promise<void> {
+    await this.progressTracker.updateNodeProgress(executionId, error.nodeName, {
+      executionStatus: 'error',
+      error: error.error,
+    });
+
+    await this.storage.updateNodeStatus(
+      executionId,
+      error.nodeName,
+      'error'
+    );
+
+    await this.notificationSystem.sendErrorNotification({
+      title: `Error in workflow execution ${executionId}`,
+      message: error.error.message,
+      node: error.nodeName,
+      timestamp: error.timestamp,
+    });
+  }
+}
+\```
+
+## 5. Usage Example
+
+\```typescript
+// Initialize components
+const progressTracker = new WorkflowProgressTracker();
+const storage = new DatabaseProgressStorage();
+const eventHandler = new WorkflowEventHandler(progressTracker, storage);
+
+// Subscribe to workflow events
+workflowEventBus.on('executionStarted', async (data) => {
+  await eventHandler.handleExecutionStarted(data);
+});
+
+workflowEventBus.on('nodeExecuteAfter', async (data) => {
+  await eventHandler.handleNodeExecute(data);
+});
+
+workflowEventBus.on('executionFinished', async (data) => {
+  await eventHandler.handleExecutionFinished(data);
+});
+
+// Get progress for visualization
+async function getWorkflowProgress(executionId: string) {
+  const progress = await progressTracker.getProgress(executionId);
+  if (!progress) return null;
+
+  return {
+    completion: ProgressMetrics.calculateCompletion(progress, totalNodes),
+    executionTime: ProgressMetrics.getExecutionTime(progress.startTime),
+    currentNode: progress.lastNodeExecuted,
+    status: progress.status,
+    nodeStatuses: progress.runData,
+  };
+}
+\```
+
+

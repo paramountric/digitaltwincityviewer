@@ -1,0 +1,17 @@
+.mainWrapper {
+  flex: 1 0 auto;
+  background: hsl(var(--background));
+}
+
+html {
+  @apply bg-background;
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-background text-foreground min-h-screen;
+}
+
+#__docusaurus {
+  @apply min-h-screen flex flex-col;
+}

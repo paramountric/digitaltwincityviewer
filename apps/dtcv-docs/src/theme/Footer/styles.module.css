@@ -1,0 +1,27 @@
+.footer {
+  @apply bg-background border-t border-border py-12;
+}
+
+.footerLogoLink {
+  @apply opacity-80 hover:opacity-100 transition-opacity;
+}
+
+.footerLinks {
+  @apply flex flex-wrap justify-between mb-8;
+}
+
+.footerLinkItem {
+  @apply flex-none mb-4 w-1/2 lg:w-auto;
+}
+
+.footerLinkTitle {
+  @apply text-foreground font-semibold mb-4;
+}
+
+.footerLink {
+  @apply text-muted-foreground hover:text-foreground transition-colors;
+}
+
+.footerCopyright {
+  @apply text-muted-foreground text-sm;
+}

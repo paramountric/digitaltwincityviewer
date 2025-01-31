@@ -1,0 +1,61 @@
+# Explore the database
+
+With the platform running, visit the Studio application at `http://localhost:8000`.
+
+In the "Table editor" you can see the public schema in the database, and this should be filled with the Speckle tables:
+
+Note that there is a users table, which should be synced to the Supabase auth table users.
+
+Speckle also has its "streams" table, which is analogous to "projects" - you can use this as project if you like the object model of Speckle.
+
+You can see that the n8n schema is also in the dropdown:
+
+The main entity of n8n is the "workflows" table, which contains the workflow definitions. You can upload these workflows through the [link]API and then trigger them through your application logic.
+
+It is recommended to study the Supabase, Speckle and n8n documentntaion carefully to get the best out of the DTCV Platform.
+
+## Database schema
+
+This visualisation helps to navigate the database schema which you can access at `http://localhost:8000` and by clicking on the "Database" menu item.
+
+As schemas related to several platforms are used in parallell in the same database instance, it is important to get familiar with the schema setup.
+
+Unfortunately we did not find a way to put Speckle schemas into its own postgres schema, so they are currently in the public schema.
+
+This means that you have to be careful when creating tables in the public schema, as you might overwrite existing Speckle schema structure.
+
+## Database principles
+
+### User mananagement
+
+Supabase keeps the main auth in its own auth schema. You can find the base user here as internal user settings.
+
+The user is synced to the users table in the public schema, provided by Speckle.
+
+To sync the Supabase auth user to a custom user in the public schema is a common approach, and is usually done by a trigger function as the base user is created. This will automatically then create a user in the public schema.
+
+You can use the supabase/migrations folder to add this kind of logic, but we kept the logic in the application code itself. See the example in the [link]auth documentation.
+
+This is not considered as an equally stable solution, but is good for prototyping and have a clear overview of how the services are interconnected.
+
+N8n is threated a bit differently. The user management is setup during installation of the platform and the credentials are stored in the .env file.
+
+So this is more similar to how the admin user is managed in Supabase and means that you can upload and manage workflows programmatically in n8n without creating and additional user.
+
+However, just like the Speckle user is syned to the Supabase user, it is possible to sync additional n8n users by using the n8n API.
+
+We did not use the DTCV Platform to expose the workflows no code / low code interface for external users - only for the admin or "facilitator user". The additional users have access to the workflows through the n8n API as triggered by the custom DTCV App.
+
+Read more about the n8n integration in the [link]n8n documentation.
+
+### Project management
+
+Normally you need the concept of a "project" to be able to manage different and separated datasets as connected to collaborators in a real world project or organisation.
+
+As the Speckle Server uses the concept of a "stream" to manage data, we usually create a "project" table in the public schema.
+
+This entity can be connected to one or several Speckle streams according to your application needs.
+
+If you only need Speckle functionality, you can use the streams table directly as a project, as adding an extra table for project would be redundant.
+
+You can also check out Speckle's offering as they have a separate "automate" functionality and a powerful viewer.

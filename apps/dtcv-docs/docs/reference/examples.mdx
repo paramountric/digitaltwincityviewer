@@ -1,0 +1,47 @@
+# Examples
+
+The use case projects are available in the `/projects` directory. This folder also contains different test applications that are used to develop and test the DTCV Platform.
+
+Unfortunately, the data used for most projects is not available for public access and in some cases the apps are not maintained and need to be updated to work.
+
+The idea is to break these applications down into smaller example apps as the DTCV Platform is being used in more projects. Some examples of this can be found in the `/apps` directory.
+
+## DTCC Core example
+
+The DTCC Core example apps show how to setup a workflow to trigger different functions of the DTCC Core
+
+## Register the workflow
+
+To register the workflow, you need to create a workflow in the n8n instance.
+
+There is an example workflow file in the repository that is triggered in the UI from the first button in the left sidebar:
+
+NOTE: the n8n credentials need to be defined in the .env.local file. You will decide the credentials when you sign up first time as admin user through the n8n endpoint: http://localhost:5678 (by default).
+
+The admin user is fully under your control when you create DTCV apps. You can create this user automatically or with environment variables from the docker compose files.
+
+In this example, the code will create an API key through the n8n API and use that to import the workflow specification.
+
+## Check the workflow
+
+After the workflow is registered, you can check it in the workflow editor:
+
+## Trigger the workflow
+
+Now you can trigger the workflow from the button in the left sidebar.
+
+## Check the workflow
+
+After the workflow is triggered, you can check the progress in the UI.
+
+(picture of progress)
+
+This workflow uses a demo example of the DTCC Platform. As a first step, the workflow will download the data and put it into a shared volume:
+
+(picture of the volume)
+
+## Visualise the output
+
+You can see the mesh in the viewport after processing is done and the output is uploaded in the DTCV Platform:
+
+NOTE: This is an example that shows a simple workflow, yet provides many advanced features. You should read the documentation of the different services to understand how to use them, and explore the many possibilites the DTCV Platform provides.

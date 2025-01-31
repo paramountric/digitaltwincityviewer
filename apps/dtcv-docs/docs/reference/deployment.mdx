@@ -1,0 +1,32 @@
+# Deployment
+
+The DTCV projects has been deployed successfully in a Kubernetes cluster and this also the recommended approach for production. However the platform has grown and we are now promoting a [local first workflow](core-concepts/database-concepts.mdx).
+
+This means we are not yet supporting Kubernetes as a deployment option officially although some progress has been made to run the full platform in a Kubernetes cluster.
+
+Instead we rely on the Docker Compose file to run the platform locally. This setup can be used both for development and for custom workflows, for example using n8n, automation tasks, geometry processing and connection to desktop applications.
+
+The recommendation is to use your own Docker setup for deployment online. Use the docker files in this repo, as well as the documentation on the third party services. For simple applications using Vercel and Supabase hosting can be enough.
+
+Supabase has a community setup for Kubernetes: https://github.com/supabase-community/supabase-kubernetes
+
+Speckle has documentation here: https://speckle.guide/dev/server-setup-k8s.html
+
+n8n has documentation here: https://github.com/n8n-io/n8n-hosting/tree/main/kubernetes
+
+## Running the platform locally
+
+There are three approaches to run the DTCV platform locally:
+
+1. Using supabase CLI and then run docker compose
+   The services are connected in the same docker network and env vars need to be synced.
+
+2. Using docker compose files for all services
+   More integrated approach but without valuable functionality of the supabase CLI.
+
+3. Create a custom CLI
+   This work is in the /cli folder but requires maintenance and configuration to start all the services from the Go code.
+
+For now we keep it simple, maintainable and modular - and run the Supabase CLI first and then the docker compose files.
+
+Read the [getting started guide](reference/getting-started.mdx) for examples on how to run the platform and applications.

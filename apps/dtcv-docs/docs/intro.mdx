@@ -1,0 +1,64 @@
+---
+sidebar_position: 1
+slug: /
+title: Introduction
+description: Welcome to the documentation
+---
+
+import IconExternalLink from "@site/src/components/IconExternalLink";
+
+# Introduction
+
+The Digital Twin City Viewer (DTCV) is a project started in 2022 as part of the Chalmers Competence Center Digital Twin City Centre. It was a initally planned to be a viewer to provide user-centric workflows for digital twin cities build on top of the [DTCC Platform <IconExternalLink />](https://github.com/DTCC-Platform/DTCC-Platform).
+
+**After several [use cases](/docs/project-results/use-cases) working together with various stakeholders and trying to develop and adapt one viewer for all use cases, we realised that a better approach would be to have a viewer component library that is highly configurable and modular instead.**
+
+:::tip
+The world of web development is moving at an incredible speed - technical dept is one of the biggest problems in the web based digital twin city viewer development.
+:::
+
+On top of that, digital twin cities is an area of high diversity in use cases and data sources. It is simply not possible to have one viewer that can support all use cases and data sources.
+
+## The New Approach
+
+Midway in to the DTCV project we saw that creating all functionality from scratch would sure be stimulating, but a waste of time and resources. To balance this we decided to leverage few popular open source platforms and libraries to boost the capabilities of the viewer. We also saw that the DTCC Platform cannot support all backend functionality needed for flexible and diverse viewer use cases.
+
+As many other platforms out there we decided upon an opinionated set of libraries and tools to boost the capabilities of the viewer. The strategy is to go with the open source community and simply use common libraries and tools, although the selection is a cause of inevitable debate.
+
+Already in the end of the project 2024 we can see that AI driven software creation is becoming norm and common platforms and libraries are used to greater extent to boost productivity.
+
+:::tip
+The hypothesis is that creating fast user interfaces dynamically with the use of AI will be the future of quick data insights, even in the case of digital twin cities.
+:::
+
+The aim of this project is to generate user-centric interfaces as convenient as possible to give broad access to right-time data in the contect of digital twin cities.
+
+Outside of the connection to the DTCC Platform it gives the viewer access to Postgres/PostGIS, realtime capabilties, workflow engine and AEC collaboration.
+
+[Read more about the platform architecture and stack here](/docs/core-concepts/platform).
+
+## Results
+
+During the project we have worked with several real world use cases to showcase the capabilities of the platform:
+
+- DTE (Digital Twin Energy - a large scale visualisation of full Gothenburg city massive energy simulations)
+- DOD (Design and Data - collaborative data flows between architects using Speckle)
+- TRECIM (collaboration with external project to standardise 3D City Models using CityGML extensions)
+- and more... See [all use cases](/docs/project-results/use-cases)
+
+The core concepts of the platform are:
+
+- Monorepo structure to create many small apps reusing core packages
+- A common and stable database solution with GIS capabilities
+- Real-time communication using websockets
+- Workflow engine to create automations and connection to any service
+- Integration Speckle, Supabase, n8n and DTCC Core
+- Read more about the [core concepts](/docs/core-concepts/customisation)
+
+Features are:
+
+- Map visualisation (using DeckGL)
+- Real-time communication (using websockets/Supabase)
+- Database with GIS capabilities (using Postgres/PostGIS/Supabase)
+- Workflow and automations (using n8n)
+- Integration with tools in the AEC sector such as Grasshopper, Revit, Blender, etc (using Speckle)

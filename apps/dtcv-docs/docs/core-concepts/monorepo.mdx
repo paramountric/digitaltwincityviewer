@@ -1,0 +1,29 @@
+# Monorepo
+
+The DTCV project initially used lerna to manage a monorepo structure, but later moved to [turborepo](https://turbo.build/) and [pnpm](https://pnpm.io/) as package manager.
+
+The monorepo code structure is a great way to manage the codebase and the dependencies between the different applications and makes a powerful combination with the app creation process for digital twin city apps.
+
+The basic idea is to gradually move out valuable application logic that is suitable as library code and put that into the packages directory.
+
+The principles can be futher explored in the [Turborepo documentation](https://turbo.build/repo).
+
+DTCV is following the default setup of Turborepo as far as possible.
+
+Read more about the [module system](/docs/core-concepts/modules) here.
+
+## Version maintenacne
+
+A tricky part of managing common packages between different applications is to keep the versions in sync between the different applications.
+
+As soon as the module code is changed, there is a risk that the version is not updated in all the applications that depend on it.
+
+:::tip
+The solution to consistent module dependencies is to publish packages to NPM and use the version number from there as your application has a release cycle.
+:::
+
+Use a tool like [changesets](https://github.com/changesets/changesets) to manage the version changes and create a changelog for each release.
+
+This means that your applications will always use the same version of the module and the developement in the source code can continue without breaking your existing applications.
+
+Another approach is to use git branches for each application if that is more suitable for your development routines and project structure.

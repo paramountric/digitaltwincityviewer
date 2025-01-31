@@ -1,0 +1,34 @@
+# File upload
+
+To manage data and upload files is crucial for many workflows connecting both human workforce and system integrations with automation to provide updates to the digital twin.
+
+The DTCV Platform has two main ways to deal with files:
+
+- using the Speckle Server to store and manage files
+- using the Supabase Storage to store and manage files
+
+Both solutions are connected to the database, but in different ways. So it's important to understand how the files are stored and managed in the database, and the pros and cons of each solution.
+
+It's also easy to setup a custom solution for file upload, the integration with the database is fully optional.
+
+## Using the Speckle Server
+
+The Speckle Server uses AWS S3 straight off to upload files, and MinIO as a local alternative.
+
+This is the preferred way to dealning with files in transparent way.
+
+## Using the Supabase Storage
+
+The Supabase Storage initially created a custom solution for file upload, but they later on added the ability to use AWS S3 protocol.
+
+The integration to S3 is still hosted with control from within the platform, but it's possible to use MinIO as a local alternative.
+
+We see Supabase Storage as a stable and well documented alternative to the Speckle Server, but it is not as transparent and requires more manual work to set up.
+
+## How to use file upload in the DTCV Platform
+
+The easiest way to use file upload is to use the way that the developers are most familiar with.
+
+Outside of the two built-in solutions, a custom solution can be implemented in parallel or a third party solution can be used.
+
+The recommended way is to use Speckle or Supabase solutions and carefully read the documentation for respective solution.

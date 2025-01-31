@@ -1,0 +1,85 @@
+# Platform
+
+The DTCV Platform is a set of open source platforms, libraries and tools that can be used to back a powerful [viewer](/docs/core-concepts/viewer).
+
+We moved from completely missing backend support to adopting a selection of well supported options that are well maintained and documented by the open source community.
+
+The original platform acting as viewer backend is [DTCC Platform](https://github.com/DTCC-Platform/DTCC-Platform). This is an inevitable choice as it supports bootstrapping a project with generated 3D surroundings provided by National Geodata (Sweden).
+
+Later as we needed support of database application backend we added [Supabase](https://supabase.com/) to run by default when starting the platform.
+
+Supabase also has a good realtime connection so we could use that for realtime communication instead of a separate websocket server.
+
+Since we already used Speckle in one of the projects (Design and Data) we synced the Speckle platform to Supabase as they are using the same database (Postgres).
+
+As part of the DTCV project we needed the user-centric flow to follow all the data processes and pipelines that happened in the digital twin city. After quite some work to create this from scratch we saw that an open source flow builder was growing at incredible speed and gaining popularity: n8n.
+
+After some efforts we managned to integrate all these platforms into a single runtime and database instance. This gives and incredible amount of power for the viewer to be able to run project specific implementations quickly an to the point.
+
+Below is a more indepth motivation of the choices we made and what you can do with a viewer connected to the DTCV platform.
+
+You can read more about the viewer background [here](/docs/core-concepts/viewer).
+
+## Database
+
+The database of choice is [Postgres](https://www.postgresql.org/) - provided by [Supabase](https://supabase.com/).
+
+Supabase is an open source postgres provider development platform that has grown an increable amount of traction towards the end of our project. They support an easy way to manage databases with a studio interface, and on top of that provide realtime connection and storage capabilities connected to the database.
+
+The choise of Postgres provided by Supabase gives us PostGIS (excellent for digital twin cities) and vector embeddings extensions - with good documentation and online examples. This is an excellent and fundamental foundation for AI driven digital twin city applications.
+
+Running the platform starts the database automatically and all you have to do is to provide the environment variables and connect to the Supabase API locally.
+
+## Realtime
+
+The easiest way to implement realtime communication in a web viewer is to use a websocket implementation. We initially used a separate "hub" to act as message broker, a pattern often seen in digital twin platforms.
+
+However, Supabase has this built in, and connected to the database. This is a great way to both use "single source of truth" when the events are triggered through the viewers from database changes, but also "presence" such as follow the cursors of participants collaborating in the viewer.
+
+The platform can therefore use the same client to connect to the database and get realtime updates to the viewers.
+
+Read more about realtime [here](https://supabase.com/realtime).
+
+## Integration with other tools
+
+In the Design and Data project we integrated Speckle with a custom viewer to collaborate on semenatic data on city planning projects.
+
+[Speckle](https://www.speckle.systems/) is a platform for collaboration in AEC (Architecture, Engineering and Construction) and provides a methodology to create transports between different tools and a central server.
+
+We realised that many of these tools (Revit, Rhino, Grasshopper, etc) are useful in the context of digital twin cities. On top of that, [QGIS](https://qgis.org/) (very useful open source tool for map data) is already supported by Speckle.
+
+Could we use Speckle to feed data from these tools into a digital twin city?
+
+Yes! Due to the flexible data agnostic design of Speckle we can integrate the Speckle server as option when running the platform.
+
+By sharing the address to your backend instance, collaborators can push data into the DTCV platform, which you then can "checkout" in the viewer.
+
+This works because we could integrate the Speckle server database schema into the same database as the rest of the DTCV platform. Then the Speckle server runtime can be started as a separate service alongside the DTCV database.
+
+The combination of DTCC base geometry and design through Speckle is alone a very powerful tool for the evolution of digital twin cities!
+
+## Processes of digital twin cities
+
+As a major insight in working with digital twin city applications we realised that the twin city is built on processes and not static data.
+
+Updates are always in flux, and automation is crucial to avoid manual tedious maintenance that is unsustainable in the long run.
+
+The question of pipelines and flows have been more and more important as the project progressed to make sure the twin is a digital replica and not a "one off". We have seen examples of digital twin city implementations that are outdated even before they are finished.
+
+Workflow engines and ETL (Extract, Transform, Load) tools has become a key part of digital twin implementations to make sure fresh data is used to update the artefacts and assets in the twin city.
+
+After trying some initial implementations we saw that this comes with a quite large implementation, deployment and maintenance burden. Especially as the platform becomes dependent on devops compentence.
+
+After gaining a great deal of popularity we found a good trade off in using [n8n](https://n8n.io/) as a lighter version of a workflow engine, but with the power of providing a flow builder user interface. On top of that, the support for integrations are extensive.
+
+This also goes in line with the idea of the platform to be a single runtime and database instance, more targeted towards a specific project and the processes related to it.
+
+Read more about the [automation](/docs/core-concepts/automation) in the documentation.
+
+## Conclusion
+
+The DTCV Platform is meant to be a quick setup of an application that is powerful and flexible to support a vast amount of processes and pipelines needed for digital twin cities.
+
+The power lies in the prototyping capacity and the ability to validate functionality quickly in test projects and to great extent in real world projects.
+
+The [viewer](/docs/core-concepts/viewer) is capable of connect to the different services of the platform following various examples and documentation both from this website and the external documentation of the different tools.

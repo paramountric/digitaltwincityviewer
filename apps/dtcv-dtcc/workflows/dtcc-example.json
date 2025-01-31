@@ -1,0 +1,118 @@
+{
+  "name": "DTCC Process",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "trigger-dtcc",
+        "options": {},
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "authentication": "none",
+        "httpMethod": "POST"
+      },
+      "id": "webhook-node-1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://dtcc-core:8000/download/demo",
+        "sendBody": false,
+        "options": {},
+        "responseFormat": "json"
+      },
+      "id": "http-node-1",
+      "name": "Download Demo Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://dtcc-core:8000/build",
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "config",
+              "value": "={{ $json }}"
+            }
+          ]
+        },
+        "options": {},
+        "responseFormat": "json"
+      },
+      "id": "http-node-2",
+      "name": "DTCC API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://dtcc-core:8000/convert",
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "data_directory",
+              "value": "={{ $json.data_directory }}"
+            }
+          ]
+        },
+        "options": {},
+        "responseFormat": "json"
+      },
+      "id": "http-node-3",
+      "name": "Convert to GLB",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [850, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Download Demo Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Demo Data": {
+      "main": [
+        [
+          {
+            "node": "DTCC API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DTCC API": {
+      "main": [
+        [
+          {
+            "node": "Convert to GLB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

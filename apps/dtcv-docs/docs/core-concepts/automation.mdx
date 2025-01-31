@@ -1,0 +1,63 @@
+# Automation
+
+:::info
+Digital Twins are defined by their processes of keeping a digital replica that represents the real world.
+
+To keep the replica up to date is one of the main challenges, and various data pipelines and ETL processes are usually created to continuously push raw data from the source into the digital twin.
+:::
+
+As example, in the [Digital Twin Energy project](/docs/project-results/use-cases) we needed to keep vector tiles with embedded simulation data updated after new simulation results were available.
+
+We needed to run a process in the [vector tile generation module](/docs/core-concepts/modules) to perform this long running task and deploy this to be available in the viewer.
+
+After initially trying to invent a worflow system for DTCV, we realised that the best solution was to look into existing tools and services.
+
+The best solution for stable long running tasks is to use horizontal scaling service management provided by [Kubernetes](https://kubernetes.io/). The [Argo Workflows project](https://argoproj.github.io/workflows/) is an excellent choice for this, and that was also our initial solution for the DTCV platform.
+
+However, like many software projects the available developer resources will be a natural limitation. Not only our own DTCV project, but likely any project building on top of the DTCV platform.
+
+The strategy has been to swich focus from running everything in Kubernetes to running in a Docker environment locally and promote a [local first workflow](/docs/core-concepts/local-first).
+
+This is to avoid the need of Kubernetes setup which is demanding and requires expertise.
+
+Instead we decided to go for a popular and well supported no-code / low-code solution: [n8n](https://n8n.io/).
+
+n8n is a workflow automation tool that is open source and free to use (not commercially). It is a popular choice for building automation pipelines and has a large community.
+
+:::warning
+Note that automation should be deployed in a scalable way if provided to your users. However, a lot of the automation tasks can be done by users installing the DTCV platform locally.
+:::
+
+n8n is not setup with workers currently, but this is quite easy to setup using the Docker examples from n8n. Instead we are running the workflows on the same instance which is OK for local use.
+
+## What can you do with automation in DTCV?
+
+The main process of workflow creation is to expose different services in the platform that can be triggered by REST API calls.
+
+After setting up each service and functionality separately, you define a workflow specification which is a sequence of steps that are executed in the order they are defined. Each step has a well defined input and output.
+
+:::tip
+The concept of web hooks is often used to trigger the workflows.
+:::
+
+Looking at n8n support for integrations, the possibilities are almost endless if you combine this with Speckle connections, DTCC Core and your own custom services.
+
+You can automate anything!
+
+## How to work with automated workflows in DTCV
+
+The need of automation in DTCV comes from the need of running the processes of DTCC Platform for data pipelines and simulation. See the [DTCC example](/docs/examples/example-dtcc-core) for more information.
+
+After different attempts to specify workflows following different workflow specification languages, we have settled on using a custom YAML format that is easy to prototype and then convert to n8n workflow specifications.
+
+You can easily create your own workflow specifications or converters to supply flexible automation capabilities to your users, then convert to n8n JSON.
+
+### Specification using YAML
+
+The custom YAML format is designed for non technical users to be able to create workflows and for quick prototyping.
+
+It is based on Open API specification as REST is the most common way to use the nodes in the workflow.
+
+On top of this we have added some custom attributes, and the recommendation is to use your own YAML format and parser to convert this to n8n JSON as you build your set of workflows.
+
+You can also skip the YAML step and directly use the n8n JSON format.

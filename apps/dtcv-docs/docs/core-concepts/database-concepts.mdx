@@ -1,0 +1,33 @@
+# Database
+
+DTCV Platform was initially designed without a backend in mind. It was all about the viewer component and providing support the different kind of data needed for visualisation in digital twin cities.
+
+As the viewer was starting to be used in real world projects, it became clear that a backend was needed to support authorisation and data management.
+
+Almost all projects we did as part of the DTCV project contained sensitive or protected data.
+
+So the choice was to use Next.js as a default application setup to be able to use a quick and easy application backend setup with custom auth implementation. This is because Next.js is an integrated React front end and a Node.js backend in one framework.
+
+As the DTCV Platform should not focus on backend (initially) we needed a fast way to preserve and manage sessions and persist some data during development.
+
+Supabase has grown fast to become a very popular open source postgres provider development platform. Mostly because of the ease of use, good documentation and it's extra bells and whistles.
+
+With the choice of Supabase we could optionally and very fast spin up a postgres database with authentication, REST api and a powerful Studio interface.
+
+As the Supabase added realtime capabilities and file storage as part of their open source platform, the choice of using it as backend for the DTCV viewer started the idea to actually create the full platform for creating fullstack apps and not just a viewer.
+
+## How Supabase is connected to DTCV Platform.
+
+Supabase is started as part of a chain of Docker Compose commands. Read more in the [getting started guide](reference/getting-started.mdx).
+
+A command starts all the platform services, including a postgres instance and the helper services provided by Supabase.
+
+Now the database URL and user credentials are available according to the .env file (you have to set this up yourself according to the instructions), and can be used to connect to from your application using the Supabase client libraries. Supabase provides excellent documentation and functionality on how to connect both from server and client side, as well as setting up auth.
+
+Note that if you need to use Speckle Server you need to provide separate login and session management according to our auth integration explained in the [auth documentation](reference/auth.mdx).
+
+## Speckle and n8n integration
+
+A the DTCV Platform is starting up it will check the database for the presence of the Speckle and n8n schemas. If they are not found it will create them.
+
+Read more in the [explore database section](reference/explore-db.mdx).

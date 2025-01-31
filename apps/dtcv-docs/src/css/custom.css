@@ -1,0 +1,160 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #2d7eae;
+  --ifm-color-primary-dark: #2d7eae;
+  --ifm-color-primary-darker: #1e5474;
+  --ifm-color-primary-darkest: #0f2a3a;
+  --ifm-color-primary-light: #5ba3cd;
+  --ifm-color-primary-lighter: #99c6e0;
+  --ifm-color-primary-lightest: #c2ddec;
+  --ifm-code-font-size: 95%;
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme="dark"] {
+  /* Primary brand color and its variations */
+  --ifm-color-primary: #4cc9ff;
+  --ifm-color-primary-dark: #33c0ff;
+  --ifm-color-primary-darker: #1ab8ff;
+  --ifm-color-primary-darkest: #0099e6;
+  --ifm-color-primary-light: #66d2ff;
+  --ifm-color-primary-lighter: #7fd7ff;
+  --ifm-color-primary-lightest: #b3e7ff;
+
+  /* Background colors */
+  --ifm-background-color: #0a0b0e;
+  --ifm-background-surface-color: #121316;
+
+  /* Text colors */
+  --ifm-font-color-base: #e3e3e3;
+  --ifm-heading-color: #ffffff;
+
+  /* Menu and sidebar colors */
+  --ifm-menu-color: #e3e3e3;
+  --ifm-menu-color-active: #4cc9ff;
+  --ifm-menu-color-background-active: rgba(76, 201, 255, 0.1);
+
+  /* Code blocks */
+  --ifm-code-background: #1a1b1e;
+  --ifm-code-color: #e3e3e3;
+
+  /* Links */
+  --ifm-link-color: #4cc9ff;
+  --ifm-link-hover-color: #66d2ff;
+
+  /* Borders and separators */
+  --ifm-toc-border-color: #2a2b2e;
+  --ifm-color-emphasis-300: #2a2b2e;
+}
+
+/* Navbar styling */
+[data-theme="dark"] .navbar {
+  background-color: rgba(10, 11, 14, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--ifm-toc-border-color);
+}
+
+/* Navbar items */
+[data-theme="dark"] .navbar__link {
+  color: var(--ifm-font-color-base);
+}
+
+[data-theme="dark"] .navbar__link:hover {
+  color: var(--ifm-color-primary);
+}
+
+/* Footer styling */
+[data-theme="dark"] .footer {
+  background-color: var(--ifm-background-surface-color);
+  border-top: 1px solid var(--ifm-toc-border-color);
+}
+
+[data-theme="dark"] .footer__link-item {
+  color: var(--ifm-font-color-base);
+  opacity: 0.8;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+[data-theme="dark"] .footer__link-item:hover {
+  color: var(--ifm-color-primary);
+  opacity: 1;
+  text-decoration: none;
+}
+
+[data-theme="dark"] .footer__title {
+  color: var(--ifm-heading-color);
+}
+
+/* Sidebar styling */
+[data-theme="dark"] .menu {
+  background-color: transparent;
+}
+
+[data-theme="dark"] .menu__link {
+  color: var(--ifm-menu-color);
+}
+
+[data-theme="dark"] .menu__link--active {
+  color: var(--ifm-menu-color-active);
+  background-color: var(--ifm-menu-color-background-active);
+}
+
+[data-theme="dark"] .menu__link:hover {
+  color: var(--ifm-color-primary);
+}
+
+/* Table of contents */
+[data-theme="dark"] .table-of-contents {
+  border-left: 1px solid var(--ifm-toc-border-color);
+}
+
+[data-theme="dark"] .table-of-contents__link:hover {
+  color: var(--ifm-color-primary);
+}
+
+/* Hero section */
+.hero__title,
+.hero__subtitle {
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(76, 201, 255, 0.5),
+    0 0 40px rgba(76, 201, 255, 0.3);
+  background: none;
+  padding: 20px;
+}
+
+.hero__title:hover,
+.hero__subtitle:hover {
+  text-shadow: 0 0 30px rgba(76, 201, 255, 0.8),
+    0 0 50px rgba(76, 201, 255, 0.5);
+}
+
+/* Buttons */
+[data-theme="dark"] .button {
+  background-color: rgba(76, 201, 255, 0.1);
+  color: var(--ifm-color-primary);
+  border: 1px solid var(--ifm-color-primary);
+  transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .button:hover {
+  background-color: var(--ifm-color-primary);
+  color: var(--ifm-background-color);
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 0 20px rgba(76, 201, 255, 0.4);
+}
+
+/* Code blocks */
+[data-theme="dark"] .docusaurus-highlight-code-line {
+  background-color: rgba(76, 201, 255, 0.1);
+  border-left: 3px solid var(--ifm-color-primary);
+}
+
+.theme-doc-sidebar-container .sidebar_mhZE {
+  height: 100% !important;
+}

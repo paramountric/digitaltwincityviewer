@@ -1,0 +1,13 @@
+# Workflows
+
+To understand the potential and benfits of using n8n in the DTCV Platform, the best way is to visit the [n8n website](https://n8n.io).
+
+The DTCV Platform starts the n8n main service and makes it available to the application you are building. Note that we are currently not starting any worker node.
+
+Services such as the Postgres database, Redis cache and MinIO storage are integrated in the DTCV Platform. So these services are shared between the n8n service and Supabase, Speckle and potentially your own application backend.
+
+The settings for the n8n service are stored in the .env file and the Docker Compose file available in the platform directory.
+
+:::warning
+To run the DTCV Platform as a central SaaS solution is not feasible without a lot of expertise in Kubernetes and scalable system setup. The idea is to run it isolated and in a controlled environment. Some of the services might temporarily need a lot of your server hardware resources, so be sure to monitor this.
+:::

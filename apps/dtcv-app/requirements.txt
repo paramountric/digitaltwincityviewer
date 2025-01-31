@@ -1,0 +1,308 @@
+TypeScript code to init accounts:
+
+'use server';
+
+import { createClient } from '@/utils/supabase/server';
+
+const SERVICES = {
+  speckle: process.env.SPECKLE_URL || 'http://localhost:54330',
+  n8n: process.env.N8N_URL || 'http://localhost:5678',
+} as const;
+
+// const N8N_EMAIL = process.env.N8N_EMAIL || 'admin@digitaltwincityviewer.com';
+// const N8N_PASSWORD = process.env.N8N_PASSWORD || 'Very_secret_password_1234567890';
+
+export async function signup(
+  email: string,
+  password: string,
+  userData: {
+    name?: string;
+    emailRedirectTo?: string;
+  }
+) {
+  const name = userData.name || email.split('@')[0];
+
+  try {
+    const registerUrl = new URL(`${SERVICES.speckle}/auth/local/register`);
+    registerUrl.searchParams.append('challenge', 'init_admin');
+
+    const speckleResponse = await fetch(registerUrl.toString(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      redirect: 'follow',
+      body: JSON.stringify({
+        email,
+        password,
+        name,
+        company: '',
+      }),
+    });
+
+    if (!speckleResponse.ok) {
+      console.error('Speckle registration failed:', await speckleResponse.text());
+      return { error: 'Speckle registration failed' };
+    }
+
+    // if (speckleResponse.redirected) {
+    //   const redirectUrl = new URL(speckleResponse.url);
+    //   const accessCode = redirectUrl.searchParams.get('access_code');
+    //   console.log('Speckle access code:', accessCode);
+    // }
+
+    const client = createClient();
+    const { data: supabaseData, error: supabaseError } = await client.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name },
+        emailRedirectTo: userData.emailRedirectTo,
+      },
+    });
+
+    if (supabaseError) {
+      return { error: supabaseError.message };
+    }
+
+    // const n8nSetupResponse = await fetch(`${SERVICES.n8n}/rest/owner/setup`, {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({
+    //     email: N8N_EMAIL,
+    //     password: N8N_PASSWORD,
+    //     firstName: 'ADMIN',
+    //     lastName: 'USER',
+    //   }),
+    // });
+
+    // if (!n8nSetupResponse.ok) {
+    //   const errorText = await n8nSetupResponse.text();
+    //   console.error('n8n setup failed:', errorText);
+    //   return { error: `n8n setup failed: ${errorText}` };
+    // }
+
+    // const authCookie = n8nSetupResponse.headers.get('set-cookie');
+    // if (!authCookie) {
+    //   return { error: 'Failed to get n8n authentication token' };
+    // }
+
+    // const surveyResponse = await fetch(`${SERVICES.n8n}/rest/me/survey`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     Cookie: authCookie,
+    //   },
+    //   body: JSON.stringify({
+    //     personalizationAnswers: {
+    //       codingSkill: 'none',
+    //       companySize: 'none',
+    //       companyRole: 'none',
+    //       nodeTypes: [],
+    //       automationGoal: '',
+    //       otherGoals: [],
+    //       email: false,
+    //       firstName: name,
+    //       lastName: name,
+    //     },
+    //     version: 'v4',
+    //     personalization_survey_submitted_at: new Date().toISOString(),
+    //     personalization_survey_n8n_version: '1.0.0',
+    //   }),
+    // });
+
+    // if (!surveyResponse.ok) {
+    //   console.error('n8n survey submission failed:', await surveyResponse.text());
+    //   return { error: 'n8n setup completion failed' };
+    // }
+
+    return {
+      data: { email },
+      error: null,
+    };
+  } catch (error) {
+    console.error('Signup error:', error);
+    return { error: 'Registration failed' };
+  }
+}
+
+
+SQL to sync supabase and speckle user:
+
+CREATE OR REPLACE FUNCTION public.sync_auth_user_to_speckle()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    UPDATE public.users 
+    SET suuid = NEW.id
+    WHERE email = NEW.email;
+
+    RETURN NEW;
+END;
+$$;
+
+-- Create triggers
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW
+    EXECUTE FUNCTION public.sync_auth_user_to_speckle();
+
+Go code to init n8n:
+
+maxAttempts := 30
+for i := 0; i < maxAttempts; i++ {
+    container, err := cli.ContainerInspect(ctx, utils.N8nId)
+    if err != nil {
+        fmt.Printf("Failed to inspect container: %v\n", err)
+        time.Sleep(2 * time.Second)
+        continue
+    }
+
+    fmt.Printf("Container status: %s, Health: %s\n", container.State.Status, container.State.Health.Status)
+    
+    if container.State.Status == "running" {
+        if container.State.Health.Status == "healthy" || container.State.Health.Status == "none" {
+            fmt.Println("Container is running and healthy, proceeding with setup...")
+            break
+        }
+        if container.State.Health.Status == "unhealthy" {
+            fmt.Printf("Last health check: %s\n", container.State.Health.Log[len(container.State.Health.Log)-1].Output)
+        }
+    }
+
+    if i == maxAttempts-1 {
+        return fmt.Errorf("container failed to become healthy after %d attempts", maxAttempts)
+    }
+
+    fmt.Printf("Waiting for container to be ready (attempt %d/%d)...\n", i+1, maxAttempts)
+    time.Sleep(2 * time.Second)
+}
+
+fmt.Println("Container is ready, waiting additional 10 seconds for full initialization...")
+p.Send(utils.StatusMsg("Waiting 10 seconds for n8n to fully initialize migrations..."))
+
+time.Sleep(10 * time.Second)
+
+fmt.Println("Checking n8n owner status...")
+p.Send(utils.StatusMsg("Checking if n8n owner is already setup..."))
+
+// Check owner status first
+checkUrl := fmt.Sprintf("http://localhost:%d/api/v1/owner", utils.Config.N8n.Port)
+checkResp, err := http.Get(checkUrl)
+if err != nil {
+    fmt.Printf("Failed to check owner status: %v\n", err)
+    return errors.Errorf("failed to check owner status: %w", err)
+}
+defer checkResp.Body.Close()
+
+// If we get a 200, owner is already set up
+if checkResp.StatusCode == http.StatusOK {
+    fmt.Println("n8n owner already configured, skipping setup")
+    p.Send(utils.StatusMsg("n8n owner already configured, skipping setup"))
+    return nil
+}
+
+// If we get here, we need to create the owner
+fmt.Println("Starting n8n owner user setup...")
+p.Send(utils.StatusMsg("Attempting to create n8n owner user..."))
+
+// Create owner user
+n8nUrl := fmt.Sprintf("http://localhost:%d/rest/owner/setup", utils.Config.N8n.Port)
+fmt.Printf("Sending setup request to: %s\n", n8nUrl)
+payload := strings.NewReader(`{
+    "email": "admin@digitaltwincityviewer.com",
+    "firstName": "ADMIN",
+    "lastName": "USER",
+    "password": "Very_secret_password_1234567890"
+}`)
+
+req, err := http.NewRequestWithContext(ctx, "POST", n8nUrl, payload)
+if err != nil {
+    fmt.Printf("Failed to create request: %v\n", err)
+    p.Send(utils.StatusMsg(fmt.Sprintf("Failed to create request: %v", err)))
+    return errors.Errorf("failed to create request: %w", err)
+}
+
+// Set required headers
+req.Header.Add("Content-Type", "application/json")
+
+fmt.Printf("Sending request to %s\n", n8nUrl)
+resp, err := http.DefaultClient.Do(req)
+if err != nil {
+    fmt.Printf("Request failed: %v\n", err)
+    p.Send(utils.StatusMsg(fmt.Sprintf("Request failed: %v", err)))
+    return err
+}
+
+if resp.StatusCode == http.StatusOK {
+    fmt.Println("Owner setup successful, getting auth cookie...")
+    // Get auth cookie for survey submission
+    authCookie := resp.Header.Get("Set-Cookie")
+    if authCookie == "" {
+        resp.Body.Close()
+        fmt.Println("Failed to get authentication token")
+        p.Send(utils.StatusMsg("Failed to get authentication token"))
+        return errors.New("failed to get n8n authentication token")
+    }
+
+    fmt.Println("Submitting setup survey...")
+    p.Send(utils.StatusMsg("Submitting setup survey..."))
+    // Submit survey to complete setup - using localhost instead of container name
+    surveyUrl := fmt.Sprintf("http://localhost:%d/rest/me/survey", utils.Config.N8n.Port)
+    surveyPayload := strings.NewReader(`{
+        "personalizationAnswers": {
+            "codingSkill": "none",
+            "companySize": "none",
+            "companyRole": "none",
+            "nodeTypes": [],
+            "automationGoal": "",
+            "otherGoals": []
+        },
+        "version": "v4",
+        "personalization_survey_submitted_at": "` + time.Now().Format(time.RFC3339) + `",
+        "personalization_survey_n8n_version": "1.0.0"
+    }`)
+
+    surveyReq, err := http.NewRequestWithContext(ctx, "POST", surveyUrl, surveyPayload)
+    if err != nil {
+        resp.Body.Close()
+        fmt.Printf("Failed to create survey request: %v\n", err)
+        p.Send(utils.StatusMsg(fmt.Sprintf("Failed to create survey request: %v", err)))
+        return errors.Errorf("failed to create survey request: %w", err)
+    }
+
+    surveyReq.Header.Add("Content-Type", "application/json")
+    surveyReq.Header.Add("Cookie", authCookie)
+
+    fmt.Printf("Sending survey request to: %s\n", surveyUrl)
+    surveyResp, err := http.DefaultClient.Do(surveyReq)
+    if err != nil {
+        resp.Body.Close()
+        fmt.Printf("Failed to submit survey: %v\n", err)
+        p.Send(utils.StatusMsg(fmt.Sprintf("Failed to submit survey: %v", err)))
+        return errors.Errorf("failed to submit n8n survey: %w", err)
+    }
+
+    if surveyResp.StatusCode != http.StatusOK {
+        body, _ := io.ReadAll(surveyResp.Body)
+        surveyResp.Body.Close()
+        resp.Body.Close()
+        fmt.Printf("Survey submission failed with status %d: %s\n", surveyResp.StatusCode, string(body))
+        p.Send(utils.StatusMsg(fmt.Sprintf("Survey submission failed with status %d: %s", surveyResp.StatusCode, string(body))))
+        return errors.Errorf("failed to complete n8n setup: %s", string(body))
+    }
+
+    fmt.Println("n8n setup completed successfully!")
+    p.Send(utils.StatusMsg("n8n setup completed successfully!"))
+    surveyResp.Body.Close()
+    resp.Body.Close()
+} else {
+    body, _ := io.ReadAll(resp.Body)
+    resp.Body.Close()
+    fmt.Printf("Setup failed with status %d: %s\n", resp.StatusCode, string(body))
+    return errors.Errorf("failed to create n8n owner user: %s", string(body))
+}

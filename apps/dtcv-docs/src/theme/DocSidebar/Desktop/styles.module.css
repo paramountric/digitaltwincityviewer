@@ -1,0 +1,42 @@
+.sidebar {
+  max-height: 100vh;
+  position: sticky;
+  top: 0;
+  padding-top: var(--ifm-navbar-height);
+  width: var(--doc-sidebar-width);
+  background: hsl(var(--sidebar-background));
+  border-right: 1px solid hsl(var(--sidebar-border));
+}
+
+.sidebarWithHideableNavbar {
+  padding-top: 0;
+}
+
+.sidebarHidden {
+  display: none;
+}
+
+.menu {
+  padding: 1rem;
+}
+
+/* Override default Docusaurus styles */
+:global(.theme-doc-sidebar-menu) {
+  @apply text-sidebar-foreground;
+}
+
+:global(.menu__link) {
+  @apply text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent;
+}
+
+:global(.menu__link--active) {
+  @apply bg-sidebar-accent text-sidebar-primary;
+}
+
+:global(.menu__list-item-collapsible:hover) {
+  @apply bg-sidebar-accent;
+}
+
+:global(.menu__link:hover) {
+  @apply text-sidebar-primary;
+}

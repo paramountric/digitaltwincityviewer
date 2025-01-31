@@ -1,0 +1,13 @@
+# Speckle
+
+To understand the potential and benfits of using Speckle in the DTCV Platform, the best way is to visit the [Speckle website](https://speckle.systems).
+
+The DTCV Platform starts the Speckle Server and makes it available to the application you are building.
+
+Services such as the Postgres database, Redis cache and MinIO storage are integrated in the DTCV Platform. So these services are shared between the Speckle Server and Supabase, n8n and potentially your own application backend.
+
+The settings for the Speckle Server are stored in the .env file and the Docker Compose file available in the platform directory.
+
+:::warning
+To run the DTCV Platform as a central SaaS solution is not feasible without a lot of expertise in Kubernetes and scalable system setup. The idea is to run it isolated and in a controlled environment. Some of the services might temporarily need a lot of your server hardware resources, so be sure to monitor this.
+:::

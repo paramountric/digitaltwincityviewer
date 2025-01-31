@@ -1,0 +1,63 @@
+# Modules
+
+The module system in DTCV is based on JS/TS modules in relation to the package system of NPM and a monorepo setup.
+
+The idea is to create reusable modules in the `packages` directory for the applications with many of the common library functions needed for digital twin cities.
+
+This initially included several "not invented here" efforts to learn about the formats and how the geometry and geospatial data should be processed.
+
+At a later stage most of the modules were replaced by existing NPM packages, especially from the [OpenVisualisation](https://www.openvisualization.org/) ecosystem of powerful libraries that emerged in the last couple of years.
+
+## Modules
+
+In the packages directory it is possible to add resuable modules and import them into different applications.
+
+Examples of modules developed in DTCV are:
+
+```packages/
+├── citygml/ # CityGML format support
+├── cityjson/ # CityJSON format support
+├── citymodel/ # City model abstractions
+├── convert/ # Common conversion functions
+├── entity/ # Entity abstraction definitions
+├── geojson/ # GeoJSON format support
+├── indicators/ # Common indicators for data analysis
+├── osm/ # OpenStreetMap integration
+├── projection/ # Map projections
+├── vectortiles/ # Vector tile creation
+└── viewer/ # Common viewer wrapper
+```
+
+Here is a link to the [modules on github](https://github.com/paramountric/digitaltwincityviewer/tree/main/packages).
+
+## Valuable module resources
+
+There are some resources that are useful when developing applications for digital twin cities:
+
+- deck.gl - Core visualization framework for large-scale geospatial data with WebGL-powered layers
+- @math.gl/core - Basic math classes for geospatial and 3D use cases
+- @math.gl/geospatial - Ellipsoidal math for WGS84 coordinates
+- @math.gl/web-mercator - 3D Web Mercator projections
+- @math.gl/polygon - Polygon math and geospatial cutting
+- @math.gl/sun - Solar position calculations
+- @math.gl/dggs-geohash - GeoHash token operations
+- @math.gl/dggs-quadkey - QuadKey token operations
+- @math.gl/dggs-s2 - S2 token operations
+- @loaders.gl/csv - CSV streaming parser
+- @loaders.gl/json - JSON and GeoJSON parsing
+- @loaders.gl/kml - KML file parser
+- @loaders.gl/wkt - WKT/WKB format parser
+- @loaders.gl/mvt - Mapbox Vector Tiles loader
+- @loaders.gl/las - LAS/LAZ point cloud parser
+- @loaders.gl/obj - OBJ 3D model loader
+- @loaders.gl/terrain - Terrain data loader
+- @loaders.gl/3d-tiles - 3D Tiles format loader
+- @loaders.gl/i3s - I3S format loader
+
+You can use the available react abstraction on top of MaplibreGL (or actually a Mapbox wrapper)
+
+- react-map-gl - React components for MaplibreGLintegration
+
+Also read up on the amazing Luma library that we started to build DTCV on top of:
+
+- luma.gl - Low-level WebGL2 library for custom visualizations
