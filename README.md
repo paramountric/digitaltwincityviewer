@@ -7,7 +7,7 @@
 The Digital Twin City Viewer is developed as part of the DTCC Platform, an open-source platform for the
 exploration of digital twins for cities.
 
-However, it's also designed to be used standalone or as a part of any other system setup that uses open standards for data exchange - DTCV Platform.
+The project is also designed to be used standalone or as a part of other system setups that uses open standards for data exchange in the context of geospatial digital twins.
 
 **Read more at the [project website](https://digitaltwincityviewer.com)**
 
@@ -17,7 +17,7 @@ The DTCV project has been developed between 2022-2024 connected to projects in D
 
 The results have been shaped into a platform for prototyping and testing web applications for digital twin processes - DTCV Platform.
 
-Follow-up projects are planned and updates will eventually end up here as information.
+Follow-up projects are planned and updates will eventually end up here as new information.
 
 For further updates, see the commits to the repository branches and use the issue tracker for reporting bugs and feature requests.
 
