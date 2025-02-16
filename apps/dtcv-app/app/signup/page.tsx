@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Canvas } from '../_components/canvas';
-import { createClient } from '@/utils/supabase/client';
 import { signup } from '@/actions/signup';
 
 export default function SignUp() {

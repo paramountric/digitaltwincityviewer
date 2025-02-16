@@ -2,6 +2,15 @@
 
 import { SERVICES } from '@/utils/constants';
 import { createClient } from '@/utils/supabase/server';
+import { z } from 'zod';
+
+const passwordSchema = z
+  .string()
+  .min(8)
+  .regex(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+    'Password must contain at least one uppercase letter, one lowercase letter, and one number'
+  );
 
 export async function signup(
   email: string,
@@ -11,6 +20,12 @@ export async function signup(
     emailRedirectTo?: string;
   }
 ) {
+  // Validate password
+  const passwordValidation = passwordSchema.safeParse(password);
+  if (!passwordValidation.success) {
+    return { error: passwordValidation.error.errors[0].message };
+  }
+
   const name = userData.name || email.split('@')[0];
 
   // this is showing the logic of connecting supabase and speckle user
@@ -52,6 +67,7 @@ export async function signup(
     });
 
     if (supabaseError) {
+      console.error('Supabase signup error:', supabaseError);
       return { error: supabaseError.message };
     }
 

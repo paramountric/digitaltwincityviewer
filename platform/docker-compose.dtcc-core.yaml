@@ -1,3 +1,8 @@
+networks:
+  dtcv-platform:
+    external: true
+    name: supabase_network_dtcv-platform
+
 services:
   dtcc-core:
     container_name: dtcc-core
@@ -32,12 +37,5 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     env_file:
       - .env
-    depends_on:
-      db:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-
-networks:
-  default:
-    name: dtcv_network
+    networks:
+      - dtcv-platform

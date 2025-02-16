@@ -1,3 +1,8 @@
+networks:
+  dtcv-platform:
+    external: true
+    name: supabase_network_dtcv-platform
+
 services:
   n8n:
     container_name: dtcv-n8n
@@ -54,11 +59,7 @@ services:
       retries: 5
       start_period: 30s
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_healthy
-
-networks:
-  default:
-    name: dtcv_network
+    networks:
+      - dtcv-platform

@@ -15,17 +15,6 @@ import { Feature } from '@/viewport';
 import { InteractionProvider } from '@/context/interaction-context';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
-const geistSans = localFont({
-  src: './fonts/GeistVF.woff',
-  variable: '--font-geist-sans',
-  weight: '100 900',
-});
-const geistMono = localFont({
-  src: './fonts/GeistMonoVF.woff',
-  variable: '--font-geist-mono',
-  weight: '100 900',
-});
-
 export const metadata: Metadata = {
   title: 'Digital Twin City Viewer',
   description: 'Digital Twin City Viewer',
@@ -76,14 +65,12 @@ export default async function RootLayout({
       message = 'User not found';
     }
   } catch (error) {
-    // console.error('Root layout error:', error);
+    console.error('Root layout error:', error);
   }
 
   return (
     <html lang="en" className="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-[hsl(222.2,84%,1%)] text-black dark:text-white`}
-      >
+      <body className={`bg-white dark:bg-[hsl(222.2,84%,1%)] text-black dark:text-white`}>
         <AppProvider
           user={userWithProfile}
           project={project}

@@ -3,11 +3,13 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "platform:start": "docker compose -f ./platform/docker-compose.common.yaml -f ./platform/docker-compose.supabase.yaml -f ./platform/docker-compose.s3.yaml -f ./platform/docker-compose.speckle.yaml -f ./platform/docker-compose.n8n.yaml -f ./platform/docker-compose.dtcc-core.yaml up -d",
-    "platform:stop": "docker compose -f ./platform/docker-compose.common.yaml -f ./platform/docker-compose.supabase.yaml -f ./platform/docker-compose.s3.yaml -f ./platform/docker-compose.speckle.yaml -f ./platform/docker-compose.n8n.yaml -f ./platform/docker-compose.dtcc-core.yaml down",
+    "platform:start": "npx supabase start && echo 'Waiting for Supabase...' && sleep 3 && docker compose -f platform/docker-compose.common.yaml -f platform/docker-compose.n8n.yaml -f platform/docker-compose.speckle.yaml --env-file platform/.env up -d",
+    "platform:start-dtcc": "npx supabase start && echo 'Waiting for Supabase...' && sleep 3 && docker compose -f platform/docker-compose.common.yaml -f platform/docker-compose.n8n.yaml -f platform/docker-compose.speckle.yaml --env-file platform/.env up -d",
+    "platform:stop": "npx supabase stop && docker compose -f platform/docker-compose.common.yaml -f platform/docker-compose.dtcc-core.yaml -f platform/docker-compose.n8n.yaml -f platform/docker-compose.speckle.yaml down",
+    "platform:stop-dtcc": "npx supabase stop && docker compose -f platform/docker-compose.common.yaml -f platform/docker-compose.dtcc-core.yaml -f platform/docker-compose.n8n.yaml -f platform/docker-compose.speckle.yaml down",
     "dev": "turbo run dev",
-    "dev:dtcv": "turbo run dev --filter dtcv...",
-    "dev:dtcc": "turbo run dev --filter dtcc...",
+    "dev:dtcv": "turbo run dev --filter dtcv-app...",
+    "dev:dtcc": "turbo run dev --filter dtcc-app...",
     "dev:docs": "turbo run dev --filter docs...",
     "dev:start": "./cli/supabase start",
     "dev:stop": "./cli/supabase stop",
@@ -23,7 +25,8 @@
     "packages/*"
   ],
   "devDependencies": {
-    "turbo": "^2.1.3"
+    "turbo": "^2.1.3",
+    "supabase": "^2.9.6"
   },
   "packageManager": "pnpm@9.4.0",
   "engines": {
